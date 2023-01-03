@@ -11,7 +11,7 @@ from pathlib import Path
 from time import sleep
 try:
     from nonebot.plugin import PluginMetadata
-    __version__ = "0.0.4a1"
+    __version__ = "0.0.6"
     __plugin_meta__ = PluginMetadata(
         name="求生服务器操作",
         description='群内对服务器的简单操作',
