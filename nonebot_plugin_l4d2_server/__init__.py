@@ -1,4 +1,4 @@
-﻿import nonebot,os,zipfile
+import nonebot,os,zipfile
 from nonebot import on_notice
 from nonebot.adapters.onebot.v11 import NoticeEvent,Bot
 from nonebot.permission import SUPERUSER
@@ -16,7 +16,7 @@ try:
         usage='求生服务器操作指令',
         extra={
             "version": __version__,
-            "author": "Umamusume-Agnes-Digital <735803792@qq.com>",
+            "author": "Umamusume-Agnes-Digital <Z735803792@163.com>",
         },
     )
 except:

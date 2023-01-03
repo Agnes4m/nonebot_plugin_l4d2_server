@@ -11,17 +11,37 @@
 
 </div>
 
-
 ## 安装
     1、Download zip
     2、git clone https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server
 
 ## env配置
-  求生地图路径      l4_file = "/path/your/server/left4dead2/addons
+| 配置项 | 必填 | 默认值 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| "l4_file" | 是 | "/home/ubuntu/l4d2/coop/left4dead2/addons" | 输入求生服务器的绝对路径 |
 
 ## 功能
   上传地图：私发压缩包zip/7z文件给机器人，就可以直接上传地图到服务器了
 
+## 📝 TODO LIST
+
+- [ ] 支持直接下载vpk地图文件
+- [ ] 支持查询并删除服务器已有地图文件
+- [ ] 支持查询服务器状态
+- [ ] 支持多服务器切换
+
+
+##  更新日志
+
+<details>
+<summary>展开/收起</summary>
+
+### 0.0.1
+
+- 插件初次发布，可私聊添加地图
+
+</details>
+
 ## 已测试环境
-  win10 python3.9
+  win10 python3.9 \n
   ubuntu20.04 python3.9
