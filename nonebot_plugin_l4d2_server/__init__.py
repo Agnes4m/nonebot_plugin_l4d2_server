@@ -1,4 +1,6 @@
-import nonebot,os,zipfile
+import nonebot
+import os
+import zipfile
 from nonebot import on_notice
 from nonebot.adapters.onebot.v11 import NoticeEvent,Bot
 from nonebot.permission import SUPERUSER

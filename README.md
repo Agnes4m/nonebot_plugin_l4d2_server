@@ -12,8 +12,10 @@
 </div>
 
 ## 安装
-    1、Download zip
-    2、git clone https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server
+    1、nb plugin install nonebot_plugin_l4d2_server
+    2、pip install nonebot_plugin_l4d2_server
+    3、Download zip
+
 
 ## env配置
 | 配置项 | 必填 | 默认值 | 说明 |
