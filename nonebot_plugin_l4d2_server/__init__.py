@@ -1,5 +1,5 @@
 import os
-import zipfile
+from zipfile import ZipFile
 from nonebot import on_notice,on_command
 from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent
 from nonebot.permission import SUPERUSER
@@ -16,7 +16,7 @@ except:
     pass
 try:
     from nonebot.plugin import PluginMetadata
-    __version__ = "0.0.9"
+    __version__ = "0.1.0"
     __plugin_meta__ = PluginMetadata(
         name="求生服务器操作",
         description='群内对服务器的简单操作',
@@ -61,14 +61,14 @@ async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
 
     # 获取文件名
     zip_dir = os.path.dirname(down_file)
-    logger.info('文件名为：' + zip_dir)
+    logger.info('文件名为：' + name)
     original_vpk_files = []
     original_vpk_files = get_vpk(original_vpk_files,map_path)
-    
+    logger.info(original_vpk_files)
     # 解压
     if name.endswith('.zip'):
         await up.send('zip文件已下载,正在解压')
-        with zipfile.ZipFile(down_file, 'r') as zip_ref:
+        with support_gbk(ZipFile(down_file, 'r')) as zip_ref:
             zip_ref.extractall(zip_dir)
         os.remove(down_file)
     elif name.endswith('.7z'):
@@ -78,10 +78,11 @@ async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
         os.remove(down_file)
     elif name.endswith('.vpk'):
         await up.send('vpk文件已下载')
-        sleep(1)
+        
+    sleep(1)
     extracted_vpk_files = []
     extracted_vpk_files = get_vpk(extracted_vpk_files,map_path)
-    
+    logger.info(extracted_vpk_files)
     # 获取新增vpk文件的list
     vpk_files = list(set(extracted_vpk_files) - set(original_vpk_files))
     if vpk_files:
