@@ -1,11 +1,11 @@
 import os
 import zipfile
-from nonebot import on_notice
-from nonebot.adapters.onebot.v11 import NoticeEvent,Bot
+from nonebot import on_notice,on_command
+from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-import py7zlib
+import patoolib
 from pathlib import Path
 from time import sleep
 from .config import *
@@ -27,10 +27,10 @@ except:
 
 
 up = on_notice()
-
+find_vpk = on_command("map",aliases={"求生地图","求生2地图"},priority=20,block=True)
 
 @up.handle()
-async def download(bot:Bot ,event: NoticeEvent, matcher: Matcher):
+async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
     # 检查下载路径是否存在
     if not Path(l4_file).exists():
         await up.finish("你填写的路径不存在辣")
@@ -58,37 +58,28 @@ async def download(bot:Bot ,event: NoticeEvent, matcher: Matcher):
     # 获取文件名
     zip_dir = os.path.dirname(down_file)
     original_vpk_files = []
-    for file in os.listdir(map_path):
-        if file.endswith('.vpk'):
-            original_vpk_files.append(file)
+    original_vpk_files = get_vpk(original_vpk_files,map_path)
     # 解压
     if zip_dir.endswith == ".zip":
         with zipfile.ZipFile(down_file, 'r') as zip_ref:
             zip_ref.extractall(zip_dir)
         os.remove(down_file)
     elif zip_dir.endswith == ".7z":
-        with open(down_file, "rb") as f:
-            archive = py7zlib.Archive7z(f)
-            for name in archive.getnames():
-                outfile = open(name, "wb")
-                outfile.write(archive.getmember(name).read())
-                outfile.close()
+        patoolib.extract_archive(down_file,map_path)
         os.remove(down_file)
     elif zip_dir.endswith == ".vpk":
         pass
     extracted_vpk_files = []
-    for file in os.listdir(map_path):
-        if file.endswith('.vpk'):
-            extracted_vpk_files.append(file)
+    extracted_vpk_files = get_vpk(extracted_vpk_files,map_path)
     # 获取新增vpk文件的list
     vpk_files = list(set(extracted_vpk_files) - set(original_vpk_files))
-    mes = "解压成功，新增以下几个vpk文件\n"
-    n = 0
-    for i in vpk_files:
-        n += 1
-        mes += str(n) + "、" + i
-    await up.finish(mes)
+    mes = "解压成功，新增以下几个vpk文件"
+    await up.finish(mes_list(mes,vpk_files))
     
-    
-        
-
+@find_vpk.handle()
+async def _(bot:Bot,event: MessageEvent):    
+    name_vpk = []
+    name_vpk = get_vpk(name_vpk,map_path)
+    logger.info("获取文件列表成功")
+    mes = "当前服务器下有以下vpk文件"
+    await up.finish(mes_list(mes,name_vpk))

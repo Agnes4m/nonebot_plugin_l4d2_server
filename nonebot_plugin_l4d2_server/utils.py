@@ -1,5 +1,6 @@
 from nonebot.log import logger
 import requests
+import os
 
 def get_file(url,down_file):
     try:
@@ -14,4 +15,17 @@ def get_file(url,down_file):
         print(e)
         logger.info("文件获取不到/已损坏")
         mes = "寄"
+    return mes
+
+def get_vpk(vpk_list:list,path):
+    for file in os.listdir(path):
+        if file.endswith('.vpk'):
+            vpk_list.append(file)
+    return vpk_list
+
+def mes_list(mes,name_list:list):
+    n = 0
+    for i in name_list:
+        n += 1
+        mes += "\n" + str(n) + "、" + i
     return mes
