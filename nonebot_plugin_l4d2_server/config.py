@@ -1,7 +1,7 @@
 import nonebot
 from pathlib import Path
 
-file_format = [".vpk",".zip",".7z"]
+file_format = (".vpk",".zip",".7z")
 # file 填写求生服务器所在路径
 try:
     l4_file: str = nonebot.get_driver().config.l4_file
