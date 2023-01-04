@@ -7,7 +7,14 @@
 <div align="center">
 
 # nonebot_plugin_l4d2_server
-帮助你在qq上操作求生服务器相关
+_✨Nonebot & Left 4 Dead 2 server操作✨_
+
+<a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/stargazers">
+    <img alt="GitHub stars" src="https://img.shields.io/github/stars/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server?color=%09%2300BFFF&style=flat-square">
+</a>
+<a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/issues">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server?color=Emerald%20green&style=flat-square">
+</a>
 
 </div>
 
@@ -23,7 +30,11 @@
 | "l4_file" | 是 | "/home/ubuntu/l4d2/coop" | 输入求生服务器的绝对路径,该目录下有文件夹left4dead2 |
 
 ## 功能
-  上传地图：私发压缩包zip/7z/vpk文件给机器人，就可以直接上传地图到服务器了
+（被动）上传地图：私发压缩包zip/7z/vpk文件给机器人，就可以直接上传地图到服务器了
+
+| 指令 | 范围 | 是否需要艾特 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| 求生地图/求生2地图 | 所有人 | 否 | 获取当前路径下所有的vpk文件，并输出目录 |
 
 ## 📝 TODO LIST
 
@@ -33,7 +44,7 @@
 - [ ] 支持多服务器切换
 
 
-##  更新日志
+## 📝 更新日志
 
 <details>
 <summary>展开/收起</summary>
@@ -41,6 +52,7 @@
 ### 0.0.8
 
 - 支持vpk格式地图
+- 支持查看所有vpk格式文件
 
 ### 0.0.6
 
@@ -53,5 +65,5 @@
 </details>
 
 ## 已测试环境
-    win10 python3.9 
-    ubuntu20.04 python3.9
+win10 python3.9 
+ubuntu20.04 python3.9
