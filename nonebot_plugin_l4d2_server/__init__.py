@@ -5,11 +5,15 @@ from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-import patoolib
+
 from pathlib import Path
 from time import sleep
 from .config import *
 from .utils import *
+try:
+    import py7zr
+except:
+    pass
 try:
     from nonebot.plugin import PluginMetadata
     __version__ = "0.0.8"
@@ -59,21 +63,29 @@ async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
     zip_dir = os.path.dirname(down_file)
     original_vpk_files = []
     original_vpk_files = get_vpk(original_vpk_files,map_path)
+    print(original_vpk_files)
+    
     # 解压
     if zip_dir.endswith == ".zip":
+        await up.send('zip文件已下载,正在解压')
         with zipfile.ZipFile(down_file, 'r') as zip_ref:
             zip_ref.extractall(zip_dir)
         os.remove(down_file)
     elif zip_dir.endswith == ".7z":
-        patoolib.extract_archive(down_file,map_path)
+        await up.send('7z文件已下载,正在解压')
+        with py7zr.SevenZipFile(down_file, 'r') as z:
+            z.extractall(map_path)
         os.remove(down_file)
     elif zip_dir.endswith == ".vpk":
-        pass
+        await up.send('vpk文件已下载')
+        sleep(1)
     extracted_vpk_files = []
     extracted_vpk_files = get_vpk(extracted_vpk_files,map_path)
+    print(extracted_vpk_files)
+    
     # 获取新增vpk文件的list
     vpk_files = list(set(extracted_vpk_files) - set(original_vpk_files))
-    mes = "解压成功，新增以下几个vpk文件"
+    mes = "解压成功，新增以下几个vpk文件\n"
     await up.finish(mes_list(mes,vpk_files))
     
 @find_vpk.handle()
@@ -82,4 +94,4 @@ async def _(bot:Bot,event: MessageEvent):
     name_vpk = get_vpk(name_vpk,map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
-    await up.finish(mes_list(mes,name_vpk))
+    await up.finish(mes_list(mes,name_vpk).replace(" "))

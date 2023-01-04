@@ -26,6 +26,6 @@ setuptools.setup(
         "nonebot2>=2.0.0b1,<3.0.0",
         "nonebot-adapter-onebot>=2.1.0,<3.0.0",
         "requests",
-        "patool",
+        "py7zr",
         ],
 )
