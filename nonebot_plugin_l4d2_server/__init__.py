@@ -12,7 +12,7 @@ from .config import *
 from .utils import *
 try:
     from nonebot.plugin import PluginMetadata
-    __version__ = "0.0.7"
+    __version__ = "0.0.8"
     __plugin_meta__ = PluginMetadata(
         name="求生服务器操作",
         description='群内对服务器的简单操作',
