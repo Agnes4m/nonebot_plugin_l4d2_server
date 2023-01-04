@@ -1,4 +1,3 @@
-import nonebot
 import os
 import zipfile
 from nonebot import on_notice
@@ -6,9 +5,11 @@ from nonebot.adapters.onebot.v11 import NoticeEvent,Bot
 from nonebot.permission import SUPERUSER
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-import requests
+import py7zlib
 from pathlib import Path
 from time import sleep
+from .config import *
+from .utils import *
 try:
     from nonebot.plugin import PluginMetadata
     __version__ = "0.0.7"
@@ -25,17 +26,16 @@ except:
     pass
 
 
-# file 填写求生服务器所在路径
-try:
-    l4_file: str = nonebot.get_driver().config.l4d2_file
-except:
-    l4_file: str = '/home/ubuntu/l4d2/coop/left4dead2/addons'
-
 up = on_notice()
 
 
 @up.handle()
 async def download(bot:Bot ,event: NoticeEvent, matcher: Matcher):
+    # 检查下载路径是否存在
+    if not Path(l4_file).exists():
+        await up.finish("你填写的路径不存在辣")
+    if not Path(map_path).exists():
+        await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
     # 这部分参考了gsuid
     args = event.dict()
     if args['notice_type'] != 'offline_file':
@@ -43,42 +43,52 @@ async def download(bot:Bot ,event: NoticeEvent, matcher: Matcher):
     url = args['file']['url']
     name: str = args['file']['name']
     user_id = args['user_id']
-    if not name.endswith('.zip') and not name.endswith('.7z'):
+    # 如果不符合格式则忽略
+    if not name.endswith(file_format):
         return
     await up.send('已收到压缩包，开始下载')
-    sleep(1)
-    print('已获取url')
-    down_file = Path(l4_file,name)
-    if not Path(l4_file).exists():
-        os.makedirs(l4_file)
-    print(down_file)
-    try:
-        print('尝试获取文件')
-        maps = requests.get(url)
-        print(type(maps))
-        print('已获取文件，尝试新建文件并写入')
-        with open(down_file ,'wb') as mfile:
-            print('正在写入')
-            mfile.write(maps.content)
-            print('下载成功')
+    sleep(1)   # 等待一秒防止因为文件名获取出现BUG
+    
+    down_file = Path(map_path,name)
+    if get_file(url,down_file) == "寄":
+        await up.finish("获取文件失败，可能文件已损坏")
+    else:
         await up.send('文件已下载,正在解压')
-    except Exception as e:
-        print(e)
-        logger.info("文件获取不到/已损坏")
-    
+
+    # 获取文件名
     zip_dir = os.path.dirname(down_file)
-
+    original_vpk_files = []
+    for file in os.listdir(map_path):
+        if file.endswith('.vpk'):
+            original_vpk_files.append(file)
     # 解压
-    with zipfile.ZipFile(down_file, 'r') as zip_ref:
-        zip_ref.extractall(zip_dir)
-        await up.send('解压成功')
-    # 删除压缩包
-    os.remove(down_file)
+    if zip_dir.endswith == ".zip":
+        with zipfile.ZipFile(down_file, 'r') as zip_ref:
+            zip_ref.extractall(zip_dir)
+        os.remove(down_file)
+    elif zip_dir.endswith == ".7z":
+        with open(down_file, "rb") as f:
+            archive = py7zlib.Archive7z(f)
+            for name in archive.getnames():
+                outfile = open(name, "wb")
+                outfile.write(archive.getmember(name).read())
+                outfile.close()
+        os.remove(down_file)
+    elif zip_dir.endswith == ".vpk":
+        pass
+    extracted_vpk_files = []
+    for file in os.listdir(map_path):
+        if file.endswith('.vpk'):
+            extracted_vpk_files.append(file)
+    # 获取新增vpk文件的list
+    vpk_files = list(set(extracted_vpk_files) - set(original_vpk_files))
+    mes = "解压成功，新增以下几个vpk文件\n"
+    n = 0
+    for i in vpk_files:
+        n += 1
+        mes += str(n) + "、" + i
+    await up.finish(mes)
     
-    import subprocess
-
-    # Call the terminal and run the command "sh start.sh"
-    subprocess.run("su - ubuntu; screen -r coop; exit();sh coop.sh", shell=True)
-
-    import subprocess
+    
+        
 
