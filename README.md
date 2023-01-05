@@ -23,11 +23,66 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     2、pip install nonebot_plugin_l4d2_server
     3、Download zip
 
+## 前置操作-创建一个steam求生服务器(预计需要储存14G)
+
+<details>
+<summary>展开/收起</summary>
+
+### 以ubuntu为例，具体教程建议自行搜索，其中路径可以自行替换
+
+- 安装32位运行库
+        sudo apt-get update
+        sudo apt-get upgrade
+        sudo apt-get install lib32gcc1
+
+- 下载steam
+        mkdir ~/steamcmd
+        cd ~/steamcmd
+        wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
+        tar -zxvf steamcmd_linux.tar.gz
+        ./steamcmd.sh
+
+- 下载l4d2文件
+        Steam> force_install_dir /home/ubuntu/coop
+        Steam> login anonymous
+        Steam>app_update 222860 validate
+出现Success! App ‘222860’ fully installed后，输入quit或者exit
+
+- 创建启动脚本
+        sudo vi /home/ubuntu/coop/cfg/server.cfg
+写入
+        hostname "xxx"     //游戏服务器名(英文)
+        sv_steamgroup "114514"     //Steam组号
+        sv_steamgroup_exclusive 1 //将服务器设为Steam组私有
+        sv_allow_lobby_connect_only 0
+        sm_cvar sv_gametypes "coop"//设置游戏模式为合作
+        //设为1可防止玩家加入感染者方，仅战役模式
+        sm_cvar director_no_human_zombies "1"
+        mp_gamemode "coop"//激活游戏模式为合作
+        z_difficulty "Hard"//设置游戏难度为困难
+        sm_cvar sb_all_bot_game 1// 防止人数不足而自动关闭
+        sv_tags "hidden" //防止DDos攻击
+        sm_cvar sv_region 4// 设定服务器区域为亚洲
+        sv_visiblemaxplayers 8 //服务器可见最大玩家数
+        maxplayers 8 //最大玩家数
+:wq回车保存
+
+        cd ~
+        sudo vi start.sh
+在脚本里写入
+        cd /home/ubuntu/l4d2
+        sudo ./srcds_run -game left4dead2 +exec server.cfg
+
+- 启动游戏
+        cd ~
+        sh start.sh
+
+</details>
 
 ## env配置
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| "l4_file" | 是 | "/home/ubuntu/l4d2/coop" | 输入求生服务器的绝对路径,该目录下有文件夹left4dead2 |
+| "l4_file" | 是 | "/home/ubuntu/l4d2/coop" | 输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
 
 ## 功能
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
