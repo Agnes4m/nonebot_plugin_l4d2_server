@@ -1,12 +1,12 @@
-import os
-from zipfile import ZipFile
 from nonebot import on_notice,on_command
-from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent
+from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message
 from nonebot.permission import SUPERUSER
-from nonebot.log import logger
+from nonebot.params import CommandArg,ArgPlainText
 from nonebot.matcher import Matcher
-
-from pathlib import Path
+from nonebot.adapters.onebot.v11.permission import (
+    GROUP_ADMIN,
+    GROUP_OWNER,
+)
 from time import sleep
 from .config import *
 from .utils import *
@@ -16,7 +16,7 @@ except:
     pass
 try:
     from nonebot.plugin import PluginMetadata
-    __version__ = "0.1.0"
+    __version__ = "0.1.1"
     __plugin_meta__ = PluginMetadata(
         name="求生服务器操作",
         description='群内对服务器的简单操作',
@@ -29,9 +29,11 @@ try:
 except:
     pass
 
+Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
 
 up = on_notice()
-find_vpk = on_command("map",aliases={"求生地图","求生2地图"},priority=20,block=True)
+find_vpk = on_command("map",aliases={"求生地图","查看求生地图"},priority=20,block=True)
+del_vpk = on_command("del_map",aliases={"删除求生地图","删除地图"},priority=20,block=True)
 
 @up.handle()
 async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
@@ -87,7 +89,7 @@ async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
     vpk_files = list(set(extracted_vpk_files) - set(original_vpk_files))
     if vpk_files:
         logger.info('检查到新增文件')
-        mes = "解压成功，新增以下几个vpk文件\n"
+        mes = "解压成功，新增以下几个vpk文件"
     else:
         mes = "你可能上传了相同的文件，或者解压失败了捏"
     await up.finish(mes_list(mes,vpk_files))
@@ -99,3 +101,15 @@ async def _(bot:Bot,event: MessageEvent):
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
     await up.finish(mes_list(mes,name_vpk).replace(" ",""))
+
+@del_vpk.handle()
+async def _(matcher:Matcher,args:Message = CommandArg()):
+    num1 = args.extract_plain_text()
+    if num1:
+        matcher.set_arg("num",args)
+
+@del_vpk.got("num",prompt="你要删除第几个序号的地图(阿拉伯数字)")
+async def _(tag:int = ArgPlainText("num")):
+    tag = tag.replace(' ','')
+    vpk_name = del_map(tag,map_path)
+    await del_vpk.finish('已删除地图：' + vpk_name)

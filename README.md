@@ -98,26 +98,37 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 | 指令 | 范围 | 是否需要艾特 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| 求生地图/求生2地图 | 所有人 | 否 | 获取当前路径下所有的vpk文件，并输出目录 |
+| 求生地图/查看求生地图 | 所有人 | 否 | 获取当前路径下所有的vpk文件，并输出目录 |
+| 删除(求生)地图[number] | 群管/超管 | 否 | 根据求生地图列出的序号，删除地图，[number]可以在第二条消息内输入 |
 
 ## 📝 TODO LIST
 
 - [ ] 帮助文件
 - [ ] 支持修改下载地图，在服务器端的名称
-- [ ] 支持查询并删除服务器已有地图文件
+- [✔️] 支持查询并删除服务器已有地图文件
 - [ ] 支持查询服务器状态
 - [ ] 支持多服务器切换
+- [ ] 在q群里执行服务器指令
 
 ## 已知BUG
 
 - [ ] 无法在python3.10版本下解压7z格式压缩包
 - [ ] 所有人都可以私聊发送文件
 
+## 效果展示
+    -
+    ![image](https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/tree/main/image/list.png)  
+    ![image](https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/tree/main/image/up.png)  
+
 
 ## 📝 更新日志
 
 <details>
 <summary>展开/收起</summary>
+
+### 0.1.1
+
+- 新增删除地图
 
 ### 0.1.0
 
