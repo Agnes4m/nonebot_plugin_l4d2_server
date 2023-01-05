@@ -1,7 +1,7 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
-
+"""直接超的智障回复"""
 def txt_to_img(text: str, font_size=30, font_path="simsun.ttc") -> bytes:
     text = line_break(text)
     d_font = ImageFont.truetype(font_path, font_size)

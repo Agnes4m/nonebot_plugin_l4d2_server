@@ -95,7 +95,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 ## env配置
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| "l4_file" | 是 | "/home/ubuntu/l4d2/coop" | 输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
+| l4_file | 是 | "/home/ubuntu/l4d2/coop" | 输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
+| l4_image | 否 | False | 布尔值，查看地图的时候显示图片(字体为simsun.ttc，安装过才能设置为True) |
 
 ## 功能
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
@@ -136,6 +137,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 ### 0.1.1
 
 - 新增删除地图
+- 新增地图改名
+- 新增支持图片输出
 
 ### 0.1.0
 

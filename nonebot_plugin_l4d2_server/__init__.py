@@ -1,5 +1,5 @@
 from nonebot import on_notice,on_command,on_regex
-from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message
+from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message,MessageSegment
 from nonebot.permission import SUPERUSER
 from nonebot.params import CommandArg,ArgPlainText,RegexGroup
 from nonebot.matcher import Matcher
@@ -108,7 +108,11 @@ async def _(bot:Bot,event: MessageEvent):
     name_vpk = get_vpk(name_vpk,map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
-    await up.finish(mes_list(mes,name_vpk).replace(" ",""))
+    msg = mes_list(mes,name_vpk).replace(" ","")
+    if l4_image:
+        await find_vpk.finish(MessageSegment.image(text_to_png(msg)))
+    else:
+        await find_vpk.finish(msg)
 
 @del_vpk.handle()
 async def _(matcher:Matcher,args:Message = CommandArg()):

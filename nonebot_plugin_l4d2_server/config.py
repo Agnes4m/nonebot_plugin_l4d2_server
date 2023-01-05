@@ -8,6 +8,10 @@ try:
 except:
     l4_file: str = '/home/ubuntu/l4d2/coop'
 
+try:
+    l4_image: bool = nonebot.get_driver().config.l4_image
+except:
+    l4_image: bool = False
 # 文件路径
 vpk_path = "left4dead2/addons"
 map_path = Path(l4_file,vpk_path)

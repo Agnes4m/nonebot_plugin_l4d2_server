@@ -3,6 +3,7 @@ from nonebot.log import logger
 import requests
 import os
 from pathlib import Path
+from .image import txt_to_img
 def get_file(url,down_file):
     '''
     下载指定Url到指定位置
@@ -56,7 +57,7 @@ def del_map(num,map_path):
     '''
     vpk_list = []
     map = get_vpk(vpk_list,map_path)
-    map_name = map[int(num)-1].decode('utf-8') 
+    map_name = map[int(num)-1]
     del_file = Path(map_path,map_name)
     os.remove(del_file)
     return map_name
@@ -68,10 +69,13 @@ def rename_map(num,rename,map_path):
     vpk_list = []
     name = str(rename)
     map = get_vpk(vpk_list,map_path)
-    logger.info('文件名解码')
     map_name = map[int(num)-1]
-    logger.info('解码成功')
     old_file = Path(map_path,map_name)
     new_file = Path(map_path,name)
     os.rename(old_file,new_file)
+    logger.info('改名成功')
     return map_name
+
+def text_to_png(msg: str) -> bytes:
+    """文字转png"""
+    return txt_to_img(msg)
