@@ -1,8 +1,10 @@
-from nonebot import on_notice,on_command
+from nonebot import on_notice,on_command,on_regex
 from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message
 from nonebot.permission import SUPERUSER
-from nonebot.params import CommandArg,ArgPlainText
+from nonebot.params import CommandArg,ArgPlainText,RegexGroup
 from nonebot.matcher import Matcher
+import re
+from typing import Tuple
 from nonebot.adapters.onebot.v11.permission import (
     GROUP_ADMIN,
     GROUP_OWNER,
@@ -14,26 +16,33 @@ try:
     import py7zr
 except:
     pass
-try:
-    from nonebot.plugin import PluginMetadata
-    __version__ = "0.1.1"
-    __plugin_meta__ = PluginMetadata(
-        name="求生服务器操作",
-        description='群内对服务器的简单操作',
-        usage='求生服务器操作指令',
-        extra={
-            "version": __version__,
-            "author": "Umamusume-Agnes-Digital <Z735803792@163.com>",
-        },
-    )
-except:
-    pass
+from nonebot.plugin import PluginMetadata
+__version__ = "0.1.1"
+__plugin_meta__ = PluginMetadata(
+    name="求生服务器操作",
+    description='群内对服务器的简单操作',
+    usage='求生服务器操作指令',
+    extra={
+        "version": __version__,
+        "author": "Umamusume-Agnes-Digital <Z735803792@163.com>",
+    },
+)
+
 
 Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
 
 up = on_notice()
+rename_vpk = on_regex(
+        r"^求生地图\s*(\S+.*?)\s*(改|改名)?\s*(\S+.*?)\s*$",
+    flags=  re.S,
+    block= True,
+    priority= 19,
+    permission= Master,
+)
 find_vpk = on_command("map",aliases={"求生地图","查看求生地图"},priority=20,block=True)
-del_vpk = on_command("del_map",aliases={"删除求生地图","删除地图"},priority=20,block=True)
+del_vpk = on_command("del_map",aliases={"删除求生地图","删除地图"},priority=20,block=True,permission= Master)
+
+
 
 @up.handle()
 async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
@@ -42,9 +51,8 @@ async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
         await up.finish("你填写的路径不存在辣")
     if not Path(map_path).exists():
         await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
-    # 这部分参考了gsuid
     args = event.dict()
-    if args['notice_type'] != 'offline_file':
+    if args['notice_type'] != 'offline_file':  # 只响应私聊
         await matcher.finish()
     url = args['file']['url']
     name: str = args['file']['name']
@@ -113,3 +121,17 @@ async def _(tag:int = ArgPlainText("num")):
     tag = tag.replace(' ','')
     vpk_name = del_map(tag,map_path)
     await del_vpk.finish('已删除地图：' + vpk_name)
+    
+@rename_vpk.handle()
+async def _(matched: Tuple[int,str, str] = RegexGroup(),):
+    num,useless,rename = matched
+    logger.info('检查是否名字是.vpk后缀')
+    if not rename.endswith('.vpk'):
+        rename = rename + '.vpk'
+    logger.info('尝试改名')
+    try:
+        map_name = rename_map(num,rename,map_path)
+        if map_name:
+            await rename_vpk.finish('改名成功\n原名:'+ map_name +'\n新名称:' + rename)
+    except ValueError:
+        await rename_vpk.finish('参数错误,请输入格式如【求生地图 5 改名 map.vpk】,或者输入【求生地图】获取全部名称')

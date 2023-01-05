@@ -11,3 +11,6 @@ except:
 # 文件路径
 vpk_path = "left4dead2/addons"
 map_path = Path(l4_file,vpk_path)
+'''
+地图路径
+'''
