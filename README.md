@@ -116,8 +116,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 - [ ] 所有人都可以私聊发送文件
 
 ## 效果展示
-![image](https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/tree/main/image/list.png)  
-![image](https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/tree/main/image/up.png)  
+![list](image/list.png)  
+![up](image/up.png)  
 
 
 ## 📝 更新日志
