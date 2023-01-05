@@ -31,11 +31,13 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 ### 以ubuntu为例，具体教程建议自行搜索，其中路径可以自行替换
 
 - 安装32位运行库
+
         sudo apt-get update
         sudo apt-get upgrade
         sudo apt-get install lib32gcc1
 
 - 下载steam
+
         mkdir ~/steamcmd
         cd ~/steamcmd
         wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz
@@ -43,14 +45,17 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
         ./steamcmd.sh
 
 - 下载l4d2文件
+
         Steam> force_install_dir /home/ubuntu/coop
         Steam> login anonymous
         Steam>app_update 222860 validate
 出现Success! App ‘222860’ fully installed后，输入quit或者exit
 
 - 创建启动脚本
+
         sudo vi /home/ubuntu/coop/cfg/server.cfg
 写入
+
         hostname "xxx"     //游戏服务器名(英文)
         sv_steamgroup "114514"     //Steam组号
         sv_steamgroup_exclusive 1 //将服务器设为Steam组私有
@@ -65,15 +70,19 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
         sm_cvar sv_region 4// 设定服务器区域为亚洲
         sv_visiblemaxplayers 8 //服务器可见最大玩家数
         maxplayers 8 //最大玩家数
+
 :wq回车保存
 
         cd ~
         sudo vi start.sh
+
 在脚本里写入
+
         cd /home/ubuntu/l4d2
         sudo ./srcds_run -game left4dead2 +exec server.cfg
 
 - 启动游戏
+
         cd ~
         sh start.sh
 
