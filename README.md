@@ -111,8 +111,9 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | 指令 | 范围 | 用途 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | 求生地图/查看求生地图 | 所有人 | 看图 | 获取当前路径下所有的vpk文件，并输出目录 |
-| 求生绑定/steam绑定/anne绑定[text] | 所有人 | 绑定steam信息 | [text]可以是:昵称|steamid |
 | 求生anne[text] | 所有人 | 查anne成绩 | [text]可以是:空白(则使用绑定信息)|昵称|steamid|@user |
+| 求生绑定/steam绑定/anne绑定[text] | 所有人 | 绑定steam信息 | [text]可以是:昵称|steamid |
+| 求生解绑/steam解绑/anne解绑 | 所有人 | 解绑steam信息 | 无 |
 | (求生)地图删除[number] | 群管/超管 | 删图 | 根据求生地图列出的序号，删除地图，[number]可以在第二条消息内输入 |
 | 求生地图[number][改/改名][text] | 群管/超管 | 改图名 | [number]同上，text为更改后名称，如果没有.vpk后缀会自动加上 |
 
@@ -122,7 +123,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <details>
 <summary>展开/收起</summary>
 
-- [ ] anne信息绑定qq号
+- [x] anne信息绑定qq号
 - [ ] 帮助命令
 - [x] 支持修改下载地图，在服务器端的名称
 - [x] 支持查询并删除服务器已有地图文件
@@ -156,6 +157,7 @@ anne:
 
 - 新增绑定昵称和steamid
 - 新增可以艾特人查询anne成绩
+- 新增解绑信息
 
 ### 0.1.2
 

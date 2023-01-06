@@ -124,3 +124,7 @@ def search_anne(name:str,usr_id:str):
 def bind_steam(id:str,msg:str,nickname:str):
     """绑定qq-steam"""
     return write_player(id,msg,nickname)
+
+def name_exist(id:str):
+    """删除绑定信息"""
+    return del_player(id)

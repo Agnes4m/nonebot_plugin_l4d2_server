@@ -14,7 +14,7 @@ from .config import *
 from .utils import *
 
 from nonebot.plugin import PluginMetadata
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __plugin_meta__ = PluginMetadata(
     name="求生服务器操作",
     description='群内对服务器的简单操作',
@@ -40,7 +40,7 @@ find_vpk = on_command("l4_map",aliases={"求生地图","查看求生地图"},pri
 del_vpk = on_command("l4_del_map",aliases={"求生地图删除","地图删除"},priority=20,block=True,permission= Master)
 anne_player = on_command('Ranne',aliases={"求生anne"},priority=20,block=True)
 steam_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
-
+del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
 
 @up.handle()
 async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
@@ -142,3 +142,9 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
     nickname = event.sender.card or event.sender.nickname
     msg = bind_steam(usr_id,tag,nickname)
     await steam_bind.finish(msg)
+
+@del_bind.handle()
+async def _(event:MessageEvent):
+    usr_id = event.user_id
+    await del_bind.finish(name_exist(usr_id))
+    

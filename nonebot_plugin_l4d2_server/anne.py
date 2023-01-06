@@ -132,6 +132,17 @@ def add_player(id:str,new_dict:dict):
     players_data.update(axis)
     with open(Path(__file__).parent.joinpath('data/player.json'), "w", encoding="utf8") as new:
         json.dump(players_data, new, ensure_ascii=False, indent=4)
+        
+def del_player(id:str):
+    """删除绑定信息,返回消息"""
+    try:
+        del players_data[str(id)]
+        with open(Path(__file__).parent.joinpath('data/player.json'), "w", encoding="utf8") as new:
+            json.dump(players_data, new, ensure_ascii=False, indent=4)
+        return '删除成功喵~'
+    except KeyError:
+        return '你还没有绑定过，请使用[求生绑定+昵称/steamid]'
+
     
 def id_to_mes(name,usr_id):
     """根据name从json查找,返回昵称或者steamid"""
@@ -145,7 +156,6 @@ def id_to_mes(name,usr_id):
             usr_id = str(usr_id)
             if usr_id == i:
                 data = players_data[i]
-                logger.info(data)
                 try:
                     name = data["steam_id"]
                 except KeyError:
@@ -153,6 +163,6 @@ def id_to_mes(name,usr_id):
                         name = data["usr_id"]
                     except KeyError:
                         mes = '绑定信息不存在，请使用[求生绑定+昵称/steamid]'
-                        logger.info(mes)
                         return ''
+    logger.info(name)
     return name
