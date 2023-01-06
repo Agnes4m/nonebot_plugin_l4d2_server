@@ -112,9 +112,9 @@ def solve(s):
         return ''
     return s.rsplit('\n', 1)[0]
 
-def search_anne(name:str,usr_id:str):
+def search_anne(name:str,usr_id:str,at:list):
     """获取anne信息"""
-    name = id_to_mes(name,usr_id)
+    name = id_to_mes(name,usr_id,at)
     if len(name)== 0:
         return '绑定信息不存在，或已失效'
     msg = anne_search(name)
@@ -128,3 +128,19 @@ def bind_steam(id:str,msg:str,nickname:str):
 def name_exist(id:str):
     """删除绑定信息"""
     return del_player(id)
+
+def get_message_at(data: str) -> list:
+    '''
+    获取at列表
+    :param data: event.json()
+    抄的groupmate_waifu
+    '''
+    qq_list = []
+    data = json.loads(data)
+    try:
+        for msg in data['message']:
+            if msg['type'] == 'at':
+                qq_list.append(int(msg['data']['qq']))
+        return qq_list
+    except Exception:
+        return []

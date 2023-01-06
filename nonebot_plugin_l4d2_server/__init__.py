@@ -128,8 +128,9 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
     name = args.extract_plain_text()
     name = name.strip()
     usr_id = event.user_id
+    at = get_message_at(event.json())
     # 没有参数则从json里找数据
-    msg = search_anne(name,usr_id)
+    msg = search_anne(name,usr_id,at)
     await anne_player.finish(msg)
         
 @steam_bind.handle()

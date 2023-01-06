@@ -35,8 +35,7 @@ def anne_html(data):
     data = soup.find('table')
     data = data.find('tbody')
     data = data.find_all('tr')
-    logger.info(data)
-    if data[0] == "No Player found.":
+    if len(data) ==0 or data[0] == "No Player found.":
         return '搜不到该玩家...\n'
     data_list = []
     for i in data:
@@ -144,12 +143,11 @@ def del_player(id:str):
         return '你还没有绑定过，请使用[求生绑定+昵称/steamid]'
 
     
-def id_to_mes(name,usr_id):
+def id_to_mes(name,usr_id,at:list):
     """根据name从json查找,返回昵称或者steamid"""
-    start = name.find("[CQ:at,qq=")
-    if start == 1:
-        end = name.find("]", start)
-        usr_id = name[start:end+1]
+    if at and at[0] != usr_id:
+        at = at[0]
+        usr_id = at
     if len(name)== 0:
         for i in players_data:
             i = str (i)
