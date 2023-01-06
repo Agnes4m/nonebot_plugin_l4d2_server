@@ -19,8 +19,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 </div>
 
 # 最近更新
-        更新了查询anne的信息~<br>
-        使用指令(求生anne[text])
+更新了查询anne的信息~<br>
+使用指令(求生anne[text])<br>
+也可以使用(求生绑定[text])来绑定昵称或steamid,就可以不带参数查询了<br>
+如果后面艾特人，则查娶该用户的绑定信息
 
 ## 安装
     1、nb plugin install nonebot_plugin_l4d2_server
@@ -109,7 +111,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | 指令 | 范围 | 用途 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | 求生地图/查看求生地图 | 所有人 | 看图 | 获取当前路径下所有的vpk文件，并输出目录 |
-| 求生anne[text] | 所有人 | 查anne成绩 | [text]为steam的昵称或者steamid |
+| 求生绑定/steam绑定/anne绑定[text] | 所有人 | 绑定steam信息 | [text]可以是:昵称|steamid |
+| 求生anne[text] | 所有人 | 查anne成绩 | [text]可以是:空白(则使用绑定信息)|昵称|steamid|@user |
 | (求生)地图删除[number] | 群管/超管 | 删图 | 根据求生地图列出的序号，删除地图，[number]可以在第二条消息内输入 |
 | 求生地图[number][改/改名][text] | 群管/超管 | 改图名 | [number]同上，text为更改后名称，如果没有.vpk后缀会自动加上 |
 
@@ -148,6 +151,11 @@ anne:
 
 <details>
 <summary>展开/收起</summary>
+
+### 0.1.3
+
+- 新增绑定昵称和steamid
+- 新增可以艾特人查询anne成绩
 
 ### 0.1.2
 

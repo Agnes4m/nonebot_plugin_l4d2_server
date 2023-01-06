@@ -12,7 +12,6 @@ from nonebot.adapters.onebot.v11.permission import (
 from time import sleep
 from .config import *
 from .utils import *
-from .anne import anne_search
 
 from nonebot.plugin import PluginMetadata
 __version__ = "0.1.2"
@@ -39,7 +38,8 @@ rename_vpk = on_regex(
 )
 find_vpk = on_command("l4_map",aliases={"求生地图","查看求生地图"},priority=25,block=True)
 del_vpk = on_command("l4_del_map",aliases={"求生地图删除","地图删除"},priority=20,block=True,permission= Master)
-anne_player = on_command('Ranne',aliases={"求生anne"},priority=20,block=True) 
+anne_player = on_command('Ranne',aliases={"求生anne"},priority=20,block=True)
+steam_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
 
 
 @up.handle()
@@ -124,15 +124,21 @@ async def _(matched: Tuple[int,str, str] = RegexGroup(),):
         await rename_vpk.finish('参数错误,请输入格式如【求生地图 5 改名 map.vpk】,或者输入【求生地图】获取全部名称')
         
 @anne_player.handle()
-async def _(matcher:Matcher,args:Message = CommandArg()):
+async def _(event:MessageEvent,args:Message = CommandArg()):
     name = args.extract_plain_text()
-    if name:
-        matcher.set_arg("name",args)
-
-@anne_player.got("name",prompt="请输入用户名或steamid")
-async def _(tag:str = ArgPlainText("name")):
-    msg = anne_search(tag)
-    if not msg:
-        await anne_player.finish('没有找到该昵称哦，请检查昵称是否正确，或者用steamid查询')
-    else:
-        await anne_player.finish(msg)
+    name = name.strip()
+    usr_id = event.user_id
+    # 没有参数则从json里找数据
+    msg = search_anne(name,usr_id)
+    await anne_player.finish(msg)
+        
+@steam_bind.handle()
+async def _(event:MessageEvent,args:Message = CommandArg()):
+    tag = args.extract_plain_text()
+    tag = tag.strip()
+    if tag=="" or tag.isspace():
+        await steam_bind.finish("虚空绑定?")
+    usr_id = str(event.user_id)
+    nickname = event.sender.card or event.sender.nickname
+    msg = bind_steam(usr_id,tag,nickname)
+    await steam_bind.finish(msg)

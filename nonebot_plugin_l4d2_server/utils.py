@@ -9,6 +9,7 @@ except:
 from pathlib import Path
 from .image import txt_to_img
 from .config import map_path
+from .anne import *
 
 def get_file(url,down_file):
     '''
@@ -110,3 +111,16 @@ def solve(s):
     if s.find('\n') == -1:
         return ''
     return s.rsplit('\n', 1)[0]
+
+def search_anne(name:str,usr_id:str):
+    """获取anne信息"""
+    name = id_to_mes(name,usr_id)
+    if len(name)== 0:
+        return '绑定信息不存在，或已失效'
+    msg = anne_search(name)
+    msg = solve(msg)
+    return msg
+
+def bind_steam(id:str,msg:str,nickname:str):
+    """绑定qq-steam"""
+    return write_player(id,msg,nickname)

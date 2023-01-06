@@ -1,6 +1,10 @@
 import nonebot
 from pathlib import Path
-
+try:
+    import ujson as json
+except:
+    import json
+    
 file_format = (".vpk",".zip",".7z")
 # file 填写求生服务器所在路径
 try:
@@ -23,3 +27,5 @@ map_path = Path(l4_file,vpk_path)
 '''
 地图路径
 '''
+players_data = json.load(open(Path(__file__).parent.joinpath('data/player.json'), "r", encoding="utf8"))
+"""绑定信息"""
