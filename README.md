@@ -18,6 +18,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </div>
 
+# 最近更新
+        更新了查询anne的信息~<br>
+        使用指令(求生anne[text])
+
 ## 安装
     1、nb plugin install nonebot_plugin_l4d2_server
     2、pip install nonebot_plugin_l4d2_server
@@ -97,6 +101,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 |:-----:|:----:|:----:|:----:|
 | l4_file | 是 | "/home/ubuntu/l4d2/coop" | 输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
 | l4_image | 否 | False | 布尔值，查看地图的时候显示图片(字体为simsun.ttc，安装过才能设置为True) |
+| l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
 
 ## 功能
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
@@ -104,11 +109,14 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | 指令 | 范围 | 用途 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | 求生地图/查看求生地图 | 所有人 | 看图 | 获取当前路径下所有的vpk文件，并输出目录 |
-| 删除(求生)地图[number] | 群管/超管 | 删图 | 根据求生地图列出的序号，删除地图，[number]可以在第二条消息内输入 |
+| 求生anne[text] | 所有人 | 查anne成绩 | [text]为steam的昵称或者steamid |
+| (求生)地图删除[number] | 群管/超管 | 删图 | 根据求生地图列出的序号，删除地图，[number]可以在第二条消息内输入 |
 | 求生地图[number][改/改名][text] | 群管/超管 | 改图名 | [number]同上，text为更改后名称，如果没有.vpk后缀会自动加上 |
+
 
 ## 📝 TODO LIST
 
+- [ ] anne信息绑定qq号
 - [ ] 帮助命令
 - [x] 支持修改下载地图，在服务器端的名称
 - [x] 支持查询并删除服务器已有地图文件
@@ -133,6 +141,11 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 <details>
 <summary>展开/收起</summary>
+
+### 0.1.2
+
+- 新增支持图片输出
+- 新增查询anne服数据
 
 ### 0.1.1
 

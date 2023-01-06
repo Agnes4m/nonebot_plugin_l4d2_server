@@ -2,8 +2,14 @@ from zipfile import ZipFile
 from nonebot.log import logger
 import requests
 import os
+try:
+    import py7zr
+except:
+    pass
 from pathlib import Path
 from .image import txt_to_img
+from .config import map_path
+
 def get_file(url,down_file):
     '''
     下载指定Url到指定位置
@@ -79,3 +85,28 @@ def rename_map(num,rename,map_path):
 def text_to_png(msg: str) -> bytes:
     """文字转png"""
     return txt_to_img(msg)
+
+def open_packet(name,down_file):
+    """解压压缩包"""
+    zip_dir = os.path.dirname(down_file)
+    logger.info('文件名为：' + name)
+    if name.endswith('.zip'):
+        mes = 'zip文件已下载,正在解压'
+        with support_gbk(ZipFile(down_file, 'r')) as zip_ref:
+            zip_ref.extractall(zip_dir)
+        os.remove(down_file)
+    elif name.endswith('.7z'):
+        mes ='7z文件已下载,正在解压'
+        with py7zr.SevenZipFile(down_file, 'r') as z:
+            z.extractall(map_path)
+        os.remove(down_file)
+    elif name.endswith('.vpk'):
+        mes ='vpk文件已下载'
+    return mes
+
+def solve(s):
+    """删除str最后一行"""
+    s = s.split('\n', 1)[-1]
+    if s.find('\n') == -1:
+        return ''
+    return s.rsplit('\n', 1)[0]

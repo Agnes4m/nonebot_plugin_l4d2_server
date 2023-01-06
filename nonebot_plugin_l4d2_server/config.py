@@ -12,6 +12,11 @@ try:
     l4_image: bool = nonebot.get_driver().config.l4_image
 except:
     l4_image: bool = False
+
+try:
+    l4_steamid: bool = nonebot.get_driver().config.l4_steamid
+except:
+    l4_steamid: bool = False
 # 文件路径
 vpk_path = "left4dead2/addons"
 map_path = Path(l4_file,vpk_path)
