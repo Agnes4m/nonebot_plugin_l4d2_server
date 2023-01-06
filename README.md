@@ -116,6 +116,9 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 ## 📝 TODO LIST
 
+<details>
+<summary>展开/收起</summary>
+
 - [ ] anne信息绑定qq号
 - [ ] 帮助命令
 - [x] 支持修改下载地图，在服务器端的名称
@@ -123,6 +126,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 - [ ] 支持查询服务器状态
 - [ ] 支持多服务器切换
 - [ ] 在q群里执行服务器指令
+
+</details>
 
 ## 已知BUG
 
@@ -132,8 +137,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 
 ## 效果展示
+anne:
+![list](image/anne.png)<br>
 群聊：
-![list](image/list.png)
+![list](image/list.png)<br>
 私聊：
 ![up](image/up.png)
 

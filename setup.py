@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
  
 setuptools.setup(
     name="nonebot-plugin-l4d2-server",
-    version="0.1.1", 
+    version="0.1.2", 
     author="Umamusume-Agnes-Digital", 
     author_email="Z735803792@163.com", 
     description="L4D2 server related operations plugin for NoneBot",
@@ -27,5 +27,6 @@ setuptools.setup(
         "nonebot-adapter-onebot>=2.1.0,<3.0.0",
         "requests",
         "py7zr",
+        "beautifulsoup4",
         ],
 )
