@@ -20,9 +20,9 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 # 最近更新
 更新了查询anne的信息~<br>
-使用指令(求生anne[text])<br>
+使用指令(求生anne[text|@])<br>
+使用指令(求生anne详情[text|@])<br>
 也可以使用(求生绑定[text])来绑定昵称或steamid,就可以不带参数查询了<br>
-如果后面艾特人，则查娶该用户的绑定信息
 
 ## 安装
     1、nb plugin install nonebot_plugin_l4d2_server
@@ -101,9 +101,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 ## env配置
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| l4_file | 是 | "/home/ubuntu/l4d2/coop" | 输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
-| l4_image | 否 | False | 布尔值，查看地图的时候显示图片(字体为simsun.ttc，安装过才能设置为True) |
+| l4_file | 是 | "/home/ubuntu/l4d2/coop" | str,输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
 | l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
+| l4_image | 否 | False | 布尔值，查看地图的时候显示图片(字体为simsun.ttc，安装过才能设置为True) |
+| l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
 
 ## 功能
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
@@ -152,6 +153,11 @@ anne:
 
 <details>
 <summary>展开/收起</summary>
+
+### 0.1.4
+
+- 新增求生anne详情（看排名）
+- 所有的请求改为httpx
 
 ### 0.1.3
 

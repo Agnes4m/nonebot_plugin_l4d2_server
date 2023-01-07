@@ -1,6 +1,6 @@
 from zipfile import ZipFile
 from nonebot.log import logger
-import requests
+import httpx
 import os
 try:
     import py7zr
@@ -16,7 +16,7 @@ def get_file(url,down_file):
     下载指定Url到指定位置
     '''
     try:
-        maps = requests.get(url)
+        maps = httpx.get(url)
         logger.info('已获取文件，尝试新建文件并写入')
         with open(down_file ,'wb') as mfile:
             mfile.write(maps.content)
@@ -114,10 +114,19 @@ def solve(s):
 
 def search_anne(name:str,usr_id:str,at:list):
     """获取anne信息"""
-    name = id_to_mes(name,usr_id,at)
-    if len(name)== 0:
-        return '绑定信息不存在，或已失效'
-    msg = anne_search(name)
+    a = '详情'
+    if any(word in name for word in a):
+        logger.info('正在查询更多信息')
+        name = name.replace(a,'')
+        name = id_to_mes(name,usr_id,at)
+        if len(name)== 0:
+            return '绑定信息不存在，或已失效'
+        msg = anne_rank(name)
+    else:
+        name = id_to_mes(name,usr_id,at)
+        if len(name)== 0:
+            return '绑定信息不存在，或已失效'
+        msg = anne_html(name)
     msg = solve(msg)
     return msg
 
@@ -144,3 +153,5 @@ def get_message_at(data: str) -> list:
         return qq_list
     except Exception:
         return []
+    
+    

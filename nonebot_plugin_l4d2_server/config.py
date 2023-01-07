@@ -27,5 +27,10 @@ map_path = Path(l4_file,vpk_path)
 '''
 地图路径
 '''
-players_data = json.load(open(Path(__file__).parent.joinpath('data/player.json'), "r", encoding="utf8"))
-"""绑定信息"""
+players_data:dict[str(dict)] = json.load(open(Path(__file__).parent.joinpath('data/player.json'), "r", encoding="utf8"))
+"""绑定信息dict"""
+
+try:
+    l4_font: str = nonebot.get_driver().config.l4_font
+except:
+    l4_font: str = "simsun.ttc"

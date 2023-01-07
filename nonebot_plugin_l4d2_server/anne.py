@@ -1,40 +1,25 @@
-import requests
+
 from nonebot.log import logger
 from pathlib import Path
-from bs4 import BeautifulSoup
+
 from .config import l4_steamid,players_data
+from .seach import *
 try:
     import ujson as json
 except:
     import json
 
-def anne_search(name):
-    """输入名字或者steamid返回文字信息"""
-    url = 'https://sb.trygek.com/l4d_stats/ranking/search.php'
-    data = {'search': name}
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    data = requests.post(url,data = data,headers=headers).content.decode('utf-8')
-    return anne_html(data)
 
 def anne_local(name):
     """输入名字或者steamid返回本地缓存信息(未完成)"""
     with open('ser.txt','r', encoding= 'utf-8') as f:
         data = f.read()
 
-def anne_html(data):
+def anne_html(name):
     """从html里提取玩家信息，多出一行"""
-    soup = BeautifulSoup(data, 'html.parser')
-    # 获取标题
-    title = []
-    thead = soup.find('thead')
-    for i in thead.find_all('td'):
-        tag = i.text.strip()
-        title.append(tag)
-    title.append('steamid')
-    # 角色信息
-    data = soup.find('table')
-    data = data.find('tbody')
-    data = data.find_all('tr')
+    data_title = anne_search(name)
+    data = data_title[0]
+    title = data_title[1]
     if len(data) ==0 or data[0] == "No Player found.":
         return '搜不到该玩家...\n'
     data_list = []
@@ -70,15 +55,7 @@ def anne_html(data):
         mes += '\n--------------------'    
     return mes
 
-def read_player(id):
-    """读取用户绑定信息"""
-    for i in players_data:
-        if id == i:
-            player_data = players_data[id]
-            logger.info(players_data)
-            logger.info(player_data)
-            return player_data
-    return ''     
+  
    
 def write_player(id,msg:str,nickname:str):
     """绑定用户qq"""
@@ -161,6 +138,39 @@ def id_to_mes(name,usr_id,at:list):
                         name = data["usr_id"]
                     except KeyError:
                         mes = '绑定信息不存在，请使用[求生绑定+昵称/steamid]'
-                        return ''
+                        return mes
     logger.info(name)
     return name
+
+def anne_rank(name:str):
+    """用steamid,查详情,输出可以发送的信息"""
+    if not name.startswith('STEAM'):
+        name = name_steamid_html(name)
+    data_dict = {}
+    url ='https://sb.trygek.com/l4d_stats/ranking/player.php?steamid=' + name
+    logger.info(url)
+    headers = {
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+    }
+    data = httpx.get(url,headers=headers,timeout=30).content.decode('utf-8')
+    data = BeautifulSoup(data, 'html.parser')
+    detail = data.find_all('table')
+    n = 0
+    while n < 2:
+        mes = ''
+        detail2 = detail[n]
+        tr = detail2.find_all('tr')
+        for i in tr:
+            title = i.find('td', {'class': 'w-50'})
+            value = title.find_next_sibling('td')
+            new_dict = {title.text:value.text}
+            data_dict.update(new_dict)
+        # print(data_dict)
+        for i in data_dict:
+            mes +='\n'+ i + data_dict[i]
+        mes += '\n--------------------'
+        n += 1
+    logger.info(mes)
+    return mes
+
+        

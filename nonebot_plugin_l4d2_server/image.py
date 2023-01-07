@@ -1,8 +1,9 @@
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from .config import l4_font
 
 """直接超的智障回复"""
-def txt_to_img(text: str, font_size=30, font_path="simsun.ttc") -> bytes:
+def txt_to_img(text: str, font_size=30, font_path=l4_font) -> bytes:
     text = line_break(text)
     d_font = ImageFont.truetype(font_path, font_size)
     lines = text.count('\n')  # 计算行数
