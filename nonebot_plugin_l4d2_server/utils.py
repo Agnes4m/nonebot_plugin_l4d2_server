@@ -10,6 +10,7 @@ from pathlib import Path
 from .image import txt_to_img
 from .config import map_path
 from .anne import *
+from .chrome import get_anne_server
 
 def get_file(url,down_file):
     '''
@@ -154,4 +155,7 @@ def get_message_at(data: str) -> list:
     except Exception:
         return []
     
-    
+def anne_servers():
+    mes = get_anne_server()
+    mes = solve(mes)
+    return mes

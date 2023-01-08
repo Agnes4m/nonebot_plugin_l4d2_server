@@ -24,6 +24,7 @@ def anne_html(name):
         return '搜不到该玩家...\n'
     data_list = []
     for i in data:
+        i:BeautifulSoup
         Rank = i.find('td', {'data-title': 'Rank:'}).text.strip()
         player = i.find('td', {'data-title': 'Player:'}).text.strip()
         points = i.find('td', {'data-title': 'Points:'}).text.strip()

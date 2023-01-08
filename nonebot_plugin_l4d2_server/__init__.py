@@ -36,9 +36,13 @@ rename_vpk = on_regex(
     priority= 20,
     permission= Master,
 )
+# 服务器
 find_vpk = on_command("l4_map",aliases={"求生地图","查看求生地图"},priority=25,block=True)
 del_vpk = on_command("l4_del_map",aliases={"求生地图删除","地图删除"},priority=20,block=True,permission= Master)
-anne_player = on_command('Ranne',aliases={"求生anne"},priority=20,block=True)
+
+# anne
+anne_player = on_command('Ranne',aliases={"求生anne"},priority=25,block=True)
+anne_server = on_command('anneip',aliases={'求生anne服务器','求生药役服务器'},priority=20,block=True)
 steam_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
 del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
 
@@ -133,6 +137,15 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
     msg = search_anne(name,usr_id,at)
     await anne_player.finish(msg)
         
+@anne_server.handle()
+async def _():
+    msg = anne_servers()
+    if len(msg)==0:
+        await anne_server.finish('服务器超市了')
+    else:
+        await anne_server.finish(msg)
+    
+    
 @steam_bind.handle()
 async def _(event:MessageEvent,args:Message = CommandArg()):
     tag = args.extract_plain_text()
