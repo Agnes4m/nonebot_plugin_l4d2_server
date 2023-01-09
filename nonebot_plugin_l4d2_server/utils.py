@@ -190,7 +190,6 @@ async def command_server(msg:str):
     logger.info(cfg_server)
     rcon = await read_server_cfg_rcon()
     logger.info([msg,l4_host,l4_port,rcon])
-    logger.info([type(msg),type(l4_host),type(l4_port),type(rcon)])
     msg = await rcon_server(rcon,msg)
     logger.info(msg)
     if len(msg)==0:
@@ -198,4 +197,5 @@ async def command_server(msg:str):
     if msg.startswith('Unknown command'):
         msg = msg.replace('Unknown command','').strip()
         msg = '无效指令：' + msg
+    msg = msg.strip()
     return msg

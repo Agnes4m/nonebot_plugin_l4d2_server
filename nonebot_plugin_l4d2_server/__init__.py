@@ -180,5 +180,8 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
 @rcon_to_server.got("command",prompt="请输入向服务器发送的指令")
 async def _(tag:str = ArgPlainText("command")):
     tag = tag.strip()
-    msg =  await command_server(tag)
-    await rcon_to_server.finish(msg)
+    msg = await command_server(tag)
+    if l4_image:
+        await find_vpk.finish(MessageSegment.image(text_to_png(msg)))
+    else:
+        await find_vpk.finish(msg)
