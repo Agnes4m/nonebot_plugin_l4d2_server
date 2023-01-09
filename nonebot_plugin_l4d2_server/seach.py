@@ -35,7 +35,7 @@ def id_name(id):
     return name
         
 def anne_search(name):
-    """输入名字或者steamid返回文字信息"""
+    """输入名字或者steamid返回列表["""
     url = 'https://sb.trygek.com/l4d_stats/ranking/search.php'
     data = {'search': name}
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -49,10 +49,10 @@ def anne_search(name):
         title.append(tag)
     title.append('steamid')
     # 角色信息
-    data = soup.find('table')
-    data = data.find('tbody')
-    data = data.find_all('tr')
-    return [data,title]
+    datas = soup.find('table')
+    datas = datas.find('tbody')
+    datas = datas.find_all('tr')
+    return [datas,title]
 
 def name_steamid_html(name):
     """您称通过网页来返回求生steamid"""

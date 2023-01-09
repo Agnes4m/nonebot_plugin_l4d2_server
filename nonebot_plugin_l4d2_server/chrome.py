@@ -32,10 +32,10 @@ def get_anne_server():
             xpath3 = '//*[@id="players_{}"]'.format(i)
             xpath4 = '//*[@id="map_{}"]'.format(i)
             xpath = [xpath1,xpath2,xpath3,xpath4]
-            names = ['服务器名称:','服务器ip:','玩家:','地图:']
+            names = ['服务器名称','服务器ip','玩家','地图']
             for x in range(5):
                 name:str = driver.find_element(By.XPATH,xpath[x-1]).text
-                mes += names[x-1] + name + '\n'
+                mes += names[x-1] + '' + name + '\n'
             msg += mes
             msg += '--------------------\n'
             n += 2

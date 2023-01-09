@@ -15,22 +15,28 @@ except:
 try:
     l4_image: bool = nonebot.get_driver().config.l4_image
 except:
-    l4_image: bool = False
+    l4_image: bool = True
 
 try:
     l4_steamid: bool = nonebot.get_driver().config.l4_steamid
 except:
-    l4_steamid: bool = False
+    l4_steamid: bool = True
 # 文件路径
 vpk_path = "left4dead2/addons"
 map_path = Path(l4_file,vpk_path)
 '''
 地图路径
 '''
-players_data:dict[str(dict)] = json.load(open(Path(__file__).parent.joinpath('data/player.json'), "r", encoding="utf8"))
+players_data:dict[str(dict)] = json.load(open(Path(__file__).parent.joinpath('data/L4D2/player.json'), "r", encoding="utf8"))
 """绑定信息dict"""
 
+FONT_ORIGIN_PATH = Path(__file__).parent / 'data/L4D2/font.ttf'
 try:
     l4_font: str = nonebot.get_driver().config.l4_font
 except:
-    l4_font: str = "simsun.ttc"
+    l4_font: str = str(FONT_ORIGIN_PATH)
+
+PLAYERSDATA = Path() / "data/L4D2/image/players"
+"""用户数据路径"""
+TEXT_PATH = Path(__file__).parent / 'data/L4D2/image'
+"""图片路径"""

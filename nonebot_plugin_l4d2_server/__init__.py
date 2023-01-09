@@ -73,7 +73,7 @@ async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
     
     original_vpk_files = []
     original_vpk_files = get_vpk(original_vpk_files,map_path)
-    msg =open_packet
+    msg = open_packet(name,down_file)
     await up.send(msg)
     
     sleep(1)
@@ -132,10 +132,14 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
     name = args.extract_plain_text()
     name = name.strip()
     usr_id = event.user_id
-    at = get_message_at(event.json())
+    at = await get_message_at(event.json())
     # 没有参数则从json里找数据
-    msg = search_anne(name,usr_id,at)
-    await anne_player.finish(msg)
+    msg = await search_anne(name,usr_id,at)
+    logger.info(type(msg))
+    if type(msg)==str:
+        await anne_player.finish(msg)
+    else:
+        await anne_player.finish(MessageSegment.image(msg))
         
 @anne_server.handle()
 async def _():
@@ -143,7 +147,10 @@ async def _():
     if len(msg)==0:
         await anne_server.finish('服务器超市了')
     else:
-        await anne_server.finish(msg)
+        if l4_image:
+            await find_vpk.finish(MessageSegment.image(text_to_png(msg)))
+        else:
+            await anne_server.finish(msg)
     
     
 @steam_bind.handle()

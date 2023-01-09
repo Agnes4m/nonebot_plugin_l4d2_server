@@ -7,10 +7,11 @@ try:
 except:
     pass
 from pathlib import Path
-from .image import txt_to_img
+from .txt_to_img import txt_to_img
 from .config import map_path
 from .anne import *
 from .chrome import get_anne_server
+from .image.draw_user_info import draw_user_info_img
 
 def get_file(url,down_file):
     '''
@@ -47,7 +48,7 @@ def mes_list(mes,name_list:list):
 
 def support_gbk(zip_file: ZipFile):
     '''
-    中文恢复
+    压缩包中文恢复
     '''
     name_to_info = zip_file.NameToInfo
     # copy map first
@@ -113,23 +114,38 @@ def solve(s):
         return ''
     return s.rsplit('\n', 1)[0]
 
-def search_anne(name:str,usr_id:str,at:list):
-    """获取anne信息"""
+async def search_anne(name:str,usr_id:str,at:list):
+    """qq为基础，获取anne信息可输出信息"""
     a = '详情'
     if any(word in name for word in a):
         logger.info('正在查询更多信息')
         name = name.replace(a,'')
-        name = id_to_mes(name,usr_id,at)
+        name = await id_to_mes(name,usr_id,at)
         if len(name)== 0:
             return '绑定信息不存在，或已失效'
-        msg = anne_rank(name)
+        msg_list_dict = anne_rank_dice(name)
+        msg = anne_rank_dict_msg(msg_list_dict)
     else:
-        name = id_to_mes(name,usr_id,at)
+        name = await id_to_mes(name,usr_id,at)
         if len(name)== 0:
             return '绑定信息不存在，或已失效'
-        msg = anne_html(name)
-    msg = solve(msg)
-    return msg
+        msg:list = anne_html(name)
+        if len(msg)==0:
+            return '未找到玩家...'
+        logger.info('有' + str(len(msg)) + '个信息')
+        logger.info(msg)
+        # 如果只有一个字典，就输出图片
+        if len(msg)== 1:
+            logger.info('使用图片')
+            msg = msg[0]
+            msg = await draw_user_info_img(usr_id,msg)
+            return msg
+        else:
+            logger.info('使用文字')
+            msg = anne_html_msg(msg)
+            msg = solve(msg)
+            return msg
+    
 
 def bind_steam(id:str,msg:str,nickname:str):
     """绑定qq-steam"""
@@ -139,7 +155,7 @@ def name_exist(id:str):
     """删除绑定信息"""
     return del_player(id)
 
-def get_message_at(data: str) -> list:
+async def get_message_at(data: str) -> list:
     '''
     获取at列表
     :param data: event.json()

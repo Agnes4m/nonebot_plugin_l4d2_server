@@ -1,7 +1,7 @@
 
 from nonebot.log import logger
 from pathlib import Path
-
+from .image.draw_user_info import draw_user_info_img
 from .config import l4_steamid,players_data
 from .seach import *
 try:
@@ -16,13 +16,13 @@ def anne_local(name):
         data = f.read()
 
 def anne_html(name):
-    """从html里提取玩家信息，多出一行"""
+    """从html里提取玩家信息，返回列表字典"""
     data_title = anne_search(name)
     data = data_title[0]
     title = data_title[1]
     if len(data) ==0 or data[0] == "No Player found.":
-        return '搜不到该玩家...\n'
-    data_list = []
+        return {}
+    data_list:list = []
     for i in data:
         i:BeautifulSoup
         Rank = i.find('td', {'data-title': 'Rank:'}).text.strip()
@@ -43,18 +43,27 @@ def anne_html(name):
             title[6]:steamid
         }
         data_list.append(play_json)
+    return data_list
 
-    # 列表转输出文字
+def anne_html_msg(data_list:list):
+    """从搜索结果的字典列表中，返回发送信息"""
     mes = '搜索到以下玩家信息'
     for one in data_list:
+        one:dict
         if l4_steamid:
             x = 7
         else:
             x = 6
+        titles = list(one.keys())
         for i in range(x):
-            mes += '\n' + str(title[i]) + ':' + str(one[title[i]])
+            mes += '\n' + str(titles[i]) + ':' + str(one[titles[i]])
         mes += '\n--------------------'    
     return mes
+
+async def anne_html_jpg(usr_id,msg:dict):
+    """搜索获得的dict获取图片"""
+    img = await draw_user_info_img(usr_id,msg)
+    return img
 
   
    
@@ -121,7 +130,7 @@ def del_player(id:str):
         return '你还没有绑定过，请使用[求生绑定+昵称/steamid]'
 
     
-def id_to_mes(name,usr_id,at:list):
+async def id_to_mes(name:str,usr_id,at):
     """根据name从json查找,返回昵称或者steamid"""
     if at and at[0] != usr_id:
         at = at[0]
@@ -131,7 +140,7 @@ def id_to_mes(name,usr_id,at:list):
             i = str (i)
             usr_id = str(usr_id)
             if usr_id == i:
-                data = players_data[i]
+                data:dict = players_data[i]
                 try:
                     name = data["steam_id"]
                 except KeyError:
@@ -143,8 +152,8 @@ def id_to_mes(name,usr_id,at:list):
     logger.info(name)
     return name
 
-def anne_rank(name:str):
-    """用steamid,查详情,输出可以发送的信息"""
+def anne_rank_dice(name:str):
+    """用steamid,查详情,输出字典"""
     if not name.startswith('STEAM'):
         name = name_steamid_html(name)
     data_dict = {}
@@ -158,7 +167,7 @@ def anne_rank(name:str):
     detail = data.find_all('table')
     n = 0
     while n < 2:
-        mes = ''
+        data_list = []
         detail2 = detail[n]
         tr = detail2.find_all('tr')
         for i in tr:
@@ -166,12 +175,19 @@ def anne_rank(name:str):
             value = title.find_next_sibling('td')
             new_dict = {title.text:value.text}
             data_dict.update(new_dict)
-        # print(data_dict)
+        data_list.append(data_dict)
+        n += 1
+    logger.info(data_list)
+    return data_list
+
+def anne_rank_dict_msg(data_list):
+    """字典转msg"""
+    msg = ''
+    for data_dict in data_list:
+        mes = ''
         for i in data_dict:
             mes +='\n'+ i + data_dict[i]
         mes += '\n--------------------'
-        n += 1
-    logger.info(mes)
-    return mes
+        msg += mes
+    return msg
 
-        
