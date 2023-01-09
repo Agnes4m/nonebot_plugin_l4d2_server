@@ -1,9 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import asyncio
 import asyncio
-from pathlib import Path
 
-from PIL import Image
 from .download import get_head_by_user_id_and_save
 from .send_image_tool import convert_img
 from ..config import *

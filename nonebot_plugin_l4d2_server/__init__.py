@@ -14,7 +14,7 @@ from .config import *
 from .utils import *
 
 from nonebot.plugin import PluginMetadata
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __plugin_meta__ = PluginMetadata(
     name="求生服务器操作",
     description='群内对服务器的简单操作',

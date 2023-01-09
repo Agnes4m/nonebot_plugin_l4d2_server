@@ -5,8 +5,6 @@ import hashlib
 import os
 from PIL import Image
 import io
-import sys
-from pathlib import Path
 from ..config import PLAYERSDATA
 
 async def download_url(url: str) -> bytes:
