@@ -28,5 +28,6 @@ setuptools.setup(
         "httpx",
         "py7zr",
         "beautifulsoup4",
+        "rcon",
         ],
 )

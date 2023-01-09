@@ -20,6 +20,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 # 最近更新
 更新求生anne返回图片~
+更新rcon连接求生服务器
 
 ## 安装
     1、nb plugin install nonebot_plugin_l4d2_server
@@ -102,19 +103,27 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
 | l4_image | 否 | False | 布尔值，查看地图的时候显示图片(字体为simsun.ttc，安装过才能设置为True) |
 | l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
+| l4_host | 否 | '127.0.0.1' | str，服务器ip，如果是本机一般就是默认 |
+| l4_port | 否 | 20715 | int，服务器端口号 |
+| l4_rcon | 否 | '114514' | str，服务器的rcon密码 |
 
 ## 功能
+
+###服务器
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
 
 | 指令 | 范围 | 用途 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | 求生地图/查看求生地图 | 所有人 | 看图 | 获取当前路径下所有的vpk文件，并输出目录 |
-| 求生anne[text] | 所有人 | 查anne成绩 | [text]可以是:空白(则使用绑定信息)|昵称|steamid|@user |
-| 求生绑定/steam绑定/anne绑定[text] | 所有人 | 绑定steam信息 | [text]可以是:昵称|steamid |
-| 求生解绑/steam解绑/anne解绑 | 所有人 | 解绑steam信息 | 无 |
 | (求生)地图删除[number] | 群管/超管 | 删图 | 根据求生地图列出的序号，删除地图，[number]可以在第二条消息内输入 |
 | 求生地图[number][改/改名][text] | 群管/超管 | 改图名 | [number]同上，text为更改后名称，如果没有.vpk后缀会自动加上 |
+| 求生服务器指令[text] | 群管/超管 | 控制台 | rcon连接求生服务器控制台,建议设置l4_host、l4_port、l4_rcon，l4_rcon不设置会尝试自动获取 |
 
+| 指令 | 范围 | 用途 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| 求生anne[text]/@/[None] | 所有人 | 查anne成绩 | [text]可以是:空白(则使用绑定信息)|昵称|steamid|@user |
+| 求生绑定/steam绑定/anne绑定[text] | 所有人 | 绑定steam信息 | [text]可以是:昵称|steamid |
+| 求生解绑/steam解绑/anne解绑 | 所有人 | 解绑steam信息 | 无 |
 
 ## 📝 TODO LIST
 

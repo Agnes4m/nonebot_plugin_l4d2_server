@@ -12,7 +12,6 @@ from nonebot.adapters.onebot.v11.permission import (
 from time import sleep
 from .config import *
 from .utils import *
-
 from nonebot.plugin import PluginMetadata
 __version__ = "0.1.4"
 __plugin_meta__ = PluginMetadata(
@@ -28,6 +27,7 @@ __plugin_meta__ = PluginMetadata(
 
 Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
 
+# 服务器
 up = on_notice()
 rename_vpk = on_regex(
         r"^求生地图\s*(\S+.*?)\s*(改|改名)?\s*(\S+.*?)\s*$",
@@ -36,9 +36,10 @@ rename_vpk = on_regex(
     priority= 20,
     permission= Master,
 )
-# 服务器
+
 find_vpk = on_command("l4_map",aliases={"求生地图","查看求生地图"},priority=25,block=True)
 del_vpk = on_command("l4_del_map",aliases={"求生地图删除","地图删除"},priority=20,block=True,permission= Master)
+rcon_to_server = on_command('rcon',aliases={"求生服务器指令","服务器指令","求生服务器控制台"},block=True,permission= Master)
 
 # anne
 anne_player = on_command('Ranne',aliases={"求生anne"},priority=25,block=True)
@@ -169,4 +170,15 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
 async def _(event:MessageEvent):
     usr_id = event.user_id
     await del_bind.finish(name_exist(usr_id))
-    
+
+@rcon_to_server.handle()
+async def _(matcher:Matcher,args:Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if msg:
+        matcher.set_arg("command",args)
+
+@rcon_to_server.got("command",prompt="请输入向服务器发送的指令")
+async def _(tag:str = ArgPlainText("command")):
+    tag = tag.strip()
+    msg =  await command_server(tag)
+    await rcon_to_server.finish(msg)

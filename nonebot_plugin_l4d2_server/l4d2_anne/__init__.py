@@ -1,9 +1,9 @@
 
 from nonebot.log import logger
 from pathlib import Path
-from .image.draw_user_info import draw_user_info_img
-from .config import l4_steamid,players_data
-from .seach import *
+from ..image.draw_user_info import draw_user_info_img
+from ..config import l4_steamid,players_data
+from ..seach import *
 try:
     import ujson as json
 except:

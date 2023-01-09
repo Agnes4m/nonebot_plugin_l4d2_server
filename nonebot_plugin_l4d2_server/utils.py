@@ -8,10 +8,12 @@ except:
     pass
 from pathlib import Path
 from .txt_to_img import txt_to_img
-from .config import map_path
-from .anne import *
+from .config import *
+from .l4d2_anne.__init__ import *
 from .chrome import get_anne_server
+from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
 from .image.draw_user_info import draw_user_info_img
+
 
 def get_file(url,down_file):
     '''
@@ -183,3 +185,17 @@ def at_to_usrid(usr_id,at):
             at = at[0]
         usr_id = at
     return usr_id
+
+async def command_server(msg:str):
+    logger.info(cfg_server)
+    rcon = await read_server_cfg_rcon()
+    logger.info([msg,l4_host,l4_port,rcon])
+    logger.info([type(msg),type(l4_host),type(l4_port),type(rcon)])
+    msg = await rcon_server(rcon,msg)
+    logger.info(msg)
+    if len(msg)==0:
+        msg = '尝试连接服务器错误，请检查rcon'
+    if msg.startswith('Unknown command'):
+        msg = msg.replace('Unknown command','').strip()
+        msg = '无效指令：' + msg
+    return msg
