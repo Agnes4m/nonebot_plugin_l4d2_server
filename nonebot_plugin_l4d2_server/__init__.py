@@ -133,9 +133,9 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
     name = name.strip()
     usr_id = event.user_id
     at = await get_message_at(event.json())
+    usr_id = at_to_usrid(usr_id,at)
     # 没有参数则从json里找数据
-    msg = await search_anne(name,usr_id,at)
-    logger.info(type(msg))
+    msg = await search_anne(name,usr_id)
     if type(msg)==str:
         await anne_player.finish(msg)
     else:

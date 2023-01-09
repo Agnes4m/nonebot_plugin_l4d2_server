@@ -114,19 +114,19 @@ def solve(s):
         return ''
     return s.rsplit('\n', 1)[0]
 
-async def search_anne(name:str,usr_id:str,at:list):
+async def search_anne(name:str,usr_id:str):
     """qq为基础，获取anne信息可输出信息"""
     a = '详情'
     if any(word in name for word in a):
         logger.info('正在查询更多信息')
         name = name.replace(a,'')
-        name = await id_to_mes(name,usr_id,at)
+        name = await id_to_mes(name,usr_id)
         if len(name)== 0:
             return '绑定信息不存在，或已失效'
         msg_list_dict = anne_rank_dice(name)
         msg = anne_rank_dict_msg(msg_list_dict)
     else:
-        name = await id_to_mes(name,usr_id,at)
+        name = await id_to_mes(name,usr_id)
         if len(name)== 0:
             return '绑定信息不存在，或已失效'
         msg:list = anne_html(name)
@@ -175,3 +175,11 @@ def anne_servers():
     mes = get_anne_server()
     mes = solve(mes)
     return mes
+
+def at_to_usrid(usr_id,at):
+    """at对象变qqid否则返回usr_id"""
+    if at != []:
+        if at and at[0] != usr_id:
+            at = at[0]
+        usr_id = at
+    return usr_id

@@ -130,11 +130,8 @@ def del_player(id:str):
         return '你还没有绑定过，请使用[求生绑定+昵称/steamid]'
 
     
-async def id_to_mes(name:str,usr_id,at):
+async def id_to_mes(name:str,usr_id):
     """根据name从json查找,返回昵称或者steamid"""
-    if at and at[0] != usr_id:
-        at = at[0]
-        usr_id = at
     if len(name)== 0:
         for i in players_data:
             i = str (i)
