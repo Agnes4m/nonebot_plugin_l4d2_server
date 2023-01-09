@@ -116,14 +116,14 @@ def add_player(id:str,new_dict:dict):
     axis = {id:new_dict}
     logger.info(axis)
     players_data.update(axis)
-    with open(Path(__file__).parent.joinpath('data/player.json'), "w", encoding="utf8") as new:
+    with open(Path(__file__).parent.joinpath('data/L4D2/player.json'), "w", encoding="utf8") as new:
         json.dump(players_data, new, ensure_ascii=False, indent=4)
         
 def del_player(id:str):
     """删除绑定信息,返回消息"""
     try:
         del players_data[str(id)]
-        with open(Path(__file__).parent.joinpath('data/player.json'), "w", encoding="utf8") as new:
+        with open(Path(__file__).parent.joinpath('data/L4D2/player.json'), "w", encoding="utf8") as new:
             json.dump(players_data, new, ensure_ascii=False, indent=4)
         return '删除成功喵~'
     except KeyError:

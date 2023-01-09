@@ -143,6 +143,7 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
         
 @anne_server.handle()
 async def _():
+    await anne_server.send('正在查询，方式是谷歌浏览器')
     msg = anne_servers()
     if len(msg)==0:
         await anne_server.finish('服务器超市了')
