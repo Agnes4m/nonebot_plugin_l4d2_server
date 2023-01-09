@@ -139,7 +139,7 @@ async def img_author(img, bg):
     alpha_layer = Image.new('L', (w, w), 0)
     draw = ImageDraw.Draw(alpha_layer)
     draw.ellipse((0, 0, w, w), fill=255)
-    bg.paste(img, (88, 80), alpha_layer)
+    bg.paste(img, (88, 88), alpha_layer)
     
     return bg
 

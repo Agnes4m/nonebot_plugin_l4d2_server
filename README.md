@@ -19,10 +19,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 </div>
 
 # 最近更新
-更新了查询anne的信息~<br>
-使用指令(求生anne[text|@])<br>
-使用指令(求生anne详情[text|@])<br>
-也可以使用(求生绑定[text])来绑定昵称或steamid,就可以不带参数查询了<br>
+更新求生anne返回图片~
 
 ## 安装
     1、nb plugin install nonebot_plugin_l4d2_server
@@ -158,6 +155,8 @@ anne:
 
 - 新增求生anne详情（看排名）
 - 所有的请求改为httpx
+- 更新了帮助图片
+- 可选使用模拟谷歌浏览器来获取anne更多数据（~有点屎了，希望大佬救救~)
 
 ### 0.1.3
 
