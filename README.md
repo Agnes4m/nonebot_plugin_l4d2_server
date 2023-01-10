@@ -29,6 +29,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 ## 前置操作
 
+- 如果要操作求生服务器文件，机器人与求生服务器处于同一个服务器上
+
+- 如果你按照以下步骤操作，env配置可以不填
+
 - 创建一个steam求生服务器(预计需要储存14G)
 
 <details>
@@ -63,16 +67,15 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 写入
 
         hostname "xxx"     //游戏服务器名(英文)
+        rcon_password "114514"  //rcon密码
         sv_steamgroup "114514"     //Steam组号
         sv_steamgroup_exclusive 1 //将服务器设为Steam组私有
-        sv_allow_lobby_connect_only 0
         sm_cvar sv_gametypes "coop"//设置游戏模式为合作
         //设为1可防止玩家加入感染者方，仅战役模式
         sm_cvar director_no_human_zombies "1"
         mp_gamemode "coop"//激活游戏模式为合作
-        z_difficulty "Hard"//设置游戏难度为困难
-        sm_cvar sb_all_bot_game 1// 防止人数不足而自动关闭
-        sv_tags "hidden" //防止DDos攻击
+        sm_cvar z_difficulty "Hard"//设置游戏难度为困难
+        sv_tags "hidden" //防止DDOS
         sm_cvar sv_region 4// 设定服务器区域为亚洲
         sv_visiblemaxplayers 8 //服务器可见最大玩家数
         maxplayers 8 //最大玩家数
@@ -85,7 +88,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 在脚本里写入
 
         cd /home/ubuntu/l4d2
-        sudo ./srcds_run -game left4dead2 +exec server.cfg
+        sudo ./srcds_run -game left4dead2 -condebug -tickrate 60 +exec server.cfg +map c2m1_highway
 
 - 启动游戏
 
@@ -94,18 +97,21 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </details>
 
-- 机器人与求生服务器处于同一个服务器位置
-
 ## env配置
+###建议填写
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| l4_file | 是 | "/home/ubuntu/l4d2/coop" | str,输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
-| l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
-| l4_image | 否 | False | 布尔值，查看地图的时候显示图片(字体为simsun.ttc，安装过才能设置为True) |
-| l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
+| l4_file | 否 | "/home/ubuntu/l4d2/coop" | str,输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
 | l4_host | 否 | '127.0.0.1' | str，服务器ip，如果是本机一般就是默认 |
 | l4_port | 否 | 20715 | int，服务器端口号 |
 | l4_rcon | 否 | '114514' | str，服务器的rcon密码 |
+
+###可选填写
+| 配置项 | 必填 | 默认值 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
+| l4_image | 否 | True | 布尔值，是否显示图片 |
+| l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
 
 ## 功能
 
