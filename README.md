@@ -132,6 +132,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | 求生绑定/steam绑定/anne绑定[text] | 所有人 | 绑定steam信息 | [text]可以是:昵称|steamid |
 | 求生解绑/steam解绑/anne解绑 | 所有人 | 解绑steam信息 | 无 |
 
+## FAQ
+Q:UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd0 in position xxx: invalid continuation byte
+A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含表情包或者其他不明字符，我的方法是找到本地pypi包的rcon，编辑rcon/source/async_rcon.py,找到return response.payload.decode(encoding)并替换为return response.payload.decode(encoding,errors='ignore')
+
 ## 📝 TODO LIST
 
 <details>
