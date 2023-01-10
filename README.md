@@ -97,7 +97,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </details>
 
-## env配置
+## ✅ env配置
 ###建议填写
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
@@ -113,7 +113,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | l4_image | 否 | True | 布尔值，是否显示图片 |
 | l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
 
-## 功能
+## 🤔 功能
 
 ### 服务器
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
@@ -132,7 +132,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | 求生绑定/steam绑定/anne绑定[text] | 所有人 | 绑定steam信息 | [text]可以是:昵称|steamid |
 | 求生解绑/steam解绑/anne解绑 | 所有人 | 解绑steam信息 | 无 |
 
-## FAQ
+
+## 🤔 FAQ
 Q:UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd0 in position xxx: invalid continuation byte
 A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含表情包或者其他不明字符，我的方法是找到本地pypi包的rcon，编辑rcon/source/async_rcon.py,找到return response.payload.decode(encoding)并替换为return response.payload.decode(encoding,errors='ignore')
 
@@ -152,14 +153,14 @@ A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含�
 
 </details>
 
-## 已知BUG
+## 🐛  已知BUG
 
 - [ ] 无法在python3.10版本下解压7z格式压缩包
 - [ ] 所有人都可以私聊发送文件
 - [ ] 更改地图名称后，排序会错误
 - [ ] 服务器指令如果使用更换地图或重启，服务器会因为无响应，而返回无法连接
 
-## 效果展示
+## ✨ 效果展示
 anne:
 ![list](image/anne.png)<br>
 群聊：
@@ -167,7 +168,7 @@ anne:
 私聊：
 ![up](image/up.png)
 
-## 📝 更新日志
+## 🔖 更新日志
 
 <details>
 <summary>展开/收起</summary>
@@ -224,6 +225,6 @@ anne:
 
 </details>
 
-## 已测试环境
+## ✨ 已测试环境
 win10 python3.9 <br>
 ubuntu20.04 python3.10
