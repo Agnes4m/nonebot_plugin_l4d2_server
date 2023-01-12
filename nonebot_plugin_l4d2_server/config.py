@@ -1,4 +1,9 @@
 import nonebot
+from nonebot.permission import SUPERUSER
+from nonebot.adapters.onebot.v11.permission import (
+    GROUP_ADMIN,
+    GROUP_OWNER,
+)
 from pathlib import Path
 try:
     import ujson as json
@@ -6,6 +11,7 @@ except:
     import json
     
 file_format = (".vpk",".zip",".7z")
+Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
 # file 填写求生服务器所在路径
 FONT_ORIGIN_PATH = Path(__file__).parent / 'data/L4D2/font.ttf'
 try:

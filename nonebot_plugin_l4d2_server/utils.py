@@ -1,6 +1,7 @@
 from zipfile import ZipFile
 from nonebot.log import logger
 import httpx
+import re
 import os
 try:
     import py7zr
@@ -13,7 +14,7 @@ from .l4d2_anne.__init__ import *
 from .chrome import get_anne_server
 from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
 from .image.draw_user_info import draw_user_info_img
-
+from .l4d2_queries import queries
 
 def get_file(url,down_file):
     '''
@@ -187,15 +188,26 @@ def at_to_usrid(usr_id,at):
     return usr_id
 
 async def command_server(msg:str):
+    """rcon控制台返回信息"""
     logger.info(cfg_server)
     rcon = await read_server_cfg_rcon()
     logger.info([msg,l4_host,l4_port,rcon])
     msg = await rcon_server(rcon,msg)
     logger.info(msg)
     if len(msg)==0:
-        msg = '尝试连接服务器错误，请检查rcon'
+        msg = '你可能发送了一个无用指令，或者换图导致服务器无响应'
     if msg.startswith('Unknown command'):
         msg = msg.replace('Unknown command','').strip()
         msg = '无效指令：' + msg
     msg = msg.strip()
     return msg
+
+def split_maohao(msg:str) -> list:
+    """分割大小写冒号"""
+    msg:list = re.split(":|：",msg.strip())
+    msg[-1] = msg[-1] if len(msg[-1])!=0 else '20715'  
+    return msg
+
+def queries_server(msg:list) -> str:
+    print(msg)
+    return queries(msg[0],msg[1])
