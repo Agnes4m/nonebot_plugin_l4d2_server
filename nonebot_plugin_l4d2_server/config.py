@@ -62,5 +62,9 @@ players_data:dict[str(dict)] = json.load(open(Path(__file__).parent.joinpath('da
 
 PLAYERSDATA = Path() / "data/L4D2/image/players"
 """用户数据路径"""
-TEXT_PATH = Path(__file__).parent / 'data/L4D2/image'
+TEXT_PATH = Path() / 'data/L4D2/image'
 """图片路径"""
+DATASQLITE = Path() / "data/L4D2/sql"
+"""数据库路径"""
+datasqlite = Path() / "data/L4D2/sql/data.db"
+"""数据库！"""
