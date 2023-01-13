@@ -13,7 +13,7 @@ from .config import *
 from .l4d2_anne.__init__ import *
 from .chrome import get_anne_server
 from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
-from .image.draw_user_info import draw_user_info_img
+from .l4d2_image.draw_user_info import draw_user_info_img
 from .l4d2_queries import queries
 
 def get_file(url,down_file):

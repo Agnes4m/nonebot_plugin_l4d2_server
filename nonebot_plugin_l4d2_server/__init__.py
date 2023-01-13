@@ -7,7 +7,7 @@ from .config import *
 from .utils import *
 from .command import *
 from nonebot.plugin import PluginMetadata
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 __plugin_meta__ = PluginMetadata(
     name="求生服务器操作",
     description='群内对服务器的简单操作',
@@ -20,7 +20,7 @@ __plugin_meta__ = PluginMetadata(
 
 
 @up.handle()
-async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
+async def _(event: NoticeEvent, matcher: Matcher):
     # 检查下载路径是否存在
     if not Path(l4_file).exists():
         await up.finish("你填写的路径不存在辣")
@@ -31,7 +31,7 @@ async def _(bot:Bot ,event: NoticeEvent, matcher: Matcher):
         await matcher.finish()
     url = args['file']['url']
     name: str = args['file']['name']
-    user_id = args['user_id']
+    # user_id = args['user_id']
     # 如果不符合格式则忽略
     if not name.endswith(file_format):
         return
@@ -127,16 +127,16 @@ async def _():
             await anne_server.finish(msg)
     
     
-@steam_bind.handle()
+@anne_bind.handle()
 async def _(event:MessageEvent,args:Message = CommandArg()):
     tag = args.extract_plain_text()
     tag = tag.strip()
     if tag=="" or tag.isspace():
-        await steam_bind.finish("虚空绑定?")
+        await anne_bind.finish("虚空绑定?")
     usr_id = str(event.user_id)
     nickname = event.sender.card or event.sender.nickname
     msg = bind_steam(usr_id,tag,nickname)
-    await steam_bind.finish(msg)
+    await anne_bind.finish(msg)
 
 @del_bind.handle()
 async def _(event:MessageEvent):

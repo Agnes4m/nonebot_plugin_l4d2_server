@@ -64,7 +64,18 @@ PLAYERSDATA = Path() / "data/L4D2/image/players"
 """用户数据路径"""
 TEXT_PATH = Path() / 'data/L4D2/image'
 """图片路径"""
+
+
 DATASQLITE = Path() / "data/L4D2/sql"
 """数据库路径"""
 datasqlite = Path() / "data/L4D2/sql/data.db"
 """数据库！"""
+table_data = ["L4d2_players","L4D2_server"]
+"""数据库表"""
+L4d2_players_tag = ['qq', 'nickname', 'steamid']
+"""数据库表1"""
+L4d2_server_tag = ['group', 'number', 'host', 'port', 'rcon', 'path', 'use']
+"""数据库表2"""
+L4d2_INTEGER = ['qq','group','number','port']
+L4d2_TEXT = ['nickname','steamid','host','rcon','path']
+L4d2_BOOLEAN = ['use']

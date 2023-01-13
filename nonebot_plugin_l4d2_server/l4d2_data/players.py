@@ -2,9 +2,19 @@ from ..config import DATASQLITE
 import sqlite3
 from typing import Union
 
+
+def auto_operation(func):
+    def wrapper(*args, **kwargs):
+        # 前置函数操作
+        print("Starting...")
+        func(*args, **kwargs)
+        # 结束操作
+        print("Ending...")
+    return wrapper
+
 class L4D2Change:
-    """数据库角色信息处理"""
-    def __init__(self, DATASQLITE):
+    """数据库角色连接"""
+    def __init__(self):
         self.DATASQLITE = DATASQLITE
         self.conn = sqlite3.connect(self.DATASQLITE/ 'L4D2.db')
         self.c = self.conn.cursor()
@@ -34,7 +44,7 @@ class L4D2Change:
         print("Player Delete Success")
         
     def _query_player(self, qq):
-        """查询用户是否存在"""
+        """通过qq获取数据"""
         self.c.execute(f"SELECT * FROM players WHERE qq = {qq}")
         return self.c.fetchone()
     

@@ -20,7 +20,7 @@ rcon_to_server = on_command('rcon',aliases={"求生服务器指令","服务器�
 # anne
 anne_player = on_command('Ranne',aliases={"求生anne"},priority=25,block=True)
 anne_server = on_command('anneip',aliases={'求生anne服务器','求生药役服务器'},priority=20,block=True)
-steam_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
+anne_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
 del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
 
 

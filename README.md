@@ -18,9 +18,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </div>
 
-# 最近更新
-更新求生anne返回图片~
-更新rcon连接求生服务器
+# 主要功能
+-求生服务器本地操作
+-求生电信服anne查询
+
 
 ## 安装
     1、nb plugin install nonebot_plugin_l4d2_server
@@ -225,6 +226,12 @@ anne:
 
 </details>
 
-## ✨ 已测试环境
+## ✨ 开发环境
 win10 python3.9 <br>
 ubuntu20.04 python3.10
+
+
+## 感谢
+- <a href=" https://github.com/s52047qwas/nonebot_plugin_xiuxian "> 修仙插件的数据库写法 </a>
+- <a href=" https://github.com/Umamusume-Agnes-Digital/VSQ "> 自己写的求生之路查询库 </a>
+- <a href=" https://github.com/MeetWq/mybot "> 可爱小Q的帮助~还没抄完~ </a>

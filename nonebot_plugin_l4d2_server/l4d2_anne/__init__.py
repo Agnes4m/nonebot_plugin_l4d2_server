@@ -1,14 +1,17 @@
 
 from nonebot.log import logger
 from pathlib import Path
-from ..image.draw_user_info import draw_user_info_img
+from ..l4d2_image.draw_user_info import draw_user_info_img
 from ..config import l4_steamid,players_data
 from ..seach import *
+from ..l4d2_data.players import L4D2Change
 try:
     import ujson as json
 except:
     import json
 
+
+sql_players = L4D2Change()
 
 def anne_local(name):
     """输入名字或者steamid返回本地缓存信息(未完成)"""
