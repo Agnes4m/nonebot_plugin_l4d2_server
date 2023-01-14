@@ -25,6 +25,7 @@ setuptools.setup(
     install_requires=[
         "nonebot2>=2.0.0b4,<3.0.0",
         "nonebot-adapter-onebot>=2.1.0,<3.0.0",
+        "nonebot_plugin_htmlrender",
         "httpx",
         "py7zr",
         "beautifulsoup4",

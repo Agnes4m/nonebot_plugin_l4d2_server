@@ -5,7 +5,7 @@ import hashlib
 import os
 from PIL import Image
 import io
-from ..config import PLAYERSDATA
+from ..config import PLAYERSDATA,TEXT_PATH
 
 async def download_url(url: str) -> bytes:
     async with httpx.AsyncClient() as client:
@@ -32,20 +32,28 @@ async def get_head_by_user_id_and_save(user_id):
     user_id = str(user_id)
 
     USER_HEAD_PATH = PLAYERSDATA / user_id / 'HEAD.png'
-    
+    ## im头像 im2头像框 im3合成
     if os.path.exists(USER_HEAD_PATH):
-        logger.info("头像已存在")
+        logger.info("使用本地头像")
+        logger.info(USER_HEAD_PATH)
         im = Image.open(USER_HEAD_PATH).resize((280, 280)).convert("RGBA")
-        return im
+        im2 = Image.open(TEXT_PATH/"head.png").resize((450,450)).convert("RGBA")
+        im3 = Image.new("RGBA", im2.size, (255,255,255,0))
+        im3.paste(im,(85,85))
+        im3.paste(im2) 
+        return im3
     else:
         try:
-            logger.info("头像不存在，开始下载")
+            logger.info("正在下载头像")
             image_bytes = await download_head(user_id)
             im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
             if not os.path.exists(PLAYERSDATA / user_id):#用户文件夹不存在
                 os.makedirs(PLAYERSDATA / user_id)
             im.save(USER_HEAD_PATH, "PNG")
         except:
-            logger.error("获取头像出错")
-    
-        return im
+            logger.error("获取失败")
+    im2 = Image.open(PLAYERSDATA.parent/"head.png").resize((450,450)).convert("RGBA")
+    im3 = Image.new("RGBA", im2.size, (255,255,255,0))
+    im3.paste(im,(85,85))
+    im3.paste(im2) 
+    return im3

@@ -7,6 +7,11 @@ from .config import *
 from .utils import *
 from .command import *
 from nonebot.plugin import PluginMetadata
+from .l4d2_data import sq_L4D2
+from nonebot import get_driver
+driver = get_driver()
+
+
 __version__ = "0.1.5"
 __plugin_meta__ = PluginMetadata(
     name="求生服务器操作",
@@ -17,6 +22,10 @@ __plugin_meta__ = PluginMetadata(
         "author": "Umamusume-Agnes-Digital <Z735803792@163.com>",
     },
 )
+
+
+
+"""相当于启动就检查数据库"""
 
 
 @up.handle()
@@ -107,7 +116,7 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
     usr_id = event.user_id
     at = await get_message_at(event.json())
     usr_id = at_to_usrid(usr_id,at)
-    # 没有参数则从json里找数据
+    # 没有参数则从db里找数据
     msg = await search_anne(name,usr_id)
     if type(msg)==str:
         await anne_player.finish(msg)
@@ -169,3 +178,8 @@ async def _(tag:str = ArgPlainText("ip")):
     ip = split_maohao(tag)
     msg = queries_server(ip)
     await queries.finish(msg)
+    
+    
+@driver.on_shutdown
+async def close_db():
+    sq_L4D2._close()

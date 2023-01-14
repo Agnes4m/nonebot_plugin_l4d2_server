@@ -10,11 +10,14 @@ except:
 from pathlib import Path
 from .txt_to_img import txt_to_img
 from .config import *
-from .l4d2_anne.__init__ import *
+# from .l4d2_anne.__init__ import *
+from .l4d2_anne import write_player,del_player,anne_messgae
 from .chrome import get_anne_server
 from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
 from .l4d2_image.draw_user_info import draw_user_info_img
 from .l4d2_queries import queries
+
+
 
 def get_file(url,down_file):
     '''
@@ -118,36 +121,10 @@ def solve(s):
     return s.rsplit('\n', 1)[0]
 
 async def search_anne(name:str,usr_id:str):
-    """qq为基础，获取anne信息可输出信息"""
-    a = '详情'
-    if any(word in name for word in a):
-        logger.info('正在查询更多信息')
-        name = name.replace(a,'')
-        name = await id_to_mes(name,usr_id)
-        if len(name)== 0:
-            return '绑定信息不存在，或已失效'
-        msg_list_dict = anne_rank_dice(name)
-        msg = anne_rank_dict_msg(msg_list_dict)
-    else:
-        name = await id_to_mes(name,usr_id)
-        if len(name)== 0:
-            return '绑定信息不存在，或已失效'
-        msg:list = anne_html(name)
-        if len(msg)==0:
-            return '未找到玩家...'
-        logger.info('有' + str(len(msg)) + '个信息')
-        logger.info(msg)
-        # 如果只有一个字典，就输出图片
-        if len(msg)== 1:
-            logger.info('使用图片')
-            msg = msg[0]
-            msg = await draw_user_info_img(usr_id,msg)
-            return msg
-        else:
-            logger.info('使用文字')
-            msg = anne_html_msg(msg)
-            msg = solve(msg)
-            return msg
+    msg = await anne_messgae(name,usr_id)
+    if type(msg) == str:
+        msg = solve(msg)
+    return msg
     
 
 def bind_steam(id:str,msg:str,nickname:str):
@@ -209,5 +186,6 @@ def split_maohao(msg:str) -> list:
     return msg
 
 def queries_server(msg:list) -> str:
+    """查询ip返回信息"""
     print(msg)
     return queries(msg[0],msg[1])

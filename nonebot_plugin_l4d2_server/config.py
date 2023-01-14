@@ -60,22 +60,34 @@ players_data:dict[str(dict)] = json.load(open(Path(__file__).parent.joinpath('da
 """绑定信息dict"""
 
 
+
 PLAYERSDATA = Path() / "data/L4D2/image/players"
 """用户数据路径"""
-TEXT_PATH = Path() / 'data/L4D2/image'
-"""图片路径"""
+TEXT_PATH = Path(__file__).parent / 'data/L4D2/image'
+"""图片存储路径"""
+TEXT_XPATH = Path().parent / 'data/L4D2/image'
+"""内置图片路径"""
 
 
-DATASQLITE = Path() / "data/L4D2/sql"
+
+DATASQLITE = Path(__file__).parent / "data/L4D2/sql"
 """数据库路径"""
-datasqlite = Path() / "data/L4D2/sql/data.db"
+datasqlite = Path(__file__).parent / "data/L4D2/sql/L4D2.db"
 """数据库！"""
 table_data = ["L4d2_players","L4D2_server"]
 """数据库表"""
 L4d2_players_tag = ['qq', 'nickname', 'steamid']
 """数据库表1"""
-L4d2_server_tag = ['group', 'number', 'host', 'port', 'rcon', 'path', 'use']
+L4d2_server_tag = ['number','qq','qqgroup', 'host', 'port', 'rcon', 'path', 'use']
 """数据库表2"""
-L4d2_INTEGER = ['qq','group','number','port']
+L4d2_INTEGER = ['qq','qqgroup','number','port']
+"""INITEGER的表头"""
 L4d2_TEXT = ['nickname','steamid','host','rcon','path']
+"""TEXT的表头"""
 L4d2_BOOLEAN = ['use']
+"""BOOLEAN的表头"""
+
+tables_columns = {
+    table_data[0]:L4d2_players_tag,
+    table_data[1]:L4d2_server_tag
+}

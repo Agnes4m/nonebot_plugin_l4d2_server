@@ -19,8 +19,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 </div>
 
 # 主要功能
--求生服务器本地操作
--求生电信服anne查询
+- 求生服务器本地操作
+- <a href=" https://sb.trygek.com/l4d_stats/ranking/index.php "> 求生电信服anne </a>查询~
 
 
 ## 安装
@@ -177,6 +177,8 @@ anne:
 ### 0.1.5
 
 - 新增服务器控制台指令，新增依赖rcon
+- 重新了数据库，不再使用json而是使用sql3
+- 改写了求生anne信息显示方式：如果单个数据以图片显示，如果多个数据以文字显示
 
 ### 0.1.4
 

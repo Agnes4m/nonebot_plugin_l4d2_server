@@ -3,81 +3,78 @@ import sqlite3
 from typing import Union
 
 
-def auto_operation(func):
-    def wrapper(*args, **kwargs):
-        # 前置函数操作
-        print("Starting...")
-        func(*args, **kwargs)
-        # 结束操作
-        print("Ending...")
-    return wrapper
-
-class L4D2Change:
-    """数据库角色连接"""
+class L4D2Player:
+    """数据库L4D2_Player表的操作""" 
     def __init__(self):
-        self.DATASQLITE = DATASQLITE
-        self.conn = sqlite3.connect(self.DATASQLITE/ 'L4D2.db')
+        """连接数据库"""
+        self.datasqlite_path = DATASQLITE
+        self.conn = sqlite3.connect(self.datasqlite_path / 'L4D2.db')
         self.c = self.conn.cursor()
-            
+        
     def _add_player_nickname(self, qq, nickname):
         """绑定昵称"""
-        c = self.conn.cursor()
         try:
-            c.execute("INSERT INTO players (qq, nickname, steamid) VALUES (?,?,NULL)", (qq, nickname))
+            self.c.execute("INSERT INTO L4d2_players (qq, nickname, steamid) VALUES (?,?,NULL)", (qq, nickname))
             self.conn.commit()
+            return True
         except sqlite3.IntegrityError:
-            print(f"Player with qq: {qq} already exists.")
+            return False
               
-    def _add_player_steamid(self, qq, steamid):
-        """绑定steamid"""
-        c = self.conn.cursor()
+    def _add_player_steamid(self, qq, nickname,steamid):
+        """用新数据覆盖旧数据"""
         try:
-            c.execute("INSERT INTO players (qq, nickname, steamid) VALUES (?,NULL,?)", (qq, steamid))
+            self.c.execute("INSERT INTO L4d2_players (qq, nickname, steamid) VALUES (?,?,?)", (qq, nickname,steamid))
             self.conn.commit()
+            return True
         except sqlite3.IntegrityError:
-            print(f"Player with qq: {qq} already exists.")
+            return False
         
     def _delete_player(self, qq):
         """解除绑定"""
-        self.c.execute(f"DELETE FROM players WHERE qq = {qq}")
+        self.c.execute(f"DELETE FROM L4d2_players WHERE qq = {qq}")
         self.conn.commit()
-        print("Player Delete Success")
+        return True
         
-    def _query_player(self, qq):
+    def _query_player_qq(self, qq) -> Union[tuple,None]:
         """通过qq获取数据"""
-        self.c.execute(f"SELECT * FROM players WHERE qq = {qq}")
+        self.c.execute(f"SELECT * FROM L4d2_players WHERE qq = {qq}")
         return self.c.fetchone()
     
-    def search_data(self, data:tuple) -> Union[tuple,None]:
+    def _query_player_nickname(self, nickname) -> Union[tuple,None]:
+        """通过nickname获取数据"""
+        self.c.execute(f"SELECT * FROM L4d2_players WHERE nickname = {nickname}")
+        return self.c.fetchone()
+
+    def _query_player_steamid(self, nickname) -> Union[tuple,None]:
+        """通过steamid获取数据"""
+        self.c.execute(f"SELECT * FROM L4d2_players WHERE nickname = {nickname}")
+        return self.c.fetchone()
+    
+    def search_data(self, qq, nickname, steamid) -> Union[tuple,None]:
         """
         输入元组查询，优先qq其次steamid最后nickname，不需要值可以为None
         输出为元组，如果为空输出None
         data = (qq , nickname , steamid )
-        
         """
-        qq, nickname, steamid = data
-        c = self.conn.cursor()
         if qq:
-            c.execute("SELECT * FROM players WHERE qq=?", (qq,))
-            result = c.fetchone()
+            self.c.execute("SELECT * FROM L4d2_players WHERE qq=?", (qq,))
+            result = self.c.fetchone()
             if result:
                 return result
         if steamid:
-            c.execute("SELECT * FROM players WHERE steamid=?", (steamid,))
-            result = c.fetchone()
+            self.c.execute("SELECT * FROM L4d2_players WHERE steamid=?", (steamid,))
+            result = self.c.fetchone()
             if result:
                 return result
         if nickname:
-            c.execute("SELECT * FROM players WHERE nickname=?", (nickname,))
-            result = c.fetchone()
+            self.c.execute("SELECT * FROM L4d2_players WHERE nickname=?", (nickname,))
+            result = self.c.fetchone()
             if result:
                 return result
         return None
     
-    def _query_all_player(self):
-        """清空绑定"""
-        self.c.execute("SELECT * FROM players")
+    def _query_all_player(self) -> tuple[tuple]:
+        """获取所有玩家信息"""
+        self.c.execute("SELECT * FROM L4d2_players")
         return self.c.fetchall()
     
-    def _close(self):
-        self.conn.close()

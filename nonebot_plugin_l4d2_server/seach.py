@@ -35,7 +35,7 @@ def id_name(id):
     return name
         
 def anne_search(name):
-    """输入名字或者steamid返回列表["""
+    """输入名字返回列表["""
     url = 'https://sb.trygek.com/l4d_stats/ranking/search.php'
     data = {'search': name}
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}

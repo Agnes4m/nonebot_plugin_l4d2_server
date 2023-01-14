@@ -1,25 +1,20 @@
 
 from nonebot.log import logger
-from pathlib import Path
-from ..l4d2_image.draw_user_info import draw_user_info_img
-from ..config import l4_steamid,players_data
+
+from ..config import l4_steamid
 from ..seach import *
-from ..l4d2_data.players import L4D2Change
-try:
-    import ujson as json
-except:
-    import json
+from ..l4d2_data.players import L4D2Player
+from ..l4d2_image import out_png
 
 
-sql_players = L4D2Change()
+    
 
-def anne_local(name):
-    """输入名字或者steamid返回本地缓存信息(未完成)"""
-    with open('ser.txt','r', encoding= 'utf-8') as f:
-        data = f.read()
+s = L4D2Player()
 
-def anne_html(name):
-    """从html里提取玩家信息，返回列表字典"""
+
+
+def anne_html(name:str):
+    """搜索里提取玩家信息，返回列表字典""" 
     data_title = anne_search(name)
     data = data_title[0]
     title = data_title[1]
@@ -46,6 +41,8 @@ def anne_html(name):
             title[6]:steamid
         }
         data_list.append(play_json)
+    logger.info("搜寻数据")
+    logger.info(data_list)
     return data_list
 
 def anne_html_msg(data_list:list):
@@ -63,102 +60,61 @@ def anne_html_msg(data_list:list):
         mes += '\n--------------------'    
     return mes
 
-async def anne_html_jpg(usr_id,msg:dict):
-    """搜索获得的dict获取图片"""
-    img = await draw_user_info_img(usr_id,msg)
-    return img
 
   
    
 def write_player(id,msg:str,nickname:str):
-    """绑定用户qq"""
-    play_dict = read_player(id)
+    """绑定用户"""
     # 判断是steam
     if msg.startswith('STEAM'):
-        if not play_dict:
-            new_dict = {"steam_id":msg}
-        else :
-            try:
-                a = play_dict["steam_id"]
-                mes = '您已经绑定过了steamid,绑定信息是 '+ a
-                return mes
-            except KeyError:
-                new_dict = {"steam_id":msg}
-            try:
-                b = play_dict["usr_id"]
-                new_dict = dict(play_dict, **new_dict)
-            except KeyError:
-                new_dict = {"steam_id":msg}
-        logger.info(new_dict)
-        add_player(id,new_dict)
+        try:
+            data_tuple = s._query_player_steamid(id)
+            qq , nickname , steamid = data_tuple
+            if not s._add_player_steamid(id , nickname , msg):
+                return "出现未知错误"
+        except TypeError:
+            if not s._add_player_steamid(id , None , msg):
+                return "出现未知错误"
+
         mes = '绑定成功喵~\nQQ:' + nickname +'\n' + 'steamid:'+msg
         return mes
     else:
-        if not play_dict:
-            new_dict = {"usr_id":msg}
-        else :
-            try:
-                a = play_dict["usr_id"]
-                mes = '您已经绑定过了昵称,昵称是 '+ a
-                return mes
-            except KeyError:
-                new_dict = {"steam_id":msg}
-            try:
-                b = play_dict["usr_id"]
-                new_dict = dict(play_dict, **new_dict)
-            except KeyError:
-                new_dict = {"usr_id":msg}
-        logger.info(new_dict)
-        add_player(id,new_dict)
+        try:
+            data_tuple = s._add_player_nickname(id,msg,None)
+            qq , nickname , steamid = data_tuple
+            if not s._add_player_steamid(id , msg , steamid):
+                return "出现未知错误"
+        except TypeError:
+            if not s._add_player_steamid(id , msg , None):
+                return "出现未知错误"            
         mes = '绑定成功喵~\nQQ:' + nickname +'\n' + 'steam昵称:'+msg
         return mes
 
         
-def add_player(id:str,new_dict:dict):
-    """写入绑定信息"""
-    axis = {id:new_dict}
-    logger.info(axis)
-    players_data.update(axis)
-    with open(Path(__file__).parent.joinpath('data/L4D2/player.json'), "w", encoding="utf8") as new:
-        json.dump(players_data, new, ensure_ascii=False, indent=4)
+
         
 def del_player(id:str):
     """删除绑定信息,返回消息"""
-    try:
-        del players_data[str(id)]
-        with open(Path(__file__).parent.joinpath('data/L4D2/player.json'), "w", encoding="utf8") as new:
-            json.dump(players_data, new, ensure_ascii=False, indent=4)
-        return '删除成功喵~'
-    except KeyError:
+    if not s._query_player(id):
         return '你还没有绑定过，请使用[求生绑定+昵称/steamid]'
+    if s._delete_player:
+        return '删除成功喵~'
+        
 
     
-async def id_to_mes(name:str,usr_id):
-    """根据name从json查找,返回昵称或者steamid"""
-    if len(name)== 0:
-        for i in players_data:
-            i = str (i)
-            usr_id = str(usr_id)
-            if usr_id == i:
-                data:dict = players_data[i]
-                try:
-                    name = data["steam_id"]
-                except KeyError:
-                    try:
-                        name = data["usr_id"]
-                    except KeyError:
-                        mes = '绑定信息不存在，请使用[求生绑定+昵称/steamid]'
-                        return mes
-    logger.info(name)
-    return name
+async def id_to_mes(name:str):
+    """根据name从数据库,返回steamid、或者空白"""
+    data_tuple = s.search_data(None,name,None)
+    if data_tuple:
+        steamid = data_tuple[2]
+        return steamid
+    return None
+    
 
-def anne_rank_dice(name:str):
+def anne_rank_dict(name:str):
     """用steamid,查详情,输出字典"""
-    if not name.startswith('STEAM'):
-        name = name_steamid_html(name)
     data_dict = {}
-    url ='https://sb.trygek.com/l4d_stats/ranking/player.php?steamid=' + name
-    logger.info(url)
+    url =f'https://sb.trygek.com/l4d_stats/ranking/player.php?steamid={name}'
     headers = {
         'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
     }
@@ -177,7 +133,6 @@ def anne_rank_dice(name:str):
             data_dict.update(new_dict)
         data_list.append(data_dict)
         n += 1
-    logger.info(data_list)
     return data_list
 
 def anne_rank_dict_msg(data_list):
@@ -191,3 +146,59 @@ def anne_rank_dict_msg(data_list):
         msg += mes
     return msg
 
+
+async def anne_messgae(name:str,usr_id:str):
+    """获取anne信息可输出信息"""
+    if name:
+        logger.info("关键词查询")
+        logger.info(name)
+        if not name.startswith('STEAM'):
+            steamid = await id_to_mes(name)
+            if not steamid:
+                message = anne_html(name)
+                if len(message) == 0:
+                    return '没有叫这个名字的...'
+                if len(message) > 1:
+                    return anne_html_msg(message)
+                name = message[0]['steamid']
+            else:
+                name = steamid
+        # steamid
+        logger.info(name)
+        msg = anne_rank_dict(name)[0]
+        logger.info(msg)
+        logger.info('使用图片')
+        msg = await out_png(usr_id,msg)
+        return msg
+    else:
+        """
+        1、qq>数据>没有数据，返回
+        2、qq>数据>steamid>查询
+        3、qq>数据>昵称>查询
+        """
+        logger.info("qq信息查询")
+        data_tuple = s._query_player_qq(usr_id)
+        if not data_tuple:
+            return "没有绑定信息..."
+        # 只有名字，先查询数据在判断
+        elif not data_tuple[2]:
+            name = await id_to_mes(data_tuple[1])
+            if not name:
+                return f'未找到该玩家...'
+            msg = anne_html(name)
+            logger.info(msg)
+            logger.info('有' + str(len(msg)) + '个信息')
+            if str(len(msg)) !=1:
+                logger.info('使用文字')
+                msg = anne_html_msg(msg)
+                return msg
+            name = msg[0]['steamid']
+        else:
+            name = data_tuple[2]
+        # name是steamid
+        logger.info(name)
+        msg = anne_rank_dict(name)
+        logger.info('使用图片')
+        msg = msg[0]
+        msg = await out_png(usr_id,msg)
+        return msg
