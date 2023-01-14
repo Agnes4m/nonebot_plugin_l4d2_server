@@ -20,7 +20,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 # 主要功能
 - 求生服务器本地操作
-- [求生电信服anne]: https://sb.trygek.com/l4d_stats/ranking/index.php 查询~
+- 查询指定ip服务器状态
+- [求生电信服anne][https://sb.trygek.com/l4d_stats/ranking/index.php]查询~
 
 
 ## 安装
@@ -234,6 +235,6 @@ ubuntu20.04 python3.10
 
 
 ## 感谢
-- 1、[修仙插件的数据库写法]: https://github.com/s52047qwas/nonebot_plugin_xiuxian
-- 2、[自己写的求生之路查询库]: https://github.com/Umamusume-Agnes-Digital/VSQ
-- 3、[可爱小Q的帮助~还没抄完~]: https://github.com/MeetWq/mybot 
+- 1、[修仙插件的数据库写法][https://github.com/s52047qwas/nonebot_plugin_xiuxian]
+- 2、[自己写的求生之路查询库][https://github.com/Umamusume-Agnes-Digital/VSQ]
+- 3、[可爱小Q的帮助~还没抄完~][https://github.com/MeetWq/mybot]
