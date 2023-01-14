@@ -11,7 +11,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/stargazers">
     <img alt="GitHub stars" src="https://img.shields.io/github/stars/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server?color=%09%2300BFFF&style=flat-square">
-</a>
+</a></b>
 <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/issues">
     <img alt="GitHub issues" src="https://img.shields.io/github/issues/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server?color=Emerald%20green&style=flat-square">
 </a>
@@ -20,7 +20,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 # 主要功能
 - 求生服务器本地操作
-- <a href=" https://sb.trygek.com/l4d_stats/ranking/index.php "> 求生电信服anne </a>查询~
+- [求生电信服anne]: https://sb.trygek.com/l4d_stats/ranking/index.php 查询~
 
 
 ## 安装
@@ -148,8 +148,8 @@ A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含�
 - [x] 支持修改下载地图，在服务器端的名称
 - [x] 支持查询并删除服务器已有地图文件
 - [x] 支持查询本地求生服务器状态
-- [ ] 使用sql替换数据保存方式
-- [ ] 通过ip查询指定求生服务器状态
+- [x] 使用sql替换数据保存方式
+- [x] 通过ip查询指定求生服务器状态
 - [x] 在q群里执行服务器指令
 
 </details>
@@ -234,6 +234,6 @@ ubuntu20.04 python3.10
 
 
 ## 感谢
-- <a href=" https://github.com/s52047qwas/nonebot_plugin_xiuxian "> 修仙插件的数据库写法 </a>
-- <a href=" https://github.com/Umamusume-Agnes-Digital/VSQ "> 自己写的求生之路查询库 </a>
-- <a href=" https://github.com/MeetWq/mybot "> 可爱小Q的帮助~还没抄完~ </a>
+- 1、[修仙插件的数据库写法]: https://github.com/s52047qwas/nonebot_plugin_xiuxian
+- 2、[自己写的求生之路查询库]: https://github.com/Umamusume-Agnes-Digital/VSQ
+- 3、[可爱小Q的帮助~还没抄完~]: https://github.com/MeetWq/mybot 
