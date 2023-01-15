@@ -12,7 +12,7 @@ from nonebot import get_driver
 driver = get_driver()
 
 
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 __plugin_meta__ = PluginMetadata(
     name="求生服务器操作",
     description='群内对服务器的简单操作',
