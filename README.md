@@ -26,7 +26,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 # 主要功能
 - 求生服务器本地操作
-- 查询指定ip服务器状态
+- 查询指定ip服务器状态和玩家
 - [求生电信服anne](https://sb.trygek.com/l4d_stats/ranking/index.php)查询~
 
 
@@ -180,6 +180,12 @@ anne:
 
 <details>
 <summary>展开/收起</summary>
+
+### 0.1.6
+
+ - 新增ip查询服务器提供玩家数量和名字
+ - 增加协程函数修复因为加载顺序导致的错误
+ - 更新自己的第三方库VSQ==0.0.4
 
 ### 0.1.5
 
