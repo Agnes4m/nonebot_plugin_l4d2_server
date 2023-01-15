@@ -25,4 +25,4 @@ del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解�
 
 
 # 查询
-queries = on_command('queries',aliases={'求生ip'},priority=20,block=True)
+queries = on_command('queries',aliases={'求生ip','求生服务器'},priority=20,block=True)

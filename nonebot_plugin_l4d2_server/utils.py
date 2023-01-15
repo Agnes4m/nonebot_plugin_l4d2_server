@@ -14,8 +14,8 @@ from .config import *
 from .l4d2_anne import write_player,del_player,anne_messgae
 from .chrome import get_anne_server
 from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
-from .l4d2_image.draw_user_info import draw_user_info_img
-from .l4d2_queries import queries
+
+from .l4d2_queries import queries,player_queries
 
 
 
@@ -182,10 +182,15 @@ async def command_server(msg:str):
 def split_maohao(msg:str) -> list:
     """分割大小写冒号"""
     msg:list = re.split(":|：",msg.strip())
-    msg[-1] = msg[-1] if len(msg[-1])!=0 else '20715'  
+    msg[-1] = msg[-1] if len(msg[-1])!=0 else 20715
     return msg
 
-def queries_server(msg:list) -> str:
+async def queries_server(msg:list) -> str:
     """查询ip返回信息"""
     print(msg)
-    return queries(msg[0],msg[1])
+    ip = msg[0]
+    port = msg[1]
+    msgs = await player_queries(ip,port)
+    msgs += await queries(ip,port) 
+     
+    return msgs

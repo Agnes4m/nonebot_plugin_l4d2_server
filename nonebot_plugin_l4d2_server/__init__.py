@@ -176,7 +176,7 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
 @queries.got("ip",prompt="请输入ip,格式如中括号内【127.0.0.1】【114.51.49.19:1810】")
 async def _(tag:str = ArgPlainText("ip")):
     ip = split_maohao(tag)
-    msg = queries_server(ip)
+    msg = await queries_server(ip)
     await queries.finish(msg)
     
     
