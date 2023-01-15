@@ -42,7 +42,6 @@ def anne_html(name:str):
         }
         data_list.append(play_json)
     logger.info("搜寻数据")
-    logger.info(data_list)
     return data_list
 
 def anne_html_msg(data_list:list):
@@ -164,9 +163,7 @@ async def anne_messgae(name:str,usr_id:str):
             else:
                 name = steamid
         # steamid
-        logger.info(name)
         msg = anne_rank_dict(name)[0]
-        logger.info(msg)
         logger.info('使用图片')
         msg = await out_png(usr_id,msg)
         return msg
@@ -186,7 +183,6 @@ async def anne_messgae(name:str,usr_id:str):
             if not name:
                 return f'未找到该玩家...'
             msg = anne_html(name)
-            logger.info(msg)
             logger.info('有' + str(len(msg)) + '个信息')
             if str(len(msg)) !=1:
                 logger.info('使用文字')
@@ -196,7 +192,6 @@ async def anne_messgae(name:str,usr_id:str):
         else:
             name = data_tuple[2]
         # name是steamid
-        logger.info(name)
         msg = anne_rank_dict(name)
         logger.info('使用图片')
         msg = msg[0]
