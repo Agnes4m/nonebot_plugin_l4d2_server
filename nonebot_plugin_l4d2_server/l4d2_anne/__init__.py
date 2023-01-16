@@ -11,7 +11,7 @@ from ..l4d2_image import out_png
 
 s = L4D2Player()
 
-def anne_html(name:str):
+async def anne_html(name:str):
     """搜索里提取玩家信息，返回列表字典""" 
     data_title = anne_search(name)
     data = data_title[0]
@@ -19,24 +19,32 @@ def anne_html(name:str):
     if len(data) ==0 or data[0] == "No Player found.":
         return {}
     data_list:list = []
+    logger.info(data)
     for i in data:
         i:BeautifulSoup
-        Rank = i.find('td', {'data-title': 'Rank:'}).text.strip()
-        player = i.find('td', {'data-title': 'Player:'}).text.strip()
-        points = i.find('td', {'data-title': 'Points:'}).text.strip()
-        country = i.find('img')['alt']
-        playtime = i.find('td', {'data-title': 'Playtime:'}).text.strip()
-        last_online = i.find('td', {'data-title': 'Last Online:'}).text.strip()
+        try:
+            Rank = i.find('td', {'data-title': 'Rank:'}).text.strip()
+            player = i.find('td', {'data-title': 'Player:'}).text.strip()
+            points = i.find('td', {'data-title': 'Points:'}).text.strip()
+            # country = i.find('img')['alt']
+            playtime = i.find('td', {'data-title': 'Playtime:'}).text.strip()
+            last_online = i.find('td', {'data-title': 'Last Online:'}).text.strip()
+        except AttributeError:
+            Rank = i.find('td', {'data-title': '排名:'}).text.strip()
+            player = i.find('td', {'data-title': '玩家:'}).text.strip()
+            points = i.find('td', {'data-title': '分数:'}).text.strip()
+            playtime = i.find('td', {'data-title': '游玩时间:'}).text.strip()
+            last_online = i.find('td', {'data-title': '最后上线时间:'}).text.strip()
         onclick = i['onclick']
         steamid = onclick.split('=')[2].strip("'")
         play_json ={
             title[0]:Rank,
             title[1]:player,
             title[2]:points,
-            title[3]:country,
-            title[4]:playtime,
-            title[5]:last_online,
-            title[6]:steamid
+            # title[3]:country,
+            title[3]:playtime,
+            title[4]:last_online,
+            title[5]:steamid
         }
         data_list.append(play_json)
     logger.info("搜寻数据")
@@ -149,12 +157,12 @@ def anne_rank_dict_msg(data_list):
 async def anne_messgae(name:str,usr_id:str):
     """获取anne信息可输出信息"""
     if name:
-        logger.info("关键词查询",name)
+        logger.info("关键词查询" + name)
         if not name.startswith('STEAM'):
             steamid = await id_to_mes(name)
             if not steamid:
                 logger.info("没有找到qq，使用默认头像")
-                message = anne_html(name)
+                message = await anne_html(name)
                 usr_id = "1145149191810"
                 if len(message) == 0:
                     return '没有叫这个名字的...'
