@@ -11,8 +11,6 @@ from ..l4d2_image import out_png
 
 s = L4D2Player()
 
-
-
 def anne_html(name:str):
     """搜索里提取玩家信息，返回列表字典""" 
     data_title = anne_search(name)
@@ -65,25 +63,29 @@ def anne_html_msg(data_list:list):
 async def write_player(id,msg:str,nickname:str):
     """绑定用户"""
     # 判断是steam
+    print(msg)
     if msg.startswith('STEAM'):
-
-        data_tuple = s._query_player_steamid(id)
-        qq , nickname , steamid = data_tuple
-        a = s._add_player_steamid(id , nickname , msg)
-        print(a)
-        if not a:
-            return "出现未知错误"
-
+        # try:
+        data_tuple = s._query_player_qq(id)
+        if data_tuple != None:
+            qq , nicknam , steamid = data_tuple
+        else:
+            nicknam = None
+        await s._add_player_all(id , nicknam , msg)
+        # except TypeError:
+            # await s._add_player_steamid(id , msg)
         mes = '绑定成功喵~\nQQ:' + nickname +'\n' + 'steamid:'+msg
         return mes
     else:
-        try:
-            data_tuple = s._add_player_nickname(id,msg,None)
-            qq , nickname , steamid = data_tuple
-            s._add_player_steamid(id , msg , steamid)
-        except TypeError:
-            if not s._add_player_steamid(id , msg , None):
-                return "出现未知错误"            
+        # try:
+        data_tuple = s._query_player_qq(id)
+        if data_tuple != None:
+            qq , nicknam , steamid = data_tuple
+        else:
+            steamid = None
+        await s._add_player_all(qq , msg , steamid)
+        # except TypeError:
+        #     await s._add_player_nickname(id , msg ) 
         mes = '绑定成功喵~\nQQ:' + nickname +'\n' + 'steam昵称:'+msg
         return mes
 
@@ -101,7 +103,7 @@ def del_player(id:str):
     
 async def id_to_mes(name:str):
     """根据name从数据库,返回steamid、或者空白"""
-    data_tuple = s.search_data(None,name,None)
+    data_tuple = await s.search_data(None,name,None)
     if data_tuple:
         steamid = data_tuple[2]
         return steamid

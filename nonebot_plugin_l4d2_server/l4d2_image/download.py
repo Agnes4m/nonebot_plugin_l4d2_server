@@ -3,7 +3,7 @@ from nonebot.log import logger
 import asyncio
 import hashlib
 import os
-from PIL import Image
+from PIL import Image,ImageDraw
 import io
 from ..config import PLAYERSDATA,TEXT_PATH
 
@@ -26,6 +26,17 @@ async def download_head(user_id: str) -> bytes:
         url = f"http://q1.qlogo.cn/g?b=qq&nk={user_id}&s=100"
         data = await download_url(url)
     return data
+
+    
+def square_to_circle(im:Image):
+    """im是正方形，变圆形"""
+    size = im.size
+    mask = Image.new('L', size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0) + size, fill=255)
+    # 将遮罩层应用到图像上
+    im.putalpha(mask)
+    return im
 
 async def get_head_by_user_id_and_save(user_id):
     """qq转头像"""
@@ -55,6 +66,7 @@ async def get_head_by_user_id_and_save(user_id):
     im3 = Image.new("RGBA", im2.size, (255,255,255,0))
     r, g, b, a1 = im.split()
     r, g, b, a2 = im2.split()
+    im = square_to_circle(im)
     im3.paste(im,(75,75),mask=a1)
     im3.paste(im2,mask=a2)
     return im3

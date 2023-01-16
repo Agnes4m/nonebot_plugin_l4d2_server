@@ -11,23 +11,29 @@ class L4D2Player:
         self.conn = sqlite3.connect(self.datasqlite_path / 'L4D2.db')
         self.c = self.conn.cursor()
         
-    def _add_player_nickname(self, qq, nickname):
+    async def _add_player_nickname(self, qq, nickname):
         """绑定昵称"""
-        try:
-            self.c.execute("INSERT INTO L4d2_players (qq, nickname, steamid) VALUES (?,?,NULL)", (qq, nickname))
-            self.conn.commit()
-            return True
-        except sqlite3.IntegrityError:
-            return False
+        # try:
+        self.c.execute("INSERT INTO L4d2_players (qq, nickname, steamid) VALUES (?,?,NULL)", (qq, nickname))
+        self.conn.commit()
+        #     return True
+        # except sqlite3.IntegrityError:
+        #     return False
+
+    async def _add_player_steamid(self, qq, steamid):
+        """绑定steamid"""
+        self.c.execute("INSERT INTO L4d2_players (qq, nickname, steamid) VALUES (?,NULL,?)", (qq, steamid))
+        self.conn.commit()
+
               
-    def _add_player_steamid(self, qq, nickname,steamid):
+    async def _add_player_all(self, qq, nickname,steamid):
         """用新数据覆盖旧数据"""
-        try:
-            self.c.execute("INSERT INTO L4d2_players (qq, nickname, steamid) VALUES (?,?,?)", (qq, nickname,steamid))
-            self.conn.commit()
-            return True
-        except sqlite3.IntegrityError:
-            return False
+        # try:
+        self.c.execute("INSERT OR REPLACE INTO L4d2_players (qq, nickname, steamid) VALUES (?,?,?)", (qq, nickname,steamid))
+        self.conn.commit()
+        return True
+        # except sqlite3.IntegrityError:
+        #     return False
         
     def _delete_player(self, qq):
         """解除绑定"""
@@ -37,20 +43,21 @@ class L4D2Player:
         
     def _query_player_qq(self, qq) -> Union[tuple,None]:
         """通过qq获取数据"""
-        self.c.execute(f"SELECT * FROM L4d2_players WHERE qq = {qq}")
+        self.c.execute(f"SELECT * FROM L4d2_players WHERE qq = '{qq}'")
         return self.c.fetchone()
     
-    def _query_player_nickname(self, nickname) -> Union[tuple,None]:
+    async def _query_player_nickname(self, nickname:str) -> Union[tuple,None]:
         """通过nickname获取数据"""
-        self.c.execute(f"SELECT * FROM L4d2_players WHERE nickname = {nickname}")
+        self.c.execute(f"SELECT * FROM L4d2_players WHERE nickname = '{nickname}'")
         return self.c.fetchone()
 
-    def _query_player_steamid(self, nickname) -> Union[tuple,None]:
+    async def _query_player_steamid(self, steamid:str):
         """通过steamid获取数据"""
-        self.c.execute(f"SELECT * FROM L4d2_players WHERE nickname = {nickname}")
-        return self.c.fetchone()
+        self.c.execute(f"SELECT * FROM L4d2_players WHERE steamid = '{steamid}'")
+        data_tuple = self.c.fetchone()
+        return data_tuple
     
-    def search_data(self, qq, nickname, steamid) -> Union[tuple,None]:
+    async def search_data(self, qq, nickname, steamid) -> Union[tuple,None]:
         """
         输入元组查询，优先qq其次steamid最后nickname，不需要值可以为None
         输出为元组，如果为空输出None

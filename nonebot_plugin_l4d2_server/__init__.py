@@ -144,7 +144,7 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
         await anne_bind.finish("虚空绑定?")
     usr_id = str(event.user_id)
     nickname = event.sender.card or event.sender.nickname
-    msg = bind_steam(usr_id,tag,nickname)
+    msg = await bind_steam(usr_id,tag,nickname)
     await anne_bind.finish(msg)
 
 @del_bind.handle()

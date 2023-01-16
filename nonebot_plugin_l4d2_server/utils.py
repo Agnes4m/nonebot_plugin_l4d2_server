@@ -127,9 +127,9 @@ async def search_anne(name:str,usr_id:str):
     return msg
     
 
-def bind_steam(id:str,msg:str,nickname:str):
+async def bind_steam(id:str,msg:str,nickname:str):
     """绑定qq-steam"""
-    return write_player(id,msg,nickname)
+    return await write_player(id,msg,nickname)
 
 def name_exist(id:str):
     """删除绑定信息"""

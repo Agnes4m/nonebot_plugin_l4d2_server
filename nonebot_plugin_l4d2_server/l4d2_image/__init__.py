@@ -41,8 +41,6 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     html_text = soup.prettify()
     for key, value in DETAIL_right.items():
         html_text = html_text.replace(key,value)
-    
-    # new_html = BeautifulSoup(html_text, 'html.parser')
     # 头像
     temp = await get_head_by_user_id_and_save(usr_id)
     res = await convert_img(temp,is_base64=True)
