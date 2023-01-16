@@ -13,7 +13,6 @@ async def out_png(usr_id,data_dict:dict):
         data_html = file.read()
     # content = template.render_async()
     soup = BeautifulSoup(data_html, 'html.parser')
-    logger.info(data_dict)
     new_html = await dict_to_html(usr_id,data_dict,soup)
     pic = await html_to_pic(
                 new_html,
@@ -36,7 +35,7 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     DETAIL_right['point_min'] = DETAIL_MAP['每分钟获取分数:']
     DETAIL_right['killed'] = DETAIL_MAP['感染者消灭:']
     DETAIL_right['shut'] = DETAIL_MAP['爆头:']        
-    DETAIL_right['shutout'] = DETAIL_MAP['爆头率:']
+    DETAIL_right['out'] = DETAIL_MAP['爆头率:']
     DETAIL_right['playtimes'] = DETAIL_MAP['游玩地图数量:']
     logger.info(DETAIL_right)
     html_text = soup.prettify()

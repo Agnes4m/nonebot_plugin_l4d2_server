@@ -30,30 +30,31 @@ async def download_head(user_id: str) -> bytes:
 async def get_head_by_user_id_and_save(user_id):
     """qq转头像"""
     user_id = str(user_id)
-
+    
     USER_HEAD_PATH = PLAYERSDATA / user_id / 'HEAD.png'
+    DEFAULT_HEAD_PATH = TEXT_PATH / "template/player.jpg"
     ## im头像 im2头像框 im3合成
     if os.path.exists(USER_HEAD_PATH):
         logger.info("使用本地头像")
-        logger.info(USER_HEAD_PATH)
         im = Image.open(USER_HEAD_PATH).resize((280, 280)).convert("RGBA")
-        im2 = Image.open(TEXT_PATH/"head.png").resize((450,450)).convert("RGBA")
-        im3 = Image.new("RGBA", im2.size, (255,255,255,0))
-        im3.paste(im,(85,85))
-        im3.paste(im2) 
-        return im3
     else:
-        try:
-            logger.info("正在下载头像")
-            image_bytes = await download_head(user_id)
-            im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
-            if not os.path.exists(PLAYERSDATA / user_id):#用户文件夹不存在
-                os.makedirs(PLAYERSDATA / user_id)
-            im.save(USER_HEAD_PATH, "PNG")
-        except:
-            logger.error("获取失败")
-    im2 = Image.open(PLAYERSDATA.parent/"head.png").resize((450,450)).convert("RGBA")
+        if user_id == "1145149191810":
+            logger.info("使用默认头像")
+            im = Image.open(DEFAULT_HEAD_PATH).resize((300, 300)).convert("RGBA")
+        else:
+            try:
+                logger.info("正在下载头像")
+                image_bytes = await download_head(user_id)
+                im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
+                if not os.path.exists(PLAYERSDATA / user_id):#用户文件夹不存在
+                    os.makedirs(PLAYERSDATA / user_id)
+                im.save(USER_HEAD_PATH, "PNG")
+            except:
+                logger.error("获取失败")
+    im2 = Image.open(TEXT_PATH /"head.png").resize((450,450)).convert("RGBA")
     im3 = Image.new("RGBA", im2.size, (255,255,255,0))
-    im3.paste(im,(85,85))
-    im3.paste(im2) 
+    r, g, b, a1 = im.split()
+    r, g, b, a2 = im2.split()
+    im3.paste(im,(75,75),mask=a1)
+    im3.paste(im2,mask=a2)
     return im3

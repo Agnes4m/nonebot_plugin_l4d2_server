@@ -62,18 +62,17 @@ def anne_html_msg(data_list:list):
 
   
    
-def write_player(id,msg:str,nickname:str):
+async def write_player(id,msg:str,nickname:str):
     """绑定用户"""
     # 判断是steam
     if msg.startswith('STEAM'):
-        try:
-            data_tuple = s._query_player_steamid(id)
-            qq , nickname , steamid = data_tuple
-            if not s._add_player_steamid(id , nickname , msg):
-                return "出现未知错误"
-        except TypeError:
-            if not s._add_player_steamid(id , None , msg):
-                return "出现未知错误"
+
+        data_tuple = s._query_player_steamid(id)
+        qq , nickname , steamid = data_tuple
+        a = s._add_player_steamid(id , nickname , msg)
+        print(a)
+        if not a:
+            return "出现未知错误"
 
         mes = '绑定成功喵~\nQQ:' + nickname +'\n' + 'steamid:'+msg
         return mes
@@ -81,8 +80,7 @@ def write_player(id,msg:str,nickname:str):
         try:
             data_tuple = s._add_player_nickname(id,msg,None)
             qq , nickname , steamid = data_tuple
-            if not s._add_player_steamid(id , msg , steamid):
-                return "出现未知错误"
+            s._add_player_steamid(id , msg , steamid)
         except TypeError:
             if not s._add_player_steamid(id , msg , None):
                 return "出现未知错误"            
@@ -149,12 +147,13 @@ def anne_rank_dict_msg(data_list):
 async def anne_messgae(name:str,usr_id:str):
     """获取anne信息可输出信息"""
     if name:
-        logger.info("关键词查询")
-        logger.info(name)
+        logger.info("关键词查询",name)
         if not name.startswith('STEAM'):
             steamid = await id_to_mes(name)
             if not steamid:
+                logger.info("没有找到qq，使用默认头像")
                 message = anne_html(name)
+                usr_id = "1145149191810"
                 if len(message) == 0:
                     return '没有叫这个名字的...'
                 if len(message) > 1:
