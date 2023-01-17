@@ -1,4 +1,4 @@
-from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message,MessageSegment
+from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message,MessageSegment,GroupMessageEvent
 from nonebot.params import CommandArg,ArgPlainText,RegexGroup
 from nonebot.matcher import Matcher
 from typing import Tuple
@@ -179,7 +179,29 @@ async def _(tag:str = ArgPlainText("ip")):
     msg = await queries_server(ip)
     await queries.finish(msg)
     
+
+@add_queries.handle()
+async def _(event:GroupMessageEvent,args:Message = CommandArg()):
+    msg = args.extract_plain_text()
+    [host,port] = split_maohao(msg)
+    group_id = event.group_id
+    msg = await add_ip(group_id,host,port)
+    await add_queries.finish(msg)
+
+# @del_queries.handle()
+# async def _(event:GroupMessageEvent,matcher:Matcher,args:Message = CommandArg()):
+#     msg = args.extract_plain_text()
+#     [host,port] = split_maohao(msg)
+#     group_id = event.group_id
+#     msg = await add_ip(group_id,host,port)    
+@show_queries.handle()
+async def _(event:GroupMessageEvent):
+    group_id = event.group_id
+    msg = await show_ip(group_id)    
+
+            
     
 @driver.on_shutdown
 async def close_db():
+    """关闭数据库"""
     sq_L4D2._close()

@@ -165,7 +165,7 @@ async def anne_messgae(name:str,usr_id:str):
                 message = await anne_html(name)
                 usr_id = "1145149191810"
                 if len(message) == 0:
-                    return '没有叫这个名字的...'
+                    return '没有叫这个名字的...\n'
                 if len(message) > 1:
                     return anne_html_msg(message)
                 name = message[0]['steamid']
@@ -190,7 +190,7 @@ async def anne_messgae(name:str,usr_id:str):
         elif not data_tuple[2]:
             name = await id_to_mes(data_tuple[1])
             if not name:
-                return f'未找到该玩家...'
+                return f'未找到该玩家...\n'
             msg = anne_html(name)
             logger.info('有' + str(len(msg)) + '个信息')
             if str(len(msg)) !=1:

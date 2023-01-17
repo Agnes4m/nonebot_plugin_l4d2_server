@@ -78,9 +78,9 @@ table_data = ["L4d2_players","L4D2_server"]
 """数据库表"""
 L4d2_players_tag = ['qq', 'nickname', 'steamid']
 """数据库表1"""
-L4d2_server_tag = ['number','qq','qqgroup', 'host', 'port', 'rcon', 'path', 'use']
+L4d2_server_tag = ['id','qqgroup', 'host', 'port', 'rcon']
 """数据库表2"""
-L4d2_INTEGER = ['qq','qqgroup','number','port']
+L4d2_INTEGER = ['id','qq','qqgroup','port']
 """INITEGER的表头"""
 L4d2_TEXT = ['nickname','steamid','host','rcon','path']
 """TEXT的表头"""

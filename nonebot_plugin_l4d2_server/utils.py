@@ -14,8 +14,8 @@ from .config import *
 from .l4d2_anne import write_player,del_player,anne_messgae
 from .chrome import get_anne_server
 from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
-
 from .l4d2_queries import queries,player_queries
+from .l4d2_queries.qqgroup import *
 
 
 
@@ -182,8 +182,8 @@ async def command_server(msg:str):
 def split_maohao(msg:str) -> list:
     """分割大小写冒号"""
     msg:list = re.split(":|：",msg.strip())
-    msg[-1] = msg[-1] if len(msg[-1])!=0 else 20715
-    return msg
+    mse = [msg[0],msg[-1]] if msg[0] != msg[-1] else [msg[0],20715]
+    return mse
 
 async def queries_server(msg:list) -> str:
     """查询ip返回信息"""
@@ -192,5 +192,19 @@ async def queries_server(msg:list) -> str:
     port = msg[1]
     msgs = await player_queries(ip,port)
     msgs += await queries(ip,port) 
-     
     return msgs
+
+async def add_ip(group_id,host,port):
+    """先查找是否存在，如果不存在则创建"""
+    return await bind_group_ip(group_id,host,port)
+
+# async def del_ip(group_id,host,port):
+#     """先查找是否存在，如果不存在则创建"""
+#     return await bind_group_ip(group_id,host,port)
+
+async def show_ip(group_id):
+    """先查找群ip，再根据群ip返回"""
+    data_list = get_qqgroup_ip_msg(group_id)
+    if len(data_list) == 0 :
+        return ""
+    return await qq_ip_queries(data_list)

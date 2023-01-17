@@ -26,3 +26,6 @@ del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解�
 
 # 查询
 queries = on_command('queries',aliases={'求生ip','求生服务器'},priority=20,block=True)
+add_queries = on_command('addq',aliases={"求生添加订阅"},priority=20,block=True)
+del_queries = on_command('delq',aliases={"求生取消订阅"},priority=20,block=True)
+show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=True)
