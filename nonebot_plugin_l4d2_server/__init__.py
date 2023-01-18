@@ -193,11 +193,13 @@ async def _(event:GroupMessageEvent,args:Message = CommandArg()):
 #     msg = args.extract_plain_text()
 #     [host,port] = split_maohao(msg)
 #     group_id = event.group_id
-#     msg = await add_ip(group_id,host,port)    
+#     msg = await add_ip(group_id,host,port) 
+   
 @show_queries.handle()
 async def _(event:GroupMessageEvent):
     group_id = event.group_id
-    msg = await show_ip(group_id)    
+    msg = await show_ip(group_id)
+    await show_queries.finish(msg)
 
             
     

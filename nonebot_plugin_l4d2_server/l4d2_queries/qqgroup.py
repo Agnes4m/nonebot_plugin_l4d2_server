@@ -19,12 +19,14 @@ async def bind_group_ip(group:int,host:str,port:int):
 async def qq_ip_queries(msg:list[tuple]):
     """输入一个ip的二元元组组成的列表，返回一个输出消息的列表
     未来作图这里重置"""
-    msg = ""
+    messsage = ""
     for i in msg:
-        for host,port in i:
-            msg1 = queries(host,port) + player_queries(host,port)
-            msg += msg1 + '\n--------------------\n'
-    return msg
+        print(i)
+        qqgroup,host,port = i
+        msg2 = await player_queries(host,port)
+        msg1 = await queries(host,port)
+        messsage += msg1 + msg2 + '\n--------------------\n'
+    return messsage
             
         
     

@@ -2,7 +2,7 @@ from VSQ import l4d2
 
 async def queries(ip:str,port:int):
     port = int(port)
-    message_dict = l4d2.server(ip,port,times=5)
+    message_dict = await l4d2.server(ip,port,times=5)
     message = '游戏：' + message_dict['folder'] + '\n'
     message += '名称：' + message_dict['name'] + '\n'
     message += '地图：' + message_dict['map_'] + '\n'
@@ -12,7 +12,8 @@ async def queries(ip:str,port:int):
 async def player_queries(ip:str,port:int): 
     port = int(port)
     message_dic = await l4d2.APlayer(ip,port,times=5)
-    print(message_dic)
+    if message_dic == {}:
+        return "玩家数量：0\n"
     n = 0
     message = '玩家数量：' + message_dic['header'] + '\n'
     for i in message_dic['Players']:

@@ -199,12 +199,15 @@ async def add_ip(group_id,host,port):
     return await bind_group_ip(group_id,host,port)
 
 # async def del_ip(group_id,host,port):
-#     """先查找是否存在，如果不存在则创建"""
+#     """删除群ip"""
 #     return await bind_group_ip(group_id,host,port)
 
 async def show_ip(group_id):
     """先查找群ip，再根据群ip返回"""
-    data_list = get_qqgroup_ip_msg(group_id)
+    data_list = await get_qqgroup_ip_msg(group_id)
+    logger.info(data_list)
     if len(data_list) == 0 :
-        return ""
-    return await qq_ip_queries(data_list)
+        return "本群没有订阅"
+    msg = await qq_ip_queries(data_list)
+    logger.info(msg)
+    return  solve(msg)
