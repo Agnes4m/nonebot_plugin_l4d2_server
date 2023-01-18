@@ -113,12 +113,12 @@ def open_packet(name,down_file):
         mes ='vpk文件已下载'
     return mes
 
-def solve(s):
+def solve(msg:str):
     """删除str最后一行"""
-    s = s.split('\n', 1)[-1]
-    if s.find('\n') == -1:
-        return ''
-    return s.rsplit('\n', 1)[0]
+    lines = msg.splitlines()
+    lines.pop()
+    return '\n'.join(lines)
+
 
 async def search_anne(name:str,usr_id:str):
     msg = await anne_messgae(name,usr_id)
@@ -208,6 +208,7 @@ async def show_ip(group_id):
     logger.info(data_list)
     if len(data_list) == 0 :
         return "本群没有订阅"
-    msg = await qq_ip_queries(data_list)
-    logger.info(msg)
-    return  solve(msg)
+    msg = await qq_ip_queries_pic(data_list)
+    if type(msg) == str:
+        msg = solve(msg)
+    return  msg

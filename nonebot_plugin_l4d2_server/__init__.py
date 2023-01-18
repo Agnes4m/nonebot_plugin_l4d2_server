@@ -199,7 +199,10 @@ async def _(event:GroupMessageEvent,args:Message = CommandArg()):
 async def _(event:GroupMessageEvent):
     group_id = event.group_id
     msg = await show_ip(group_id)
-    await show_queries.finish(msg)
+    if type(msg) == str:
+        await show_queries.finish(msg)
+    else:
+        await show_queries.finish(MessageSegment.image(msg))
 
             
     

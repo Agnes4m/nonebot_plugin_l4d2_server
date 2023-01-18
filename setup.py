@@ -30,6 +30,6 @@ setuptools.setup(
         "py7zr",
         "beautifulsoup4",
         "rcon",
-        "VSQ==0.0.4"
+        "VSQ==0.0.6"
         ],
 )

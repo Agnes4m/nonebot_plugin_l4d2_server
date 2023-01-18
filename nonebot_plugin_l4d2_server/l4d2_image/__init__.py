@@ -4,12 +4,13 @@ from .download import get_head_by_user_id_and_save
 from .send_image_tool import convert_img
 from bs4 import BeautifulSoup
 from nonebot.log import logger
+from jinja2 import Environment, FileSystemLoader
 
 async def out_png(usr_id,data_dict:dict):
     """使用html来生成图片"""
     template_path = TEXT_PATH/"template"
     logger.info(template_path)
-    with open((template_path/"index.html"),"r", encoding="utf-8") as file:
+    with open((template_path/"anne.html"),"r", encoding="utf-8") as file:
         data_html = file.read()
     # content = template.render_async()
     soup = BeautifulSoup(data_html, 'html.parser')
@@ -47,4 +48,22 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     finna_html = html_text.replace("player.jpg",f"data:image/png;base64,{res}")
     return finna_html
     
-        
+async def server_ip_pic(msg_dict:list[dict]):
+    """
+    输入一个字典列表，输出图片
+    msg_dict:folder/name/map_/players/max_players/Players/[Name]
+    """
+    for one in msg_dict:
+        one['max_players'] = one['players'] + '/' + one['max_players']
+    
+    template_path = TEXT_PATH/"template"
+    env = Environment(loader=FileSystemLoader(template_path))
+    template = env.get_template('ip.html')
+    html = template.render(data=msg_dict)
+    pic = await html_to_pic(
+            html,
+            wait=0,
+            viewport={"width": 1080, "height": 1920},
+            template_path=f"file://{template_path.absolute()}",)
+    return pic
+

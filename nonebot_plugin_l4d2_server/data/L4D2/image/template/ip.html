@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="vue.css">
+    <title>Server Information</title>
+    <style>
+       
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>游戏</th>
+            <th>服名</th>
+			<th>ip</th>
+            <th>地图</th>
+            <th>玩家</th>
+            <th>人数</th>
+        </tr>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.folder }}</td>
+            <td>{{ item.name }}</td>
+			<td>{{ item.ip }}</td>
+            <td>{{ item.map_ }}</td>
+            <td>{{ item.Players|join("|") }}</td>
+            <td>{{ item.max_players }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

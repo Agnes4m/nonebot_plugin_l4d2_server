@@ -1,6 +1,6 @@
 from ..l4d2_data.serverip import L4D2Server
-from . import queries,player_queries
-
+from ..l4d2_image import server_ip_pic
+from . import queries,player_queries,player_queries_dict,queries_dict
 
 si = L4D2Server()
     
@@ -22,11 +22,25 @@ async def qq_ip_queries(msg:list[tuple]):
     messsage = ""
     for i in msg:
         print(i)
-        qqgroup,host,port = i
+        number,qqgroup,host,port = i
         msg2 = await player_queries(host,port)
         msg1 = await queries(host,port)
-        messsage += msg1 + msg2 + '\n--------------------\n'
+        messsage += '序号、'+ str(number) + '\n' + msg1 + msg2 + '--------------------\n'
     return messsage
             
-        
+async def qq_ip_queries_pic(msg:list[tuple]):
+    """输入一个ip的二元元组组成的列表，返回一个输出消息的图片"""
+    msg_list = []
+    for i in msg:
+        print(i)
+        number,qqgroup,host,port = i
+        msg2 = await player_queries_dict(host,port)
+        msg1 = await queries_dict(host,port)
+        msg1.update(msg2)
+        # msg1是一行数据完整的字典
+        msg_list.append(msg1)
+    print(msg_list)
+    pic = await server_ip_pic(msg_list)
+    return pic
+    
     

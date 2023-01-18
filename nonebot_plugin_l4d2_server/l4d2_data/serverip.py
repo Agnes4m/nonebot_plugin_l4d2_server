@@ -17,12 +17,12 @@ class L4D2Server():
         
     async def query_server_ip(self,qqgroup) :
         """输入群号，返回数据库里订阅ip元组列表"""
-        self.c.execute(f"SELECT qqgroup ,host ,port FROM L4D2_server WHERE qqgroup = {qqgroup}")        
+        self.c.execute(f"SELECT  number, qqgroup ,host ,port FROM L4D2_server WHERE qqgroup = {qqgroup}")        
         msg_list = self.c.fetchall()
         return msg_list
     
     def del_server_ip(self,id):
         """删除指定id的ip"""
-        self.c.execute("DELETE FROM L4D2_server id = {id}")
+        self.c.execute("DELETE FROM L4D2_server number = {number}")
         self.conn.commit()
         
