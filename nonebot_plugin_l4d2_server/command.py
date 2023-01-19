@@ -19,14 +19,16 @@ rcon_to_server = on_command('rcon',aliases={"求生服务器指令","服务器�
 
 # anne
 anne_player = on_command('Ranne',aliases={"求生anne"},priority=25,block=True)
-anne_server = on_command('anneip',aliases={'求生anne服务器','求生药役服务器'},priority=20,block=True)
 anne_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
 del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
 
 
 # 查询
 queries = on_command('queries',aliases={'求生ip','求生服务器'},priority=20,block=True)
-add_queries = on_command('addq',aliases={"求生添加订阅"},priority=20,block=True)
-del_queries = on_command('delq',aliases={"求生取消订阅"},priority=20,block=True)
+add_queries = on_command('addq',aliases={"求生添加订阅"},priority=20,block=True,permission= Master)
+del_queries = on_command('delq',aliases={"求生取消订阅"},priority=20,block=True,permission= Master)
 show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=True)
 join_server = on_command('showq',aliases={"求生加入"},priority=20,block=True)
+
+# 下载内容
+up_workshop = on_command('workshop',aliases={'创意工坊下载','求生创意工坊'},priority=20,block=True)

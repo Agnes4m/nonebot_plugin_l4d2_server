@@ -10,13 +10,11 @@ except:
 from pathlib import Path
 from .txt_to_img import txt_to_img
 from .config import *
-# from .l4d2_anne.__init__ import *
 from .l4d2_anne import write_player,del_player,anne_messgae
-from .chrome import get_anne_server
 from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
 from .l4d2_queries import queries,player_queries
 from .l4d2_queries.qqgroup import *
-
+from .l4d2_server.workshop import workshop_to_dict
 
 
 def get_file(url,down_file):
@@ -151,10 +149,6 @@ async def get_message_at(data: str) -> list:
     except Exception:
         return []
     
-def anne_servers():
-    mes = get_anne_server()
-    mes = solve(mes)
-    return mes
 
 def at_to_usrid(usr_id,at):
     """at对象变qqid否则返回usr_id"""
@@ -220,3 +214,14 @@ async def get_number_url(number):
         return '该序号不存在'
     url = f'steam://connect/{ip}'
     return url
+
+async def workshop_msg(msg:str):
+    """url变成id，拼接post请求"""
+    if msg.startswith('https://steamcommunity.com/sharedfiles/filedetails/?id'):
+        msg = msg.replace('https://steamcommunity.com/sharedfiles/filedetails/?id=','')
+    if msg.isdigit():
+        data:dict = await workshop_to_dict(msg)
+        return data
+    else:
+        return None
+    

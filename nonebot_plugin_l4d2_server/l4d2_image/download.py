@@ -70,3 +70,8 @@ async def get_head_by_user_id_and_save(user_id):
     im3.paste(im,(75,75),mask=a1)
     im3.paste(im2,mask=a2)
     return im3
+
+async def url_to_byte(url):
+    """所有url终将绳之以法"""
+    data = httpx.get(url).content
+    return data

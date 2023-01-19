@@ -43,7 +43,6 @@ async def qq_ip_queries_pic(msg:list[tuple]):
             msg_list.append(msg1)
         except TypeError:
             pass
-    logger.info(msg_list)
     pic = await server_ip_pic(msg_list)
     return pic
     

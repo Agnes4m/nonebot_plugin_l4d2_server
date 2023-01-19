@@ -1,11 +1,13 @@
 from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message,MessageSegment,GroupMessageEvent
 from nonebot.params import CommandArg,ArgPlainText,RegexGroup
 from nonebot.matcher import Matcher
+from nonebot.typing import T_State
 from typing import Tuple
 from time import sleep
 from .config import *
 from .utils import *
 from .command import *
+from .l4d2_image.download import url_to_byte
 from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
 from nonebot import get_driver
@@ -121,20 +123,7 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
     if type(msg)==str:
         await anne_player.finish(msg)
     else:
-        await anne_player.finish(MessageSegment.image(msg))
-        
-@anne_server.handle()
-async def _():
-    await anne_server.send('正在查询，方式是谷歌浏览器')
-    msg = anne_servers()
-    if len(msg)==0:
-        await anne_server.finish('服务器超市了')
-    else:
-        if l4_image:
-            await find_vpk.finish(MessageSegment.image(text_to_png(msg)))
-        else:
-            await anne_server.finish(msg)
-    
+        await anne_player.finish(MessageSegment.image(msg)) 
     
 @anne_bind.handle()
 async def _(event:MessageEvent,args:Message = CommandArg()):
@@ -207,11 +196,46 @@ async def _(event:GroupMessageEvent):
         await show_queries.finish(MessageSegment.image(msg))
 
 @join_server.handle()
-async def _(event:MessageEvent,args:Message = CommandArg()):
+async def _(args:Message = CommandArg()):
     msg = args.extract_plain_text()
     url = await get_number_url(msg)
     await join_server.finish(url)
         
+@up_workshop.handle()
+async def _(matcher:Matcher,args:Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if msg:
+        matcher.set_arg("ip",args)
+    
+    
+@up_workshop.got("ip",prompt="请输入创意工坊网址或者物品id")
+async def _(matcher:Matcher,,state:T_State,tag:str = ArgPlainText("ip")):
+    msg = await workshop_msg(tag)
+    if not msg:
+        await up_workshop.finish('没有这个物品捏')
+    pic = await url_to_byte(msg['图片地址'])
+    message = ''
+    for item,value in msg.items():
+        if item in ['图片地址','下载地址']:
+            continue
+        message += item + ':' + value + '\n'
+    state['dic'] = msg
+    await up_workshop.send(MessageSegment.image(pic) + Message(message))
+    
+@up_workshop.got("is_sure",prompt='如果需要上传，请发送 yes')    
+async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
+    is_sure = str(state["is_sure"])
+    gid = event.group_id
+    logger.info('开始上传')
+    if is_sure == 'yes':
+        await bot.call_api(
+            'upload_group_file',
+            group_id=gid,
+            name=state['名字'],
+            file=state['下载地址'],
+        )   
+    else:
+        await matcher.finish('已取消上传')
     
 @driver.on_shutdown
 async def close_db():
