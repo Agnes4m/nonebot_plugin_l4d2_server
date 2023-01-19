@@ -41,6 +41,5 @@ async def player_queries(ip:str,port:int):
     message = '玩家数量：' + message_dic['header'] + '\n'
     for i in message_dic['Players']:
         n += 1 
-        print(i)
         message += str(n) + '、' + str(i) +'\n'
     return message

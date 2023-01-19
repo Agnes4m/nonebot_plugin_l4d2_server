@@ -29,3 +29,4 @@ queries = on_command('queries',aliases={'求生ip','求生服务器'},priority=2
 add_queries = on_command('addq',aliases={"求生添加订阅"},priority=20,block=True)
 del_queries = on_command('delq',aliases={"求生取消订阅"},priority=20,block=True)
 show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=True)
+join_server = on_command('showq',aliases={"求生加入"},priority=20,block=True)

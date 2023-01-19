@@ -26,3 +26,8 @@ class L4D2Server():
         self.c.execute("DELETE FROM L4D2_server number = {number}")
         self.conn.commit()
         
+    async def query_number(self,number):
+        """通过序号找服务器"""
+        self.c.execute(f"SELECT host ,port FROM L4D2_server WHERE number = {number}")
+        msg_list = self.c.fetchone()
+        return msg_list

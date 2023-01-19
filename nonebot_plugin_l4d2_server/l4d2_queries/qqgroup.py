@@ -1,7 +1,7 @@
 from ..l4d2_data.serverip import L4D2Server
 from ..l4d2_image import server_ip_pic
 from . import queries,player_queries,player_queries_dict,queries_dict
-
+from nonebot.log import logger
 si = L4D2Server()
     
 async def get_qqgroup_ip_msg(qqgroup):
@@ -38,12 +38,18 @@ async def qq_ip_queries_pic(msg:list[tuple]):
             msg2 = await player_queries_dict(host,port)
             msg1 = await queries_dict(host,port)
             msg1.update(msg2)
+            msg1.update({'number':number})
             # msg1是一行数据完整的字典
             msg_list.append(msg1)
         except TypeError:
             pass
-    print(msg_list)
+    logger.info(msg_list)
     pic = await server_ip_pic(msg_list)
     return pic
     
-    
+async def get_server_ip(number):
+    host,port = await si.query_number(number)
+    try:
+        return str(host) + ':' + str(port)
+    except TypeError:
+        return None

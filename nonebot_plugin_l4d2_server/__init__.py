@@ -12,7 +12,7 @@ from nonebot import get_driver
 driver = get_driver()
 
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 __plugin_meta__ = PluginMetadata(
     name="求生服务器操作",
     description='群内对服务器的简单操作',
@@ -183,6 +183,8 @@ async def _(tag:str = ArgPlainText("ip")):
 @add_queries.handle()
 async def _(event:GroupMessageEvent,args:Message = CommandArg()):
     msg = args.extract_plain_text()
+    if len(msg)==0:
+        await add_queries.finish('请在该指令后加入参数，例如【114.51.49.19:1810】')
     [host,port] = split_maohao(msg)
     group_id = event.group_id
     msg = await add_ip(group_id,host,port)
@@ -204,7 +206,12 @@ async def _(event:GroupMessageEvent):
     else:
         await show_queries.finish(MessageSegment.image(msg))
 
-            
+@join_server.handle()
+async def _(event:MessageEvent,args:Message = CommandArg()):
+    msg = args.extract_plain_text()
+    url = await get_number_url(msg)
+    await join_server.finish(url)
+        
     
 @driver.on_shutdown
 async def close_db():

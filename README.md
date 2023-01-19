@@ -26,7 +26,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 # 主要功能
 - 求生服务器本地操作
-- 查询指定ip服务器状态和玩家
+- 批量查询指定ip服务器状态和玩家
 - [求生电信服anne](https://sb.trygek.com/l4d_stats/ranking/index.php)查询~
 
 
@@ -105,26 +105,12 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </details>
 
-## ✅ env配置
-###建议填写
-| 配置项 | 必填 | 默认值 | 说明 |
-|:-----:|:----:|:----:|:----:|
-| l4_file | 否 | "/home/ubuntu/l4d2/coop" | str,输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
-| l4_host | 否 | '127.0.0.1' | str，服务器ip，如果是本机一般就是默认 |
-| l4_port | 否 | 20715 | int，服务器端口号 |
-| l4_rcon | 否 | '114514' | str，服务器的rcon密码 |
-
-###可选填写
-| 配置项 | 必填 | 默认值 | 说明 |
-|:-----:|:----:|:----:|:----:|
-| l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
-| l4_image | 否 | True | 布尔值，是否显示图片 |
-| l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
 
 ## 🤔 功能
 
 ### 服务器
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
+        [ip]格式为[127.0.0.1:20715]括号内
 
 | 指令 | 范围 | 用途 | 说明 |
 |:-----:|:----:|:----:|:----:|
@@ -140,10 +126,52 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | 求生绑定/steam绑定/anne绑定[text] | 所有人 | 绑定steam信息 | [text]可以是:昵称|steamid |
 | 求生解绑/steam解绑/anne解绑 | 所有人 | 解绑steam信息 | 无 |
 
+### ip(服务器查询)
+| 指令 | 范围 | 用途 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| 求生ip[ip] | 所有人 | 查指定服务器 | [text]格式为[127.0.0.1:20715]括号内，可以查询服务器玩家名字 |
+| 求生订阅[ip] | 所有人 | 查询订阅服务器状态 | 返回一个图片，显示群所有订阅的服务器名字、状态、地图、玩家名字 |
+| 求生加入[number] | 所有人 | 获取进服直链 | [number]为求生订阅所显示的开头序号 |
+| 求生添加订阅[ip] | 群管 | 群订阅添加 | 新增订阅ip，在下次订阅的时候可以显示 |
+| 求生取消订阅[number] | 所有人 | 群订阅取消 | [number]为求生订阅所显示的开头序号 |
+
+## ✅ env配置
+
+<details>
+<summary>展开/收起</summary>
+
+###本地服务器相关
+| 配置项 | 必填 | 默认值 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| l4_file | 否 | "/home/ubuntu/l4d2/coop" | str,输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
+| l4_host | 否 | '127.0.0.1' | str，服务器ip，如果是本机一般就是默认 |
+| l4_port | 否 | 20715 | int，服务器端口号 |
+| l4_rcon | 否 | '114514' | str，服务器的rcon密码 |
+
+###可选填写
+| 配置项 | 必填 | 默认值 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
+| l4_image | 否 | True | 布尔值，是否显示图片 |
+| l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
+
+</details>
+
+## ✨ 效果展示
+订阅:<br>
+![ip](image/ip_server.png)<br>
+anne:<br>
+![anne](image/anne.png)<br>
+群聊：<br>
+![list](image/list.png)<br>
+私聊：<br>
+![up](image/up.png)<br>
 
 ## 🤔 FAQ
-Q:UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd0 in position xxx: invalid continuation byte
-A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含表情包或者其他不明字符，我的方法是找到本地pypi包的rcon，编辑rcon/source/async_rcon.py,找到return response.payload.decode(encoding)并替换为return response.payload.decode(encoding,errors='ignore')
+
+        Q:UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd0 in position xxx: invalid continuation byte</b>
+        A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含表情包或者其他不明字符，我的方法是找到本地pypi包的rcon，编辑rcon/source/async_rcon.py,找到return response.payload.decode(encoding)并替换为return response.payload.decode(encoding,errors='ignore')
+
 
 ## 📝 TODO LIST
 
@@ -168,18 +196,17 @@ A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含�
 - [ ] 更改地图名称后，排序会错误
 - [ ] 服务器指令如果使用更换地图或重启，服务器会因为无响应，而返回无法连接
 
-## ✨ 效果展示
-anne:
-![list](image/anne.png)<br>
-群聊：
-![list](image/list.png)<br>
-私聊：
-![up](image/up.png)
-
 ## 🔖 更新日志
 
 <details>
 <summary>展开/收起</summary>
+
+### 0.1.7--2022.1.19
+
+ - 新增群ip订阅，批量查询
+ - 新增图片显示ip状态
+ - 修复了因为玩家名字特殊字符导致的utf-8解码错误
+ - 更新自己的第三方库VSQ==0.0.6
 
 ### 0.1.6--2022.1.15
 

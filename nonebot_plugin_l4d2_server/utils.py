@@ -212,3 +212,11 @@ async def show_ip(group_id):
     if type(msg) == str:
         msg = solve(msg)
     return  msg
+
+async def get_number_url(number):
+    'steam://connect/AGNES.DIGITAL.LINE.PM:40001'
+    ip = await get_server_ip(number)
+    if not ip:
+        return '该序号不存在'
+    url = f'steam://connect/{ip}'
+    return url
