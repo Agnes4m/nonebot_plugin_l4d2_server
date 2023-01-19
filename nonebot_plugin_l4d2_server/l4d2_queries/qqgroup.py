@@ -34,11 +34,14 @@ async def qq_ip_queries_pic(msg:list[tuple]):
     for i in msg:
         print(i)
         number,qqgroup,host,port = i
-        msg2 = await player_queries_dict(host,port)
-        msg1 = await queries_dict(host,port)
-        msg1.update(msg2)
-        # msg1是一行数据完整的字典
-        msg_list.append(msg1)
+        try:
+            msg2 = await player_queries_dict(host,port)
+            msg1 = await queries_dict(host,port)
+            msg1.update(msg2)
+            # msg1是一行数据完整的字典
+            msg_list.append(msg1)
+        except TypeError:
+            pass
     print(msg_list)
     pic = await server_ip_pic(msg_list)
     return pic
