@@ -192,9 +192,9 @@ async def add_ip(group_id,host,port):
     """先查找是否存在，如果不存在则创建"""
     return await bind_group_ip(group_id,host,port)
 
-# async def del_ip(group_id,host,port):
-#     """删除群ip"""
-#     return await bind_group_ip(group_id,host,port)
+async def del_ip(group_id,number):
+    """删除群ip"""
+    return await del_group_ip(group_id,number)
 
 async def show_ip(group_id):
     """先查找群ip，再根据群ip返回"""

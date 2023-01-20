@@ -181,12 +181,14 @@ async def _(event:GroupMessageEvent,args:Message = CommandArg()):
     msg = await add_ip(group_id,host,port)
     await add_queries.finish(msg)
 
-# @del_queries.handle()
-# async def _(event:GroupMessageEvent,matcher:Matcher,args:Message = CommandArg()):
-#     msg = args.extract_plain_text()
-#     [host,port] = split_maohao(msg)
-#     group_id = event.group_id
-#     msg = await add_ip(group_id,host,port) 
+@del_queries.handle()
+async def _(event:GroupMessageEvent,matcher:Matcher,args:Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if not msg.isdigit():
+        await del_queries.finish('请输入正确的序号数字')
+    group_id = event.group_id
+    msg = await del_ip(group_id,msg)
+    await del_queries.finish(msg)
    
 @show_queries.handle()
 async def _(event:GroupMessageEvent):

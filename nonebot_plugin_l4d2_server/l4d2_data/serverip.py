@@ -21,13 +21,13 @@ class L4D2Server():
         msg_list = self.c.fetchall()
         return msg_list
     
-    def del_server_ip(self,id):
+    async def del_server_ip(self,id:int):
         """删除指定id的ip"""
-        self.c.execute("DELETE FROM L4D2_server number = {number}")
+        self.c.execute(f"DELETE FROM L4D2_server WHERE number = {id}")
         self.conn.commit()
         
-    async def query_number(self,number):
+    async def query_number(self,number:int):
         """通过序号找服务器"""
-        self.c.execute(f"SELECT host ,port FROM L4D2_server WHERE number = {number}")
+        self.c.execute(f"SELECT qqgroup , host ,port FROM L4D2_server WHERE number = {number}")
         msg_list = self.c.fetchone()
         return msg_list

@@ -15,13 +15,24 @@ async def bind_group_ip(group:int,host:str,port:int):
         return "本群已添加过该ip辣"
     await si.bind_server_ip(group,host,port)
     return "绑定成功喵，新增ip" + host
+
+async def del_group_ip(group:int,number:int):
+    number = int(number)
+    logger.info(number)
+    try:
+        groups,host,port = await si.query_number(number)
+    except TypeError:
+        return '没有这个序号哦'
+    if groups != group:
+        return "本群可没有订阅过这个ip"
+    await si.del_server_ip(number)
+    return "取消成功喵，已删除序号" + str(number)
         
 async def qq_ip_queries(msg:list[tuple]):
     """输入一个ip的二元元组组成的列表，返回一个输出消息的列表
     未来作图这里重置"""
     messsage = ""
     for i in msg:
-        print(i)
         number,qqgroup,host,port = i
         msg2 = await player_queries(host,port)
         msg1 = await queries(host,port)
@@ -32,7 +43,6 @@ async def qq_ip_queries_pic(msg:list[tuple]):
     """输入一个ip的二元元组组成的列表，返回一个输出消息的图片"""
     msg_list = []
     for i in msg:
-        print(i)
         number,qqgroup,host,port = i
         try:
             msg2 = await player_queries_dict(host,port)
@@ -47,7 +57,7 @@ async def qq_ip_queries_pic(msg:list[tuple]):
     return pic
     
 async def get_server_ip(number):
-    host,port = await si.query_number(number)
+    group,host,port = await si.query_number(number)
     try:
         return str(host) + ':' + str(port)
     except TypeError:
