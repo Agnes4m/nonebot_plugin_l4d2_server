@@ -56,12 +56,13 @@ def anne_html_msg(data_list:list):
     for one in data_list:
         one:dict
         if l4_steamid:
-            x = 7
-        else:
             x = 6
+        else:
+            x = 5
         titles = list(one.keys())
+        logger.info(titles)
         for i in range(x):
-            mes += '\n' + str(titles[i]) + ':' + str(one[titles[i]])
+            mes += '\n' + titles[i] + ':' + str(one[titles[i]])
         mes += '\n--------------------'    
     return mes
 
