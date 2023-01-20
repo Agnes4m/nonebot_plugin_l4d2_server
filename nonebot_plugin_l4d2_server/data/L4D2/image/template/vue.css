@@ -19,7 +19,8 @@ body {
     letter-spacing: 0;
     margin: 0;
     overflow-x: hidden;
-    background-color: transparent;
+    box-sizing: border-box;
+    border-color: solid 50px rgb(0, 255, 42);
 }
 
 body::before {
@@ -29,7 +30,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.4);
     z-index: -1;
 }
 
@@ -261,7 +262,8 @@ table::after {
     left: 0;
     width: 100%;
     height: 100%;
-    /* background-color: rgba(255,255,255,0.5); */
+    border-collapse: collapse;
+    margin-top:50px;
 }
 
 table tr {
@@ -507,3 +509,29 @@ footer {
 .transparent-bg {
     background-color: rgba(255,255,255,0.5);
 }
+
+.frame {
+    width: 1100px;
+    height: 800px;
+    padding: 50px;
+    box-sizing: border-box;
+    border: solid 50px #7aff85;
+}
+
+.myinfo {
+    width: 80%;
+    margin: auto;
+}
+
+/* .pc {
+    width: 1080px;
+    height: 400px;
+    padding: 0;
+    box-sizing: border-box;
+    border: solid 50px #fd7be7;
+}
+@media only screen and (min-height: 400px) {
+    .pc {
+        height: auto;
+    }
+} */

@@ -18,7 +18,7 @@ async def out_png(usr_id,data_dict:dict):
     pic = await html_to_pic(
                 new_html,
                 wait=0,
-                viewport={"width": 800, "height": 700},
+                viewport={"width": 1100, "height": 800},
                 template_path=f"file://{template_path.absolute()}",)
     print(type(pic))
     return pic
@@ -59,11 +59,11 @@ async def server_ip_pic(msg_dict:list[dict]):
     template_path = TEXT_PATH/"template"
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('ip.html')
-    html = template.render(data=msg_dict)
+    html = template.render(data = msg_dict)
     pic = await html_to_pic(
             html,
             wait=0,
-            viewport={"width": 1080, "height": 1920},
+            viewport={"width": 1080, "height": 400},
             template_path=f"file://{template_path.absolute()}",)
     return pic
 
