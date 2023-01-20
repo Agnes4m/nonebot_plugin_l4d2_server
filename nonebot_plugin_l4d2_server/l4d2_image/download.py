@@ -73,5 +73,8 @@ async def get_head_by_user_id_and_save(user_id):
 
 async def url_to_byte(url):
     """所有url终将绳之以法"""
-    data = httpx.get(url).content
+    headers = {
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+    }
+    data = httpx.get(url,headers=headers,timeout=60,verify=False).content
     return data

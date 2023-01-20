@@ -11,6 +11,8 @@ from .l4d2_image.download import url_to_byte
 from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
 from nonebot import get_driver
+import io
+import tempfile
 driver = get_driver()
 
 
@@ -200,6 +202,7 @@ async def _(args:Message = CommandArg()):
     msg = args.extract_plain_text()
     url = await get_number_url(msg)
     await join_server.finish(url)
+    
         
 @up_workshop.handle()
 async def _(matcher:Matcher,args:Message = CommandArg()):
@@ -207,9 +210,8 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
     if msg:
         matcher.set_arg("ip",args)
     
-    
 @up_workshop.got("ip",prompt="请输入创意工坊网址或者物品id")
-async def _(matcher:Matcher,,state:T_State,tag:str = ArgPlainText("ip")):
+async def _(matcher:Matcher,state:T_State,tag:str = ArgPlainText("ip")):
     msg = await workshop_msg(tag)
     if not msg:
         await up_workshop.finish('没有这个物品捏')
@@ -222,21 +224,35 @@ async def _(matcher:Matcher,,state:T_State,tag:str = ArgPlainText("ip")):
     state['dic'] = msg
     await up_workshop.send(MessageSegment.image(pic) + Message(message))
     
-@up_workshop.got("is_sure",prompt='如果需要上传，请发送 yes')    
+@up_workshop.got("is_sure",prompt='如果需要上传，请发送 "yes"')    
 async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     is_sure = str(state["is_sure"])
+    data_dict:dict = state['dic']
     gid = event.group_id
     logger.info('开始上传')
+    data_file = await url_to_byte(data_dict['下载地址'])
+    file_name = data_dict['名字']+ '.vpk'
+    await up_workshop.send('获取地址成功，尝试上传')
     if is_sure == 'yes':
-        await bot.call_api(
-            'upload_group_file',
-            group_id=gid,
-            name=state['名字'],
-            file=state['下载地址'],
-        )   
+        await upload_file(bot, event, data_file, file_name)
     else:
         await matcher.finish('已取消上传')
     
+    
+async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
+    file_io = io.BytesIO(file_data)
+    with tempfile.NamedTemporaryFile("wb+") as f:
+        f.write(file_io.getbuffer())
+        if isinstance(event, GroupMessageEvent):
+            await bot.call_api(
+                "upload_group_file", group_id=event.group_id, file=f.name, name=filename
+            )
+        else:
+            await bot.call_api(
+                "upload_private_file", user_id=event.user_id, file=f.name, name=filename
+            )
+
+
 @driver.on_shutdown
 async def close_db():
     """关闭数据库"""

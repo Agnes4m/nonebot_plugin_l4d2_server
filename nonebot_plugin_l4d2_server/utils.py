@@ -218,6 +218,10 @@ async def get_number_url(number):
 async def workshop_msg(msg:str):
     """url变成id，拼接post请求"""
     if msg.startswith('https://steamcommunity.com/sharedfiles/filedetails/?id'):
+        try:
+            msg = msg.split('&')[0]
+        except:
+            pass
         msg = msg.replace('https://steamcommunity.com/sharedfiles/filedetails/?id=','')
     if msg.isdigit():
         data:dict = await workshop_to_dict(msg)
@@ -225,3 +229,6 @@ async def workshop_msg(msg:str):
     else:
         return None
     
+async def save_file(file:bytes,path_name):
+    with open(path_name,'w') as files:
+        files.write(file)
