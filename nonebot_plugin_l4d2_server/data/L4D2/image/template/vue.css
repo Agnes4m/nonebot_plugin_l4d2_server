@@ -510,13 +510,6 @@ footer {
     background-color: rgba(255,255,255,0.5);
 }
 
-.frame {
-    width: 1100px;
-    height: 800px;
-    padding: 50px;
-    box-sizing: border-box;
-    border: solid 50px #7aff85;
-}
 
 .myinfo {
     width: 80%;

@@ -11,15 +11,14 @@ from .l4d2_image.download import url_to_byte
 from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
 from nonebot import get_driver
-import io
 import tempfile
 driver = get_driver()
 
 
-__version__ = "0.1.7"
+__version__ = "0.2.0"
 __plugin_meta__ = PluginMetadata(
-    name="求生服务器操作",
-    description='群内对服务器的简单操作',
+    name="求生之路小助手",
+    description='群内对有关求生之路的查询和操作',
     usage='求生服务器操作指令',
     extra={
         "version": __version__,
@@ -82,9 +81,9 @@ async def _(bot:Bot,event: MessageEvent):
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
     msg = mes_list(mes,name_vpk).replace(" ","")
-    if l4_image:
+    try:
         await find_vpk.finish(MessageSegment.image(text_to_png(msg)))
-    else:
+    except OSError:
         await find_vpk.finish(msg)
 
 @del_vpk.handle()
@@ -230,7 +229,6 @@ async def _(matcher:Matcher,state:T_State,tag:str = ArgPlainText("ip")):
 async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     is_sure = str(state["is_sure"])
     data_dict:dict = state['dic']
-    gid = event.group_id
     logger.info('开始上传')
     data_file = await url_to_byte(data_dict['下载地址'])
     file_name = data_dict['名字']+ '.vpk'
@@ -242,9 +240,8 @@ async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     
     
 async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
-    file_io = io.BytesIO(file_data)
     with tempfile.NamedTemporaryFile("wb+") as f:
-        f.write(file_io.getbuffer())
+        f.write(file_data)
         if isinstance(event, GroupMessageEvent):
             await bot.call_api(
                 "upload_group_file", group_id=event.group_id, file=f.name, name=filename

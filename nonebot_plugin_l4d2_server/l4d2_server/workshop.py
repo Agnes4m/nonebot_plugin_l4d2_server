@@ -9,7 +9,10 @@ async def workshop_to_dict(msg:str):
     """把创意工坊的id，转化为信息字典"""
     url_serach = 'https://db.steamworkshopdownloader.io/prod/api/details/file'
     data = f'[{msg}]'
-    data = httpx.post(url=url_serach,data=data).content.decode('utf-8')
+    headers = {
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+    }
+    data = httpx.post(url=url_serach,headers= headers,data=data).content.decode('utf-8')
     logger.info(data)
     out = {}
     data = data[1:-1]

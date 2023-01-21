@@ -13,7 +13,7 @@ except:
 file_format = (".vpk",".zip",".7z")
 Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
 # file 填写求生服务器所在路径
-FONT_ORIGIN_PATH = Path(__file__).parent / 'data/L4D2/font.ttf'
+FONT_ORIGIN_PATH = Path()/ 'data/L4D2/font.ttf'
 try:
     l4_file: str = nonebot.get_driver().config.l4_file
 except:
