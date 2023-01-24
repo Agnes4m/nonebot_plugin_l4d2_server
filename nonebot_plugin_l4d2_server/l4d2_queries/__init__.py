@@ -38,7 +38,8 @@ async def player_queries(ip:str,port:int):
     port = int(port)
     message_dic = await player_queries_dict(ip,port)
     n = 0
-    message = '玩家数量：' + message_dic['header'] + '\n'
+    # message:str = '玩家数量：' + message_dic['header'] + '\n'
+    message = ''
     for i in message_dic['Players']:
         n += 1 
         message += str(n) + '、' + str(i) +'\n'
