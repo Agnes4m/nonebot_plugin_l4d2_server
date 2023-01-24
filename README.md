@@ -27,7 +27,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 # 主要功能
 - 求生服务器本地操作
 - 批量查询指定ip服务器状态和玩家
-- [求生电信服anne](https://sb.trygek.com/l4d_stats/ranking/index.php)查询~
+- [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
 
 
 ## 安装

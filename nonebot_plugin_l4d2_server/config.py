@@ -48,7 +48,12 @@ try:
     l4_rcon: str = nonebot.get_driver().config.l4_rcon
 except:
     l4_rcon: str = '114514'
-
+try:
+    l4_proxies: str = {
+            'http://':nonebot.get_driver().config.l4_proxies
+        }
+except:
+    l4_proxies = ''
 # 文件路径
 vpk_path = "left4dead2/addons"
 cfg_server = Path(l4_file,'left4dead2/cfg/server.cfg')

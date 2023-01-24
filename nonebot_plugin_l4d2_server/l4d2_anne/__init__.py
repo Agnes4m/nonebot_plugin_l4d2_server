@@ -131,7 +131,7 @@ def anne_rank_dict(name:str):
     detail = data.find_all('table')
     n = 0
     while n < 2:
-        data_list = []
+        data_list:list[dict] = []
         detail2 = detail[n]
         tr = detail2.find_all('tr')
         for i in tr:
@@ -141,6 +141,16 @@ def anne_rank_dict(name:str):
             data_dict.update(new_dict)
         data_list.append(data_dict)
         n += 1
+    # 获取头像
+    element:str = data.find_all(attrs={"style": "cursor:pointer"})[0].get("onclick")
+    player_url = element.split("'")[1]
+    data_list[0].update({"个人资料":player_url})
+    # 获取一言
+    message = data.select("html body div.content.text-center.text-md-left div.container.text-left div.col-md-12.h-100 div.card-body.worldmap.d-flex.flex-column.justify-content-center.text-center span")
+    msg_list = []
+    for i in message:
+        msg_list.append(i.text)
+    data_list[0].update({"一言":msg_list})
     return data_list
 
 def anne_rank_dict_msg(data_list):

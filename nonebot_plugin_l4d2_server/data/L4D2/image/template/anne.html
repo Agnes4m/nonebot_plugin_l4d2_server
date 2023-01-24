@@ -2,8 +2,15 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="vue.css">
 </head>
+</br>
+{% for item in data %}
 <body style="background-image: url('back.png');">
 	<h1 ><center>求生药役anne电信服数据</center></h1>
+	<div class="scissors" style="border-top:1px dashed orange;">
+	</div><center>
+	{% for msg_one in item.one_msg %}
+		{{ msg_one }}<br>
+	{% endfor %}</center>
 	<div class="scissors" style="border-top:1px dashed orange;">
 	</div>
 <div class="myinfo">
@@ -11,36 +18,37 @@
 		<tbody>
 			<tr>
 				<td rowspan="6">
-					<img src="player.jpg"  width="200" height="200" style="border-radius: 50%;">
+					<img src={{item.header}}  width="200" height="200" style="border-radius: 50%;">
 				</td>
-				<td>昵&emsp;&emsp;称 | name</td>
-				<td>Steam id | Steam_ID</td>
+				<td>昵&emsp;&emsp;称 | {{item.name}}</td>
+				<td>Steam id | {{item.Steam_ID}}</td>
 			
 			</tr>
 			<tr>
-				<td>游玩时间 | play_time</td>
-				<td>最后上线 | last_online</td>
+				<td>游玩时间 | {{item.play_time}}</td>
+				<td>最后上线 | {{item.last_online}}</td>
 			</tr>
 			<tr>
-				<td>排&emsp;&emsp;行 | rank</td>
+				<td>排&emsp;&emsp;行 | {{item.rank}}</td>
 				
-				<td>分&emsp;&emsp;数 | points</td>
+				<td>分&emsp;&emsp;数 | {{item.points}}</td>
 			</tr>
 			<tr>
-				<td>分数 / 分 | point_min</td>
-				<td>小僵尸数 | killed</td>
+				<td>分数 / 分 | {{item.point_min}}</td>
+				<td>小僵尸数 | {{item.killed}}</td>
 			</tr>
 			<tr>
-				<td>爆&emsp;&emsp;头 | shut</td>
-				<td>爆&nbsp; 头&nbsp; 率 | out</td>
+				<td>爆&emsp;&emsp;头 | {{item.shut}}</td>
+				<td>爆&nbsp; 头&nbsp; 率 | {{item.out}}</td>
 			</tr>
 			<tr>
-				<td>游玩次数 | playtimes</td>
+				<td>游玩次数 | {{item.playtimes}}</td>
 				<td></td>
 			</tr>
 		</tbody>
 	</table>
 </div>
+{% endfor %}
 <h5><center>©爱丽数码</center></br>
 	<center>
 		https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server

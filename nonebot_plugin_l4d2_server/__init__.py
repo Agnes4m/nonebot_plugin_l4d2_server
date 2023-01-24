@@ -7,7 +7,7 @@ from time import sleep
 from .config import *
 from .utils import *
 from .command import *
-from .l4d2_image.download import url_to_byte
+from .l4d2_image.steam import url_to_byte
 from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
 from nonebot import get_driver

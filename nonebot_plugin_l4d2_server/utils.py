@@ -119,6 +119,7 @@ def solve(msg:str):
 
 
 async def search_anne(name:str,usr_id:str):
+    """获取anne成绩"""
     msg = await anne_messgae(name,usr_id)
     if type(msg) == str:
         msg = solve(msg)

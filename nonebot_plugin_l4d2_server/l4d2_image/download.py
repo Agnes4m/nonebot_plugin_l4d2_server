@@ -6,6 +6,7 @@ import os
 from PIL import Image,ImageDraw
 import io
 from ..config import PLAYERSDATA,TEXT_PATH
+from .steam import web_player
 
 async def download_url(url: str) -> bytes:
     async with httpx.AsyncClient() as client:
@@ -71,10 +72,27 @@ async def get_head_by_user_id_and_save(user_id):
     im3.paste(im2,mask=a2)
     return im3
 
-async def url_to_byte(url):
-    """所有url终将绳之以法"""
-    headers = {
-        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
-    }
-    data = httpx.get(url,headers=headers,timeout=60,verify=False).content
-    return data
+# async def get_head_steam_and_save(user_id:str,urls):
+#     """保存steam头像"""
+#     USER_HEAD_PATH = PLAYERSDATA / str(user_id) / 'HEAD.png'
+#     # DEFAULT_HEAD_PATH = TEXT_PATH / "template/player.jpg"
+#     ## im头像 im2头像框 im3合成
+#     if os.path.exists(USER_HEAD_PATH):
+#         logger.info("使用本地头像")
+#         im = Image.open(USER_HEAD_PATH).resize((280, 280)).convert("RGBA")
+#     else:
+#         # if user_id == "1145149191810":
+#         #     logger.info("使用默认头像")
+#         #     im = Image.open(DEFAULT_HEAD_PATH).resize((300, 300)).convert("RGBA")
+#         # else:
+#             try:
+#                 logger.info("正在下载头像")
+#                 image_bytes = await web_player(urls)
+#                 im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
+#                 if not os.path.exists(PLAYERSDATA / user_id):#用户文件夹不存在
+#                     os.makedirs(PLAYERSDATA / user_id)
+#                 im.save(USER_HEAD_PATH, "PNG")
+#             except TimeoutError:
+#                 logger.error("获取失败")
+#     return im
+    
