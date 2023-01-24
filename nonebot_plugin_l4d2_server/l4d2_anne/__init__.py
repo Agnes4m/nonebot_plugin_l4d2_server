@@ -195,13 +195,16 @@ async def anne_messgae(name:str,usr_id:str):
         """
         logger.info("qq信息查询")
         data_tuple = s._query_player_qq(usr_id)
-        if not data_tuple:
-            return "没有绑定信息..."
+        logger.info(data_tuple)
+        if data_tuple== None:
+            return "没有绑定信息...请使用【求生绑定 xxx】\n"
         # 只有名字，先查询数据在判断
         elif not data_tuple[2]:
             name = await id_to_mes(data_tuple[1])
+            logger.info(name)
             if not name:
-                return f'未找到该玩家...\n'
+                a = '未找到该玩家...\n'
+                return a
             msg = anne_html(name)
             logger.info('有' + str(len(msg)) + '个信息')
             if str(len(msg)) !=1:
