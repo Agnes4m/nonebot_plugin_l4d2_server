@@ -21,7 +21,11 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
         <img src="https://img.shields.io/pypi/v/nonebot_plugin_l4d2_server.svg" alt="pypi">
 </a>
+<a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
+    <img src="https://img.shields.io/pypi/dm/nonebot_plugin_l4d2_server" alt="pypi download">
+</a>
     <img src="https://img.shields.io/badge/python-3.6~3.11-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/nonebot-2.0.0rc1~rc3-red.svg" alt="NoneBot">
 </div>
 
 # 主要功能
@@ -112,6 +116,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
         [ip]格式为[127.0.0.1:20715]括号内
+
+求生帮助：获取简单的帮助列表
 
 <details>
 <summary>展开/收起</summary>
@@ -221,11 +227,13 @@ anne:<br>
 <details>
 <summary>展开/收起</summary>
 
-### 0.2.1
+### 0.2.1--2022.1.25
 
  - 新增电信服获取（东哥的肯定）
  - 优化图片UI 
  - 新增云服快捷查询
+ - 修复了因为没用玩家，导致的服务器状态查询错误
+ - 新增电信服ip爬取（仅仅作为单次更新ip列表）
 
 ### 0.2.0--2022.1.21
 
