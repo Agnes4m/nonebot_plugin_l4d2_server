@@ -47,7 +47,6 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     DETAIL_right['playtimes'] = DETAIL_MAP['游玩地图数量:']
     DETAIL_right['url'] = DETAIL_MAP['个人资料']
     DETAIL_right['one_msg'] = DETAIL_MAP['一言']
-    logger.info(DETAIL_right)
     # html_text = soup.prettify()
     # for key, value in DETAIL_right.items():
     #     html_text = html_text.replace(key,value)
@@ -55,7 +54,6 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     temp = await get_head_by_user_id_and_save(usr_id)
     # temp = await get_head_steam_and_save(usr_id,DETAIL_right['url'])
     res = await convert_img(temp,is_base64=True)
-    logger.info(DETAIL_right)
     DETAIL_right['header'] = f"data:image/png;base64,{res}"
     data_list = [DETAIL_right]
     return data_list
@@ -65,7 +63,6 @@ async def server_ip_pic(msg_dict:list[dict]):
     输入一个字典列表，输出图片
     msg_dict:folder/name/map_/players/max_players/Players/[Name]
     """
-    logger.info(msg_dict)
     for one in msg_dict:
         one['max_players'] = one['players'] + '/' + one['max_players']
     template_path = TEXT_PATH/"template"

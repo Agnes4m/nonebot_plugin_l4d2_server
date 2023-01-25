@@ -10,6 +10,7 @@ from .command import *
 from .l4d2_image.steam import url_to_byte
 from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
+from .l4d2_anne.server import updata_anne_server,get_anne_ip
 from nonebot import get_driver
 import tempfile
 driver = get_driver()
@@ -29,7 +30,6 @@ __plugin_meta__ = PluginMetadata(
 
 
 """相当于启动就检查数据库"""
-
 
 @up.handle()
 async def _(event: NoticeEvent, matcher: Matcher):
@@ -240,6 +240,7 @@ async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     
     
 async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
+    """上传临时文件"""
     with tempfile.NamedTemporaryFile("wb+") as f:
         f.write(file_data)
         if isinstance(event, GroupMessageEvent):
@@ -250,6 +251,26 @@ async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename:
             await bot.call_api(
                 "upload_private_file", user_id=event.user_id, file=f.name, name=filename
             )
+
+@updata.handle()
+async def _():
+    msg = await updata_anne_server()
+    if msg:
+        n = len(msg)
+        await updata.finish(f'更新成功，目前有{n}个ip')
+    await updata.finish('获取失败了')
+
+@get_anne.handle()
+async def _(args:Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if msg.isdigit():
+        msg = '云' + msg
+        logger.info(msg)
+        ip = await get_anne_ip(msg)
+        if ip:
+            message = await get_anne_server_ip(ip)
+            await get_anne.finish(message)
+    
 
 
 @driver.on_shutdown

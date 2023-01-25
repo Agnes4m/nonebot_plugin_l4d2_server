@@ -121,7 +121,6 @@ def solve(msg:str):
 async def search_anne(name:str,usr_id:str):
     """获取anne成绩"""
     msg = await anne_messgae(name,usr_id)
-    logger.info(msg)
     if type(msg) == str:
         msg = solve(msg)
     return msg
@@ -186,8 +185,11 @@ async def queries_server(msg:list) -> str:
     print(msg)
     ip = msg[0]
     port = msg[1]
-    msgs = await player_queries(ip,port)
-    msgs += await queries(ip,port) 
+    msgs = await  queries(ip,port)
+    try:
+        msgs += await player_queries(ip,port)
+    except KeyError:
+        pass
     return msgs
 
 async def add_ip(group_id,host,port):
@@ -210,11 +212,11 @@ async def show_ip(group_id):
     return  msg
 
 async def get_number_url(number):
-    'steam://connect/AGNES.DIGITAL.LINE.PM:40001'
+    'connect AGNES.DIGITAL.LINE.PM:40001'
     ip = await get_server_ip(number)
     if not ip:
         return '该序号不存在'
-    url = f'steam://connect/{ip}'
+    url = f'connect {ip}'
     return url
 
 async def workshop_msg(msg:str):
@@ -232,5 +234,15 @@ async def workshop_msg(msg:str):
         return None
     
 async def save_file(file:bytes,path_name):
+    """保存文件"""
     with open(path_name,'w') as files:
         files.write(file)
+        
+async def get_anne_server_ip(ip):
+    """输出云服查询ip"""
+    host,port = split_maohao(ip)
+    data = await queries_server([host,port])
+    lines = data.splitlines()
+    msg = '\n'.join(lines[1:])
+    msg += '\nconnect ' + ip
+    return msg

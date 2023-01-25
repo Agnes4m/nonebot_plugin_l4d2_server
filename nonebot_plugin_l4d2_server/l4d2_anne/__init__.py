@@ -53,17 +53,21 @@ async def anne_html(name:str):
 def anne_html_msg(data_list:list):
     """从搜索结果的字典列表中，返回发送信息"""
     mes = '搜索到以下玩家信息'
+    ns = 0
+    
     for one in data_list:
         one:dict
+        ns += 1
         if l4_steamid:
             x = 6
         else:
             x = 5
         titles = list(one.keys())
-        logger.info(titles)
         for i in range(x):
             mes += '\n' + titles[i] + ':' + str(one[titles[i]])
-        mes += '\n--------------------'    
+        mes += '\n--------------------'
+        if ns>10:
+            break
     return mes
 
 
@@ -89,10 +93,10 @@ async def write_player(id,msg:str,nickname:str):
         # try:
         data_tuple = s._query_player_qq(id)
         if data_tuple != None:
-            qq , nicknam , steamid = data_tuple
+            id , nicknam , steamid = data_tuple
         else:
             steamid = None
-        await s._add_player_all(qq , msg , steamid)
+        await s._add_player_all(id , msg , steamid)
         # except TypeError:
         #     await s._add_player_nickname(id , msg ) 
         mes = '绑定成功喵~\nQQ:' + nickname +'\n' + 'steam昵称:'+msg
@@ -103,7 +107,7 @@ async def write_player(id,msg:str,nickname:str):
         
 def del_player(id:str):
     """删除绑定信息,返回消息"""
-    if not s._query_player(id):
+    if not s._query_player_qq(id):
         return '你还没有绑定过，请使用[求生绑定+昵称/steamid]'
     if s._delete_player:
         return '删除成功喵~'

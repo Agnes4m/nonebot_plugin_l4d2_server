@@ -61,10 +61,6 @@ map_path = Path(l4_file,vpk_path)
 '''
 地图路径
 '''
-players_data:dict[str(dict)] = json.load(open(Path(__file__).parent.joinpath('data/L4D2/player.json'), "r", encoding="utf8"))
-"""绑定信息dict"""
-
-
 
 PLAYERSDATA = Path() / "data/L4D2/image/players"
 """用户数据路径"""
@@ -96,3 +92,7 @@ tables_columns = {
     table_data[0]:L4d2_players_tag,
     table_data[1]:L4d2_server_tag
 }
+
+# 求生anne服务器
+anne_url = "https://server.trygek.com/"
+
