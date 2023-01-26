@@ -52,7 +52,7 @@ async def player_queries_dict(ip:str,port:int):
 
 async def player_queries(ip:str,port:int): 
     port = int(port)
-    message_dic = await player_queries_dict(ip,port)
+    message_dic = await player_queries_anne_dict(ip,port)
     n = 0
     # message:str = '玩家数量：' + message_dic['header'] + '\n'
     message = ''
@@ -63,4 +63,18 @@ async def player_queries(ip:str,port:int):
         Duration = i['Duration']
         s = str(n)
         message += f'{s}、{name} | {Score}分 |{Duration}\n'
+    return message
+
+async def player_queries_dict(ip:str,port:int): 
+    port = int(port)
+    message_dic = await player_queries_dict(ip,port)
+    n = 0
+    # message:str = '玩家数量：' + message_dic['header'] + '\n'
+    message = ''
+    for i in message_dic['Players']:
+        n += 1 
+        name = i['Name']
+        Duration = i['Duration']
+        s = str(n)
+        message += f'{s}、{name} |{Duration}\n'
     return message
