@@ -48,6 +48,4 @@ async def get_anne_ip(text: str) -> str:
     keys = ANNE_IP.keys()
     for key in keys:
         if text == key:
-            print(text)
-            print(key)
             return ANNE_IP[key]

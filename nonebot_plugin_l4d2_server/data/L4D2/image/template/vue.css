@@ -523,8 +523,9 @@ footer {
     box-sizing: border-box;
     border: solid 50px #fd7be7;
 }
+*/
 @media only screen and (min-height: 400px) {
     .pc {
         height: auto;
     }
-} */
+} 

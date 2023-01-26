@@ -65,6 +65,15 @@ async def server_ip_pic(msg_dict:list[dict]):
     """
     for one in msg_dict:
         one['max_players'] = one['players'] + '/' + one['max_players']
+        players_list = []
+        try:
+            for one_player in one['Players']:
+                player_str = one_player['Name'] +' | ' + one_player['Duration']
+                players_list.append(player_str)
+            one['Players'] = players_list
+    # one['Players'] = one['Players']['Name'] + one['Players']['Dutation']
+        except KeyError:
+            continue
     template_path = TEXT_PATH/"template"
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('ip.html')

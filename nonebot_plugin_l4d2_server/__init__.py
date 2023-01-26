@@ -271,7 +271,17 @@ async def _(args:Message = CommandArg()):
             message = await get_anne_server_ip(ip)
             await get_anne.finish(message)
     
-
+@read_ip.handle()
+async def _(event:GroupMessageEvent):
+    group = event.group_id
+    ip_list = []
+    keys = ANNE_IP.keys()
+    for key in keys:
+        ip = ANNE_IP[key]
+        host,port = split_maohao(ip)
+        ip_list.append((key,group,host,port))
+    img = await qq_ip_queries_pic(ip_list)
+    await read_ip.finish(MessageSegment.image(img))
 
 @driver.on_shutdown
 async def close_db():

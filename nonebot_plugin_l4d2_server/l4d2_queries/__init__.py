@@ -21,13 +21,29 @@ async def queries_dict(ip:str,port:int) -> dict:
     msg_dict['ip'] = str(ip) + ':' +str(port)
     return msg_dict
     
-async def player_queries_dict(ip:str,port:int): 
+async def player_queries_anne_dict(ip:str,port:int): 
+    """anne算法返回玩家"""
     port = int(port)
     message_dic = await l4d2.APlayer(ip,port,times=5)
+    if message_dic == {}:
+        message_dic['header'] = 0
+    else:
+        pass
+        # new_list = []
+        # for i in message_dic['Players']:
+        #     new_list.append(i['Name'])
+        # new_dict.update({'Players':new_list})
+    return message_dic
+
+async def player_queries_dict(ip:str,port:int): 
+    """一般算法返回玩家"""
+    port = int(port)
     new_dict = {}
+    message_dic = await l4d2.APlayer(ip,port,times=5)
     if message_dic == {}:
         new_dict['header'] = 0
     else:
+        pass
         new_list = []
         for i in message_dic['Players']:
             new_list.append(i['Name'])
@@ -42,5 +58,9 @@ async def player_queries(ip:str,port:int):
     message = ''
     for i in message_dic['Players']:
         n += 1 
-        message += str(n) + '、' + str(i) +'\n'
+        name = i['Name']
+        Score = i['Score']
+        Duration = i['Duration']
+        s = str(n)
+        message += f'{s}、{name} | {Score}分 |{Duration}\n'
     return message
