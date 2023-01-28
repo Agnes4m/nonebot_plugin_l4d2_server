@@ -1,4 +1,4 @@
-from nonebot import on_notice,on_command,on_regex
+from nonebot import on_notice,on_command,on_regex,on_fullmatch
 import re
 from .l4d2_anne.server import ANNE_IP
 from .config import Master
@@ -25,8 +25,12 @@ anne_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定
 del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
 read_ip = on_command('anne',aliases={'求生云服'},priority=20,block=True)
 updata = on_command('updata',aliases={'求生更新云服'},priority=20,block=True,permission= Master)
-get_anne = on_command('云',priority=20,block=True)
 
+# keys = ANNE_IP.keys()
+# get_ip = on_command('114514919181',set(keys),priority=80)
+    
+get_anne = on_command('云',priority=20,block=True)
+tan_jian = on_command('tj',aliases={'探监'},priority=20,block=True)
 
 # 查询
 queries = on_command('queries',aliases={'求生ip'},priority=20,block=True)

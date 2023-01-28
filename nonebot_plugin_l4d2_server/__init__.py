@@ -283,6 +283,22 @@ async def _(event:GroupMessageEvent):
     img = await qq_ip_queries_pic(ip_list)
     await read_ip.finish(MessageSegment.image(img))
 
+@tan_jian.handle()
+async def _(event:MessageEvent):
+    group = event.user_id
+    await tan_jian.send('正在寻找牢房...')
+    ip_list = []
+    keys = ANNE_IP.keys()
+    for key in keys:
+        key:str
+        if key.startswith('云'):
+            ip = ANNE_IP[key]
+            host,port = split_maohao(ip)
+            ip_list.append((key,group,host,port))
+    msg = await get_tan_jian(ip_list)
+    await tan_jian.finish(msg)
+            
+
 @driver.on_shutdown
 async def close_db():
     """关闭数据库"""
