@@ -82,6 +82,8 @@ async def get_tan_jian(msg:list[tuple]):
                     continue
                 msg1.update(msg2)
                 msg1.update({'ranks':point})
+                ips = f'{host}:{str(port)}'
+                msg1.update({'ips':ips})
             # msg1是一行数据完整的字典
                 msg_list.append(msg1)
         except (TypeError,KeyError):
@@ -91,13 +93,11 @@ async def get_tan_jian(msg:list[tuple]):
     mse = random.choice(msg_list)
     message:str = ''
     ranks = mse['ranks']
-    if ranks < 50 :
-        return '暂时没有牢房'
-    if 50 < ranks <= 120 :
+    if 50 < ranks <= 200 :
         message = random.choice(PRISON[1])
-    if 120 < ranks <= 200 :
+    if 200 < ranks <= 400 :
         message = random.choice(PRISON[2])
-    if ranks > 200 :
+    if ranks > 400 :
         message = random.choice(PRISON[3])       
     message += '\n' + '名称：' + mse['name'] + '\n'
     message += '地图：' + mse['map_'] + '\n'
@@ -110,6 +110,7 @@ async def get_tan_jian(msg:list[tuple]):
         Duration = i['Duration']
         s = str(n)
         message += f'{s}、{name} | {Score}分 |{Duration}\n'
+    message += 'connect ' + mse['ips']
     return message
 
 async def get_server_ip(number):

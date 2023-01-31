@@ -24,8 +24,9 @@ anne_player = on_command('Ranne',aliases={"求生anne"},priority=25,block=True)
 anne_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
 del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
 read_ip = on_command('anne',aliases={'求生云服'},priority=20,block=True)
-updata = on_command('updata',aliases={'求生更新云服'},priority=20,block=True,permission= Master)
-
+# updata = on_command('updata',aliases={'求生更新云服'},priority=20,block=True,permission= Master)
+prison = on_command('prison',aliases={'坐牢'},priority=20,block=True,permission= Master)
+open_prison = on_command('open_prison',aliases={'开牢'},priority=20,block=True,permission= Master)
 # keys = ANNE_IP.keys()
 # get_ip = on_command('114514919181',set(keys),priority=80)
     
@@ -40,8 +41,8 @@ show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=Tru
 join_server = on_command('showq',aliases={"求生加入"},priority=20,block=True)
 
 # 下载内容
-up_workshop = on_command('workshop',aliases={'创意工坊下载','求生创意工坊'},priority=20,block=True)
-
+up_workshop = on_command('workshop',aliases={'创意工坊下载','求生创意工坊'},priority=20,block=True,permission= Master)
+vtf_make = on_command('vtf_make',aliases={'求生喷漆'},priority=20,block=True,permission= Master)
 
 @help_.handle()
 async def _():

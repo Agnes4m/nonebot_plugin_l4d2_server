@@ -8,6 +8,7 @@ try:
 except:
     pass
 from pathlib import Path
+from PIL import Image
 from .txt_to_img import txt_to_img
 from .config import *
 from .l4d2_anne import write_player,del_player,anne_messgae

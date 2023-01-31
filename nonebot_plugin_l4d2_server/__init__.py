@@ -13,6 +13,7 @@ from .l4d2_data import sq_L4D2
 from .l4d2_anne.server import updata_anne_server,get_anne_ip
 from nonebot import get_driver
 import tempfile
+# from .l4d2_image.vtf import img_to_vtf
 driver = get_driver()
 
 
@@ -212,7 +213,7 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
         matcher.set_arg("ip",args)
     
 @up_workshop.got("ip",prompt="请输入创意工坊网址或者物品id")
-async def _(matcher:Matcher,state:T_State,tag:str = ArgPlainText("ip")):
+async def _(state:T_State,tag:str = ArgPlainText("ip")):
     msg = await workshop_msg(tag)
     if not msg:
         await up_workshop.finish('没有这个物品捏')
@@ -252,13 +253,13 @@ async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename:
                 "upload_private_file", user_id=event.user_id, file=f.name, name=filename
             )
 
-@updata.handle()
-async def _():
-    msg = await updata_anne_server()
-    if msg:
-        n = len(msg)
-        await updata.finish(f'更新成功，目前有{n}个ip')
-    await updata.finish('获取失败了')
+# @updata.handle()
+# async def _():
+#     msg = await updata_anne_server()
+#     if msg:
+#         n = len(msg)
+#         await updata.finish(f'更新成功，目前有{n}个ip')
+#     await updata.finish('获取失败了')
 
 @get_anne.handle()
 async def _(args:Message = CommandArg()):
@@ -298,6 +299,50 @@ async def _(event:MessageEvent):
     msg = await get_tan_jian(ip_list)
     await tan_jian.finish(msg)
             
+# @vtf_make.handle()
+# async def _(state:T_State,args:Message = CommandArg()):
+#     msg = args.extract_plain_text()
+#     if msg not in ['拉伸','填充','覆盖']:
+#         await vtf_make.finish('错误的图片处理方式')
+#     if msg:
+#         state['way'] = args
+#     else:
+#         state['way'] = '拉伸'
+    
+# @vtf_make.got("way",prompt="请发送喷漆图片")
+# async def _(bot:Bot,event:MessageEvent,state:T_State,args:Message = CommandArg()):
+#     try:
+#         pic = args["image"]
+#         logger.info(pic)
+#     except:
+#         await vtf_make.finish('不是图')
+        
+#     tag = state['way']
+#     img_byte:bytes = await img_to_vtf(pic,tag)
+#     if isinstance(event, GroupMessageEvent):
+#         nickname = event.sender.card or event.sender.nickname
+#     else:
+#         nickname = event.sender.nickname
+#     file_name = nickname + '的喷漆'
+#     await upload_file(bot, event, img_byte, file_name)
+    
+    
+
+
+@prison.handle()
+async def _(event:MessageEvent):
+    group = event.user_id
+    await tan_jian.send('正在寻找缺人...')
+    ip_list = []
+    keys = ANNE_IP.keys()
+    for key in keys:
+        key:str
+        if key.startswith('云'):
+            ip = ANNE_IP[key]
+            host,port = split_maohao(ip)
+            ip_list.append((key,group,host,port))
+    msg = await get_tan_jian(ip_list)
+    await tan_jian.finish(msg)
 
 @driver.on_shutdown
 async def close_db():
