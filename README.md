@@ -194,6 +194,21 @@ anne:<br>
         Q:UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd0 in position xxx: invalid continuation byte</b>
         A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含表情包或者其他不明字符，我的方法是找到本地pypi包的rcon，编辑rcon/source/async_rcon.py,找到return response.payload.decode(encoding)并替换为return response.payload.decode(encoding,errors='ignore')
 
+        Q:ModuleNotFoundError: No module named '_lzma'
+        A:python3.3版本后常见，解决方法是
+        vim /usr/local/lib/python3.10/lzma.py
+        #修改前
+        from _lzma import *
+        from _lzma import _encode_filter_properties, _decode_filter_properties
+
+        #修改后 
+        try:
+        from _lzma import *
+        from _lzma import _encode_filter_properties, _decode_filter_properties
+        except ImportError:
+        from backports.lzma import *
+        from backports.lzma import _encode_filter_properties, _decode_filter_properties
+
 
 ## 📝 TODO LIST
 
@@ -215,7 +230,7 @@ anne:<br>
 <details>
 <summary>展开/收起</summary>
 
-- [ ] 无法在python3.10版本下解压7z格式压缩包
+- [x] 无法在python3.10版本下解压7z格式压缩包
 - [ ] 所有人都可以私聊发送文件
 - [ ] 更改地图名称后，排序会错误
 - [ ] 服务器指令如果使用更换地图或重启，服务器会因为无响应，而返回无法连接
@@ -226,6 +241,10 @@ anne:<br>
 
 <details>
 <summary>展开/收起</summary>
+
+### 0.2.2--2022.2.1
+
+ - 新增探监
 
 ### 0.2.1--2022.1.25
 

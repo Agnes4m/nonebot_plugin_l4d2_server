@@ -1,6 +1,8 @@
 from zipfile import ZipFile
+from nonebot.adapters.onebot.v11 import Bot,MessageEvent,GroupMessageEvent
 from nonebot.log import logger
 import httpx
+import struct
 import re
 import os
 try:
@@ -16,6 +18,7 @@ from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
 from .l4d2_queries import queries,player_queries
 from .l4d2_queries.qqgroup import *
 from .l4d2_server.workshop import workshop_to_dict
+import tempfile
 
 
 def get_file(url,down_file):
@@ -189,7 +192,7 @@ async def queries_server(msg:list) -> str:
     msgs = await  queries(ip,port)
     try:
         msgs += await player_queries(ip,port)
-    except KeyError:
+    except (KeyError,struct.error):
         pass
     return msgs
 
@@ -247,3 +250,16 @@ async def get_anne_server_ip(ip):
     msg = '\n'.join(lines[1:])
     msg += '\nconnect ' + ip
     return msg
+
+async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
+    """上传临时文件"""
+    with tempfile.NamedTemporaryFile("wb+") as f:
+        f.write(file_data)
+        if isinstance(event, GroupMessageEvent):
+            await bot.call_api(
+                "upload_group_file", group_id=event.group_id, file=f.name, name=filename
+            )
+        else:
+            await bot.call_api(
+                "upload_private_file", user_id=event.user_id, file=f.name, name=filename
+            )

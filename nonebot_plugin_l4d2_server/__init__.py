@@ -1,5 +1,5 @@
+from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg
 from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message,MessageSegment,GroupMessageEvent
-from nonebot.params import CommandArg,ArgPlainText,RegexGroup
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
 from typing import Tuple
@@ -12,8 +12,7 @@ from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
 from .l4d2_anne.server import updata_anne_server,get_anne_ip
 from nonebot import get_driver
-import tempfile
-# from .l4d2_image.vtf import img_to_vtf
+from .l4d2_image.vtf import img_to_vtf
 driver = get_driver()
 
 
@@ -229,29 +228,18 @@ async def _(state:T_State,tag:str = ArgPlainText("ip")):
 @up_workshop.got("is_sure",prompt='如果需要上传，请发送 "yes"')    
 async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     is_sure = str(state["is_sure"])
-    data_dict:dict = state['dic']
-    logger.info('开始上传')
-    data_file = await url_to_byte(data_dict['下载地址'])
-    file_name = data_dict['名字']+ '.vpk'
-    await up_workshop.send('获取地址成功，尝试上传')
     if is_sure == 'yes':
+        data_dict:dict = state['dic']
+        logger.info('开始上传')
+        data_file = await url_to_byte(data_dict['下载地址'])
+        file_name = data_dict['名字']+ '.vpk'
+        await up_workshop.send('获取地址成功，尝试上传')
         await upload_file(bot, event, data_file, file_name)
     else:
-        await matcher.finish('已取消上传')
+        await up_workshop.finish('已取消上传')
     
     
-async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
-    """上传临时文件"""
-    with tempfile.NamedTemporaryFile("wb+") as f:
-        f.write(file_data)
-        if isinstance(event, GroupMessageEvent):
-            await bot.call_api(
-                "upload_group_file", group_id=event.group_id, file=f.name, name=filename
-            )
-        else:
-            await bot.call_api(
-                "upload_private_file", user_id=event.user_id, file=f.name, name=filename
-            )
+
 
 # @updata.handle()
 # async def _():
@@ -299,33 +287,32 @@ async def _(event:MessageEvent):
     msg = await get_tan_jian(ip_list)
     await tan_jian.finish(msg)
             
-# @vtf_make.handle()
-# async def _(state:T_State,args:Message = CommandArg()):
-#     msg = args.extract_plain_text()
-#     if msg not in ['拉伸','填充','覆盖']:
-#         await vtf_make.finish('错误的图片处理方式')
-#     if msg:
-#         state['way'] = args
-#     else:
-#         state['way'] = '拉伸'
+@vtf_make.handle()
+async def _(matcher:Matcher,state:T_State,args:Message = CommandArg()):
+    msg:str = args.extract_plain_text()
+    if msg not in ['拉伸','填充','覆盖','']:
+        await vtf_make.finish('错误的图片处理方式')
+    if msg == '':
+        msg = '拉伸'
+    state['way'] = msg
+    logger.info('方式',msg)
     
-# @vtf_make.got("way",prompt="请发送喷漆图片")
-# async def _(bot:Bot,event:MessageEvent,state:T_State,args:Message = CommandArg()):
-#     try:
-#         pic = args["image"]
-#         logger.info(pic)
-#     except:
-#         await vtf_make.finish('不是图')
-        
-#     tag = state['way']
-#     img_byte:bytes = await img_to_vtf(pic,tag)
-#     if isinstance(event, GroupMessageEvent):
-#         nickname = event.sender.card or event.sender.nickname
-#     else:
-#         nickname = event.sender.nickname
-#     file_name = nickname + '的喷漆'
-#     await upload_file(bot, event, img_byte, file_name)
-    
+@vtf_make.got("image",prompt="请发送喷漆图片")
+async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
+    pic_msg:MessageSegment =  state["image"][0]
+    pic_url = pic_msg.data["url"]
+    logger.info(pic_url)
+    logger.info(type(pic_url))
+    tag = state['way']
+    pic_bytes = await url_to_byte(pic_url)
+    img_io = await img_to_vtf(pic_bytes,tag)
+    img_bytes = img_io.getvalue()
+    if isinstance(event, GroupMessageEvent):
+        nickname = event.sender.card or event.sender.nickname
+    else:
+        nickname = event.sender.nickname
+    file_name:str = nickname + '的喷漆.vpk'
+    await upload_file(bot, event, img_bytes, file_name)
     
 
 
