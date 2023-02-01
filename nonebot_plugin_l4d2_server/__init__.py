@@ -311,7 +311,7 @@ async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
         nickname = event.sender.card or event.sender.nickname
     else:
         nickname = event.sender.nickname
-    file_name:str = nickname + '的喷漆.vpk'
+    file_name:str = nickname + '的喷漆.vtf'
     await upload_file(bot, event, img_bytes, file_name)
     
 
