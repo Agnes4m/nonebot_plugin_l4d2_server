@@ -26,6 +26,9 @@ async def img_to_vtf(pic_byte:bytes,tag):
             new_height = 1024
             new_width = int(w * ratio)
         pic = pic.resize((new_width, new_height), Image.ANTIALIAS)
+        background = Image.new('RGBA', (1024, 1024), (255, 255, 255, 0))
+        background.paste(pic, ((1024-new_width)//2, (1024-new_height)//2))
+        pic = background
     else:
         logger.info('拉伸')
         pic = pic.resize((1024,1024))
