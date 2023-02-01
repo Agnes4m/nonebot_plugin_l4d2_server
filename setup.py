@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
  
 setuptools.setup(
     name="nonebot-plugin-l4d2-server",
-    version="0.2.1", 
+    version="0.2.2", 
     author="Umamusume-Agnes-Digital", 
     author_email="Z735803792@163.com", 
     description="L4D2 server related operations plugin for NoneBot",
@@ -32,5 +32,6 @@ setuptools.setup(
         "rcon",
         "VSQ>=0.0.6",
         "jinja2",
+        "srctools",
         ],
 )

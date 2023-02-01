@@ -41,8 +41,8 @@ show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=Tru
 join_server = on_command('showq',aliases={"求生加入"},priority=20,block=True)
 
 # 下载内容
-up_workshop = on_command('workshop',aliases={'创意工坊下载','求生创意工坊'},priority=20,block=True,permission= Master)
-vtf_make = on_command('vtf_make',aliases={'求生喷漆'},priority=20,block=True,permission= Master)
+up_workshop = on_command('workshop',aliases={'创意工坊下载','求生创意工坊'},priority=20,block=True)
+vtf_make = on_command('vtf_make',aliases={'求生喷漆'},priority=20,block=True)
 
 @help_.handle()
 async def _():
@@ -53,6 +53,7 @@ async def _():
         '3、电信服状态查询【云xx】'
         '4、创意工坊下载【创意工坊下载[物品id/链接]】',
         '5、指定ip查询【求生ip[ip]】(可以是域名)',
+        '6、求生喷漆制作【求生喷漆】',
         '6、本地服务器操作(略，详情看项目地址)',
     ]
     messgae = ''

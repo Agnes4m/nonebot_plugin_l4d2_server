@@ -8,7 +8,7 @@ async def img_to_vtf(pic_byte:bytes,tag):
     pic = BytesIO(pic_byte)
     pic = Image.open(pic).convert('RGBA')
     vtf_io = BytesIO()
-    vtf_ = VTF(1024, 1024, fmt = ImageFormats.DXT1,thumb_fmt = ImageFormats.DXT1,version=(7,2))
+    vtf_ = VTF(1024, 1024, fmt = ImageFormats.DXT5,thumb_fmt = ImageFormats.DXT1,version=(7,2))
     if tag == '覆盖':
         logger.info(tag)
         img2 = Image.new('RGBA',(1024, 1024), (255, 255, 255,0))

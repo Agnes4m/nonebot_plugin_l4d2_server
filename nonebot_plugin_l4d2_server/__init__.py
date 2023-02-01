@@ -16,7 +16,7 @@ from .l4d2_image.vtf import img_to_vtf
 driver = get_driver()
 
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
@@ -307,13 +307,9 @@ async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
     pic_bytes = await url_to_byte(pic_url)
     img_io = await img_to_vtf(pic_bytes,tag)
     img_bytes = img_io.getvalue()
-    if isinstance(event, GroupMessageEvent):
-        nickname = event.sender.card or event.sender.nickname
-    else:
-        nickname = event.sender.nickname
-    file_name:str = nickname + '的喷漆.vtf'
+    usr_id = event.user_id
+    file_name:str = usr_id + '的喷漆.vtf'
     await upload_file(bot, event, img_bytes, file_name)
-    
 
 
 @prison.handle()
