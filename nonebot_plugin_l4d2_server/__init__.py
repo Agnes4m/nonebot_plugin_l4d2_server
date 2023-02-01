@@ -308,7 +308,7 @@ async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
     img_io = await img_to_vtf(pic_bytes,tag)
     img_bytes = img_io.getvalue()
     usr_id = event.user_id
-    file_name:str = usr_id + '的喷漆.vtf'
+    file_name:str = str(usr_id) + '.vtf'
     await upload_file(bot, event, img_bytes, file_name)
 
 

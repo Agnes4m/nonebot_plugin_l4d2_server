@@ -16,11 +16,16 @@ async def img_to_vtf(pic_byte:bytes,tag):
         img2.paste(pic,mask=a)
         pic = pic.resize((1024,1024))
     elif tag == '填充':
-        logger.info(tag)
         w, h = pic.size
-        a = w if w >=h else h
-        point = a/1024
-        pic.resize((w*point,h*point))
+        if w > h:
+            ratio = 1024/w
+            new_width = 1024
+            new_height = int(h * ratio)
+        else:
+            ratio = 1024/h
+            new_height = 1024
+            new_width = int(w * ratio)
+        pic = pic.resize((new_width, new_height), Image.ANTIALIAS)
     else:
         logger.info('拉伸')
         pic = pic.resize((1024,1024))
