@@ -25,8 +25,8 @@ anne_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定
 del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
 read_ip = on_command('anne',aliases={'求生云服'},priority=20,block=True)
 # updata = on_command('updata',aliases={'求生更新云服'},priority=20,block=True,permission= Master)
-prison = on_command('prison',aliases={'坐牢'},priority=20,block=True,permission= Master)
-open_prison = on_command('open_prison',aliases={'开牢'},priority=20,block=True,permission= Master)
+prison = on_command('prison',aliases={'坐牢'},priority=20,block=True)
+open_prison = on_command('open_prison',aliases={'开牢'},priority=20,block=True)
 # keys = ANNE_IP.keys()
 # get_ip = on_command('114514919181',set(keys),priority=80)
     

@@ -4,8 +4,10 @@ from srctools.vtf import VTF, ImageFormats
 from nonebot.log import logger
 from io import BytesIO
 
-async def img_to_vtf(pic_byte:bytes,tag):
-    pic = BytesIO(pic_byte)
+async def img_to_vtf(pic_byte:bytes,tag) -> BytesIO:
+    pic = BytesIO()
+    pic.write(pic_byte)
+    pic.seek(0)
     pic = Image.open(pic).convert('RGBA')
     vtf_io = BytesIO()
     vtf_ = VTF(1024, 1024, fmt = ImageFormats.DXT5,thumb_fmt = ImageFormats.DXT1,version=(7,2))

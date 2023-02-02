@@ -4,7 +4,7 @@ from . import queries,player_queries,player_queries_dict,queries_dict,player_que
 from nonebot.log import logger
 import random
 import time
-from ..message import PRISON
+from ..message import PRISON,QUEREN,KAILAO
 si = L4D2Server()
     
 async def get_qqgroup_ip_msg(qqgroup):
@@ -60,56 +60,106 @@ async def qq_ip_queries_pic(msg:list[tuple]):
     pic = await server_ip_pic(msg_list)
     return pic
     
-async def get_tan_jian(msg:list[tuple]):
-    """获取探监列表"""
+async def get_tan_jian(msg:list[tuple],mode:int):
+    """获取anne列表抽一个"""
     msg_list = []
     rank = 0
     for i in msg:
         number,qqgroup,host,port = i 
-        try:
-            msg2 = await player_queries_anne_dict(host,port)
-            point = 0
-            for i in msg2['Players']:
-                point += int(i['Score'])
-            logger.info(point)
-            if point/4 <50:
-                logger.info('不够牢')
-                continue
-            else:
-                msg1 = await queries_dict(host,port)
-                if 'HT' in msg1['name']:
-                    logger.info('HT训练忽略')
+        if mode == 1:
+            # 探监
+            try:
+                msg2 = await player_queries_anne_dict(host,port)
+                point = 0
+                for i in msg2['Players']:
+                    point += int(i['Score'])
+                logger.info(point)
+                if point/4 <50:
+                    logger.info('不够牢')
                     continue
-                msg1.update(msg2)
-                msg1.update({'ranks':point})
-                ips = f'{host}:{str(port)}'
-                msg1.update({'ips':ips})
-            # msg1是一行数据完整的字典
-                msg_list.append(msg1)
-        except (TypeError,KeyError):
-            continue
+                else:
+                    msg1 = await queries_dict(host,port)
+                    if 'HT' in msg1['name']:
+                        logger.info('HT训练忽略')
+                        continue
+                    msg1.update(msg2)
+                    msg1.update({'ranks':point})
+                    ips = f'{host}:{str(port)}'
+                    msg1.update({'ips':ips})
+                # msg1是一行数据完整的字典
+                    msg_list.append(msg1)
+            except (TypeError,KeyError):
+                continue
+        if mode == 2:
+            # 坐牢
+            try:
+                msg1 = await queries_dict(host,port)
+                if '普通药役' in msg1['name']:
+                    if '缺人' in msg1['name']:
+                        msg2 = await player_queries_anne_dict(host,port)
+                        msg1.update(msg2)
+                        ips = f'{host}:{str(port)}'
+                        msg1.update({'ips':ips})
+                    # msg1是一行数据完整的字典
+                        msg_list.append(msg1)
+            except (TypeError,KeyError):
+                continue
+        if mode == 3:
+            # 开牢
+            try:
+                msg1 = await queries_dict(host,port)
+                if '[' not in msg1['name']:
+                    msg2 = await player_queries_anne_dict(host,port)
+                    msg1.update(msg2)
+                    ips = f'{host}:{str(port)}'
+                    msg1.update({'ips':ips})
+                    # msg1是一行数据完整的字典
+                    msg_list.append(msg1)
+            except (TypeError,KeyError):
+                continue
     # 随机选一个牢房
+    if len(msg_list) == 0:
+        return '暂时没有这种牢房捏'
     logger.info(len(msg_list))
     mse = random.choice(msg_list)
     message:str = ''
-    ranks = mse['ranks']
-    if 50 < ranks <= 200 :
-        message = random.choice(PRISON[1])
-    if 200 < ranks <= 400 :
-        message = random.choice(PRISON[2])
-    if ranks > 400 :
-        message = random.choice(PRISON[3])       
+    if mode == 1:
+        ranks = mse['ranks']
+        if 200 < ranks <= 300 :
+            message = random.choice(PRISON[1])
+        if 300 < ranks <= 450 :
+            message = random.choice(PRISON[2])
+        if ranks > 450 :
+            message = random.choice(PRISON[3]) 
+    if mode == 2:
+        player_point = mse['players']
+        if player_point == 1:
+            message = random.choice(QUEREN[1])
+        elif player_point == 2:
+            message = random.choice(QUEREN[2])
+        elif player_point == 3:
+            message = random.choice(QUEREN[3])
+        else:
+            message = random.choice(QUEREN[4])
+    if mode == 3:
+        message = random.choice(KAILAO)
     message += '\n' + '名称：' + mse['name'] + '\n'
     message += '地图：' + mse['map_'] + '\n'
     message += '玩家：' + mse['players'] + '/' + mse['max_players'] + '\n'
     n = 0
-    for i in mse['Players']:
-        n += 1 
-        name = i['Name']
-        Score = i['Score']
-        Duration = i['Duration']
-        s = str(n)
-        message += f'{s}、{name} | {Score}分 |{Duration}\n'
+    try:
+        for i in mse['Players']:
+            n += 1 
+            name = i['Name']
+            Score = i['Score']
+            Duration = i['Duration']
+            s = str(n)
+            if Score == 0:
+                message += f'{s}、{name} | 旁观 |{Duration}\n'
+            else:
+                message += f'{s}、{name} | [{Score}] |{Duration}\n'
+    except KeyError:
+        message += '服务器里，是空空的呢\n'
     message += 'connect ' + mse['ips']
     return message
 

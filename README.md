@@ -24,7 +24,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
     <img src="https://img.shields.io/pypi/dm/nonebot_plugin_l4d2_server" alt="pypi download">
 </a>
-    <img src="https://img.shields.io/badge/python-3.6~3.11-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/python-3.7+-blue.svg" alt="python">
     <img src="https://img.shields.io/badge/nonebot-2.0.0rc1~rc3-red.svg" alt="NoneBot">
 </div>
 

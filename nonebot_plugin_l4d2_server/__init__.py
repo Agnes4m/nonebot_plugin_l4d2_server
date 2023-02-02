@@ -284,7 +284,7 @@ async def _(event:MessageEvent):
             ip = ANNE_IP[key]
             host,port = split_maohao(ip)
             ip_list.append((key,group,host,port))
-    msg = await get_tan_jian(ip_list)
+    msg = await get_tan_jian(ip_list,1)
     await tan_jian.finish(msg)
             
 @vtf_make.handle()
@@ -306,7 +306,7 @@ async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
     tag = state['way']
     pic_bytes = await url_to_byte(pic_url)
     img_io = await img_to_vtf(pic_bytes,tag)
-    img_bytes = img_io.getvalue()
+    img_bytes = img_io.getbuffer()
     usr_id = event.user_id
     file_name:str = str(usr_id) + '.vtf'
     await upload_file(bot, event, img_bytes, file_name)
@@ -324,7 +324,22 @@ async def _(event:MessageEvent):
             ip = ANNE_IP[key]
             host,port = split_maohao(ip)
             ip_list.append((key,group,host,port))
-    msg = await get_tan_jian(ip_list)
+    msg = await get_tan_jian(ip_list,2)
+    await tan_jian.finish(msg)
+
+@open_prison.handle()
+async def _(event:MessageEvent):
+    group = event.user_id
+    await tan_jian.send('正在寻找空房...')
+    ip_list = []
+    keys = ANNE_IP.keys()
+    for key in keys:
+        key:str
+        if key.startswith('云'):
+            ip = ANNE_IP[key]
+            host,port = split_maohao(ip)
+            ip_list.append((key,group,host,port))
+    msg = await get_tan_jian(ip_list,3)
     await tan_jian.finish(msg)
 
 @driver.on_shutdown
