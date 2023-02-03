@@ -148,16 +148,16 @@ async def get_tan_jian(msg:list[tuple],mode:int):
     message += '玩家：' + mse['players'] + '/' + mse['max_players'] + '\n'
     n = 0
     try:
+        max_duration_len = max([len(str(i['Duration'])) for i in mse['Players']])
+        max_score_len = max([len(str(i['Score'])) for i in mse['Players']])
         for i in mse['Players']:
             n += 1 
             name = i['Name']
             Score = i['Score']
             Duration = i['Duration']
-            s = str(n)
-            if Score == 0:
-                message += f'{s}、{name} | 旁观 |{Duration}\n'
-            else:
-                message += f'{s}、{name} | [{Score}] |{Duration}\n'
+            soc = "[{:>{}}]".format(Score,max_score_len)
+            dur = "{:^{}}".format(Duration, max_duration_len)
+            message += f'{soc} | {dur} | {name} \n'
     except KeyError:
         message += '服务器里，是空空的呢\n'
     message += 'connect ' + mse['ips']
