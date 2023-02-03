@@ -133,11 +133,11 @@ async def get_tan_jian(msg:list[tuple],mode:int):
             message = random.choice(PRISON[3]) 
     if mode == 2:
         player_point = mse['players']
-        if player_point == 1:
+        if player_point == '1':
             message = random.choice(QUEREN[1])
-        elif player_point == 2:
+        elif player_point == '2':
             message = random.choice(QUEREN[2])
-        elif player_point == 3:
+        elif player_point == '3':
             message = random.choice(QUEREN[3])
         else:
             message = random.choice(QUEREN[4])

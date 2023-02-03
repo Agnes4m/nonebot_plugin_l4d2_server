@@ -1,5 +1,6 @@
 from PIL import Image
 import httpx
+import aiohttp
 from bs4 import BeautifulSoup
 import io
 from ..config import l4_proxies
@@ -31,14 +32,18 @@ async def web_player(url) -> Image :
     return im
 
 
-async def url_to_byte(url):
+async def url_to_byte(url:str):
     """所有url终将绳之以法"""
     headers = {
         'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
     }
-    data = httpx.get(url,headers=headers,timeout=60,verify=False).content
-    return data
-
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url,headers=headers,timeout=30) as response:
+            if response.status == 200:
+                return await response.read()
+            else:
+                return None
+            
 async def url_for_byte(url):
     """所有代理_url终将绳之以法"""
     if not l4_proxies:
