@@ -47,6 +47,37 @@
 			</tr>
 		</tbody>
 	</table>
+	<tbody>
+	<canvas id="pie-chart"></canvas>
+    <script>
+        new Chart(document.getElementById("pie-chart"), {
+            type: 'pie',
+            data: {
+                labels: [
+                    {% for item in data %}
+                        "{{ item[0] }}",
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for item in data %}
+                            {{ item[1] }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: [
+                        {% for item in data %}
+                            "{{ item[2] }}",
+                        {% endfor %}
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            }
+        });
+    </script>
+	</tbody>
 </div>
 {% endfor %}
 <h5><center>©爱丽数码</center></br>

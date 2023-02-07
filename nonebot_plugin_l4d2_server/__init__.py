@@ -1,4 +1,4 @@
-from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg
+from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,Command
 from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message,MessageSegment,GroupMessageEvent
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
@@ -10,9 +10,9 @@ from .command import *
 from .l4d2_image.steam import url_to_byte
 from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
-from .l4d2_anne.server import updata_anne_server,get_anne_ip
+from .l4d2_anne.server import get_anne_ip
 from nonebot import get_driver
-from .l4d2_image.vtf import img_to_vtf
+from .l4d2_image.vtfs import img_to_vtf
 driver = get_driver()
 
 
@@ -116,9 +116,11 @@ async def _(matched: Tuple[int,str, str] = RegexGroup(),):
 async def _(event:MessageEvent,args:Message = CommandArg()):
     name = args.extract_plain_text()
     name = name.strip()
-    usr_id = event.user_id
     at = await get_message_at(event.json())
-    usr_id = at_to_usrid(usr_id,at)
+    if at:
+        usr_id = at_to_usrid(at)
+    else:
+        usr_id = event.user_id
     # 没有参数则从db里找数据
     msg = await search_anne(name,usr_id)
     if type(msg)==str:
@@ -286,6 +288,14 @@ async def _(event:MessageEvent):
             ip_list.append((key,group,host,port))
     msg = await get_tan_jian(ip_list,1)
     await tan_jian.finish(msg)
+
+@get_ip.handle()
+async def _(commands: Tuple[str, ...] = Command(),args:Message = CommandArg()):
+    command = commands[0]
+    msg:str = args.extract_plain_text()
+    message = await json_server_to_tag_dict(command,msg)
+    await get_ip.finish(message)
+
             
 @vtf_make.handle()
 async def _(matcher:Matcher,state:T_State,args:Message = CommandArg()):

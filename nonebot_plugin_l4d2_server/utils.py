@@ -18,7 +18,9 @@ from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
 from .l4d2_queries import queries,player_queries
 from .l4d2_queries.qqgroup import *
 from .l4d2_server.workshop import workshop_to_dict
+from .l4d2_queries.ohter import ANNE_HOST
 import tempfile
+import random
 
 
 def get_file(url,down_file):
@@ -155,13 +157,15 @@ async def get_message_at(data: str) -> list:
         return []
     
 
-def at_to_usrid(usr_id,at):
+def at_to_usrid(at):
     """at对象变qqid否则返回usr_id"""
     if at != []:
         if at and at[0] != usr_id:
-            at = at[0]
-        usr_id = at
-    return usr_id
+            at:str = at[0]
+        usr_id:str = at
+        return usr_id
+    else:
+        return None
 
 async def command_server(msg:str):
     """rcon控制台返回信息"""
@@ -251,7 +255,7 @@ async def get_anne_server_ip(ip):
     msg += '\nconnect ' + ip
     return msg
 
-async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
+async def upload_file(bot: Bot, event: MessageEvent, file_data: memoryview, filename: str):
     """上传临时文件"""
     with tempfile.NamedTemporaryFile("wb+") as f:
         f.write(file_data)
@@ -263,3 +267,35 @@ async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename:
             await bot.call_api(
                 "upload_private_file", user_id=event.user_id, file=f.name, name=filename
             )
+
+async def json_server_to_tag_dict(key:str,msg:str):
+    """
+    l4d2字典转tag的dict结果
+        1、先匹配腐竹
+            2、再匹配模式、没有参数则从直接匹配最上面的
+                3、匹配数字（几服），没有参数则从结果里随机返回一个
+    """
+    data_dict = {}
+    n = 0
+    # 腐竹循环
+    for tag,value in ANNE_HOST:
+        value:list[dict]  
+        if tag == key:
+            n = 1
+            if msg == '':
+                data_dict.update(random.choice(value))
+            # 每个服务器循环
+            for server in value:
+                if msg.startswith(server['version']):
+                    n = 2
+                    msg = msg[len[server['version']:]]
+                    if msg == str(server['id']):
+                        n = 3
+                        data_dict.update(server)
+                        data_dict.update({'server':tag})
+            if n == 2:
+                # 说明有腐竹有模式但是没有序号
+                pass
+            if n == 1:
+                # 说明有腐竹但是服务器下没有匹配
+                pass

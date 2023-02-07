@@ -3,10 +3,12 @@ from bs4 import BeautifulSoup
 import json
 from pathlib import Path
 from ..config import TEXT_PATH,anne_url
+from ..l4d2_queries.ohter import ANNE_HOST
 
 # 储存anne服务器ip
 ANNE_IP:dict = json.load(open(Path(__file__).parent.parent.joinpath(
         'data/L4D2/server.json'), "r", encoding="utf8"))
+
 
 
 async def updata_anne_server():
@@ -49,3 +51,12 @@ async def get_anne_ip(text: str) -> str:
     for key in keys:
         if text == key:
             return ANNE_IP[key]
+        
+def server_key():
+    """响应的服务器开头"""
+    key_list = []
+    for tag1,value in ANNE_HOST:
+        key_list.append(tag1)
+    a = set(tuple(i) for i in key_list)
+    return  a
+            

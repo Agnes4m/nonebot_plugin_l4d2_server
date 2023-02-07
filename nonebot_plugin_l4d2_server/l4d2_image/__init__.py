@@ -8,6 +8,8 @@ from .send_image_tool import convert_img
 from bs4 import BeautifulSoup
 from nonebot.log import logger
 from jinja2 import Environment, FileSystemLoader
+# from .htmlimg import dict_to_dict_img
+from ..l4d2_anne.anne_telecom import ANNE_API
 
 async def out_png(usr_id,data_dict:dict):
     """使用html来生成图片"""
@@ -74,10 +76,13 @@ async def server_ip_pic(msg_dict:list[dict]):
     # one['Players'] = one['Players']['Name'] + one['Players']['Dutation']
         except KeyError:
             continue
+    # 饼状图
     template_path = TEXT_PATH/"template"
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('ip.html')
     html = template.render(data = msg_dict)
+    with open("pie-chart.html", "w") as f:
+        f.write(html)
     pic = await html_to_pic(
             html,
             wait=0,

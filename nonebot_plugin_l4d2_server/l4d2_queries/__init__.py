@@ -64,6 +64,8 @@ async def player_queries(ip:str,port:int):
             n += 1 
             name = i['Name']
             Score = i['Score']
+            if Score == '0':
+                Score = '摸'
             Duration = i['Duration']
             soc = "[{:>{}}]".format(Score,max_score_len)
             dur = "{:^{}}".format(Duration, max_duration_len)

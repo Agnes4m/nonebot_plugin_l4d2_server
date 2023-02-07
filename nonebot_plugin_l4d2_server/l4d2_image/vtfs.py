@@ -1,13 +1,13 @@
 
 from PIL import Image
-from srctools.vtf import VTF, ImageFormats
 from nonebot.log import logger
 from io import BytesIO
+# import sys
+# sys.modules["srctools._cy_vtf_readwrite"] = None
+from srctools.vtf import VTF, ImageFormats
 
 async def img_to_vtf(pic_byte:bytes,tag) -> BytesIO:
-    pic = BytesIO()
-    pic.write(pic_byte)
-    pic.seek(0)
+    pic = BytesIO(pic_byte)
     pic = Image.open(pic).convert('RGBA')
     vtf_io = BytesIO()
     vtf_ = VTF(1024, 1024, fmt = ImageFormats.DXT5,thumb_fmt = ImageFormats.DXT1,version=(7,2))
@@ -36,5 +36,5 @@ async def img_to_vtf(pic_byte:bytes,tag) -> BytesIO:
         pic = pic.resize((1024,1024))
     largest_frame = vtf_.get() 
     largest_frame.copy_from(pic.tobytes(), ImageFormats.RGBA8888)
-    vtf_.save(file = vtf_io)
+    vtf_.save(vtf_io,version=(7,2))
     return vtf_io

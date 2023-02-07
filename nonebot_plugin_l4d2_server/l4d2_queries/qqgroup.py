@@ -74,21 +74,23 @@ async def get_tan_jian(msg:list[tuple],mode:int):
                 for i in msg2['Players']:
                     point += int(i['Score'])
                 logger.info(point)
-                if point/4 <50:
+                msg1 = await queries_dict(host,port)
+                sp:str = msg1['name']
+                sp = int(sp.split('特')[0].split('[')[-1])
+                points = point/4
+                if points/sp <10:
                     logger.info('不够牢')
                     continue
-                else:
-                    msg1 = await queries_dict(host,port)
-                    if 'HT' in msg1['name']:
-                        logger.info('HT训练忽略')
-                        continue
-                    msg1.update(msg2)
-                    msg1.update({'ranks':point})
-                    ips = f'{host}:{str(port)}'
-                    msg1.update({'ips':ips})
+                if 'HT' in msg1['name']:
+                    logger.info('HT训练忽略')
+                    continue
+                msg1.update(msg2)
+                msg1.update({'ranks':point})
+                ips = f'{host}:{str(port)}'
+                msg1.update({'ips':ips})
                 # msg1是一行数据完整的字典
-                    msg_list.append(msg1)
-            except (TypeError,KeyError):
+                msg_list.append(msg1)
+            except (TypeError,KeyError,ValueError):
                 continue
         if mode == 2:
             # 坐牢
@@ -155,6 +157,8 @@ async def get_tan_jian(msg:list[tuple],mode:int):
             name = i['Name']
             Score = i['Score']
             Duration = i['Duration']
+            if Score in('0',0,None) :
+                Score = '摸'
             soc = "[{:>{}}]".format(Score,max_score_len)
             dur = "{:^{}}".format(Duration, max_duration_len)
             message += f'{soc} | {dur} | {name} \n'
