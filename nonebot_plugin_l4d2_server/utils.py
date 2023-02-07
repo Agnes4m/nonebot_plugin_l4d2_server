@@ -3,7 +3,7 @@ from nonebot.adapters.onebot.v11 import Bot,MessageEvent,GroupMessageEvent
 from nonebot.log import logger
 import httpx
 import struct
-import re
+
 import os
 try:
     import py7zr
@@ -182,18 +182,18 @@ async def command_server(msg:str):
     msg = msg.strip()
     return msg
 
-def split_maohao(msg:str) -> list:
-    """分割大小写冒号"""
-    msg:list = re.split(":|：",msg.strip())
-    mse = [msg[0],msg[-1]] if msg[0] != msg[-1] else [msg[0],20715]
-    return mse
+
 
 async def queries_server(msg:list) -> str:
     """查询ip返回信息"""
     print(msg)
     ip = msg[0]
     port = msg[1]
-    msgs = await  queries(ip,port)
+    try:
+        msgs = await  queries(ip,port)
+    except TypeError:
+        msgs = '服务器无响应'
+        return msgs
     try:
         msgs += await player_queries(ip,port)
     except (KeyError,struct.error):
@@ -247,7 +247,7 @@ async def save_file(file:bytes,path_name):
         files.write(file)
         
 async def get_anne_server_ip(ip):
-    """输出云服查询ip"""
+    """输出查询ip"""
     host,port = split_maohao(ip)
     data = await queries_server([host,port])
     lines = data.splitlines()
@@ -271,31 +271,40 @@ async def upload_file(bot: Bot, event: MessageEvent, file_data: memoryview, file
 async def json_server_to_tag_dict(key:str,msg:str):
     """
     l4d2字典转tag的dict结果
-        1、先匹配腐竹
-            2、再匹配模式、没有参数则从直接匹配最上面的
-                3、匹配数字（几服），没有参数则从结果里随机返回一个
+     - 1、先匹配腐竹
+     - 2、再匹配模式、没有参数则从直接匹配最上面的
+     - 3、匹配数字（几服），没有参数则从结果里随机返回一个
     """
     data_dict = {}
+    data_list = []
+    msg = msg.replace(' ','')
     n = 0
     # 腐竹循环
-    for tag,value in ANNE_HOST:
+    for tag,value in ANNE_HOST.items():
         value:list[dict]  
         if tag == key:
+            data_dict.update({'server':tag})
             n = 1
             if msg == '':
+                # 腐竹
                 data_dict.update(random.choice(value))
-            # 每个服务器循环
-            for server in value:
-                if msg.startswith(server['version']):
-                    n = 2
-                    msg = msg[len[server['version']:]]
+            # 腐竹 + 序号
+            elif msg.isdigit():
+                for server in value:
                     if msg == str(server['id']):
-                        n = 3
                         data_dict.update(server)
-                        data_dict.update({'server':tag})
-            if n == 2:
-                # 说明有腐竹有模式但是没有序号
-                pass
-            if n == 1:
-                # 说明有腐竹但是服务器下没有匹配
-                pass
+            else:
+                # 腐竹 + 模式 + 序号
+                for server in value:
+                    if msg.startswith(server['version']):
+                        n = 2
+                        data_list.append(server)
+                        msg_id = msg[len(server['version']):]
+                        if msg_id == str(server['id']):
+                            n = 3
+                            data_dict.update(server)
+                if n == 2:
+                    # 腐竹 + 模式
+                    data_dict.update(random.choice(data_list))
+    logger.info(data_dict)
+    return data_dict

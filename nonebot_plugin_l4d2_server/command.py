@@ -24,12 +24,14 @@ anne_player = on_command('Ranne',aliases={"求生anne"},priority=25,block=True)
 anne_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
 del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
 read_ip = on_command('anne',aliases={'求生云服'},priority=20,block=True)
-# updata = on_command('updata',aliases={'求生更新云服'},priority=20,block=True,permission= Master)
 prison = on_command('zl',aliases={'坐牢'},priority=20,block=True)
 open_prison = on_command('kl',aliases={'开牢'},priority=20,block=True)
 
+updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
 get_ip = on_command('114514919181',aliases=server_key(),priority=80,block=True)
-    
+def reload_ip():
+    updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
+    get_ip = on_command('114514919181',aliases=server_key(),priority=80,block=True)
 get_anne = on_command('云',priority=20,block=True)
 tan_jian = on_command('tj',aliases={'探监'},priority=20,block=True)
 

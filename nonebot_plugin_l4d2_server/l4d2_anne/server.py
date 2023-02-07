@@ -54,9 +54,8 @@ async def get_anne_ip(text: str) -> str:
         
 def server_key():
     """响应的服务器开头"""
-    key_list = []
-    for tag1,value in ANNE_HOST:
-        key_list.append(tag1)
-    a = set(tuple(i) for i in key_list)
+    a = set()
+    for tag1,value in ANNE_HOST.items():
+        a.add(tag1)
     return  a
             

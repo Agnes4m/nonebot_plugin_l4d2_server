@@ -1,4 +1,4 @@
-from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,Command
+from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,Command,RawCommand
 from nonebot.adapters.onebot.v11 import NoticeEvent,Bot,MessageEvent,Message,MessageSegment,GroupMessageEvent
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
@@ -13,6 +13,8 @@ from .l4d2_data import sq_L4D2
 from .l4d2_anne.server import get_anne_ip
 from nonebot import get_driver
 from .l4d2_image.vtfs import img_to_vtf
+from .l4d2_queries.ohter import load_josn
+from .l4d2_queries.qqgroup import write_json
 driver = get_driver()
 
 
@@ -240,16 +242,18 @@ async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     else:
         await up_workshop.finish('已取消上传')
     
-    
 
 
-# @updata.handle()
-# async def _():
-#     msg = await updata_anne_server()
-#     if msg:
-#         n = len(msg)
-#         await updata.finish(f'更新成功，目前有{n}个ip')
-#     await updata.finish('获取失败了')
+@updata.handle()
+async def _(args:Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if not msg:
+        load_josn()
+        reload_ip()
+        await updata.finish('已更新缓存数据')
+    else:
+        message = await write_json(msg)
+        await updata.finish(message)
 
 @get_anne.handle()
 async def _(args:Message = CommandArg()):
@@ -290,11 +294,18 @@ async def _(event:MessageEvent):
     await tan_jian.finish(msg)
 
 @get_ip.handle()
-async def _(commands: Tuple[str, ...] = Command(),args:Message = CommandArg()):
-    command = commands[0]
+async def _(command: str = RawCommand(),args:Message = CommandArg()):
+    logger.info(command)
     msg:str = args.extract_plain_text()
+    logger.info(msg)
     message = await json_server_to_tag_dict(command,msg)
-    await get_ip.finish(message)
+    if len(message) == 0:
+        # 关键词不匹配，忽略
+        return
+    ip = str(message['host']) + ':' + str(message['port'])
+    logger.info(ip)
+    msg= await get_anne_server_ip(ip)
+    await get_ip.finish(msg)
 
             
 @vtf_make.handle()

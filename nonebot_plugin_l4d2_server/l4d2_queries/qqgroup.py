@@ -1,10 +1,16 @@
 from ..l4d2_data.serverip import L4D2Server
 from ..l4d2_image import server_ip_pic
-from . import queries,player_queries,player_queries_dict,queries_dict,player_queries_anne_dict
+from . import queries,player_queries,queries_dict,player_queries_anne_dict
 from nonebot.log import logger
 import random
-import time
+import re
 from ..message import PRISON,QUEREN,KAILAO
+from .ohter import ANNE_HOST
+from pathlib import Path
+try:
+    import ujson as json
+except:
+    import json
 si = L4D2Server()
     
 async def get_qqgroup_ip_msg(qqgroup):
@@ -173,3 +179,76 @@ async def get_server_ip(number):
         return str(host) + ':' + str(port)
     except TypeError:
         return None
+
+def split_maohao(msg:str) -> list:
+    """分割大小写冒号"""
+    msg:list = re.split(":|：",msg.strip())
+    mse = [msg[0],msg[-1]] if msg[0] != msg[-1] else [msg[0],20715]
+    return mse
+
+async def write_json(data_str:str):
+    """添加数据或者删除数据
+     - 【求生更新 添加 腐竹 ip 模式 序号】
+     - 【求生更新 添加 腐竹 ip 模式】
+     - 【求生更新 删除 腐竹 序号】
+    """
+    data_list = data_str.split(' ')
+    logger.info(data_list)
+    if data_list[0]=="添加":
+        add_server = {}
+        server_dict = ANNE_HOST.get(data_list[1], {})
+        if not server_dict:
+            logger.info('新建分支')
+            ANNE_HOST[data_list[1]] = []
+        for key,value in ANNE_HOST.items():
+            if data_list[1] == key:
+                ids = []
+                # 序号
+                if len(data_list) == 4:
+                    data_num:int = 1
+                    for server in value:
+                        ids.append(str(server['id']))
+                    while data_num in ids:
+                        data_num += 1
+                    data_id = str(data_num)
+                    add_server.update({'id':data_num})
+                if len(data_list) == 5:
+                    for server in value:
+                        ids.append(str(server['id']))
+                    if data_list[4].isdigit():
+                        if data_list[4] not in ids:
+                            data_id = data_list[4]
+                            add_server.update({'id':int(data_id)})
+                        else:
+                            return '该序号已存在，请尝试删除原序号【求生更新 删除 腐竹 序号】'
+                    else:
+                        return '序号应该为大于0的正整数，请输入【求生更新 添加 腐竹 ip 模式 序号】'
+                # 模式，ip
+                add_server.update({'version':data_list[3]})
+                try:
+                    host,port = split_maohao(data_list[2])
+                    add_server.update({'host':host,'port':port})
+                except KeyError:
+                    return 'ip格式不正确【114.11.4.514:9191】'
+                value.append(add_server)
+                ANNE_HOST.update({key:value})
+                with open(Path(__file__).parent.parent.joinpath('data/L4D2/l4d2.json'), "w", encoding="utf8") as f_new:
+                    json.dump(ANNE_HOST, f_new, ensure_ascii=False, indent=4)
+                return f'添加成功，指令为{key}{data_id}'
+            
+    elif data_list[0]=="删除":
+        for key,value in ANNE_HOST.items():
+            value:list[dict]
+            if data_list[1] == key:
+                for server in value:
+                    if int(data_list[2]) == server['id']:
+                        value.remove(server)
+                        if not value:
+                            ANNE_HOST.pop(key)
+                        else:
+                            ANNE_HOST[key] = value
+                        with open(Path(__file__).parent.parent.joinpath('data/L4D2/l4d2.json'), "w", encoding="utf8") as f_new:
+                            json.dump(ANNE_HOST, f_new, ensure_ascii=False, indent=4)
+                        return '删除成功喵'
+                return '序号不正确，请输入【求生更新 删除 腐竹 序号】'
+        return '腐竹名不存在，请输入【求生更新 删除 腐竹 序号】'    
