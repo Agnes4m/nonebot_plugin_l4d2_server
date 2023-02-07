@@ -18,7 +18,7 @@ from .l4d2_queries.qqgroup import write_json
 driver = get_driver()
 
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
