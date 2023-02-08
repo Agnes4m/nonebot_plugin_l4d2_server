@@ -232,7 +232,7 @@ async def write_json(data_str:str):
                     return 'ip格式不正确【114.11.4.514:9191】'
                 value.append(add_server)
                 ANNE_HOST.update({key:value})
-                with open(Path(__file__).parent.parent.joinpath('data/L4D2/l4d2.json'), "w", encoding="utf8") as f_new:
+                with open('data/L4D2/l4d2.json', "r", encoding="utf8") as f_new:
                     json.dump(ANNE_HOST, f_new, ensure_ascii=False, indent=4)
                 return f'添加成功，指令为{key}{data_id}'
             
@@ -247,7 +247,7 @@ async def write_json(data_str:str):
                             ANNE_HOST.pop(key)
                         else:
                             ANNE_HOST[key] = value
-                        with open(Path(__file__).parent.parent.joinpath('data/L4D2/l4d2.json'), "w", encoding="utf8") as f_new:
+                        with open('data/L4D2/l4d2.json', "r", encoding="utf8") as f_new:
                             json.dump(ANNE_HOST, f_new, ensure_ascii=False, indent=4)
                         return '删除成功喵'
                 return '序号不正确，请输入【求生更新 删除 腐竹 序号】'

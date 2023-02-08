@@ -49,7 +49,7 @@ def get_vpk(vpk_list:list,path):
             vpk_list.append(file)
     return vpk_list
 
-def mes_list(mes,name_list:list):
+def mes_list(mes:str,name_list:list):
     n = 0
     for i in name_list:
         n += 1

@@ -18,7 +18,7 @@ from .l4d2_queries.qqgroup import write_json
 driver = get_driver()
 
 
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
@@ -51,7 +51,6 @@ async def _(event: NoticeEvent, matcher: Matcher):
         return
     await up.send('已收到文件，开始下载')
     sleep(1)   # 等待一秒防止因为文件名获取出现BUG
-    
     down_file = Path(map_path,name)
     if get_file(url,down_file) == "寄":
         await up.finish("获取文件失败，可能文件已损坏")
