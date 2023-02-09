@@ -3,26 +3,25 @@
 	<link rel="stylesheet" type="text/css" href="vue.css">
 </head>
 </br>
-{% for item in data %}
 <body style="background-image: url('back.png');">
+	{% for item in data %}
 	<h1 ><center>求生药役anne电信服数据</center></h1>
 	<div class="scissors" style="border-top:1px dashed orange;">
 	</div><h3><center>
-	{% for msg_one in item.one_msg %}
-		{{ msg_one }}<br>
-	{% endfor %}</center></h3>
+		{% for msg_one in item.one_msg %}
+			{{ msg_one }}<br>
+		{% endfor %}</center></h3>
 	<div class="scissors" style="border-top:1px dashed orange;">
 	</div>
-<div class="myinfo">
-	<table class="transparent-bg">
-		<tbody>
-			<tr>
-				<td rowspan="6">
-					<img src={{item.header}}  width="200" height="200" style="border-radius: 50%;">
-				</td>
-				<td>昵&emsp;&emsp;称 | {{item.name}}</td>
-				<td>Steam id | {{item.Steam_ID}}</td>
-			
+	<div class="myinfo">
+		<table class="transparent-bg">
+			<tbody>
+				<tr>
+					<td rowspan="6">
+						<img src={{item.header}}  width="200" height="200" style="border-radius: 50%;">
+					</td>
+					<td>昵&emsp;&emsp;称 | {{item.name}}</td>
+					<td>Steam id | {{item.Steam_ID}}</td>
 			</tr>
 			<tr>
 				<td>游玩时间 | {{item.play_time}}</td>
@@ -35,7 +34,7 @@
 			</tr>
 			<tr>
 				<td>分数 / 分 | {{item.point_min}}</td>
-				<td>小僵尸数 | {{item.killed}}</td>
+				<td>小僵尸数 | {{item.changed}}</td>
 			</tr>
 			<tr>
 				<td>爆&emsp;&emsp;头 | {{item.shut}}</td>
@@ -47,37 +46,6 @@
 			</tr>
 		</tbody>
 	</table>
-	<tbody>
-	<canvas id="pie-chart"></canvas>
-    <script>
-        new Chart(document.getElementById("pie-chart"), {
-            type: 'pie',
-            data: {
-                labels: [
-                    {% for item in data %}
-                        "{{ item[0] }}",
-                    {% endfor %}
-                ],
-                datasets: [{
-                    data: [
-                        {% for item in data %}
-                            {{ item[1] }},
-                        {% endfor %}
-                    ],
-                    backgroundColor: [
-                        {% for item in data %}
-                            "{{ item[2] }}",
-                        {% endfor %}
-                    ],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-            }
-        });
-    </script>
-	</tbody>
 </div>
 {% endfor %}
 <h5><center>©爱丽数码</center></br>

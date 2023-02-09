@@ -21,11 +21,11 @@ async def out_png(usr_id,data_dict:dict):
         data_html = file.read()
     # content = template.render_async()
     soup = BeautifulSoup(data_html, 'html.parser')
-    new_html = await dict_to_html(usr_id,data_dict,soup)
+    msg_dict = await dict_to_html(usr_id,data_dict,soup)
     
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('anne.html')
-    html = template.render(grouped_data=new_html)
+    html = template.render(data=msg_dict)
 
     
     pic = await html_to_pic(
@@ -61,7 +61,7 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     # temp = await get_head_steam_and_save(usr_id,DETAIL_right['url'])
     res = await convert_img(temp,is_base64=True)
     DETAIL_right['header'] = f"data:image/png;base64,{res}"
-    data_list = [DETAIL_right]
+    data_list:list[dict] = [DETAIL_right]
     return data_list
     
 async def server_ip_pic(msg_dict:list[dict]):
@@ -69,18 +69,18 @@ async def server_ip_pic(msg_dict:list[dict]):
     输入一个字典列表，输出图片
     msg_dict:folder/name/map_/players/max_players/Players/[Name]
     """
-    for one in msg_dict:
-        one['max_players'] = one['players'] + '/' + one['max_players']
+    for server_info in msg_dict:
+        server_info['max_players'] = f"{server_info['players']}/{server_info['max_players']}"
         players_list = []
         try:
-            for one_player in one['Players']:
-                player_str = one_player['Name'] +' | ' + one_player['Duration']
-                players_list.append(player_str)
-            one['Players'] = players_list
-    # one['Players'] = one['Players']['Name'] + one['Players']['Dutation']
+            if 'Players' in server_info:
+                for player_info in server_info['Players']:
+                    player_str = f"{player_info['Name']} | {player_info['Duration']}"
+                    players_list.append(player_str)
+                server_info['Players'] = players_list
         except KeyError:
-            continue
-    # 饼状图
+            pass
+    
     template_path = TEXT_PATH/"template"
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('ip.html')
