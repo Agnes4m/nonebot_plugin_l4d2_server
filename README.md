@@ -47,9 +47,6 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 - 创建一个steam求生服务器(预计需要储存14G)
 
-<details>
-<summary>展开/收起</summary>
-
 ## env示例
 
         # 复制到env文件里，没有默认就是下列值，如需修改安装下面env设置
@@ -57,6 +54,9 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
         l4_host = '127.0.0.1'
         l4_port = 20715
         l4_rcon = '1145149191810'
+
+<details>
+<summary>展开/收起</summary>
 
 
 ### 以ubuntu为例，具体教程建议自行搜索，其中路径可以自行替换
@@ -176,7 +176,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <details>
 <summary>展开/收起</summary>
 
-###本地服务器相关
+### 本地服务器相关
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | l4_file | 否 | "/home/ubuntu/l4d2/coop" | str,输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
@@ -184,7 +184,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | l4_port | 否 | 20715 | int，服务器端口号 |
 | l4_rcon | 否 | '114514' | str，服务器的rcon密码 |
 
-###可选填写
+### 可选填写
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
