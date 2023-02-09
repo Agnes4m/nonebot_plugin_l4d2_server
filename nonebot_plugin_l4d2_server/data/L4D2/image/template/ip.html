@@ -18,32 +18,28 @@
         }
     </style>
 </head>
-<body style="background-image: url('back2.png');">
+<body style="background-image: url('back2.png'); background-size: 1200px 1800px;">
 <div class="myinfo">
-    <table>
+<table>
+    {% for i in range(0, data|length, 3) %}
         <tr>
-            <th>游戏</th>
-            <th>服名</th>
-			<th>ip</th>
-            <th>地图</th>
-            <th>玩家</th>
-            <th>人数</th>
+            {% for j in range(i, i + 3) %}
+                {% if j < data|length %}
+                    <td>
+                        {{ data[j].number }}<br>
+                        {{ data[j].name }}<br>
+                        {{ data[j].ip }}<br>
+                        {{ data[j].map_ }}<br>
+                        {% for Player in data[j].Players %}
+                            {{ Player }}<br>
+                        {% endfor %}
+                        {{ data[j].max_players }}
+                    </td>
+                {% endif %}
+            {% endfor %}
         </tr>
-        {% for item in data %}
-        <tr>
-            <td>{{ item.number }}</td>
-            <td>{{ item.name }}</td>
-			<td>{{ item.ip }}</td>
-            <td>{{ item.map_ }}</td>
-			<td>
-				{% for Player in item.Players %}
-					{{ Player }}<br>
-				{% endfor %}
-			</td>
-            <td>{{ item.max_players }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    {% endfor %}
+</table>
 <h5><center>©爱丽数码</center></br>
 	<center>
 		https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server

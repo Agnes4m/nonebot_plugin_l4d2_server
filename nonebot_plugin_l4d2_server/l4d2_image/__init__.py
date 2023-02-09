@@ -1,15 +1,18 @@
+
+
+from jinja2 import Environment, FileSystemLoader
+from bs4 import BeautifulSoup
+from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
+
+# from .htmlimg import dict_to_dict_img
+from ..l4d2_anne.anne_telecom import ANNE_API
 from ..config import TEXT_PATH
 try:
     from .download import get_head_steam_and_save
 except:
     from .download import get_head_by_user_id_and_save
 from .send_image_tool import convert_img
-from bs4 import BeautifulSoup
-from nonebot.log import logger
-from jinja2 import Environment, FileSystemLoader
-# from .htmlimg import dict_to_dict_img
-from ..l4d2_anne.anne_telecom import ANNE_API
 
 async def out_png(usr_id,data_dict:dict):
     """使用html来生成图片"""
@@ -22,7 +25,8 @@ async def out_png(usr_id,data_dict:dict):
     
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('anne.html')
-    html = template.render(data = new_html)
+    html = template.render(grouped_data=new_html)
+
     
     pic = await html_to_pic(
                 html,

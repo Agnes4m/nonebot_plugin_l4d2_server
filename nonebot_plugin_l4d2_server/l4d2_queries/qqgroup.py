@@ -133,7 +133,7 @@ async def get_tan_jian(msg:list[tuple],mode:int):
     message:str = ''
     if mode == 1:
         ranks = mse['ranks']
-        if 200 < ranks <= 300 :
+        if ranks <= 300 :
             message = random.choice(PRISON[1])
         if 300 < ranks <= 450 :
             message = random.choice(PRISON[2])
