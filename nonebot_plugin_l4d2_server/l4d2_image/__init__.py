@@ -74,12 +74,18 @@ async def server_ip_pic(msg_dict:list[dict]):
         players_list = []
         try:
             if 'Players' in server_info:
-                for player_info in server_info['Players']:
+                sorted_players = sorted(server_info['Players'], key=lambda x: x.get('Score', 0), reverse=True)[:4]
+                for player_info in sorted_players:
                     player_str = f"{player_info['Name']} | {player_info['Duration']}"
                     players_list.append(player_str)
+                while len(players_list) < 4:
+                    players_list.append("")
                 server_info['Players'] = players_list
         except KeyError:
             pass
+
+
+    
     
     template_path = TEXT_PATH/"template"
     env = Environment(loader=FileSystemLoader(template_path))

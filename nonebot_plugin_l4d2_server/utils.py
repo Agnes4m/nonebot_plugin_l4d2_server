@@ -1,9 +1,8 @@
 from zipfile import ZipFile
 from nonebot.adapters.onebot.v11 import Bot,MessageEvent,GroupMessageEvent
 from nonebot.log import logger
-import httpx
 import struct
-
+import httpx
 import os
 try:
     import py7zr
@@ -19,25 +18,29 @@ from .l4d2_queries import queries,player_queries
 from .l4d2_queries.qqgroup import *
 from .l4d2_server.workshop import workshop_to_dict
 from .l4d2_queries.ohter import ANNE_HOST
+from .l4d2_image.steam import url_to_byte
 import tempfile
 import random
 
 
-def get_file(url,down_file):
+async def get_file(url:str,down_file:Path):
     '''
     下载指定Url到指定位置
     '''
     try:
-        maps = httpx.get(url)
+        maps = await url_to_byte(url)
+        if maps == None:
+            print('没有数据啊')
+            mes = None
         logger.info('已获取文件，尝试新建文件并写入')
         with open(down_file ,'wb') as mfile:
-            mfile.write(maps.content)
+            mfile.write(maps)
             logger.info('下载成功')
-            mes =('文件已下载,正在解压')
+            mes ='文件已下载,正在解压'
     except Exception as e:
         print(e)
         logger.info("文件获取不到/已损坏")
-        mes = "寄"
+        mes = None
     return mes
 
 def get_vpk(vpk_list:list,path):

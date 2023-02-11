@@ -26,14 +26,14 @@
             {% for j in range(i, i + 3) %}
                 {% if j < data|length %}
                     <td>
-                        {{ data[j].number }}<br>
-                        {{ data[j].name }}<br>
-                        {{ data[j].ip }}<br>
-                        {{ data[j].map_ }}<br>
+                         <font color="red">{{ data[j].number }}</font><br>
+                        <font color="yellow">{{ data[j].name }}</font><br>
+                        <font color="gray">{{ data[j].ip }}</font><br>
+                        <font color="blue">{{ data[j].map_ }}</font><br>
                         {% for Player in data[j].Players %}
-                            {{ Player }}<br>
+                            <font color="green">{{ Player }}</font><br>
                         {% endfor %}
-                        {{ data[j].max_players }}
+                        <font color="red">{{ data[j].max_players }}</font>
                     </td>
                 {% endif %}
             {% endfor %}

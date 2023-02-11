@@ -1,12 +1,39 @@
 from nonebot import on_notice,on_command,on_regex,on_fullmatch,on_shell_command
+from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,Command,RawCommand
 import re
+import nonebot
+from nonebot.permission import SUPERUSER
+from nonebot.typing import T_Handler,T_State
+from nonebot.adapters.onebot.v11 import (
+    GroupUploadNoticeEvent,
+    NoticeEvent,
+    Bot,
+    MessageEvent,
+    Message,
+    MessageSegment,
+    GroupMessageEvent
+    )
 from .l4d2_anne.server import server_key,ANNE_IP
-from .config import Master
+from .config import Master,ADMINISTRATOR,reMaster
 
 help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 
 # 服务器
-up = on_notice()
+# last_operation_time = nonebot.Config.parse_obj(nonebot.get_driver().config.dict()).SUPERUSERS
+
+
+
+def wenjian(event:NoticeEvent):
+    if isinstance(event, GroupUploadNoticeEvent):
+        superuse = nonebot.get_driver().config.l4_master
+        return str(event.user_id) in superuse
+    else:
+        return event.user_id != 114514
+up = on_notice(rule=wenjian)
+# up = on_command('upmap',aliases={'上传地图','上传'},priority=20,block=True,permission= reMaster,handlers=[l4_up()])
+
+
+
 rename_vpk = on_regex(
         r"^求生地图\s*(\S+.*?)\s*(改|改名)?\s*(\S+.*?)\s*$",
     flags=  re.S,
@@ -62,3 +89,9 @@ async def _():
     for i in msg:
         messgae += i + '\n'
     await help_.finish(messgae)
+
+def get_session_id(event: MessageEvent) -> str:
+    if isinstance(event, GroupMessageEvent):
+        return f"group_{event.group_id}"
+    else:
+        return f"private_{event.user_id}"

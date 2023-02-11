@@ -3,6 +3,7 @@ from nonebot.permission import SUPERUSER
 from nonebot.adapters.onebot.v11.permission import (
     GROUP_ADMIN,
     GROUP_OWNER,
+    PRIVATE_FRIEND,
 )
 from pathlib import Path
 try:
@@ -11,7 +12,11 @@ except:
     import json
     
 file_format = (".vpk",".zip",".7z")
+# 权限
+
+reMaster = SUPERUSER | GROUP_OWNER 
 Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
+ADMINISTRATOR = SUPERUSER | GROUP_ADMIN | GROUP_OWNER | PRIVATE_FRIEND
 # file 填写求生服务器所在路径
 FONT_ORIGIN_PATH = Path(__file__).parent / 'data/L4D2/font.ttf'
 try:
@@ -48,6 +53,10 @@ try:
     l4_rcon: str = nonebot.get_driver().config.l4_rcon
 except:
     l4_rcon: str = '114514'
+try:
+    l4_master: list = nonebot.get_driver().config.l4_master
+except:
+    l4_master: list = ['114514']
 try:
     l4_proxies: str = {
             'http://':nonebot.get_driver().config.l4_proxies

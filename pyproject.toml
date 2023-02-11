@@ -35,6 +35,7 @@ rcon = "^2.1.0"
 VSQ = "^0.0.8"
 pillow = ">=8.3.0"
 aiohttp = "^3.8.3"
+nonebot_plugin_txt2img = ">=0.2.2"
  
 [build-system]
 requires = ["poetry-core>=1.0.0"]
