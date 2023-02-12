@@ -23,7 +23,8 @@ help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 
 
 
-def wenjian(event:NoticeEvent):
+def wenjian(
+event:GroupUploadNoticeEvent):
     if isinstance(event, GroupUploadNoticeEvent):
         superuse = nonebot.get_driver().config.l4_master
         return str(event.user_id) in superuse

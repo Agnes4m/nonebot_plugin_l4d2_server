@@ -73,36 +73,40 @@ __plugin_meta__ = PluginMetadata(
 #         await up.finish(mes_list(mes,vpk_files))
 
 @up.handle()
-async def _(matcher:Matcher,event: NoticeEvent):
+async def _(matcher:Matcher,event: GroupUploadNoticeEvent):
     if isinstance(event, GroupUploadNoticeEvent):
-        matcher.set_arg('txt',event)
-    else:
-        args = event.dict()
-        # 检查下载路径是否存在
-        logger.info('检查下载路径是否存在')
-        if not Path(l4_file).exists():
-            await up.finish("你填写的路径不存在辣")
-        if not Path(map_path).exists():
-            await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
-        # args = event.dict()
-        if args['notice_type'] != 'offline_file':  # 群聊值响应超管
-            return matcher.finish()
-        url = args['file']['url']
-        name: str = args['file']['name']
-        # user_id = args['user_id']
+        txt = event.dict()
+        user_id = txt['user_id']
         # 如果不符合格式则忽略
-        if not name.endswith(file_format):
+        if user_id != 735803792:
             return
-        await up.send('已收到文件，开始下载')
-        sleep(1)   # 等待一秒防止因为文件名获取出现BUG
-        vpk_files = await updown_l4d2_vpk(map_path,name,url)
-        if vpk_files:
-            logger.info('检查到新增文件')
-            mes = "解压成功，新增以下几个vpk文件"
-        else:
-            mes = "你可能上传了相同的文件，或者解压失败了捏"
+        matcher.set_arg('txt',event)
+    args = event.dict()
+    # 检查下载路径是否存在
+    logger.info('检查下载路径是否存在')
+    if not Path(l4_file).exists():
+        await up.finish("你填写的路径不存在辣")
+    if not Path(map_path).exists():
+        await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
+        # args = event.dict()
+    if args['notice_type'] != 'offline_file':  # 群聊值响应超管
+        return
+    url = args['file']['url']
+    name: str = args['file']['name']
+    # user_id = args['user_id']
+    # 如果不符合格式则忽略
+    if not name.endswith(file_format):
+        return
+    await up.send('已收到文件，开始下载')
+    sleep(1)   # 等待一秒防止因为文件名获取出现BUG
+    vpk_files = await updown_l4d2_vpk(map_path,name,url)
+    if vpk_files:
+        logger.info('检查到新增文件')
+        mes = "解压成功，新增以下几个vpk文件"
+    else:
+        mes = "你可能上传了相同的文件，或者解压失败了捏"
             
-        await up.finish(mes_list(mes,vpk_files))
+    await up.finish(mes_list(mes,vpk_files))
 
 
 @up.got("is_sure",prompt="请发送yes确认上传地图'")    
