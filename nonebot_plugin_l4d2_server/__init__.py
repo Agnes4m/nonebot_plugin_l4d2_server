@@ -42,7 +42,6 @@ __plugin_meta__ = PluginMetadata(
 #     if not Path(map_path).exists():
 #         await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
 #     args = event.dict()
-#     logger.info(args)
 #     if args['notice_type'] != 'offline_file':  # 响应私聊,group_upload只有管理员
 #         logger.info('这是一个群文件')
 #         superuse:list = nonebot.get_driver().config.l4_master
@@ -113,7 +112,6 @@ async def _(matcher:Matcher,event: GroupUploadNoticeEvent):
 async def _(matcher: Matcher):
     txt:NoticeEvent = matcher.get_arg('txt')
     args = txt.dict()
-    logger.info(args)
     is_sure = str(matcher.get_arg('is_sure')).strip()
     if is_sure == "yes":
         # 检查下载路径是否存在
@@ -136,6 +134,8 @@ async def _(matcher: Matcher):
         if vpk_files:
             logger.info('检查到新增文件')
             mes = "解压成功，新增以下几个vpk文件"
+        elif vpk_files == None:
+            await up.finish('文件错误')
         else:
             mes = "你可能上传了相同的文件，或者解压失败了捏"
             

@@ -54,9 +54,10 @@ def get_vpk(vpk_list:list,path):
 
 def mes_list(mes:str,name_list:list):
     n = 0
-    for i in name_list:
-        n += 1
-        mes += "\n" + str(n) + "、" + i
+    if name_list:
+        for i in name_list:
+            n += 1
+            mes += "\n" + str(n) + "、" + i
     return mes
 
 def support_gbk(zip_file: ZipFile):

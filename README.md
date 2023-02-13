@@ -25,7 +25,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     <img src="https://img.shields.io/pypi/dm/nonebot_plugin_l4d2_server" alt="pypi download">
 </a>
     <img src="https://img.shields.io/badge/python-3.7+-blue.svg" alt="python">
-    <img src="https://img.shields.io/badge/nonebot-2.0.0rc1~rc3-red.svg" alt="NoneBot">
+    <img src="https://img.shields.io/badge/nonebot-2.0.0rc1+-red.svg" alt="NoneBot">
 </div>
 
 # 主要功能
@@ -39,6 +39,16 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     2、pip install nonebot_plugin_l4d2_server
     3、Download zip
 
+
+## 快速使用（env示例）
+
+        # 复制到env文件里，没有默认就是下列值，如需修改安装下面env设置
+        l4_master = [1145149191]
+        l4_file = '/home/ubuntu/l4d2/coop'
+        l4_host = '127.0.0.1'
+        l4_port = 20715
+        l4_rcon = '1145149191810'
+
 ## 前置操作
 
 - 如果要操作求生服务器文件，机器人与求生服务器处于同一个服务器上
@@ -47,14 +57,6 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 - 创建一个steam求生服务器(预计需要储存14G)
 
-## env示例
-
-        # 复制到env文件里，没有默认就是下列值，如需修改安装下面env设置
-        l4_master = [1145149191]
-        l4_file = '/home/ubuntu/l4d2/coop'
-        l4_host = '127.0.0.1'
-        l4_port = 20715
-        l4_rcon = '1145149191810'
 
 <details>
 <summary>展开/收起</summary>

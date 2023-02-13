@@ -32,17 +32,19 @@ async def web_player(url) -> Image :
     return im
 
 
-async def url_to_byte(url:str):
-    """所有url终将绳之以法"""
+async def url_to_byte(url:str,filename:str =''):
+    """获取URL数据的字节流"""
     headers = {
-        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
     }
     async with aiohttp.ClientSession() as session:
-        async with session.get(url,headers=headers,timeout=30) as response:
+        async with session.get(url, headers=headers, timeout=600) as response:
             if response.status == 200:
                 return await response.read()
             else:
                 return None
+
+
             
 async def url_for_byte(url):
     """所有代理_url终将绳之以法"""
