@@ -1,13 +1,9 @@
-from zipfile import ZipFile
+
 from nonebot.adapters.onebot.v11 import Bot,MessageEvent,GroupMessageEvent
 from nonebot.log import logger
 import struct
 import httpx
 import os
-try:
-    import py7zr
-except:
-    pass
 from pathlib import Path
 from PIL import Image
 from .txt_to_img import txt_to_img
@@ -60,19 +56,7 @@ def mes_list(mes:str,name_list:list):
             mes += "\n" + str(n) + "、" + i
     return mes
 
-def support_gbk(zip_file: ZipFile):
-    '''
-    压缩包中文恢复
-    '''
-    name_to_info = zip_file.NameToInfo
-    # copy map first
-    for name, info in name_to_info.copy().items():
-        real_name = name.encode('cp437').decode('gbk')
-        if real_name != name:
-            info.filename = real_name
-            del name_to_info[name]
-            name_to_info[real_name] = info
-    return zip_file
+
 
 def del_map(num,map_path):
     '''
@@ -103,23 +87,7 @@ def text_to_png(msg: str) -> bytes:
     """文字转png"""
     return txt_to_img(msg)
 
-def open_packet(name,down_file):
-    """解压压缩包"""
-    zip_dir = os.path.dirname(down_file)
-    logger.info('文件名为：' + name)
-    if name.endswith('.zip'):
-        mes = 'zip文件已下载,正在解压'
-        with support_gbk(ZipFile(down_file, 'r')) as zip_ref:
-            zip_ref.extractall(zip_dir)
-        os.remove(down_file)
-    elif name.endswith('.7z'):
-        mes ='7z文件已下载,正在解压'
-        with py7zr.SevenZipFile(down_file, 'r') as z:
-            z.extractall(map_path)
-        os.remove(down_file)
-    elif name.endswith('.vpk'):
-        mes ='vpk文件已下载'
-    return mes
+
 
 def solve(msg:str):
     """删除str最后一行"""
