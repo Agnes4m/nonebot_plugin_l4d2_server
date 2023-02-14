@@ -16,10 +16,11 @@ from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.ohter import load_josn
 from .l4d2_queries.qqgroup import write_json
 from .l4d2_file import updown_l4d2_vpk
+from .txt_to_img import mode_txt_to_img
 driver = get_driver()
 
 
-__version__ = "0.2.4"
+__version__ = "0.2.5"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
@@ -77,35 +78,34 @@ async def _(matcher:Matcher,event: GroupUploadNoticeEvent):
         txt = event.dict()
         user_id = txt['user_id']
         # 如果不符合格式则忽略
-        if user_id != 735803792:
-            return
-        matcher.set_arg('txt',event)
-    args = event.dict()
+        matcher.set_arg('args',event)
+    txt = event.dict()
+    matcher.set_arg('args',event)
     # 检查下载路径是否存在
-    logger.info('检查下载路径是否存在')
-    if not Path(l4_file).exists():
-        await up.finish("你填写的路径不存在辣")
-    if not Path(map_path).exists():
-        await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
-        # args = event.dict()
-    if args['notice_type'] != 'offline_file':  # 群聊值响应超管
-        return
-    url = args['file']['url']
-    name: str = args['file']['name']
-    # user_id = args['user_id']
-    # 如果不符合格式则忽略
-    if not name.endswith(file_format):
-        return
-    await up.send('已收到文件，开始下载')
-    sleep(1)   # 等待一秒防止因为文件名获取出现BUG
-    vpk_files = await updown_l4d2_vpk(map_path,name,url)
-    if vpk_files:
-        logger.info('检查到新增文件')
-        mes = "解压成功，新增以下几个vpk文件"
-    else:
-        mes = "你可能上传了相同的文件，或者解压失败了捏"
+    # logger.info('检查下载路径是否存在')
+    # if not Path(l4_file).exists():
+    #     await up.finish("你填写的路径不存在辣")
+    # if not Path(map_path).exists():
+    #     await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
+    #     # args = event.dict()
+    # # if args['notice_type'] != 'offline_file':  # 群聊值响应超管
+    # #     return
+    # url = txt['file']['url']
+    # name: str = txt['file']['name']
+    # # user_id = txt['user_id']
+    # # 如果不符合格式则忽略
+    # if not name.endswith(file_format):
+    #     return
+    # await up.send('已收到文件，开始下载')
+    # sleep(1)   # 等待一秒防止因为文件名获取出现BUG
+    # vpk_files = await updown_l4d2_vpk(map_path,name,url)
+    # if vpk_files:
+    #     logger.info('检查到新增文件')
+    #     mes = "解压成功，新增以下几个vpk文件"
+    # else:
+    #     mes = "你可能上传了相同的文件，或者解压失败了捏"
             
-    await up.finish(mes_list(mes,vpk_files))
+    # await up.finish(mes_list(mes,vpk_files))
 
 
 @up.got("is_sure",prompt="请发送yes确认上传地图'")    
@@ -149,11 +149,11 @@ async def _(bot:Bot,event: MessageEvent):
     name_vpk = get_vpk(name_vpk,map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
-    msg = mes_list(mes,name_vpk).replace(" ","")
-    try:
-        await find_vpk.finish(MessageSegment.image(text_to_png(msg)))
-    except OSError:
-        await find_vpk.finish(msg)
+    msg = ''
+    msg = mes_list(msg,name_vpk).replace(" ","")
+    
+    await find_vpk.finish(mode_txt_to_img(mes,msg))
+    # await find_vpk.finish(msg)
 
 @del_vpk.handle()
 async def _(matcher:Matcher,args:Message = CommandArg()):
@@ -224,7 +224,7 @@ async def _(tag:str = ArgPlainText("command")):
     tag = tag.strip()
     msg = await command_server(tag)
     if l4_image:
-        await rcon_to_server.finish(MessageSegment.image(text_to_png(msg)))
+        await rcon_to_server.finish(mode_txt_to_img('服务器返回',msg))
     else:
         await rcon_to_server.finish(msg,reply_message = True)
         

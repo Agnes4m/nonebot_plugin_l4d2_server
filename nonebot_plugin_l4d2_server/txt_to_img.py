@@ -55,3 +55,11 @@ def line_break(line: str) -> str:
     if ret.endswith('\n'):
         return ret
     return ret + '\n'
+
+
+def mode_txt_to_img(title:str,text:str,font_size:int = 32,):
+    txt2img = Txt2Img()
+    txt2img.set_font_size(font_size)
+    pic = txt2img.draw(title, text)
+    msg = MessageSegment.image(pic)
+    return msg
