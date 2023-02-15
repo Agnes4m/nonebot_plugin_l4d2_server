@@ -78,9 +78,9 @@ async def _(matcher:Matcher,event: GroupUploadNoticeEvent):
         txt = event.dict()
         user_id = txt['user_id']
         # 如果不符合格式则忽略
-        matcher.set_arg('args',event)
+        matcher.set_arg('txt',event)
     txt = event.dict()
-    matcher.set_arg('args',event)
+    matcher.set_arg('txt',event)
     # 检查下载路径是否存在
     # logger.info('检查下载路径是否存在')
     # if not Path(l4_file).exists():
