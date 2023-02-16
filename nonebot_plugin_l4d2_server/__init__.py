@@ -34,46 +34,9 @@ __plugin_meta__ = PluginMetadata(
 
 """相当于启动就检查数据库"""
 
-# @up.handle()
-# async def _(matcher:Matcher,event: NoticeEvent,state:T_State):
-#     # 检查下载路径是否存在
-#     logger.info('监测到文件了，判断判断')
-#     if not Path(l4_file).exists():
-#         await up.finish("你填写的路径不存在辣")
-#     if not Path(map_path).exists():
-#         await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
-#     args = event.dict()
-#     if args['notice_type'] != 'offline_file':  # 响应私聊,group_upload只有管理员
-#         logger.info('这是一个群文件')
-#         superuse:list = nonebot.get_driver().config.l4_master
-#         if str(args['user_id']) not in superuse:
-#             await up.finish()
-#     state['file'] = args['file']
-#     logger.info('第一段结束')
-
-
-# @up.got("is_sure",prompt="监测到地图，请发送yes确认上传地图'")    
-# async def _(state:T_State):
-#     logger.info('第二段')
-#     is_sure = str(state["is_sure"]).strip()
-#     name:str = state['file']['name']
-#     url:str = state['file']['url']
-#     logger.info('开始判断')
-#     if is_sure == 'yes':
-#         if not name.endswith(file_format):
-#             return
-#         await up.send('已收到文件，开始下载')
-#         sleep(1)   # 等待一秒防止因为文件名获取出现BUG
-#         vpk_files =  await updown_l4d2_vpk(map_path,name,url)
-#         if vpk_files:
-#             logger.info('检查到新增文件')
-#             mes = "解压成功，新增以下几个vpk文件"
-#         else:
-#             mes = "你可能上传了相同的文件，或者解压失败了捏"
-#         await up.finish(mes_list(mes,vpk_files))
 
 @up.handle()
-async def _(matcher:Matcher,event: GroupUploadNoticeEvent):
+async def _(matcher:Matcher,event: NoticeEvent):
     if isinstance(event, GroupUploadNoticeEvent):
         txt = event.dict()
         user_id = txt['user_id']
