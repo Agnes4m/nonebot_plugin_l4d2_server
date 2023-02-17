@@ -29,8 +29,9 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 </div>
 
 # 主要功能
-- 求生服务器本地操作（传地图）
+- 求生服务器-本地多路径操作（传地图）
 - 批量查询指定ip服务器状态和玩家
+- 创意工坊下载和喷漆制作
 - [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
 
 
@@ -43,13 +44,15 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 ## 快速使用（env示例）
 
         # 复制到env文件里，没有默认就是下列值，如需修改安装下面env设置
-        l4_master = [1145149191]
-        l4_file = '/home/ubuntu/l4d2/coop'
-        l4_host = '127.0.0.1'
-        l4_port = 20715
-        l4_rcon = '1145149191810'
+        # 所有的多选，用逗号隔开
+        l4_master = ['1145149191']
+        l4_file = ['/home/ubuntu/l4d2/coop']
+        l4_host = ['127.0.0.1']
+        l4_port = ['20715']
+        l4_rcon = ['1145149191810']
+        l4_font = 'simsun.ttc'
 
-## 前置操作
+## 前置游戏操作
 
 - 如果要操作求生服务器文件，机器人与求生服务器处于同一个服务器上
 
@@ -124,6 +127,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 ## 🤔 功能（指令）
 
+
 ### 服务器
 
 （被动）上传地图：私发压缩包zip/vpk文件给机器人，就可以直接上传地图到服务器了
@@ -183,11 +187,11 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 ### 本地服务器相关
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| l4_master | 是 | [1145149191] | list,里面是可以在群里传求生地图的qq号
-| l4_file | 否 | "/home/ubuntu/l4d2/coop" | str,输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
-| l4_host | 否 | '127.0.0.1' | str，服务器ip，如果是本机一般就是默认 |
-| l4_port | 否 | 20715 | int，服务器端口号 |
-| l4_rcon | 否 | '114514' | str，服务器的rcon密码 |
+| l4_master | 是 | ['1145149191'] | list,里面是可以在群里传求生地图的qq号
+| l4_file | 否 | ["/home/ubuntu/l4d2/coop"] | 输入求生服务器的绝对路径,该目录下有游戏启动程序srcds_run |
+| l4_host | 否 | ['127.0.0.1'] | 服务器ip，如果是本机一般就是默认 |
+| l4_port | 否 | ['20715'] | 服务器端口号 |
+| l4_rcon | 否 | ['114514'] | 服务器的rcon密码 |
 
 ### 可选填写
 | 配置项 | 必填 | 默认值 | 说明 |
@@ -198,7 +202,22 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </details>
 
+## ✅ 拓展功能
+
+ - 解压功能
+        # rar压缩包
+        # win直接下winRAR软件就可以
+        # Ubuntu 和 Debian
+        sudo wget https://www.rarlab.com/rar/rarlinux-x64-621b1.tar.gz
+        sudo tar -xzpvf rarlinux-x64-621b1.tar.gz
+        cd rar
+        sudo make
+
 ## ✨ 效果展示
+
+<details>
+<summary>展开/收起</summary>
+
 订阅:<br>
 ![ip](image/ip_server.png)<br>
 anne:<br>
@@ -208,18 +227,22 @@ anne:<br>
 私聊：<br>
 ![up](image/up.png)<br>
 
+</details>
+
 ## 🤔 FAQ
 
         Q:UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd0 in position xxx: invalid continuation byte</b>
+
         A:说明rcon连接服务器时返回了乱码，有可能读取的信息包含表情包或者其他不明字符，我的方法是找到本地pypi包的rcon，编辑rcon/source/async_rcon.py,找到return response.payload.decode(encoding)并替换为return response.payload.decode(encoding,errors='ignore')
 
+
         Q:ModuleNotFoundError: No module named '_lzma'
+
         A:python3.3版本后常见，解决方法是
         vim /usr/local/lib/python3.10/lzma.py
         #修改前
         from _lzma import *
         from _lzma import _encode_filter_properties, _decode_filter_properties
-
         #修改后 
         try:
         from _lzma import *
@@ -227,6 +250,7 @@ anne:<br>
         except ImportError:
         from backports.lzma import *
         from backports.lzma import _encode_filter_properties, _decode_filter_properties
+
 
 
 ## 📝 TODO LIST
@@ -239,7 +263,7 @@ anne:<br>
 - [ ] 求生每日签到/抽签
 - [ ] 按照数值自定义绘画信息图片
 - [ ] 支持直接修改本地cfg文件
-- [ ] 支持远程连接求生服务器并操作
+- [ ] ~支持远程连接求生服务器并操作~
 
 </details>
 
@@ -248,7 +272,6 @@ anne:<br>
 <details>
 <summary>展开/收起</summary>
 
-- [ ] 所有人都可以私聊发送文件
 - [ ] 更改地图名称后，排序会错误
 - [ ] 求生喷漆可加载但无法输出
 
