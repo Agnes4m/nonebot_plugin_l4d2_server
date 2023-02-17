@@ -51,6 +51,8 @@ rename_vpk = on_regex(
 find_vpk = on_command("l4_map",aliases={"求生地图","查看求生地图"},priority=25,block=True)
 del_vpk = on_command("l4_del_map",aliases={"求生地图删除","地图删除"},priority=20,block=True,permission= Master)
 rcon_to_server = on_command('rcon',aliases={"求生服务器指令","服务器指令","求生服务器控制台"},block=True,permission= Master)
+check_path = on_command('l4_check',aliases={'求生路径'},priority=20,block=True,permission= Master)
+
 
 # anne
 anne_player = on_command('Ranne',aliases={"求生anne"},priority=25,block=True)

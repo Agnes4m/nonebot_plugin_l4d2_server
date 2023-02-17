@@ -20,7 +20,7 @@ from .txt_to_img import mode_txt_to_img
 driver = get_driver()
 
 
-__version__ = "0.2.5.5"
+__version__ = "0.3.0"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
@@ -37,12 +37,12 @@ __plugin_meta__ = PluginMetadata(
 
 @up.handle()
 async def _(matcher:Matcher,event: NoticeEvent):
-    if isinstance(event, GroupUploadNoticeEvent):
-        txt = event.dict()
-        user_id = txt['user_id']
-        # 如果不符合格式则忽略
-        matcher.set_arg('txt',event)
-    txt = event.dict()
+    # if isinstance(event, GroupUploadNoticeEvent):
+    #     txt = event.dict()
+    #     user_id = txt['user_id']
+    #     # 如果不符合格式则忽略
+    #     matcher.set_arg('txt',event)
+    # txt = event.dict()
     matcher.set_arg('txt',event)
     # 检查下载路径是否存在
     # logger.info('检查下载路径是否存在')
@@ -71,43 +71,51 @@ async def _(matcher:Matcher,event: NoticeEvent):
     # await up.finish(mes_list(mes,vpk_files))
 
 
-@up.got("is_sure",prompt="请发送yes确认上传地图'")    
+@up.got("is_sure",prompt="请选择上传位置（输入阿拉伯数字)")    
 async def _(matcher: Matcher):
+    logger.info(l4_file)
     txt:NoticeEvent = matcher.get_arg('txt')
+    sleep(1)
+    if not txt:
+        await matcher.finish('获取文件出错辣，再试一次吧')
     args = txt.dict()
     is_sure = str(matcher.get_arg('is_sure')).strip()
-    if is_sure == "yes":
-        # 检查下载路径是否存在
-        logger.info('检查下载路径是否存在')
-        if not Path(l4_file).exists():
-            await up.finish("你填写的路径不存在辣")
-        if not Path(map_path).exists():
-            await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
-        # args = event.dict()
-        # if args['notice_type'] != 'offline_file':  # 群聊值响应超管
-        url = args['file']['url']
-        name: str = args['file']['name']
-        # user_id = args['user_id']
-        # 如果不符合格式则忽略
-        if not name.endswith(file_format):
-            return
-        await up.send('已收到文件，开始下载')
-        sleep(1)   # 等待一秒防止因为文件名获取出现BUG
-        vpk_files = await updown_l4d2_vpk(map_path,name,url)
-        if vpk_files:
-            logger.info('检查到新增文件')
-            mes = "解压成功，新增以下几个vpk文件"
-        elif vpk_files == None:
-            await up.finish('文件错误')
-        else:
-            mes = "你可能上传了相同的文件，或者解压失败了捏"
-            
-        await up.finish(mes_list(mes,vpk_files))
+    if not is_sure.isdigit():
+        await matcher.finish('已取消上传')
+    file_number = len(l4_file)
+    is_sure = int(is_sure)
+    if is_sure > file_number or is_sure <= 0:
+        await matcher.finish('没有该序号')
+    l4_file_path = l4_file[is_sure - 1]
+    
+    # 检查下载路径是否存在
+    logger.info(l4_file_path)
+    if not Path(l4_file_path).exists():
+        await up.finish("你填写的路径不存在辣")
+    if not Path(map_path).exists():
+        await up.finish("这个路径并不是求生服务器的路径，请再看看罢")
+    # args = event.dict()
+    # if args['notice_type'] != 'offline_file':  # 群聊值响应超管
+    url = args['file']['url']
+    name: str = args['file']['name']
+    # user_id = args['user_id']
+    # 如果不符合格式则忽略
+    if not name.endswith(file_format):
+        return
+    await up.send('已收到文件，开始下载')
+    sleep(1)   # 等待一秒防止因为文件名获取出现BUG
+    vpk_files = await updown_l4d2_vpk(map_path,name,url)
+    if vpk_files:
+        logger.info('检查到新增文件')
+        mes = "解压成功，新增以下几个vpk文件"
+    elif vpk_files == None:
+        await up.finish('文件错误')
     else:
-        await up.finish('已取消上传')
+        mes = "你可能上传了相同的文件，或者解压失败了捏"
+    await up.finish(mes_list(mes,vpk_files))
     
 @find_vpk.handle()
-async def _(bot:Bot,event: MessageEvent):    
+async def _(bot:Bot,event: MessageEvent):
     name_vpk = []
     name_vpk = get_vpk(name_vpk,map_path)
     logger.info("获取文件列表成功")
@@ -126,7 +134,6 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
 
 @del_vpk.got("num",prompt="你要删除第几个序号的地图(阿拉伯数字)")
 async def _(tag:int = ArgPlainText("num")):
-    tag = tag.replace(' ','')
     vpk_name = del_map(tag,map_path)
     await del_vpk.finish('已删除地图：' + vpk_name)
     
@@ -189,6 +196,25 @@ async def _(tag:str = ArgPlainText("command")):
         await rcon_to_server.finish(mode_txt_to_img('服务器返回',msg))
     else:
         await rcon_to_server.finish(msg,reply_message = True)
+        
+        
+@check_path.handle()
+async def _(args:Message = CommandArg()):
+    global CHECK_FILE
+    msg = args.extract_plain_text()
+    if msg.startswith('切换'):
+        msg_number = int(''.join(msg.replace('切换', ' ').split()))
+        if msg_number > len(l4_file) or msg_number < 0:
+            await check_path.send('没有这个序号的路径呐')
+        else:
+            CHECK_FILE = msg_number - 1
+            now_path = l4_file[CHECK_FILE]
+            load_config()
+            await check_path.send(f'已经切换路径为\n{str(CHECK_FILE+1)}、{now_path}')
+    else: 
+        now_path = l4_file[CHECK_FILE]
+        await check_path.send(f'当前的路径为\n{str(CHECK_FILE+1)}、{now_path}')
+        
         
 @queries.handle()
 async def _(matcher:Matcher,args:Message = CommandArg()):
@@ -275,7 +301,9 @@ async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
 
 @updata.handle()
 async def _(args:Message = CommandArg()):
+    """更新"""
     msg = args.extract_plain_text()
+    load_config()
     if not msg:
         load_josn()
         reload_ip()
