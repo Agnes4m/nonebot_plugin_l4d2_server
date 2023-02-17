@@ -91,8 +91,6 @@ async def server_ip_pic(msg_dict:list[dict]):
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('ip.html')
     html = template.render(data = msg_dict)
-    with open("pie-chart.html", "w") as f:
-        f.write(html)
     pic = await html_to_pic(
             html,
             wait=0,
