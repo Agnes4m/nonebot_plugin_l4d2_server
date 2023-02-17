@@ -132,8 +132,7 @@ async def get_message_at(data: str) -> list:
 def at_to_usrid(at):
     """at对象变qqid否则返回usr_id"""
     if at != []:
-        if at and at[0] != usr_id:
-            at:str = at[0]
+        at:str = at[0]
         usr_id:str = at
         return usr_id
     else:

@@ -18,7 +18,7 @@ async def updown_l4d2_vpk(map_path,name,url):
     down_file = Path(map_path,name)
     if await get_file(url,down_file) == None:
         return None
-
+    sleep(1)
     msg = open_packet(name,down_file)
     logger.info(msg)
     
@@ -41,13 +41,13 @@ def open_packet(name:str,down_file:Path):
         os.remove(down_file)
     elif name.endswith('.7z'):
         mes ='7z文件已下载,正在解压'
-        with SevenZipFile(down_file, 'r') as z:
-            z.extractall(map_path)
+        with support_gbk(SevenZipFile(down_file, 'r')) as z:
+            z.extractall(zip_dir)
         os.remove(down_file)
     elif name.endswith('rar'):
         mes = 'rar文件已下载,正在解压'
         with support_gbk(RarFile(down_file,'r')) as z:
-            z.extractall(map_path)
+            z.extractall(zip_dir)
         os.remove(down_file)
     elif name.endswith('.vpk'):
         mes ='vpk文件已下载'

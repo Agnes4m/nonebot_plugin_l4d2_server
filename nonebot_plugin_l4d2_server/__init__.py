@@ -149,9 +149,8 @@ async def _(event:MessageEvent,args:Message = CommandArg()):
     name = args.extract_plain_text()
     name = name.strip()
     at = await get_message_at(event.json())
-    if at:
-        usr_id = at_to_usrid(at)
-    else:
+    usr_id = at_to_usrid(at)
+    if usr_id == None:
         usr_id = event.user_id
     # 没有参数则从db里找数据
     msg = await search_anne(name,usr_id)
