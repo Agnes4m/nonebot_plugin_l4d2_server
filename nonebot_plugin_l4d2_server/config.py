@@ -30,7 +30,7 @@ try:
     l4_file: list[str] = nonebot.get_driver().config.l4_file
 except:
     l4_file: list[str] = ['/home/ubuntu/l4d2']
-l4_file = ast.literal_eval(l4_file)
+
 
 try:
     l4_image: bool = nonebot.get_driver().config.l4_image
@@ -51,25 +51,25 @@ try:
     l4_host: list[str] = nonebot.get_driver().config.l4_host
 except:
     l4_host: list[str] = ['127.0.0.1']
-l4_host = ast.literal_eval(l4_host)
+
     
 try:
     l4_port: list[str] = nonebot.get_driver().config.l4_port
 except:
     l4_port: list[str] = ['20715']
-l4_port = ast.literal_eval(l4_port)
+
 
 try:
     l4_rcon: list[str] = nonebot.get_driver().config.l4_rcon
 except:
     l4_rcon: list[str] = ['114514']
-l4_rcon = ast.literal_eval(l4_rcon)    
+    
     
 try:
     l4_master: list[str] = nonebot.get_driver().config.l4_master
 except:
     l4_master: list[str] = ['114514']
-l4_master =ast.literal_eval(l4_master)    
+   
     
 try:
     l4_proxies: set = {
@@ -78,7 +78,13 @@ try:
 except:
     l4_proxies = ''
 
-    '''
+for i in [l4_file,l4_steamid,l4_host,l4_port,l4_rcon,l4_master]:
+    if type(i) == str:
+        i =ast.literal_eval(i)
+    else:
+        continue 
+        
+'''
 地图路径
 '''
 vpk_path = "left4dead2/addons"

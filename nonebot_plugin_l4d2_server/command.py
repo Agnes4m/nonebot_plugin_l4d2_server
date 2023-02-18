@@ -65,6 +65,7 @@ open_prison = on_command('kl',aliases={'开牢'},priority=20,block=True)
 updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
 get_ip = on_command('114514919181',aliases=server_key(),priority=80,block=True)
 def reload_ip():
+    global updata,get_ip
     updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
     get_ip = on_command('114514919181',aliases=server_key(),priority=80,block=True)
 get_anne = on_command('云',priority=20,block=True)
