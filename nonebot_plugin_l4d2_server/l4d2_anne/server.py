@@ -55,7 +55,10 @@ async def get_anne_ip(text: str) -> str:
 def server_key():
     """响应的服务器开头"""
     a = set()
-    for tag1,value in ANNE_HOST.items():
-        a.add(tag1)
+    try:
+        for tag1,value in ANNE_HOST.items():
+            a.add(tag1)
+    except AttributeError:
+        a.add('希腊那我从来没有想过这个事情')
     return  a
             

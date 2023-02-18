@@ -78,11 +78,9 @@ try:
 except:
     l4_proxies = ''
 
-for i in [l4_file,l4_steamid,l4_host,l4_port,l4_rcon,l4_master]:
-    if type(i) == str:
-        i =ast.literal_eval(i)
-    else:
-        continue 
+l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master]
+l4_list = [ast.literal_eval(i) if isinstance(i, str) else i for i in l4_list]
+l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master = l4_list
         
 '''
 地图路径

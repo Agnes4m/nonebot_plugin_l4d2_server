@@ -6,7 +6,6 @@ import os
 from ..utils import get_file,get_vpk
 from ..config import systems
 from nonebot.log import logger
-from py7zr import SevenZipFile
 from rarfile import RarFile
 import rarfile
 from pyunpack import Archive
