@@ -141,8 +141,8 @@ def at_to_usrid(at):
 async def command_server(msg:str):
     """rcon控制台返回信息"""
     rcon = await read_server_cfg_rcon()
-    l4_host_ = l4_host[[CHECK_FILE]]
-    l4_port_ = l4_port[[CHECK_FILE]]
+    l4_host_ = l4_host[CHECK_FILE]
+    l4_port_ = l4_port[CHECK_FILE]
     logger.info([msg,l4_host_,l4_port_,rcon])
     msg = await rcon_server(rcon,msg)
     logger.info(msg)
