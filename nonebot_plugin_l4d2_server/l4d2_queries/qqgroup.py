@@ -61,7 +61,7 @@ async def qq_ip_queries_pic(msg:list[tuple]):
             msg1.update({'number':number})
             # msg1是一行数据完整的字典
             msg_list.append(msg1)
-        except TypeError:
+        except (TypeError,ConnectionResetError):
             pass
     pic = await server_ip_pic(msg_list)
     return pic
@@ -96,7 +96,7 @@ async def get_tan_jian(msg:list[tuple],mode:int):
                 msg1.update({'ips':ips})
                 # msg1是一行数据完整的字典
                 msg_list.append(msg1)
-            except (TypeError,KeyError,ValueError):
+            except (TypeError,KeyError,ValueError,ConnectionResetError):
                 continue
         if mode == 2:
             # 坐牢
@@ -123,7 +123,7 @@ async def get_tan_jian(msg:list[tuple],mode:int):
                     msg1.update({'ips':ips})
                     # msg1是一行数据完整的字典
                     msg_list.append(msg1)
-            except (TypeError,KeyError):
+            except (TypeError,KeyError,ConnectionResetError):
                 continue
     # 随机选一个牢房
     if len(msg_list) == 0:

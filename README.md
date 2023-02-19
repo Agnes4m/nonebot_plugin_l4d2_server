@@ -51,6 +51,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
         l4_port = ['20715']
         l4_rcon = ['1145149191810']
         l4_font = 'simsun.ttc'
+        l4_only = True
 
 ## 前置游戏操作
 
@@ -289,6 +290,8 @@ anne:<br>
  - 修复了初始化找不到文件的错误
  - 修复了路径拼接错误
  - 在win端成功测试，修复压缩包bug
+ - 新增开关协程异步env设置
+ - 测试rcon建立通讯
 
 ### 0.3.0--2022.2.18
 
