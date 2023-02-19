@@ -72,11 +72,14 @@ get_anne = on_command('云',priority=20,block=True)
 tan_jian = on_command('tj',aliases={'探监'},priority=20,block=True)
 
 # 查询
-queries = on_command('queries',aliases={'求生ip'},priority=20,block=True)
+queries = on_command('queries',aliases={'求生ip','求生IP'},priority=20,block=True)
 add_queries = on_command('addq',aliases={"求生添加订阅"},priority=20,block=True,permission= Master)
 del_queries = on_command('delq',aliases={"求生取消订阅"},priority=20,block=True,permission= Master)
 show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=True)
 join_server = on_command('showq',aliases={"求生加入"},priority=20,block=True)
+connect_rcon = on_command("Rrcon", aliases={"求生连接", '求生链接','求生rcon'}, priority=50, block=False)
+end_connect = ['stop', '结束', '连接结束', '结束连接']
+
 
 # 下载内容
 up_workshop = on_command('workshop',aliases={'创意工坊下载','求生创意工坊'},priority=20,block=True)

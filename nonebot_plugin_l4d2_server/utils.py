@@ -24,7 +24,10 @@ async def get_file(url:str,down_file:Path):
     下载指定Url到指定位置
     '''
     try:
-        maps = await url_to_byte(url)
+        if l4_only:
+            maps = await url_to_byte(url)
+        else:
+            maps = httpx(url)
         if maps == None:
             print('没有数据啊')
             mes = None
@@ -280,3 +283,5 @@ async def json_server_to_tag_dict(key:str,msg:str):
                     data_dict.update(random.choice(data_list))
     logger.info(data_dict)
     return data_dict
+
+

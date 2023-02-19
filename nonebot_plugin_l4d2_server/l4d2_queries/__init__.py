@@ -1,4 +1,5 @@
 from VSQ import l4d2
+from VSQ.l4d2 import l4d
 
 async def queries(ip:str,port:int):
     port = int(port)
@@ -12,6 +13,7 @@ async def queries(ip:str,port:int):
 async def queries_dict(ip:str,port:int) -> dict:
     port = int(port)
     msg_dict = {}
+    # message_dict = await l4d(ip,port)
     message_dict = await l4d2.server(ip,port,times=5)
     msg_dict['folder'] =  message_dict['folder']
     msg_dict['name'] =  message_dict['name']

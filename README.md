@@ -199,6 +199,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | l4_steamid | 否 | False | 布尔值，默认在输出时隐藏steamid，需要则设置为True |
 | l4_image | 否 | True | 布尔值，是否显示图片 |
 | l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
+| l4_only | 否 | False | 布尔值，如果不想在下载的时候阻碍其他指令可以开启，但是有不能下载超过200m地图的bug |
 
 </details>
 

@@ -17,6 +17,10 @@ from .l4d2_queries.ohter import load_josn
 from .l4d2_queries.qqgroup import write_json
 from .l4d2_file import updown_l4d2_vpk
 from .txt_to_img import mode_txt_to_img
+from .l4d2_server import RCONClient
+from nonebot import get_bot, require
+scheduler = require("nonebot_plugin_apscheduler").scheduler
+
 driver = get_driver()
 
 
@@ -196,6 +200,25 @@ async def _(tag:str = ArgPlainText("command")):
         await rcon_to_server.finish(mode_txt_to_img('服务器返回',msg))
     else:
         await rcon_to_server.finish(msg,reply_message = True)
+        
+
+# 连续rcon连接
+@connect_rcon.handle()
+async def _(State:T_State,args:Message = CommandArg()):
+    msg = args.extract_plain_text()
+    client = RCONClient(l4_host[CHECK_FILE], l4_port[CHECK_FILE], l4_rcon[CHECK_FILE])
+    await client.connect()
+    State['client'] = client
+    if msg:
+        connect_rcon.set_arg(key="prompt",message=args)
+        
+@connect_rcon.got("prompt", prompt="连接开始...如果需要停止则输入“结束连接”")
+async def handle_chat(State:T_State,event: MessageEvent, prompt: Message = Arg(), msg: str = ArgPlainText("prompt")):
+    # session_id = event.get_session_id()
+    client:RCONClient = State['client']
+
+    await client.close()
+    await connect_rcon.finish('聊天结束...')
         
         
 @check_path.handle()

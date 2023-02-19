@@ -41,6 +41,11 @@ try:
     l4_steamid: bool = nonebot.get_driver().config.l4_steamid
 except:
     l4_steamid: bool = True
+
+try:
+    l4_only: bool = nonebot.get_driver().config.l4_only
+except:
+    l4_only: bool = False
     
 try:
     l4_font: str = nonebot.get_driver().config.l4_font
