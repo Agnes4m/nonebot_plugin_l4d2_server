@@ -17,7 +17,7 @@ from .l4d2_queries.ohter import load_josn
 from .l4d2_queries.qqgroup import write_json
 from .l4d2_file import updown_l4d2_vpk
 from .txt_to_img import mode_txt_to_img
-from .l4d2_server import RCONClient
+# from .l4d2_server import RCONClient
 from nonebot import get_bot, require
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 
@@ -41,13 +41,8 @@ __plugin_meta__ = PluginMetadata(
 
 @up.handle()
 async def _(matcher:Matcher,event: NoticeEvent):
-    # if isinstance(event, GroupUploadNoticeEvent):
-    #     txt = event.dict()
-    #     user_id = txt['user_id']
-    #     # 如果不符合格式则忽略
-    #     matcher.set_arg('txt',event)
-    # txt = event.dict()
-    matcher.set_arg('txt',event)
+    args = event.dict()
+    matcher.set_arg('txt',args)
     # 检查下载路径是否存在
     # logger.info('检查下载路径是否存在')
     # if not Path(l4_file).exists():
@@ -78,11 +73,11 @@ async def _(matcher:Matcher,event: NoticeEvent):
 @up.got("is_sure",prompt="请选择上传位置（输入阿拉伯数字)")    
 async def _(matcher: Matcher):
     logger.info(l4_file)
-    txt:NoticeEvent = matcher.get_arg('txt')
+    args = matcher.get_arg('txt')
     sleep(1)
-    if not txt:
+    if not args:
         await matcher.finish('获取文件出错辣，再试一次吧')
-    args = txt.dict()
+    # args = txt.dict()
     is_sure = str(matcher.get_arg('is_sure')).strip()
     if not is_sure.isdigit():
         await matcher.finish('已取消上传')
@@ -203,22 +198,22 @@ async def _(tag:str = ArgPlainText("command")):
         
 
 # 连续rcon连接
-@connect_rcon.handle()
-async def _(State:T_State,args:Message = CommandArg()):
-    msg = args.extract_plain_text()
-    client = RCONClient(l4_host[CHECK_FILE], l4_port[CHECK_FILE], l4_rcon[CHECK_FILE])
-    await client.connect()
-    State['client'] = client
-    if msg:
-        connect_rcon.set_arg(key="prompt",message=args)
+# @connect_rcon.handle()
+# async def _(State:T_State,args:Message = CommandArg()):
+#     msg = args.extract_plain_text()
+    # client = RCONClient(l4_host[CHECK_FILE], l4_port[CHECK_FILE], l4_rcon[CHECK_FILE])
+    # await client.connect()
+    # State['client'] = client
+#     if msg:
+#         connect_rcon.set_arg(key="prompt",message=args)
         
-@connect_rcon.got("prompt", prompt="连接开始...如果需要停止则输入“结束连接”")
-async def handle_chat(State:T_State,event: MessageEvent, prompt: Message = Arg(), msg: str = ArgPlainText("prompt")):
+# @connect_rcon.got("prompt", prompt="连接开始...如果需要停止则输入“结束连接”")
+# async def handle_chat(State:T_State,event: MessageEvent, prompt: Message = Arg(), msg: str = ArgPlainText("prompt")):
     # session_id = event.get_session_id()
-    client:RCONClient = State['client']
+    # client:RCONClient = State['client']
 
-    await client.close()
-    await connect_rcon.finish('聊天结束...')
+    # await client.close()
+    # await connect_rcon.finish('聊天结束...')
         
         
 @check_path.handle()

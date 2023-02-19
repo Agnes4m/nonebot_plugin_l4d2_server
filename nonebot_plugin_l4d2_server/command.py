@@ -11,7 +11,8 @@ from nonebot.adapters.onebot.v11 import (
     MessageEvent,
     Message,
     MessageSegment,
-    GroupMessageEvent
+    GroupMessageEvent,
+    PrivateMessageEvent
     )
 from .l4d2_anne.server import server_key,ANNE_IP
 from .config import Master,ADMINISTRATOR,reMaster
