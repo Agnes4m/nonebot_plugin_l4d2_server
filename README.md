@@ -418,9 +418,14 @@ anne:<br>
 win10 python3.9 <br>
 ubuntu20.04 python3.10
 
+## 📖许可证GPL3.0
 
-## 感谢
+        This project is licensed under the GNU General Public License v3.0. See the LICENSE file for more information.
+
+
+## 🌐感谢
 - 1、[修仙插件的数据库写法](https://github.com/s52047qwas/nonebot_plugin_xiuxian)
 - 2、[自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ)
 - 3、[可爱小Q的帮助~还没抄完~](https://github.com/MeetWq/mybot)
+- 4、感谢petpet交流群各位大佬指点nonebot2事件处理api
 
