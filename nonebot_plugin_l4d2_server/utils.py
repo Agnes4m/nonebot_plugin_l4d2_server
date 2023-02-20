@@ -27,7 +27,7 @@ async def get_file(url:str,down_file:Path):
         if l4_only:
             maps = await url_to_byte(url)
         else:
-            maps = httpx(url)
+            maps = httpx.get(url).content
         if maps == None:
             print('没有数据啊')
             mes = None
