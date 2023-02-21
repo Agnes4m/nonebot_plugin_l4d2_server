@@ -15,7 +15,7 @@ from nonebot.adapters.onebot.v11 import (
     PrivateMessageEvent
     )
 from .l4d2_anne.server import server_key,ANNE_IP
-from .config import Master,ADMINISTRATOR,reMaster
+from .config import Master,ADMINISTRATOR,reMaster,file_format
 
 help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 
@@ -27,14 +27,15 @@ help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 def wenjian(
 event:NoticeEvent):
     superuse = nonebot.get_driver().config.l4_master
-    if isinstance(event, GroupUploadNoticeEvent):
-        return str(event.user_id) in superuse
-    else:
-        args = event.dict()
+    args = event.dict()
+    name: str = args['file']['name']
+    if args['notice_type'] == 'offline_file':
+        return name.endswith(file_format)
+    elif args['notice_type'] == 'group_upload':
         if superuse:
-            return str(args['user_id']) in superuse and args['notice_type'] == 'offline_file'
+            return args['user_id'] in superuse and name.endswith(file_format)
         else:
-            return args['notice_type'] == 'offline_file'
+            return name.endswith(file_format)
 
 up = on_notice(rule=wenjian)
 # up = on_command('upmap',aliases={'上传地图','上传'},priority=20,block=True,permission= reMaster,handlers=[l4_up()])
