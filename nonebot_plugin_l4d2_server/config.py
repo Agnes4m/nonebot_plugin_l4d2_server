@@ -91,19 +91,19 @@ l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master = l4_list
 地图路径
 '''
 vpk_path = "left4dead2/addons"
-map_path = Path(l4_file[CHECK_FILE],vpk_path)
-l4_file_one = l4_file[CHECK_FILE]
-l4_host_one = l4_host[CHECK_FILE]
-l4_port_one = int(l4_port[CHECK_FILE])
-l4_rcon_one = l4_rcon[CHECK_FILE]
-def load_config():
-    # 文件路径
-    global map_path,l4_file_one,l4_host_one,l4_port_one,l4_rcon_one
-    map_path = Path(l4_file[CHECK_FILE],vpk_path)
-    l4_file_one = l4_file[CHECK_FILE]
-    l4_host_one = l4_host[CHECK_FILE]
-    l4_port_one = int(l4_port[CHECK_FILE])
-    l4_rcon_one = l4_rcon[CHECK_FILE]
+# map_path = Path(l4_file[CHECK_FILE],vpk_path)
+# l4_file_one = l4_file[CHECK_FILE]
+# l4_host_one = l4_host[CHECK_FILE]
+# l4_port_one = int(l4_port[CHECK_FILE])
+# l4_rcon_one = l4_rcon[CHECK_FILE]
+# def load_config():
+#     # 文件路径
+#     global map_path,l4_file_one,l4_host_one,l4_port_one,l4_rcon_one
+#     map_path = Path(l4_file[CHECK_FILE],vpk_path)
+#     l4_file_one = l4_file[CHECK_FILE]
+#     l4_host_one = l4_host[CHECK_FILE]
+#     l4_port_one = int(l4_port[CHECK_FILE])
+#     l4_rcon_one = l4_rcon[CHECK_FILE]
 
 
 PLAYERSDATA = Path() / "data/L4D2/image/players"

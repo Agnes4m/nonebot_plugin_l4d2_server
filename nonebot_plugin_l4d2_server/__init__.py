@@ -57,6 +57,7 @@ __plugin_meta__ = PluginMetadata(
 @up.handle()
 async def _(matcher:Matcher,event: NoticeEvent):
     args = event.dict()
+    map_path = Path(l4_file[CHECK_FILE],vpk_path)
     if args['notice_type'] != 'offline_file':
         matcher.set_arg('txt',args)
     else:
@@ -92,6 +93,7 @@ async def _(matcher:Matcher,event: NoticeEvent):
 async def _(matcher: Matcher):
     logger.info(l4_file)
     args = matcher.get_arg('txt')
+    map_path = Path(l4_file[CHECK_FILE],vpk_path)
     sleep(1)
     if not args:
         await matcher.finish('获取文件出错辣，再试一次吧')
@@ -134,6 +136,7 @@ async def _(matcher: Matcher):
 @find_vpk.handle()
 async def _(bot:Bot,event: MessageEvent):
     name_vpk = []
+    map_path = Path(l4_file[CHECK_FILE],vpk_path)
     name_vpk = get_vpk(name_vpk,map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
@@ -151,12 +154,14 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
 
 @del_vpk.got("num",prompt="你要删除第几个序号的地图(阿拉伯数字)")
 async def _(tag:int = ArgPlainText("num")):
+    map_path = Path(l4_file[CHECK_FILE],vpk_path)
     vpk_name = del_map(tag,map_path)
     await del_vpk.finish('已删除地图：' + vpk_name)
     
 @rename_vpk.handle()
 async def _(matched: Tuple[int,str, str] = RegexGroup(),):
     num,useless,rename = matched
+    map_path = Path(l4_file[CHECK_FILE],vpk_path)
     logger.info('检查是否名字是.vpk后缀')
     if not rename.endswith('.vpk'):
         rename = rename + '.vpk'
@@ -245,7 +250,6 @@ async def _(args:Message = CommandArg()):
         else:
             CHECK_FILE = msg_number - 1
             now_path = l4_file[CHECK_FILE]
-            load_config()
             await check_path.send(f'已经切换路径为\n{str(CHECK_FILE+1)}、{now_path}')
     else: 
         now_path = l4_file[CHECK_FILE]
@@ -339,7 +343,6 @@ async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
 async def _(args:Message = CommandArg()):
     """更新"""
     msg = args.extract_plain_text()
-    load_config()
     if not msg:
         load_josn()
         reload_ip()
