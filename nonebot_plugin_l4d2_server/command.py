@@ -30,7 +30,10 @@ event:NoticeEvent):
     args = event.dict()
     name: str = args['file']['name']
     if args['notice_type'] == 'offline_file':
-        return name.endswith(file_format)
+        if superuse:
+            return name.endswith(file_format) and args['user_id'] in superuse
+        else:
+            return name.endswith(file_format)
     elif args['notice_type'] == 'group_upload':
         if superuse:
             return args['user_id'] in superuse and name.endswith(file_format)
