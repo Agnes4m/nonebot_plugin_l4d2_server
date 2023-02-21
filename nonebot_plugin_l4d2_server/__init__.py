@@ -62,7 +62,7 @@ async def _(matcher:Matcher,event: NoticeEvent):
     else:
     # 检查下载路径是否存在
     # logger.info('检查下载路径是否存在')
-        l4_file_path = l4_file[0]
+        l4_file_path = l4_file[CHECK_FILE]
         # 检查下载路径是否存在
         logger.info(l4_file_path)
         if not Path(l4_file_path).exists():
@@ -121,7 +121,7 @@ async def _(matcher: Matcher):
         return
     await up.send('已收到文件，开始下载')
     sleep(1)   # 等待一秒防止因为文件名获取出现BUG
-    vpk_files = await updown_l4d2_vpk(Path(l4_file[CHECK_FILE],vpk_path),name,url)
+    vpk_files = await updown_l4d2_vpk(Path(l4_file_path,vpk_path),name,url)
     if vpk_files:
         logger.info('检查到新增文件')
         mes = "解压成功，新增以下几个vpk文件"
