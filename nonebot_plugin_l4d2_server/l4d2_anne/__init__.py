@@ -66,7 +66,7 @@ def anne_html_msg(data_list:list):
         for i in range(x):
             mes += '\n' + titles[i] + ':' + str(one[titles[i]])
         mes += '\n--------------------'
-        if ns>10:
+        if ns>4:
             break
     return mes
 
@@ -201,13 +201,13 @@ async def anne_messgae(name:str,usr_id:str):
         data_tuple = s._query_player_qq(usr_id)
         logger.info(data_tuple)
         if data_tuple== None:
-            return "没有绑定信息...请使用【求生绑定 xxx】\n"
+            return f"没有绑定信息...请使用【求生绑定 xxx】\n"
         # 只有名字，先查询数据在判断
         elif not data_tuple[2]:
             name = await id_to_mes(data_tuple[1])
             logger.info(name)
             if not name:
-                a = '未找到该玩家...\n'
+                a:str = '未找到该玩家...\n'
                 return a
             msg = anne_html(name)
             logger.info('有' + str(len(msg)) + '个信息')
