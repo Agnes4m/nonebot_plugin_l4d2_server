@@ -29,19 +29,19 @@ event:NoticeEvent):
     superuse = nonebot.get_driver().config.l4_master
     args = event.dict()
     name: str = args['file']['name']
+    usr_id = str(args['user_id'])
     if args['notice_type'] == 'offline_file':
         if superuse:
-            return name.endswith(file_format) and args['user_id'] in superuse
+            return name.endswith(file_format) and usr_id in superuse
         else:
             return name.endswith(file_format)
     elif args['notice_type'] == 'group_upload':
         if superuse:
-            return args['user_id'] in superuse and name.endswith(file_format)
+            return usr_id in superuse and name.endswith(file_format)
         else:
             return name.endswith(file_format)
 
 up = on_notice(rule=wenjian)
-# up = on_command('upmap',aliases={'上传地图','上传'},priority=20,block=True,permission= reMaster,handlers=[l4_up()])
 
 
 
