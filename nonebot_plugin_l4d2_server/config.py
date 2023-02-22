@@ -24,7 +24,6 @@ reMaster = SUPERUSER | GROUP_OWNER
 Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
 ADMINISTRATOR = SUPERUSER | GROUP_ADMIN | GROUP_OWNER | PRIVATE_FRIEND
 # file 填写求生服务器所在路径
-FONT_ORIGIN_PATH = Path(__file__).parent / 'data/L4D2/font.ttf'
 
 try:
     l4_file: list[str] = nonebot.get_driver().config.l4_file
@@ -50,7 +49,7 @@ except:
 try:
     l4_font: str = nonebot.get_driver().config.l4_font
 except:
-    l4_font: str = str(FONT_ORIGIN_PATH)
+    l4_font: str = 'simsun.ttf'
      
 try:
     l4_host: list[str] = nonebot.get_driver().config.l4_host
