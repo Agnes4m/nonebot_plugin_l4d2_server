@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-l4d2-server"
-version = "0.3.1.6"
+version = "0.3.1.7"
 description = "L4D2 server related operations plugin for NoneBot"
 authors = ["Agnes_Digital <Z735803792@163.com>"]
 license = "MIT"
