@@ -1,6 +1,7 @@
 import httpx
 from ..l4d2_image.steam import url_to_byte
 from bs4 import BeautifulSoup
+from typing import List
 
 # 计划获取电信服ip
 class ANNE_API:
@@ -26,7 +27,7 @@ class ANNE_API:
         n = 0
         data_dict = {}
         while n < 2:
-            data_list:list[dict] = []
+            data_list:List[dict] = []
             detail2 = data_fom[n]
             tr = detail2.find_all('tr')
             for i in tr:
