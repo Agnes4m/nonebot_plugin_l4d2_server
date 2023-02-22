@@ -6,6 +6,7 @@ import httpx
 import os
 from pathlib import Path
 from PIL import Image
+from typing import List,Dict
 from .txt_to_img import txt_to_img
 from .config import *
 from .l4d2_anne import write_player,del_player,anne_messgae
@@ -211,7 +212,7 @@ async def workshop_msg(msg:str):
             pass
         msg = msg.replace('https://steamcommunity.com/sharedfiles/filedetails/?id=','')
     if msg.isdigit():
-        data:dict = await workshop_to_dict(msg)
+        data:Dict = await workshop_to_dict(msg)
         return data
     else:
         return None
@@ -256,7 +257,7 @@ async def json_server_to_tag_dict(key:str,msg:str):
     n = 0
     # 腐竹循环
     for tag,value in ANNE_HOST.items():
-        value:list[dict]  
+        value:List[dict]  
         if tag == key:
             data_dict.update({'server':tag})
             n = 1

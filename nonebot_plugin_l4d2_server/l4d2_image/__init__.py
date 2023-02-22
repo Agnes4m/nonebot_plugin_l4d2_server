@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 from bs4 import BeautifulSoup
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
-
+from typing import List
 # from .htmlimg import dict_to_dict_img
 from ..l4d2_anne.anne_telecom import ANNE_API
 from ..config import TEXT_PATH
@@ -61,10 +61,10 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     # temp = await get_head_steam_and_save(usr_id,DETAIL_right['url'])
     res = await convert_img(temp,is_base64=True)
     DETAIL_right['header'] = f"data:image/png;base64,{res}"
-    data_list:list[dict] = [DETAIL_right]
+    data_list:List[dict] = [DETAIL_right]
     return data_list
     
-async def server_ip_pic(msg_dict:list[dict]):
+async def server_ip_pic(msg_dict:List[dict]):
     """
     输入一个字典列表，输出图片
     msg_dict:folder/name/map_/players/max_players/Players/[Name]

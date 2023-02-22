@@ -1,6 +1,8 @@
 
 from nonebot.log import logger
 
+from typing import List
+
 from ..config import l4_steamid
 from ..seach import *
 from ..l4d2_data.players import L4D2Player
@@ -135,7 +137,7 @@ def anne_rank_dict(name:str):
     detail = data.find_all('table')
     n = 0
     while n < 2:
-        data_list:list[dict] = []
+        data_list:List[dict] = []
         detail2 = detail[n]
         tr = detail2.find_all('tr')
         for i in tr:

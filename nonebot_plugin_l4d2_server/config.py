@@ -6,6 +6,7 @@ from nonebot.adapters.onebot.v11.permission import (
     PRIVATE_FRIEND,
 )
 from pathlib import Path
+from typing import List
 import ast
 import platform
 try:
@@ -26,9 +27,9 @@ ADMINISTRATOR = SUPERUSER | GROUP_ADMIN | GROUP_OWNER | PRIVATE_FRIEND
 # file 填写求生服务器所在路径
 
 try:
-    l4_file: list[str] = nonebot.get_driver().config.l4_file
+    l4_file: List[str] = nonebot.get_driver().config.l4_file
 except:
-    l4_file: list[str] = ['/home/ubuntu/l4d2']
+    l4_file: List[str] = ['/home/ubuntu/l4d2']
 
 
 try:
@@ -52,27 +53,27 @@ except:
     l4_font: str = 'simsun.ttf'
      
 try:
-    l4_host: list[str] = nonebot.get_driver().config.l4_host
+    l4_host: List[str] = nonebot.get_driver().config.l4_host
 except:
-    l4_host: list[str] = ['127.0.0.1']
+    l4_host: List[str] = ['127.0.0.1']
 
     
 try:
-    l4_port: list[str] = nonebot.get_driver().config.l4_port
+    l4_port: List[str] = nonebot.get_driver().config.l4_port
 except:
-    l4_port: list[str] = ['20715']
+    l4_port: List[str] = ['20715']
 
 
 try:
-    l4_rcon: list[str] = nonebot.get_driver().config.l4_rcon
+    l4_rcon: List[str] = nonebot.get_driver().config.l4_rcon
 except:
-    l4_rcon: list[str] = ['114514']
+    l4_rcon: List[str] = ['114514']
     
     
 try:
-    l4_master: list[str] = nonebot.get_driver().config.l4_master
+    l4_master: List[str] = nonebot.get_driver().config.l4_master
 except:
-    l4_master: list[str] = ['114514']
+    l4_master: List[str] = ['114514']
    
     
 try:

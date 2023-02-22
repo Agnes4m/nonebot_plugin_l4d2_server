@@ -6,6 +6,7 @@ import random
 import re
 from ..message import PRISON,QUEREN,KAILAO
 from .ohter import ANNE_HOST
+from typing import List,Dict
 from pathlib import Path
 try:
     import ujson as json
@@ -37,7 +38,7 @@ async def del_group_ip(group:int,number:int):
     await si.del_server_ip(number)
     return "取消成功喵，已删除序号" + str(number)
         
-async def qq_ip_queries(msg:list[tuple]):
+async def qq_ip_queries(msg:List[tuple]):
     """输入一个ip的二元元组组成的列表，返回一个输出消息的列表
     未来作图这里重置"""
     messsage = ""
@@ -48,7 +49,7 @@ async def qq_ip_queries(msg:list[tuple]):
         messsage += '序号、'+ str(number) + '\n' + msg1 + msg2 + '--------------------\n'
     return messsage
             
-async def qq_ip_queries_pic(msg:list[tuple]):
+async def qq_ip_queries_pic(msg:List[tuple]):
     """输入一个ip的四元元组组成的列表，返回一个输出消息的图片"""
     msg_list = []
     print(msg)
@@ -66,7 +67,7 @@ async def qq_ip_queries_pic(msg:list[tuple]):
     pic = await server_ip_pic(msg_list)
     return pic
     
-async def get_tan_jian(msg:list[tuple],mode:int):
+async def get_tan_jian(msg:List[tuple],mode:int):
     """获取anne列表抽一个"""
     msg_list = []
     rank = 0
@@ -238,7 +239,7 @@ async def write_json(data_str:str):
             
     elif data_list[0]=="删除":
         for key,value in ANNE_HOST.items():
-            value:list[dict]
+            value:List[dict]
             if data_list[1] == key:
                 for server in value:
                     if int(data_list[2]) == server['id']:
