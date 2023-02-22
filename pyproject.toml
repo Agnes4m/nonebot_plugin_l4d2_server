@@ -20,7 +20,7 @@ classifiers = [
 include = [
     "LICENSE","README.md"
 ]
- 
+
 [tool.poetry.dependencies]
 python = "^3.7"
 nonebot2 = "^2.0.0rc3"
