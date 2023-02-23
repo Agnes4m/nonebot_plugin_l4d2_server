@@ -28,8 +28,11 @@ def wenjian(
 event:NoticeEvent):
     superuse = nonebot.get_driver().config.l4_master
     args = event.dict()
-    name: str = args['file']['name']
-    usr_id = str(args['user_id'])
+    try:
+        name: str = args['file']['name']
+        usr_id = str(args['user_id'])
+    except KeyError:
+        return False
     if args['notice_type'] == 'offline_file':
         if superuse:
             return name.endswith(file_format) and usr_id in superuse
