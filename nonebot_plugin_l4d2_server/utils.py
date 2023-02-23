@@ -5,7 +5,7 @@ import struct
 import httpx
 import os
 from pathlib import Path
-from PIL import Image
+
 from typing import List,Dict
 from .txt_to_img import txt_to_img
 from .config import *
@@ -18,7 +18,7 @@ from .l4d2_queries.ohter import ANNE_HOST
 from .l4d2_image.steam import url_to_byte
 import tempfile
 import random
-
+import a2s
 
 async def get_file(url:str,down_file:Path):
     '''
@@ -165,15 +165,15 @@ async def queries_server(msg:list) -> str:
     print(msg)
     ip = msg[0]
     port = msg[1]
+    msgs = ''
     try:
         msgs = await  queries(ip,port)
-    except TypeError:
-        msgs = '服务器无响应'
-        return msgs
-    try:
         msgs += await player_queries(ip,port)
-    except (KeyError,struct.error):
+    except (KeyError,struct.error,TimeoutError):
         pass
+    # except Exception:
+        # msgs = '有无法识别的用户名'
+        # return msgs
     return msgs
 
 async def add_ip(group_id,host,port):

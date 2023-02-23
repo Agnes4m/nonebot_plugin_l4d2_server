@@ -1,25 +1,28 @@
 from VSQ import l4d2
 from VSQ.l4d2 import l4d
+import a2s
 
 async def queries(ip:str,port:int):
     port = int(port)
     msg_dict = await queries_dict(ip,port)
     message = 'ip:' + msg_dict['ip'] + '\n'
     message += '名称：' + msg_dict['name'] + '\n'
-    message += '地图：' + msg_dict['map_'] + '\n'
-    message += '玩家：' + msg_dict['players'] + '/' + msg_dict['max_players'] + '\n'
+    message += f"地图：{msg_dict['map_']}\n"
+    message += f"玩家：{msg_dict['players']} / {msg_dict['max_players']}\n"
     return message
 
 async def queries_dict(ip:str,port:int) -> dict:
     port = int(port)
+    ip = str(ip)
     msg_dict = {}
     # message_dict = await l4d(ip,port)
-    message_dict = await l4d2.server(ip,port,times=5)
-    msg_dict['folder'] =  message_dict['folder']
-    msg_dict['name'] =  message_dict['name']
-    msg_dict['map_'] =  message_dict['map_']
-    msg_dict['players'] =  message_dict['players']
-    msg_dict['max_players'] =  message_dict['max_players']
+    msg:a2s.SourceInfo = await a2s.ainfo((ip,port))
+    # message_dict = await l4d2.server(ip,port,times=5)
+    msg_dict['folder'] =  msg.folder
+    msg_dict['name'] =  msg.server_name
+    msg_dict['map_'] =  msg.map_name
+    msg_dict['players'] =  msg.player_count
+    msg_dict['max_players'] =  msg.max_players
     msg_dict['ip'] = str(ip) + ':' +str(port)
     return msg_dict
     

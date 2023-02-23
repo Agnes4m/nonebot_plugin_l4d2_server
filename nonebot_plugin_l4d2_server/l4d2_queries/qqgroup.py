@@ -3,6 +3,7 @@ from ..l4d2_image import server_ip_pic
 from . import queries,player_queries,queries_dict,player_queries_anne_dict
 from nonebot.log import logger
 import random
+import asyncio
 import re
 from ..message import PRISON,QUEREN,KAILAO
 from .ohter import ANNE_HOST
@@ -13,7 +14,8 @@ try:
 except:
     import json
 si = L4D2Server()
-    
+errors = (TypeError,ValueError,ConnectionResetError,ConnectionRefusedError,asyncio.exceptions.TimeoutError)
+# errors = (TypeError,KeyError,ValueError,ConnectionResetError,TimeoutError)
 async def get_qqgroup_ip_msg(qqgroup):
     """首先，获取qq群订阅数据，再依次queries返回ip原标"""
     ip_list = await si.query_server_ip(qqgroup)
@@ -73,15 +75,20 @@ async def get_tan_jian(msg:List[tuple],mode:int):
     rank = 0
     for i in msg:
         number,qqgroup,host,port = i 
-        if mode == 1:
-            # 探监
-            try:
+        print(host)
+        print(port)
+        try:
+            if mode == 1:
+                # 探监
                 msg2 = await player_queries_anne_dict(host,port)
                 point = 0
+                if 'Players' not in msg2:
+                    continue
                 for i in msg2['Players']:
                     point += int(i['Score'])
                 logger.info(point)
                 msg1 = await queries_dict(host,port)
+                print(msg1)
                 sp:str = msg1['name']
                 sp = int(sp.split('特')[0].split('[')[-1])
                 points = point/4
@@ -97,11 +104,8 @@ async def get_tan_jian(msg:List[tuple],mode:int):
                 msg1.update({'ips':ips})
                 # msg1是一行数据完整的字典
                 msg_list.append(msg1)
-            except (TypeError,KeyError,ValueError,ConnectionResetError):
-                continue
-        if mode == 2:
-            # 坐牢
-            try:
+            if mode == 2:
+                # 坐牢
                 msg1 = await queries_dict(host,port)
                 if '普通药役' in msg1['name']:
                     if '缺人' in msg1['name']:
@@ -110,12 +114,9 @@ async def get_tan_jian(msg:List[tuple],mode:int):
                         ips = f'{host}:{str(port)}'
                         msg1.update({'ips':ips})
                     # msg1是一行数据完整的字典
-                        msg_list.append(msg1)
-            except (TypeError,KeyError):
-                continue
-        if mode == 3:
-            # 开牢
-            try:
+
+            if mode == 3:
+                # 开牢
                 msg1 = await queries_dict(host,port)
                 if '[' not in msg1['name']:
                     msg2 = await player_queries_anne_dict(host,port)
@@ -124,8 +125,8 @@ async def get_tan_jian(msg:List[tuple],mode:int):
                     msg1.update({'ips':ips})
                     # msg1是一行数据完整的字典
                     msg_list.append(msg1)
-            except (TypeError,KeyError,ConnectionResetError):
-                continue
+        except errors:
+            continue
     # 随机选一个牢房
     if len(msg_list) == 0:
         return '暂时没有这种牢房捏'
@@ -154,7 +155,7 @@ async def get_tan_jian(msg:List[tuple],mode:int):
         message = random.choice(KAILAO)
     message += '\n' + '名称：' + mse['name'] + '\n'
     message += '地图：' + mse['map_'] + '\n'
-    message += '玩家：' + mse['players'] + '/' + mse['max_players'] + '\n'
+    message += f"玩家：{mse['players']} / {mse['max_players']}\n"
     n = 0
     try:
         max_duration_len = max([len(str(i['Duration'])) for i in mse['Players']])
