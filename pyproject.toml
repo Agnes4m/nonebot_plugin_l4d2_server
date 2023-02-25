@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-l4d2-server"
-version = "0.3.2"
+version = "0.3.3a"
 description = "L4D2 server related operations plugin for NoneBot"
 authors = ["Agnes_Digital <Z735803792@163.com>"]
 license = "MIT"
@@ -34,7 +34,6 @@ srctools="^2.3.9"
 httpx = "^0.23.3"
 beautifulsoup4 = "^4.8.0"
 rcon = "^2.1.0"
-VSQ = ">=0.1.0"
 pillow = "^9.3.0"
 aiohttp = "^3.8.3"
 pyunpack = "^0.3.0"

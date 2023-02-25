@@ -1,4 +1,3 @@
-from VSQ import l4d2
 import a2s
 from typing import List
 
