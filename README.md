@@ -44,7 +44,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 - [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
 
 
-## 安装 {#az}
+<h2 id="az">安装</h2>
     1、nb plugin install nonebot_plugin_l4d2_server
     2、pip install nonebot_plugin_l4d2_server
     3、Download zip
