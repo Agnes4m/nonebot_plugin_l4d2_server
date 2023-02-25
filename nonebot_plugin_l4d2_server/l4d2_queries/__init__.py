@@ -1,6 +1,6 @@
 from VSQ import l4d2
-from VSQ.l4d2 import l4d
 import a2s
+from typing import List
 
 async def queries(ip:str,port:int):
     port = int(port)
@@ -29,45 +29,49 @@ async def queries_dict(ip:str,port:int) -> dict:
 async def player_queries_anne_dict(ip:str,port:int): 
     """anne算法返回玩家"""
     port = int(port)
-    message_dic = await l4d2.APlayer(ip,port,times=5)
-    if message_dic == {}:
-        message_dic['header'] = 0
-    else:
-        pass
-        # new_list = []
-        # for i in message_dic['Players']:
-        #     new_list.append(i['Name'])
-        # new_dict.update({'Players':new_list})
-    return message_dic
+    # message_dic = await l4d2.APlayer(ip,port,times=5)
+    message_list:List[a2s.Player] = await a2s.aplayers((ip,port))
+    msg_list = []
+    if message_list != []:
+        for i in message_list:
+            msg_list.append({
+                'name':i.name,
+                'Score':i.score,
+                'Duration':await convert_duration(i.duration)
+            })
+    return msg_list
 
-async def player_queries_dict(ip:str,port:int): 
-    """一般算法返回玩家"""
-    port = int(port)
-    new_dict = {}
-    message_dic = await l4d2.APlayer(ip,port,times=5)
-    if message_dic == {}:
-        new_dict['header'] = 0
-    else:
-        pass
-        new_list = []
-        for i in message_dic['Players']:
-            new_list.append(i['Name'])
-        new_dict.update({'Players':new_list})
-    return new_dict
+# async def player_queries_dict(ip:str,port:int): 
+#     """一般算法返回玩家"""
+#     port = int(port)
+#     new_dict = {}
+#     message_dic = await l4d2.APlayer(ip,port,times=5)
+#     if message_dic == {}:
+#         new_dict['header'] = 0
+#     else:
+#         pass
+#         new_list = []
+#         for i in message_dic['Players']:
+#             new_list.append(i['Name'])
+#         new_dict.update({'Players':new_list})
+#     return new_dict
 
 async def player_queries(ip:str,port:int): 
     port = int(port)
-    message_dic = await player_queries_anne_dict(ip,port)
+    message_list = await player_queries_anne_dict(ip,port)
+    return await msg_ip_to_list(message_list)
+
+async def msg_ip_to_list(message_list:list):
+    message = ''
     n = 0
-    # message:str = '玩家数量：' + message_dic['header'] + '\n'
-    message = ''
-    message = ''
-    try:
-        max_duration_len = max([len(str(i['Duration'])) for i in message_dic['Players']])
-        max_score_len = max([len(str(i['Score'])) for i in message_dic['Players']])
-        for i in message_dic['Players']:
+    if message_list == []:
+        message += '服务器里，是空空的呢\n'
+    else:
+        max_duration_len = max([len(str(i['Duration'])) for i in message_list])
+        max_score_len = max([len(str(i['Score'])) for i in message_list])
+        for i in message_list:
             n += 1 
-            name = i['Name']
+            name = i['name']
             Score = i['Score']
             if Score == '0':
                 Score = '摸'
@@ -75,7 +79,17 @@ async def player_queries(ip:str,port:int):
             soc = "[{:>{}}]".format(Score,max_score_len)
             dur = "{:^{}}".format(Duration, max_duration_len)
             message += f'{soc} | {dur} | {name} \n'
-
-    except KeyError:
-        message += '服务器里，是空空的呢\n'
     return message
+
+async def convert_duration(duration: int) -> str:
+    minutes, seconds = divmod(duration, 60)
+    hours, minutes = divmod(minutes, 60)
+    time_str = ""
+    if hours > 0:
+        time_str += f"{int(hours)}h "
+    if minutes > 0 or hours > 0:
+        time_str += f"{int(minutes)}m "
+    time_str += f"{int(seconds)}s"
+    return time_str.strip()
+
+

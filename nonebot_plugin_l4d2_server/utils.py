@@ -169,7 +169,7 @@ async def queries_server(msg:list) -> str:
     try:
         msgs = await  queries(ip,port)
         msgs += await player_queries(ip,port)
-    except (KeyError,struct.error,TimeoutError):
+    except (struct.error,TimeoutError):
         pass
     # except Exception:
         # msgs = '有无法识别的用户名'

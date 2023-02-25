@@ -91,7 +91,6 @@ async def _(matcher:Matcher,event: NoticeEvent):
 
 @up.got("is_sure",prompt="请选择上传位置（输入阿拉伯数字)")    
 async def _(matcher: Matcher):
-    logger.info(l4_file)
     args = matcher.get_arg('txt')
     map_path = Path(l4_file[CHECK_FILE],vpk_path)
     sleep(1)

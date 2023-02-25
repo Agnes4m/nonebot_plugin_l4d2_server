@@ -1,6 +1,6 @@
 from ..config import DATASQLITE
 import sqlite3
-from typing import Union
+from typing import Union,Tuple
 
 
 class L4D2Player:
@@ -80,7 +80,7 @@ class L4D2Player:
                 return result
         return None
     
-    def _query_all_player(self) -> tuple[tuple]:
+    def _query_all_player(self) -> Tuple[tuple]:
         """获取所有玩家信息"""
         self.c.execute("SELECT * FROM L4d2_players")
         return self.c.fetchall()
