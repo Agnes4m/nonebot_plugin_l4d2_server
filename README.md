@@ -37,14 +37,14 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
  - [指令](#zl)
  - [内置的查询ip](#cx)
 
-# 主要功能{#gn}
+# 主要功能 {#gn}
 - 求生服务器-本地多路径操作（传地图）
 - 批量查询指定ip服务器状态和玩家
 - 创意工坊下载和喷漆制作
 - [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
 
 
-## 安装{#az}
+## 安装 {#az}
     1、nb plugin install nonebot_plugin_l4d2_server
     2、pip install nonebot_plugin_l4d2_server
     3、Download zip
@@ -62,7 +62,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
         l4_font = 'simsun.ttc'
         l4_only = True
 
-## 前置游戏操作{#qz}
+## 前置游戏操作 {#qz}
 
 - 如果要操作求生服务器文件，机器人与求生服务器处于同一个服务器上
 
@@ -135,7 +135,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 </details>
 
 
-## 🤔 功能（指令）{#zl}
+## 🤔 功能（指令） {#zl}
 
 
 ### 服务器
@@ -445,7 +445,7 @@ ubuntu20.04 python3.10
 - 3、[可爱小Q的帮助~还没抄完~](https://github.com/MeetWq/mybot)
 - 4、感谢petpet交流群各位大佬指点nonebot2事件处理api
 
-## 服务器相关{#cx}
+## 服务器相关 {#cx}
 目前插件会内置经腐竹同意的服的ip
 
  - 云服（anne电信服，op东）
