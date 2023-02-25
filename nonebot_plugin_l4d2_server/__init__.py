@@ -39,7 +39,7 @@ scheduler = require("nonebot_plugin_apscheduler").scheduler
 driver = get_driver()
 
 
-__version__ = "0.3.2"
+__version__ = "0.3.3a"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
