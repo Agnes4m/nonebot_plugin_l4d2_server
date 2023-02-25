@@ -35,9 +35,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
  - [env一键设置](#env)
  - [前置操作](#qz)
  - [指令](#zl)
+ - [感谢](#ty)
  - [内置的查询ip](#cx)
 
-## 主要功能 {#gn}
+<h2 id="gn">主要功能</h2>
 - 求生服务器-本地多路径操作（传地图）
 - 批量查询指定ip服务器状态和玩家
 - 创意工坊下载和喷漆制作
@@ -48,9 +49,9 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     1、nb plugin install nonebot_plugin_l4d2_server
     2、pip install nonebot_plugin_l4d2_server
     3、Download zip
+    4、git clone https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server.git
 
-
-## 快速使用（env示例）{#env}
+<h2 id="env">快速使用（env示例）</h2>
 
         # 复制到env文件里，没有默认就是下列值，如需修改安装下面env设置
         # 所有的多选，用逗号隔开
@@ -62,7 +63,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
         l4_font = 'simsun.ttc'
         l4_only = True
 
-## 前置游戏操作 {#qz}
+<h2 id="qz">前置游戏操作 </h2>
 
 - 如果要操作求生服务器文件，机器人与求生服务器处于同一个服务器上
 
@@ -135,7 +136,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 </details>
 
 
-## 🤔 功能（指令） {#zl}
+<h2 id="zl">🤔 功能（指令）</h2>
 
 
 ### 服务器
@@ -439,14 +440,14 @@ ubuntu20.04 python3.10
         This project is licensed under the GNU General Public License v3.0. See the LICENSE file for more information.
 
 
-## 🌐感谢
+<h2 id="ty">🌐感谢</h2>
 - 1、[修仙插件的数据库写法](https://github.com/s52047qwas/nonebot_plugin_xiuxian)
 - 2、~[自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ)~
 - 3、[可爱小Q的帮助~还没抄完~](https://github.com/MeetWq/mybot)
 - 4、感谢petpet交流群各位大佬指点nonebot2事件处理api
 
-## 服务器相关 {#cx}
+<h2 id="cx">服务器相关 </h2>
 目前插件会内置经腐竹同意的服的ip
 
- - 云服（anne电信服，op东）
+ - 云服 | anne电信服 | op东
 
