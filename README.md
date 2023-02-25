@@ -39,6 +39,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
  - [内置的查询ip](#cx)
 
 <h2 id="gn">主要功能</h2>
+
 - 求生服务器-本地多路径操作（传地图）
 - 批量查询指定ip服务器状态和玩家
 - 创意工坊下载和喷漆制作
@@ -46,6 +47,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 
 <h2 id="az">安装</h2>
+
     1、nb plugin install nonebot_plugin_l4d2_server
     2、pip install nonebot_plugin_l4d2_server
     3、Download zip
