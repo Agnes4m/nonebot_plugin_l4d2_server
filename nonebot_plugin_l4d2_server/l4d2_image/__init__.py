@@ -63,34 +63,31 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     DETAIL_right['header'] = f"data:image/png;base64,{res}"
     data_list:List[dict] = [DETAIL_right]
     return data_list
-    
-async def server_ip_pic(msg_dict:List[dict]):
+
+
+async def server_ip_pic(msg_list:List[dict]):
     """
     输入一个字典列表，输出图片
     msg_dict:folder/name/map_/players/max_players/Players/[Name]
     """
-    for server_info in msg_dict:
+    for server_info in msg_list:
         server_info['max_players'] = f"{server_info['players']}/{server_info['max_players']}"
         players_list = []
-        try:
-            if 'Players' in server_info:
-                sorted_players = sorted(server_info['Players'], key=lambda x: x.get('Score', 0), reverse=True)[:4]
-                for player_info in sorted_players:
-                    player_str = f"{player_info['Name']} | {player_info['Duration']}"
-                    players_list.append(player_str)
-                while len(players_list) < 4:
-                    players_list.append("")
-                server_info['Players'] = players_list
-        except KeyError:
-            pass
+        if 'Players' in server_info:
+            sorted_players = sorted(server_info['Players'], key=lambda x: x.get('Score', 0), reverse=True)[:4]
+            for player_info in sorted_players:
+                player_str = f"{player_info['name']} | {player_info['Duration']}"
+                players_list.append(player_str)
+            while len(players_list) < 4:
+                players_list.append("")
+            server_info['Players'] = players_list
+            print(server_info['Players'])
 
-
-    
-    
+    # 返回更新后的 msg_list
     template_path = TEXT_PATH/"template"
     env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('ip.html')
-    html = template.render(data = msg_dict)
+    html = template.render(data = msg_list)
     pic = await html_to_pic(
             html,
             wait=0,

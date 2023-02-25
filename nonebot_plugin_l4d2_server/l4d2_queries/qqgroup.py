@@ -14,7 +14,7 @@ try:
 except:
     import json
 si = L4D2Server()
-errors = (ConnectionRefusedError,asyncio.exceptions.TimeoutError,OSError)
+errors = (ConnectionRefusedError,ConnectionResetError,asyncio.exceptions.TimeoutError,OSError)
 # errors = (TypeError,KeyError,ValueError,ConnectionResetError,TimeoutError)
 async def get_qqgroup_ip_msg(qqgroup):
     """首先，获取qq群订阅数据，再依次queries返回ip原标"""
@@ -54,18 +54,19 @@ async def qq_ip_queries(msg:List[tuple]):
 async def qq_ip_queries_pic(msg:List[tuple]):
     """输入一个ip的四元元组组成的列表，返回一个输出消息的图片"""
     msg_list = []
-    for i in msg:
-        number,qqgroup,host,port = i
-        try:
-            msg2 = await player_queries_anne_dict(host,port)
-            msg1 = await queries_dict(host,port)
-            msg1.update({'Players':msg2})
-            msg1.update({'number':number})
-            # msg1是一行数据完整的字典
-            msg_list.append(msg1)
-        except (TypeError,ConnectionResetError):
-            pass
-    pic = await server_ip_pic(msg_list)
+    if msg != []:
+        for i in msg:
+            number,qqgroup,host,port = i
+            try:
+                msg2 = await player_queries_anne_dict(host,port)
+                msg1 = await queries_dict(host,port)
+                msg1.update({'Players':msg2})
+                msg1.update({'number':number})
+                # msg1是一行数据完整的字典
+                msg_list.append(msg1)
+            except errors:
+                pass
+        pic = await server_ip_pic(msg_list)
     return pic
     
 async def get_tan_jian(msg:List[tuple],mode:int):
