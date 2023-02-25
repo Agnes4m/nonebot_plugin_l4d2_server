@@ -443,12 +443,14 @@ ubuntu20.04 python3.10
 
 
 <h2 id="ty">🌐感谢</h2>
+
 - 1、[修仙插件的数据库写法](https://github.com/s52047qwas/nonebot_plugin_xiuxian)
 - 2、~[自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ)~
 - 3、[可爱小Q的帮助~还没抄完~](https://github.com/MeetWq/mybot)
 - 4、感谢petpet交流群各位大佬指点nonebot2事件处理api
 
 <h2 id="cx">服务器相关 </h2>
+
 目前插件会内置经腐竹同意的服的ip
 
  - 云服 | anne电信服 | op东
