@@ -8,11 +8,12 @@ from ..seach import *
 from ..l4d2_data.players import L4D2Player
 from ..l4d2_image import out_png
 from .anne_telecom import ANNE_API
-
+from ..l4d2_queries.ohter import ALL_HOST
     
 
 s = L4D2Player()
 
+    
 async def anne_html(name:str):
     """搜索里提取玩家信息，返回列表字典""" 
     data_title = anne_search(name)

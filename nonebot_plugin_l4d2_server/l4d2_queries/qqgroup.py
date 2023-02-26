@@ -6,7 +6,7 @@ import random
 import asyncio
 import re
 from ..message import PRISON,QUEREN,KAILAO
-from .ohter import ANNE_HOST
+from .ohter import ALL_HOST
 from typing import List,Dict
 from pathlib import Path
 try:
@@ -16,6 +16,7 @@ except:
 si = L4D2Server()
 errors = (ConnectionRefusedError,ConnectionResetError,asyncio.exceptions.TimeoutError,OSError)
 # errors = (TypeError,KeyError,ValueError,ConnectionResetError,TimeoutError)
+
 async def get_qqgroup_ip_msg(qqgroup):
     """首先，获取qq群订阅数据，再依次queries返回ip原标"""
     ip_list = await si.query_server_ip(qqgroup)
@@ -51,12 +52,12 @@ async def qq_ip_queries(msg:List[tuple]):
         messsage += '序号、'+ str(number) + '\n' + msg1 + msg2 + '--------------------\n'
     return messsage
             
-async def qq_ip_queries_pic(msg:List[tuple]):
-    """输入一个ip的四元元组组成的列表，返回一个输出消息的图片"""
+async def qq_ip_queries_pic(msg:list):
+    """输入一个ip的三元元组组成的列表，返回一个输出消息的图片"""
     msg_list = []
     if msg != []:
         for i in msg:
-            number,qqgroup,host,port = i
+            number,host,port = i
             try:
                 msg2 = await player_queries_anne_dict(host,port)
                 msg1 = await queries_dict(host,port)
@@ -74,7 +75,7 @@ async def get_tan_jian(msg:List[tuple],mode:int):
     msg_list = []
     rank = 0
     for i in msg:
-        number,qqgroup,host,port = i 
+        number,host,port = i 
         try:
             if mode == 1:
                 # 探监
@@ -187,11 +188,11 @@ async def write_json(data_str:str):
     logger.info(data_list)
     if data_list[0]=="添加":
         add_server = {}
-        server_dict = ANNE_HOST.get(data_list[1], {})
+        server_dict = ALL_HOST.get(data_list[1], {})
         if not server_dict:
             logger.info('新建分支')
-            ANNE_HOST[data_list[1]] = []
-        for key,value in ANNE_HOST.items():
+            ALL_HOST[data_list[1]] = []
+        for key,value in ALL_HOST.items():
             if data_list[1] == key:
                 ids = []
                 # 序号
@@ -222,24 +223,31 @@ async def write_json(data_str:str):
                 except KeyError:
                     return 'ip格式不正确【114.11.4.514:9191】'
                 value.append(add_server)
-                ANNE_HOST.update({key:value})
+                ALL_HOST.update({key:value})
                 with open('data/L4D2/l4d2.json', "r", encoding="utf8") as f_new:
-                    json.dump(ANNE_HOST, f_new, ensure_ascii=False, indent=4)
+                    json.dump(ALL_HOST, f_new, ensure_ascii=False, indent=4)
                 return f'添加成功，指令为{key}{data_id}'
             
     elif data_list[0]=="删除":
-        for key,value in ANNE_HOST.items():
+        for key,value in ALL_HOST.items():
             value:List[dict]
             if data_list[1] == key:
                 for server in value:
                     if int(data_list[2]) == server['id']:
                         value.remove(server)
                         if not value:
-                            ANNE_HOST.pop(key)
+                            ALL_HOST.pop(key)
                         else:
-                            ANNE_HOST[key] = value
+                            ALL_HOST[key] = value
                         with open('data/L4D2/l4d2.json', "r", encoding="utf8") as f_new:
-                            json.dump(ANNE_HOST, f_new, ensure_ascii=False, indent=4)
+                            json.dump(ALL_HOST, f_new, ensure_ascii=False, indent=4)
                         return '删除成功喵'
                 return '序号不正确，请输入【求生更新 删除 腐竹 序号】'
         return '腐竹名不存在，请输入【求生更新 删除 腐竹 序号】'    
+    
+
+ips = ALL_HOST['云']
+ip_list = []
+for one_ip in ips:
+    host,port = split_maohao(one_ip['ip'])
+    ip_list.append((one_ip['id'],host,port))

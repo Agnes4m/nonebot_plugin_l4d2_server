@@ -2,12 +2,11 @@ import httpx
 from bs4 import BeautifulSoup
 import json
 from pathlib import Path
-from ..config import TEXT_PATH,anne_url
-from ..l4d2_queries.ohter import ANNE_HOST
+from ..config import TEXT_PATH,anne_url,ANNE_IP
+from ..l4d2_queries.ohter import ALL_HOST
 
 # 储存anne服务器ip
-ANNE_IP:dict = json.load(open(Path(__file__).parent.parent.joinpath(
-        'data/L4D2/server.json'), "r", encoding="utf8"))
+
 
 
 
@@ -56,7 +55,7 @@ def server_key():
     """响应的服务器开头"""
     a = set()
     try:
-        for tag1,value in ANNE_HOST.items():
+        for tag1,value in ALL_HOST.items():
             a.add(tag1)
     except AttributeError:
         a.add('希腊那我从来没有想过这个事情')

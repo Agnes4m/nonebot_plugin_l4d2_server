@@ -14,7 +14,6 @@ from nonebot.log import logger
 
 
 
-
 class L4D2DataSqlite:
     """连接数据库和断开数据库，以及一些检查函数"""
     def __init__(self):

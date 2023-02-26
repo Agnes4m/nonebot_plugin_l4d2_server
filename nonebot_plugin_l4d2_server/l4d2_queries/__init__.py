@@ -23,6 +23,10 @@ async def queries_dict(ip:str,port:int) -> dict:
     msg_dict['players'] =  msg.player_count
     msg_dict['max_players'] =  msg.max_players
     msg_dict['ip'] = str(ip) + ':' +str(port)
+    if msg_dict['players'] < msg_dict['max_players']:
+        msg_dict['enabled'] = True
+    else:
+        msg_dict['enabled'] = False
     return msg_dict
     
 async def player_queries_anne_dict(ip:str,port:int): 

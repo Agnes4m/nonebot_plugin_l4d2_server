@@ -14,11 +14,10 @@ from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
 from .l4d2_queries import queries,player_queries
 from .l4d2_queries.qqgroup import *
 from .l4d2_server.workshop import workshop_to_dict
-from .l4d2_queries.ohter import ANNE_HOST
+from .l4d2_queries.ohter import ALL_HOST
 from .l4d2_image.steam import url_to_byte
 import tempfile
 import random
-import a2s
 
 async def get_file(url:str,down_file:Path):
     '''
@@ -256,7 +255,7 @@ async def json_server_to_tag_dict(key:str,msg:str):
     msg = msg.replace(' ','')
     n = 0
     # 腐竹循环
-    for tag,value in ANNE_HOST.items():
+    for tag,value in ALL_HOST.items():
         value:List[dict]  
         if tag == key:
             data_dict.update({'server':tag})

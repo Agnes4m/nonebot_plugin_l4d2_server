@@ -29,7 +29,7 @@ from .l4d2_anne.server import get_anne_ip
 from nonebot import get_driver
 from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.ohter import load_josn
-from .l4d2_queries.qqgroup import write_json
+from .l4d2_queries.qqgroup import write_json,ip_list
 from .l4d2_file import updown_l4d2_vpk
 from .txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
@@ -349,27 +349,9 @@ async def _(args:Message = CommandArg()):
     else:
         message = await write_json(msg)
         await updata.finish(message)
-
-@get_anne.handle()
-async def _(args:Message = CommandArg()):
-    msg = args.extract_plain_text()
-    if msg.isdigit():
-        msg = '云' + msg
-        logger.info(msg)
-        ip = await get_anne_ip(msg)
-        if ip:
-            message = await get_anne_server_ip(ip)
-            await get_anne.finish(message)
-    
+  
 @read_ip.handle()
-async def _(event:GroupMessageEvent):
-    group = event.group_id
-    ip_list = []
-    keys = ANNE_IP.keys()
-    for key in keys:
-        ip = ANNE_IP[key]
-        host,port = split_maohao(ip)
-        ip_list.append((key,group,host,port))
+async def _():
     img = await qq_ip_queries_pic(ip_list)
     await read_ip.finish(MessageSegment.image(img))
 
@@ -397,7 +379,7 @@ async def _(command: str = RawCommand(),args:Message = CommandArg()):
     if len(message) == 0:
         # 关键词不匹配，忽略
         return
-    ip = str(message['host']) + ':' + str(message['port'])
+    ip = str(message['ip'])
     logger.info(ip)
     msg= await get_anne_server_ip(ip)
     await get_ip.finish(msg)

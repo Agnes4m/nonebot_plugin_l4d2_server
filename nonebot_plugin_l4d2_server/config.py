@@ -19,7 +19,8 @@ file_format = (".vpk",".zip",".7z",'rar')
 
 
 CHECK_FILE:int = 0
-
+ANNE_IP:dict = json.load(open(Path(__file__).parent.joinpath(
+        'data/L4D2/l4d2.json'), "r", encoding="utf8"))
 
 reMaster = SUPERUSER | GROUP_OWNER 
 Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
@@ -110,15 +111,16 @@ PLAYERSDATA = Path() / "data/L4D2/image/players"
 """用户数据路径"""
 TEXT_PATH = Path(__file__).parent / 'data/L4D2/image'
 """图片存储路径"""
-TEXT_XPATH = Path().parent / 'data/L4D2/image'
+TEXT_XPATH = Path() / 'data/L4D2/image'
 """内置图片路径"""
 
 
 
-DATASQLITE = Path(__file__).parent / "data/L4D2/sql"
+PLAYERSDATA = Path() / "data/L4D2/sql"
 """数据库路径"""
-datasqlite = Path(__file__).parent / "data/L4D2/sql/L4D2.db"
-"""数据库！"""
+DATASQLITE = Path() / "data/L4D2/sql/L4D2.db"
+"""数据库！"""  
+
 table_data = ["L4d2_players","L4D2_server"]
 """数据库表"""
 L4d2_players_tag = ['qq', 'nickname', 'steamid']

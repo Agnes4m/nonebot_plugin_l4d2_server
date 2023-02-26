@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 from bs4 import BeautifulSoup
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
-from typing import List
+from typing import List,Optional
 # from .htmlimg import dict_to_dict_img
 from ..l4d2_anne.anne_telecom import ANNE_API
 from ..config import TEXT_PATH
@@ -13,21 +13,23 @@ try:
 except:
     from .download import get_head_by_user_id_and_save
 from .send_image_tool import convert_img
+import jinja2
+template_path = TEXT_PATH/"template"
+
+env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(template_path), enable_async=True
+)
 
 async def out_png(usr_id,data_dict:dict):
     """使用html来生成图片"""
-    template_path = TEXT_PATH/"template"
+    
     with open((template_path/"anne.html"),"r", encoding="utf-8") as file:
         data_html = file.read()
     # content = template.render_async()
     soup = BeautifulSoup(data_html, 'html.parser')
     msg_dict = await dict_to_html(usr_id,data_dict,soup)
-    
-    env = Environment(loader=FileSystemLoader(template_path))
     template = env.get_template('anne.html')
-    html = template.render(data=msg_dict)
-
-    
+    html = await template.render_async(data=msg_dict)
     pic = await html_to_pic(
                 html,
                 wait=0,
@@ -84,14 +86,28 @@ async def server_ip_pic(msg_list:List[dict]):
             print(server_info['Players'])
 
     # 返回更新后的 msg_list
-    template_path = TEXT_PATH/"template"
-    env = Environment(loader=FileSystemLoader(template_path))
-    template = env.get_template('ip.html')
-    html = template.render(data = msg_list)
-    pic = await html_to_pic(
-            html,
-            wait=0,
-            viewport={"width": 1080, "height": 400},
-            template_path=f"file://{template_path.absolute()}",)
+    # template_path = TEXT_PATH/"template"
+    # template = env.get_template('ip.html')
+    pic = await get_help_img(msg_list)
+    # html = await template.render_async(data = msg_list)
+    # pic = await html_to_pic(
+    #         html,
+    #         wait=0,
+    #         viewport={"width": 1080, "height": 400},
+    #         template_path=f"file://{template_path.absolute()}",)
     return pic
 
+
+async def get_help_img(plugins: List[dict]) -> Optional[bytes]:
+    try:
+        template = env.get_template("help.html")
+        content = await template.render_async(plugins=plugins)
+        return await html_to_pic(
+            content,
+            wait=0,
+            viewport={"width": 100, "height": 100},
+            template_path=f"file://{template_path.absolute()}",
+        )
+    except Exception as e:
+        logger.warning(f"Error in get_help_img: {e}")
+        return None
