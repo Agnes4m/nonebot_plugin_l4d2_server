@@ -118,7 +118,7 @@ TEXT_XPATH = Path() / 'data/L4D2/image'
 
 PLAYERSDATA = Path() / "data/L4D2/sql"
 """数据库路径"""
-DATASQLITE = Path() / "data/L4D2/sql/L4D2.db"
+DATASQLITE = Path().parent / "data/L4D2/sql/L4D2.db"
 """数据库！"""  
 
 table_data = ["L4d2_players","L4D2_server"]
