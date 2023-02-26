@@ -388,8 +388,11 @@ async def _(command: str = RawCommand(),args:Message = CommandArg()):
             return
         ip = str(message['ip'])
         logger.info(ip)
-        msg= await get_anne_server_ip(ip)
-        await get_ip.finish(msg)
+        try:
+            msg= await get_anne_server_ip(ip)
+            await get_ip.finish(msg)
+        except OSError:
+            await get_ip.finish('服务器无响应')
 
             
 @vtf_make.handle()
