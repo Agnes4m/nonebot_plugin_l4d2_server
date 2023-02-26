@@ -8,7 +8,6 @@ import re
 from ..message import PRISON,QUEREN,KAILAO
 from .ohter import ALL_HOST
 from typing import List,Dict
-from pathlib import Path
 try:
     import ujson as json
 except:

@@ -14,7 +14,6 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from nonebot_plugin_txt2img import Txt2Img
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
 from typing import Tuple
@@ -25,7 +24,6 @@ from .command import *
 from .l4d2_image.steam import url_to_byte
 from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
-from .l4d2_anne.server import get_anne_ip
 from nonebot import get_driver
 from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.ohter import load_josn

@@ -1,4 +1,3 @@
-import httpx
 from ..l4d2_image.steam import url_to_byte
 from bs4 import BeautifulSoup
 from typing import List

@@ -1,6 +1,4 @@
 
-
-from jinja2 import Environment, FileSystemLoader
 from bs4 import BeautifulSoup
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
@@ -8,10 +6,7 @@ from typing import List,Optional
 # from .htmlimg import dict_to_dict_img
 from ..l4d2_anne.anne_telecom import ANNE_API
 from ..config import TEXT_PATH
-try:
-    from .download import get_head_steam_and_save
-except:
-    from .download import get_head_by_user_id_and_save
+from .download import get_head_by_user_id_and_save
 from .send_image_tool import convert_img
 import jinja2
 template_path = TEXT_PATH/"template"

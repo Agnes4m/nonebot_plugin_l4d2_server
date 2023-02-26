@@ -1,4 +1,3 @@
-from nonebot.log import logger
 from bs4 import BeautifulSoup
 import httpx
 
