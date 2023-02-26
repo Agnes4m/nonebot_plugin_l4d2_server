@@ -27,7 +27,7 @@ from .l4d2_data import sq_L4D2
 from nonebot import get_driver
 from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.ohter import load_josn
-from .l4d2_queries.qqgroup import write_json,ip_list
+from .l4d2_queries.qqgroup import write_json,ip_anne_list
 from .l4d2_file import updown_l4d2_vpk
 from .txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
@@ -350,7 +350,7 @@ async def _(args:Message = CommandArg()):
   
 @read_ip.handle()
 async def _():
-    img = await qq_ip_queries_pic(ip_list)
+    img = await qq_ip_queries_pic(ip_anne_list)
     await read_ip.finish(MessageSegment.image(img))
 
 @tan_jian.handle()
@@ -372,15 +372,24 @@ async def _(event:MessageEvent):
 async def _(command: str = RawCommand(),args:Message = CommandArg()):
     logger.info(command)
     msg:str = args.extract_plain_text()
-    logger.info(msg)
-    message = await json_server_to_tag_dict(command,msg)
-    if len(message) == 0:
-        # 关键词不匹配，忽略
-        return
-    ip = str(message['ip'])
-    logger.info(ip)
-    msg= await get_anne_server_ip(ip)
-    await get_ip.finish(msg)
+    if not msg:
+        # 以图片输出全部当前
+        this_ips = ALL_HOST[command]
+        ip_list = []
+        for one_ip in this_ips:
+            host,port = split_maohao(one_ip['ip'])
+            ip_list.append((one_ip['id'],host,port))
+        img = await qq_ip_queries_pic(ip_list)
+        await read_ip.finish(MessageSegment.image(img))
+    else:
+        message = await json_server_to_tag_dict(command,msg)
+        if len(message) == 0:
+            # 关键词不匹配，忽略
+            return
+        ip = str(message['ip'])
+        logger.info(ip)
+        msg= await get_anne_server_ip(ip)
+        await get_ip.finish(msg)
 
             
 @vtf_make.handle()

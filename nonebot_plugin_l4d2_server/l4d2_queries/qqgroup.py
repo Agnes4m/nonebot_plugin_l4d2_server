@@ -246,7 +246,7 @@ async def write_json(data_str:str):
     
 
 ips = ALL_HOST['云']
-ip_list = []
+ip_anne_list = []
 for one_ip in ips:
     host,port = split_maohao(one_ip['ip'])
-    ip_list.append((one_ip['id'],host,port))
+    ip_anne_list.append((one_ip['id'],host,port))
