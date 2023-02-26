@@ -219,14 +219,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </details>
 
-## ✅ 拓展功能
-
-
-
 ## ✨ 效果展示
-
-<details>
-<summary>展开/收起</summary>
 
 订阅:<br>
 ![ip](image/ip_server.png)<br>
@@ -237,8 +230,6 @@ anne:<br>
 私聊：<br>
 ![up](image/up.png)<br>
 
-</details>
-
 ## 🤔 FAQ
 
         Q:UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd0 in position xxx: invalid continuation byte</b>
@@ -247,7 +238,7 @@ anne:<br>
 
 
         Q:ModuleNotFoundError: No module named '_lzma'
-        
+
         A:python3.3版本后常见，解决方法是
         vim /usr/local/lib/python3.10/lzma.py
         #修改前
@@ -461,7 +452,10 @@ ubuntu20.04 python3.10
 
 目前插件会内置经腐竹同意的服的ip
 
- - 云 | anne电信服云服 | op东
- - 呆呆 | 呆呆的小窝 | 提莫大魔王
+| 指令 | 服务器 | op | 数量 |
+|:-----:|:----:|:----:|:----:|
+| 云 | anne电信服云服 | 东 | 26
+| 呆呆 | 呆呆的小窝 | 提莫大魔王 | 15
+| 橘 | 橘希实香的小窝 | 橘希实香 | 4
 
 如果需要上传自己的ip可以Pr、iss或者进qq群
