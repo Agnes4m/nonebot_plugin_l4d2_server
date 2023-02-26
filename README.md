@@ -35,6 +35,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
  - [env一键设置](#env)
  - [前置操作](#qz)
  - [指令](#zl)
+ - [env参数](#cs)
  - [感谢](#ty)
  - [内置的查询ip](#cx)
 
@@ -194,7 +195,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </details>
 
-## ✅ env配置
+<h2 id="cs">✅ env配置</h2>
 
 <details>
 <summary>展开/收起</summary>
@@ -220,14 +221,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 ## ✅ 拓展功能
 
- - 解压功能
-        # rar压缩包
-        # win直接下winRAR软件就可以
-        # Ubuntu 和 Debian
-        sudo wget https://www.rarlab.com/rar/rarlinux-x64-621b1.tar.gz
-        sudo tar -xzpvf rarlinux-x64-621b1.tar.gz
-        cd rar
-        sudo make
+
 
 ## ✨ 效果展示
 
@@ -253,7 +247,7 @@ anne:<br>
 
 
         Q:ModuleNotFoundError: No module named '_lzma'
-
+        
         A:python3.3版本后常见，解决方法是
         vim /usr/local/lib/python3.10/lzma.py
         #修改前
@@ -267,6 +261,15 @@ anne:<br>
         from backports.lzma import *
         from backports.lzma import _encode_filter_properties, _decode_filter_properties
 
+         - 解压功能
+ 
+        # rar压缩包
+        # win直接下winRAR软件就可以
+        # Ubuntu 和 Debian
+        sudo wget https://www.rarlab.com/rar/rarlinux-x64-621b1.tar.gz
+        sudo tar -xzpvf rarlinux-x64-621b1.tar.gz
+        cd rar
+        sudo make
 
 
 ## 📝 TODO LIST
@@ -298,9 +301,14 @@ anne:<br>
 <details>
 <summary>展开/收起</summary>
 
-### 0.3.3a--2022.2.25
+### 0.3.3--2022.2.26
 
  - 重写协议，使用a2s库，同时解决win端不同报错无法输出
+ - 重~抄~写服务器查询UI,解决了不好看的问题
+ - 从win测试，解决了一些win特有的bug
+ - 重写服务器查询~还得是json~
+ - 内置服务器查询系统，可以通过[服务器简称]+[number]/[模式]来访问
+ - 新增批量查询服务器，不带参数则返回图片
 
 ### 0.3.1--2022.2.22
 
@@ -446,12 +454,14 @@ ubuntu20.04 python3.10
 
 - 1、[修仙插件的数据库写法](https://github.com/s52047qwas/nonebot_plugin_xiuxian)
 - 2、~[自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ)~
-- 3、[可爱小Q的帮助~还没抄完~](https://github.com/MeetWq/mybot)
+- 3、[可爱小Q的帮助(太好看了tql)](https://github.com/MeetWq/mybot)
 - 4、感谢petpet交流群各位大佬指点nonebot2事件处理api
 
 <h2 id="cx">服务器相关 </h2>
 
 目前插件会内置经腐竹同意的服的ip
 
- - 云服 | anne电信服 | op东
+ - 云 | anne电信服云服 | op东
+ - 呆呆 | 呆呆的小窝 | 提莫大魔王
 
+如果需要上传自己的ip可以Pr、iss或者进qq群
