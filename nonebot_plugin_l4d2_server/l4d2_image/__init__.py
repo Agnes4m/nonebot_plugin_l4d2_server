@@ -9,6 +9,7 @@ from ..config import TEXT_PATH
 from .download import get_head_by_user_id_and_save
 from .send_image_tool import convert_img
 import jinja2
+from ..config import l4_style
 template_path = TEXT_PATH/"template"
 
 env = jinja2.Environment(
@@ -80,22 +81,17 @@ async def server_ip_pic(msg_list:List[dict]):
             server_info['Players'] = players_list
             print(server_info['Players'])
 
-    # 返回更新后的 msg_list
-    # template_path = TEXT_PATH/"template"
-    # template = env.get_template('ip.html')
     pic = await get_help_img(msg_list)
-    # html = await template.render_async(data = msg_list)
-    # pic = await html_to_pic(
-    #         html,
-    #         wait=0,
-    #         viewport={"width": 1080, "height": 400},
-    #         template_path=f"file://{template_path.absolute()}",)
+
     return pic
 
 
 async def get_help_img(plugins: List[dict]) -> Optional[bytes]:
     try:
-        template = env.get_template("help.html")
+        if l4_style == 'black':
+            template = env.get_template("help_dack.html")
+        else:
+            template = env.get_template("help.html")
         content = await template.render_async(plugins=plugins)
         return await html_to_pic(
             content,

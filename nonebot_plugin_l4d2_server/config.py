@@ -84,6 +84,11 @@ try:
 except:
     l4_proxies = ''
 
+try:
+    l4_style:str = nonebot.get_driver().config.l4_style
+except:
+    l4_style:str = ''
+
 l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master]
 l4_list = [ast.literal_eval(i) if isinstance(i, str) else i for i in l4_list]
 l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master = l4_list

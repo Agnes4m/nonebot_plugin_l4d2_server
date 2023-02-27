@@ -216,6 +216,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 | l4_image | 否 | True | 布尔值，是否显示图片 |
 | l4_font | 否 | 'simsun.ttc' | str，确保在开启图片的时候，字体存在 |
 | l4_only | 否 | False | 布尔值，如果不想在下载的时候阻碍其他指令可以开启，但是有不能下载超过200m地图的bug |
+| l4_style | 否 | '' | str,图片风格，目前可选['balck'] |
+
 
 </details>
 
@@ -447,6 +449,7 @@ ubuntu20.04 python3.10
 - 2、~[自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ)~
 - 3、[可爱小Q的帮助(太好看了tql)](https://github.com/MeetWq/mybot)
 - 4、感谢petpet交流群各位大佬指点nonebot2事件处理api
+- 5、ArcPav改的暗♂黑风格菜单
 
 <h2 id="cx">服务器相关 </h2>
 
