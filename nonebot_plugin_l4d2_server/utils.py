@@ -42,12 +42,12 @@ async def get_file(url:str,down_file:Path):
         mes = None
     return mes
 
-def get_vpk(vpk_list:list,path):
+def get_vpk(vpk_list:list,path,file_:str = '.vpk'):
     '''
     获取所有vpk文件
     '''
     for file in os.listdir(path):
-        if file.endswith('.vpk'):
+        if file.endswith(file_):
             vpk_list.append(file)
     return vpk_list
 

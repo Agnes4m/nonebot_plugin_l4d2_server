@@ -141,7 +141,6 @@ async def _(bot:Bot,event: MessageEvent):
     msg = mes_list(msg,name_vpk).replace(" ","")
     
     await find_vpk.finish(mode_txt_to_img(mes,msg))
-    # await find_vpk.finish(msg)
 
 @del_vpk.handle()
 async def _(matcher:Matcher,args:Message = CommandArg()):
@@ -418,10 +417,21 @@ async def _(event:MessageEvent):
 
 @open_prison.handle()
 async def _(event:MessageEvent):
-    await tan_jian.send('正在寻找空房...')
+
     msg = await get_tan_jian(ip_anne_list,3)
     await tan_jian.finish(msg)
 
+@smx_file.handle()
+async def _():
+    smx_path = Path(l4_file[CHECK_FILE],"left4dead2/addons/sourcemod/plugins")
+    smx_list = []
+    name_smx = get_vpk(smx_list,smx_path,file_=".smx")
+    logger.info("获取文件列表成功")
+    mes = "当前服务器下有以下smx文件"
+    msg = ''
+    msg = mes_list(msg,name_smx).replace(" ","")
+    await find_vpk.finish(mode_txt_to_img(mes,msg))
+    
 @driver.on_shutdown
 async def close_db():
     """关闭数据库"""
