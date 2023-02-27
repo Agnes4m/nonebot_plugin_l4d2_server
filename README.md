@@ -460,4 +460,4 @@ ubuntu20.04 python3.10
 
 如果需要上传自己的ip可以Pr、iss或者进qq群
 
-[Link text](https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/blob/main/.data/L4D2/l4d2.json)
+[pr修改这个文件](https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/blob/main/nonebot_plugin_l4d2_server/data/L4D2/l4d2.json)
