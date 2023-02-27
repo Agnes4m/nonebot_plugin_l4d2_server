@@ -56,16 +56,20 @@ async def qq_ip_queries_pic(msg:list):
     msg_list = []
     if msg != []:
         for i in msg:
-            number,host,port = i
             try:
-                msg2 = await player_queries_anne_dict(host,port)
-                msg1 = await queries_dict(host,port)
-                msg1.update({'Players':msg2})
-                msg1.update({'number':number})
-                # msg1是一行数据完整的字典
-                msg_list.append(msg1)
-            except errors:
-                pass
+                number,host,port = i
+            except ValueError:
+                number,qqgroup,host,port = i
+            finally:
+                try:
+                    msg2 = await player_queries_anne_dict(host,port)
+                    msg1 = await queries_dict(host,port)
+                    msg1.update({'Players':msg2})
+                    msg1.update({'number':number})
+                    # msg1是一行数据完整的字典
+                    msg_list.append(msg1)
+                except errors:
+                    continue
         pic = await server_ip_pic(msg_list)
     return pic
     
