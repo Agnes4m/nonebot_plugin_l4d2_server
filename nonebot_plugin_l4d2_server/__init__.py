@@ -16,7 +16,7 @@
 """
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
-from typing import Tuple
+from typing import Tuple,Union,List
 from time import sleep
 from .config import *
 from .utils import *
@@ -311,25 +311,45 @@ async def _(state:T_State,tag:str = ArgPlainText("ip")):
     msg = await workshop_msg(tag)
     if not msg:
         await up_workshop.finish('没有这个物品捏')
-    pic = await url_to_byte(msg['图片地址'])
-    message = ''
-    for item,value in msg.items():
-        if item in ['图片地址','下载地址']:
-            continue
-        message += item + ':' + value + '\n'
-    state['dic'] = msg
-    await up_workshop.send(MessageSegment.image(pic) + Message(message))
+    elif type(msg) == dict:
+        pic = await url_to_byte(msg['图片地址'])
+        message = ''
+        for item,value in msg.items():
+            if item in ['图片地址','下载地址','细节']:
+                continue
+            message += item + ':' + value + '\n'
+        state['dic'] = msg
+        await up_workshop.send(MessageSegment.image(pic) + Message(message))
+    elif type(msg) == list:
+        lenge = len(msg)
+        pic = await url_to_byte(msg[0]['图片地址'])
+        message = f'有{lenge}个文件\n'
+        for one in msg:
+            ones = []
+            for item,value in one.items():
+                if item in ['图片地址','下载地址','细节']:
+                    continue
+                message += item + ':' + value + '\n'
+            ones.append(one)
+        state['dic'] = ones
     
 @up_workshop.got("is_sure",prompt='如果需要上传，请发送 "yes"')    
 async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     is_sure = str(state["is_sure"])
     if is_sure == 'yes':
-        data_dict:dict = state['dic']
-        logger.info('开始上传')
-        data_file = await url_to_byte(data_dict['下载地址'])
-        file_name = data_dict['名字']+ '.vpk'
-        await up_workshop.send('获取地址成功，尝试上传')
-        await upload_file(bot, event, data_file, file_name)
+        data_dict:Union[dict,List[dict]] = state['dic']
+        if type(data_dict) == dict:
+            logger.info('开始上传')
+            data_file = await url_to_byte(data_dict['下载地址'])
+            file_name = data_dict['名字']+ '.vpk'
+            await up_workshop.send('获取地址成功，尝试上传')
+            await upload_file(bot, event, data_file, file_name)
+        else:
+            logger.info('开始上传')
+            for data_one in data_dict:
+                data_file = await url_to_byte(data_one['下载地址'])
+                file_name = data_one['名字']+ '.vpk'
+                await upload_file(bot, event, data_file, file_name)
     else:
         await up_workshop.finish('已取消上传')
     

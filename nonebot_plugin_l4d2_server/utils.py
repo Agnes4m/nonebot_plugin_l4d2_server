@@ -6,7 +6,7 @@ import httpx
 import os
 from pathlib import Path
 
-from typing import List,Dict
+from typing import List,Dict,Union
 from .txt_to_img import txt_to_img
 from .config import *
 from .l4d2_anne import write_player,del_player,anne_messgae
@@ -211,7 +211,7 @@ async def workshop_msg(msg:str):
             pass
         msg = msg.replace('https://steamcommunity.com/sharedfiles/filedetails/?id=','')
     if msg.isdigit():
-        data:Dict = await workshop_to_dict(msg)
+        data:Union[dict,List[dict]] = await workshop_to_dict(msg)
         return data
     else:
         return None
