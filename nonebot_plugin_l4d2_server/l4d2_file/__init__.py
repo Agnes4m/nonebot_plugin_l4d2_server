@@ -3,6 +3,8 @@ from zipfile import ZipFile
 from time import sleep
 import sys
 import os
+import io
+from typing import List
 
 from ..utils import get_file,get_vpk
 from ..config import systems
@@ -100,3 +102,27 @@ def support_gbk(zip_file):
                 name_to_info[real_name] = info
                 zip_file = rar_file
     return zip_file
+
+
+
+
+async def all_zip_to_one(data_list:List[bytes]):
+    """多压缩包文件合并"""
+    file_list = []
+    for data in data_list:
+        # 将每个bytes对象解压缩成文件对象
+        # 将文件对象存储在一个列表中
+        file_list.append(io.BytesIO(data))
+
+    # 创建一个新的BytesIO对象
+    data_file = io.BytesIO()
+
+    # 使用zipfile将列表中的文件对象添加到zipfile中
+    with ZipFile(data_file, mode='w') as zf:
+        for i, file in enumerate(file_list):
+            # 将文件名设置为"file{i}.zip"，i为文件在列表中的索引
+            filename = f"file{i}.zip"
+            zf.writestr(filename, file.getvalue())
+
+    # 获取zipfile的bytes对象
+    return data_file.getvalue()

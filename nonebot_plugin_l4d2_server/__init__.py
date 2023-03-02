@@ -28,7 +28,7 @@ from nonebot import get_driver
 from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.ohter import load_josn
 from .l4d2_queries.qqgroup import write_json,ip_anne_list
-from .l4d2_file import updown_l4d2_vpk
+from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
 from .txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
 from nonebot import get_bot, require
@@ -348,8 +348,9 @@ async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
             logger.info('开始上传')
             for data_one in data_dict:
                 data_file = await url_to_byte(data_one['下载地址'])
-                file_name = data_one['名字']+ '.vpk'
-                await upload_file(bot, event, data_file, file_name)
+                await all_zip_to_one
+            file_name = data_one['名字']+ '.vpk'
+            await upload_file(bot, event, data_file, file_name)
     else:
         await up_workshop.finish('已取消上传')
     

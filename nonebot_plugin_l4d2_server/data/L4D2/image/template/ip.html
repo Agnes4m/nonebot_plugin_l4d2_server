@@ -33,7 +33,7 @@
                         {% for Player in data[j].Players %}
                             <font color="green">{{ Player }}</font><br>
                         {% endfor %}
-                        <font color="yellow">{{ data[j].max_players }}</font>
+                        <font color="yellow">{{ data[j].max_players }}{{data[j].ping}}</font>
                     </td>
                 {% endif %}
             {% endfor %}
