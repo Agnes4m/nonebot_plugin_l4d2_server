@@ -41,7 +41,7 @@ def open_packet(name:str,down_file:Path):
     if systems == 'win':
         if name.endswith('.zip'):
             mes = 'zip文件已下载,正在解压'
-            with ZipFile(down_file, 'r') as z:
+            with support_gbk(ZipFile(down_file, 'r')) as z:
                 z.extractall(down_path)
             os.remove(down_file)
         elif name.endswith('.7z'):
