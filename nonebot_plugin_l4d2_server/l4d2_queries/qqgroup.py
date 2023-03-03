@@ -248,9 +248,11 @@ async def write_json(data_str:str):
                 return '序号不正确，请输入【求生更新 删除 腐竹 序号】'
         return '腐竹名不存在，请输入【求生更新 删除 腐竹 序号】'    
     
-
-ips = ALL_HOST['云']
-ip_anne_list = []
-for one_ip in ips:
-    host,port = split_maohao(one_ip['ip'])
-    ip_anne_list.append((one_ip['id'],host,port))
+try:
+    ips = ALL_HOST['云']
+    ip_anne_list = []
+    for one_ip in ips:
+        host,port = split_maohao(one_ip['ip'])
+        ip_anne_list.append((one_ip['id'],host,port))
+except KeyError:
+    pass

@@ -29,6 +29,7 @@ from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.ohter import load_josn
 from .l4d2_queries.qqgroup import write_json,ip_anne_list
 from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
+from .l4d2_queries.maps import seach_map,map_dict_to_str
 from .txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
 from nonebot import get_bot, require
@@ -452,6 +453,19 @@ async def _():
     msg = ''
     msg = mes_list(msg,name_smx).replace(" ","")
     await find_vpk.finish(mode_txt_to_img(mes,msg))
+    
+@search_api.handle()
+async def _(args:Message = CommandArg()):
+    msg:str = args.extract_plain_text()
+    # if msg.startswith('代码'):
+        # 建图代码返回三方图信息
+    data = await seach_map(msg,l4_master[0],l4_key)
+    # else:
+    if type(data) == str:
+        await search_api.finish(data)
+    else:
+        await search_api.finish(await map_dict_to_str(data))
+        
     
 @driver.on_shutdown
 async def close_db():
