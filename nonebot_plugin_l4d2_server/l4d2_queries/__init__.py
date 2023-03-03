@@ -7,6 +7,7 @@ async def queries(ip:str,port:int):
     message = 'ip:' + msg_dict['ip'] + '\n'
     message += '名称：' + msg_dict['name'] + '\n'
     message += f"地图：{msg_dict['map_']}\n"
+    message += f"延迟：{msg_dict['ping']}\n"
     message += f"玩家：{msg_dict['players']} / {msg_dict['max_players']}\n"
     return message
 
@@ -23,11 +24,12 @@ async def queries_dict(ip:str,port:int) -> dict:
     msg_dict['players'] =  msg.player_count
     msg_dict['max_players'] =  msg.max_players
     msg_dict['ip'] = str(ip) + ':' +str(port)
-    msg_dict['ping'] = str(msg.ping)
+    msg_dict['ping'] = f"{msg.ping*1000:.0f}ms"
     if msg_dict['players'] < msg_dict['max_players']:
         msg_dict['enabled'] = True
     else:
         msg_dict['enabled'] = False
+    print(msg_dict)
     return msg_dict
     
 async def player_queries_anne_dict(ip:str,port:int): 
@@ -74,6 +76,7 @@ async def msg_ip_to_list(message_list:list):
         max_duration_len = max([len(str(i['Duration'])) for i in message_list])
         max_score_len = max([len(str(i['Score'])) for i in message_list])
         for i in message_list:
+            print(i)
             n += 1 
             name = i['name']
             Score = i['Score']
@@ -83,7 +86,6 @@ async def msg_ip_to_list(message_list:list):
             soc = "[{:>{}}]".format(Score,max_score_len)
             dur = "{:^{}}".format(Duration, max_duration_len)
             message += f'{soc} | {dur} | {name} \n'
-    message += i['ping'] + '\n'
     return message
 
 async def convert_duration(duration: int) -> str:

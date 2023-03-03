@@ -133,7 +133,7 @@ def anne_rank_dict(name:str):
     headers = {
         'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
     }
-    data = httpx.get(url,headers=headers,timeout=30).content.decode('utf-8')
+    data = httpx.get(url,headers=headers,timeout=5).content.decode('utf-8')
     data = BeautifulSoup(data, 'html.parser')
     detail = data.find_all('table')
     n = 0

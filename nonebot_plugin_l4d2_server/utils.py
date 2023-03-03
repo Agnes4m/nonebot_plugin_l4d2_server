@@ -222,7 +222,7 @@ async def save_file(file:bytes,path_name):
         files.write(file)
         
 async def get_anne_server_ip(ip):
-    """输出查询ip"""
+    """输出查询ip和ping"""
     host,port = split_maohao(ip)
     data = await queries_server([host,port])
     lines = data.splitlines()
