@@ -1,5 +1,6 @@
 import nonebot
 from nonebot.permission import SUPERUSER
+from nonebot import get_driver
 from nonebot.adapters.onebot.v11.permission import (
     GROUP_ADMIN,
     GROUP_OWNER,
@@ -17,7 +18,11 @@ except:
 file_format = (".vpk",".zip",".7z",'rar')
 # 权限
 
-
+driver = get_driver()
+try:
+    NICKNAME: str = list(driver.config.nickname)[0]
+except Exception:
+    NICKNAME = 'bot'
 CHECK_FILE:int = 0
 ANNE_IP:dict = json.load(open(Path(__file__).parent.joinpath(
         'data/L4D2/l4d2.json'), "r", encoding="utf8"))
@@ -28,69 +33,69 @@ ADMINISTRATOR = SUPERUSER | GROUP_ADMIN | GROUP_OWNER | PRIVATE_FRIEND
 # file 填写求生服务器所在路径
 
 try:
-    l4_file: List[str] = nonebot.get_driver().config.l4_file
+    l4_file: List[str] = driver.config.l4_file
 except:
     l4_file: List[str] = ['/home/ubuntu/l4d2']
 
 
 try:
-    l4_image: bool = nonebot.get_driver().config.l4_image
+    l4_image: bool = driver.config.l4_image
 except:
     l4_image: bool = True
 
 try:
-    l4_steamid: bool = nonebot.get_driver().config.l4_steamid
+    l4_steamid: bool = driver.config.l4_steamid
 except:
     l4_steamid: bool = True
 
 try:
-    l4_only: bool = nonebot.get_driver().config.l4_only
+    l4_only: bool = driver.config.l4_only
 except:
     l4_only: bool = False
     
 try:
-    l4_font: str = nonebot.get_driver().config.l4_font
+    l4_font: str = driver.config.l4_font
 except:
     l4_font: str = 'simsun.ttf'
      
 try:
-    l4_host: List[str] = nonebot.get_driver().config.l4_host
+    l4_host: List[str] = driver.config.l4_host
 except:
     l4_host: List[str] = ['127.0.0.1']
 
     
 try:
-    l4_port: List[str] = nonebot.get_driver().config.l4_port
+    l4_port: List[str] = driver.config.l4_port
 except:
     l4_port: List[str] = ['20715']
 
 
 try:
-    l4_rcon: List[str] = nonebot.get_driver().config.l4_rcon
+    l4_rcon: List[str] = driver.config.l4_rcon
 except:
     l4_rcon: List[str] = ['114514']
     
     
 try:
-    l4_master: List[str] = nonebot.get_driver().config.l4_master
+    l4_master: List[str] = driver.config.l4_master
 except:
     l4_master: List[str] = ['114514']
    
     
 try:
     l4_proxies: set = {
-            'http://':nonebot.get_driver().config.l4_proxies
+            'http://':driver.config.l4_proxies
         }
 except:
     l4_proxies = ''
 
 try:
-    l4_style:str = nonebot.get_driver().config.l4_style
+    l4_style:str = driver.config.l4_style
 except:
     l4_style:str = ''
 
 try:
-    l4_key:str = nonebot.get_driver().config.l4_key
+    l4_key:str = driver.config.l4_key
 except:
     l4_key:str = ""
 

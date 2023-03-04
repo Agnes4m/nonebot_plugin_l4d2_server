@@ -247,7 +247,7 @@ async def write_json(data_str:str):
                         return '删除成功喵'
                 return '序号不正确，请输入【求生更新 删除 腐竹 序号】'
         return '腐竹名不存在，请输入【求生更新 删除 腐竹 序号】'    
-    
+ip_anne_list=[] 
 try:
     ips = ALL_HOST['云']
     ip_anne_list = []

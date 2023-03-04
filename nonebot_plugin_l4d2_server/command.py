@@ -1,5 +1,5 @@
-from nonebot import on_notice,on_command,on_regex,on_fullmatch,on_shell_command
-from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,Command,RawCommand
+from nonebot import on_notice,on_command,on_regex,on_fullmatch,on_shell_command,on_keyword
+
 import re
 import nonebot
 from nonebot.permission import SUPERUSER
@@ -86,8 +86,8 @@ show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=Tru
 join_server = on_command('showq',aliases={"求生加入"},priority=20,block=True)
 connect_rcon = on_command("Rrcon", aliases={"求生连接", '求生链接','求生rcon'}, priority=50, block=False)
 end_connect = ['stop', '结束', '连接结束', '结束连接']
-search_api = on_command('search',aliases={'求生三方'}, priority=50, block=True)
-
+search_api = on_command('search',aliases={'求生三方'}, priority=20, block=True)
+which_map = on_keyword(("是什么图"),priority=20, block=False)
 
 # 下载内容
 up_workshop = on_command('workshop',aliases={'创意工坊下载','求生创意工坊'},priority=20,block=True)
