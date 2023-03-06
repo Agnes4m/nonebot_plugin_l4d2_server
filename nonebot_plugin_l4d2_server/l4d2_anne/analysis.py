@@ -36,5 +36,5 @@ async def df_to_guoguanlv(df:pd.DataFrame):
             
     # print(result)
     # result = '救援图过关率: {:.2%}'.format(resen)
-    result = {"救援关":str(resen)}
+    result = {"救援关":str('{:.2%}'.format(resen))}
     return result
