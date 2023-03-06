@@ -377,6 +377,8 @@ async def _(args:Message = CommandArg()):
 @read_ip.handle()
 async def _():
     img = await qq_ip_queries_pic(ip_anne_list)
+    if img == None:
+        return "电信服的地址请加主群自行填写哦"
     await read_ip.finish(MessageSegment.image(img))
 
 @tan_jian.handle()

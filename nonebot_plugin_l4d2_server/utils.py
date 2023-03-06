@@ -190,8 +190,6 @@ async def show_ip(group_id):
     if len(data_list) == 0 :
         return "本群没有订阅"
     msg = await qq_ip_queries_pic(data_list)
-    if type(msg) == str:
-        msg = solve(msg)
     return  msg
 
 async def get_number_url(number):

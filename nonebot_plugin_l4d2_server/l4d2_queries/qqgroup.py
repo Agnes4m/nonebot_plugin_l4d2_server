@@ -54,6 +54,7 @@ async def qq_ip_queries(msg:List[tuple]):
 async def qq_ip_queries_pic(msg:list):
     """输入一个ip的三元元组组成的列表，返回一个输出消息的图片"""
     msg_list = []
+    pic = None
     if msg != []:
         for i in msg:
             try:
@@ -71,6 +72,8 @@ async def qq_ip_queries_pic(msg:list):
                 except errors:
                     continue
         pic = await server_ip_pic(msg_list)
+    if pic == None:
+        return None
     return pic
     
 async def get_tan_jian(msg:List[tuple],mode:int):
