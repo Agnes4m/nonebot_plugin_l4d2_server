@@ -4,7 +4,7 @@ from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 from typing import List,Optional
 # from .htmlimg import dict_to_dict_img
-from ..l4d2_anne.anne_telecom import ANNE_API
+# from ..l4d2_anne.anne_telecom import ANNE_API
 from ..config import TEXT_PATH
 from .download import get_head_by_user_id_and_save
 from .send_image_tool import convert_img
@@ -51,6 +51,7 @@ async def dict_to_html(usr_id,DETAIL_MAP:dict,soup:BeautifulSoup):
     DETAIL_right['playtimes'] = DETAIL_MAP['游玩地图数量:']
     DETAIL_right['url'] = DETAIL_MAP['个人资料']
     DETAIL_right['one_msg'] = DETAIL_MAP['一言']
+    DETAIL_right['last_one'] = DETAIL_MAP['救援关']
     # html_text = soup.prettify()
     # for key, value in DETAIL_right.items():
     #     html_text = html_text.replace(key,value)

@@ -292,6 +292,8 @@ async def _(event:GroupMessageEvent,matcher:Matcher,args:Message = CommandArg())
 async def _(event:GroupMessageEvent):
     group_id = event.group_id
     msg = await show_ip(group_id)
+    if not msg:
+        await show_queries.finish("当前没有启动的服务器捏")
     if type(msg) == str:
         await show_queries.finish(msg)
     else:
@@ -395,7 +397,10 @@ async def _(command: str = RawCommand(),args:Message = CommandArg()):
             host,port = split_maohao(one_ip['ip'])
             ip_list.append((one_ip['id'],host,port))
         img = await qq_ip_queries_pic(ip_list)
-        await read_ip.finish(MessageSegment.image(img))
+        if img:
+            await read_ip.finish(MessageSegment.image(img)) 
+        else:
+            await read_ip.finish("服务器无响应")
     else:
         message = await json_server_to_tag_dict(command,msg)
         if len(message) == 0:
