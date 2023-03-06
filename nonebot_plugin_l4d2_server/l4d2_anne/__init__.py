@@ -227,7 +227,6 @@ async def anne_messgae(name:str,usr_id:str):
         msg = anne_rank_dict(name)[0]
         msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
         logger.info('使用图片')
-        msg = msg[0]
         msg = await out_png(usr_id,msg)
         return msg
     
