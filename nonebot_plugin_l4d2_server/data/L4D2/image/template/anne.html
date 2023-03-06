@@ -4,6 +4,7 @@
 </head>
 </br>
 <body style="background-image: url('back.png'); background-size: cover;">
+	<font color="yellow">
 	{% for item in data %}
 	<h1 ><center>求生药役anne电信服数据</center></h1>
 	<div class="scissors" style="border-top:1px dashed orange;">
@@ -11,6 +12,7 @@
 		{% for msg_one in item.one_msg %}
 			{{ msg_one }}<br>
 		{% endfor %}</center></h3>
+	</font>
 	<div class="scissors" style="border-top:1px dashed orange;">
 	</div>
 	<div class="myinfo">
@@ -47,11 +49,12 @@
 		</tbody>
 	</table>
 </div>
+<font color="yellow">
 {% endfor %}
 <h5><center>©爱丽数码</center></br>
 	<center>
 		github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server
 	</center>
 </h5>
-
+</font>
 </body>
