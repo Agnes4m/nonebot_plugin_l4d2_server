@@ -30,3 +30,4 @@ def name_steamid_html(name):
         onclick:str = i['onclick']
         steamid = onclick.split('=')[2].strip("'")
         return steamid
+

@@ -1,15 +1,17 @@
 
 from nonebot.log import logger
 
+import pandas as pd
 from typing import List
 
+from .analysis import df_to_guoguanlv
 from ..config import l4_steamid
 from ..seach import *
 from ..l4d2_data.players import L4D2Player
 from ..l4d2_image import out_png
-from .anne_telecom import ANNE_API
+# from .anne_telecom import ANNE_API
 from ..l4d2_queries.ohter import ALL_HOST
-    
+
 
 s = L4D2Player()
 
@@ -120,6 +122,7 @@ def del_player(id:str):
 async def id_to_mes(name:str):
     """根据name从数据库,返回steamid、或者空白"""
     data_tuple = await s.search_data(None,name,None)
+    print(data_tuple)
     if data_tuple:
         steamid = data_tuple[2]
         return steamid
@@ -191,6 +194,7 @@ async def anne_messgae(name:str,usr_id:str):
                 name = steamid
         # steamid
         msg = anne_rank_dict(name)[0]
+        msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
         logger.info('使用图片')
         msg = await out_png(usr_id,msg)
         return msg
@@ -206,24 +210,43 @@ async def anne_messgae(name:str,usr_id:str):
         if data_tuple== None:
             return f"没有绑定信息...请使用【求生绑定 xxx】\n"
         # 只有名字，先查询数据在判断
-        elif not data_tuple[2]:
+        elif data_tuple[2]:
+            name = data_tuple[2]
+        elif data_tuple[1]:
             name = await id_to_mes(data_tuple[1])
             logger.info(name)
             if not name:
-                a:str = '未找到该玩家...\n'
-                return a
-            msg = anne_html(name)
-            logger.info('有' + str(len(msg)) + '个信息')
-            if str(len(msg)) !=1:
-                logger.info('使用文字')
-                msg = anne_html_msg(msg)
-                return msg
-            name = msg[0]['steamid']
-        else:
-            name = data_tuple[2]
+                message = await anne_html(data_tuple[1])
+                usr_id = "1145149191810"
+                if len(message) == 0:
+                    return '没有叫这个名字的...\n'
+                if len(message) > 1:
+                    return anne_html_msg(message)
+                name = message[0]['steamid']
         # name是steamid
-        msg = anne_rank_dict(name)
+        msg = anne_rank_dict(name)[0]
+        msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
         logger.info('使用图片')
         msg = msg[0]
         msg = await out_png(usr_id,msg)
         return msg
+    
+async def anne_map_msg(steamid:str):
+    """steamid->地图信息"""
+    url = f"https://sb.trygek.com/l4d_stats/ranking/timedmaps.php?steamid={steamid}"
+    headers = {
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+    }
+    data = httpx.get(url,headers=headers,timeout=5).content.decode('utf-8')
+    soup = BeautifulSoup(data, 'html.parser')
+    data_list = []
+    cards = soup.select('div.card.rounded-0')
+    for card in cards:
+        tbodies = card.select('tbody')
+        for tbody in tbodies:
+            rows = [td.text.strip() for td in tbody.find_all('td')]
+            for i in range(0, len(rows), 9):
+                row = rows[i:i+9]
+                data_list.append(row)
+    df = pd.DataFrame(data_list, columns=['游戏模式', '地图', '难度', '完成时间', '特感数量', '刷新间隔', 'B数使用', '刷特模式', 'Anne版本'])
+    return df
