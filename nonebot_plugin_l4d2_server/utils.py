@@ -101,10 +101,7 @@ def solve(msg:str):
 
 async def search_anne(name:str,usr_id:str):
     """获取anne成绩"""
-    msg = await anne_messgae(name,usr_id)
-    if type(msg) == str:
-        msg = solve(msg)
-    return msg
+    return await anne_messgae(name,usr_id)
     
 
 async def bind_steam(id:str,msg:str,nickname:str):
@@ -261,13 +258,13 @@ async def json_server_to_tag_dict(key:str,msg:str):
             if msg == '':
                 # 腐竹
                 data_dict.update(random.choice(value))
-            # 腐竹 + 序号
             elif msg.isdigit():
+                logger.info("腐竹 + 序号")
                 for server in value:
                     if msg == str(server['id']):
                         data_dict.update(server)
             else:
-                # 腐竹 + 模式 + 序号
+                logger.info("腐竹 + 模式 + 序号")
                 for server in value:
                     if msg.startswith(server['version']):
                         n = 2

@@ -35,7 +35,7 @@ from .l4d2_queries.maps import seach_map,map_dict_to_str
 from .txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
 from nonebot import get_bot, require
-from .l4d2_server import web,webUI
+# from .l4d2_server import web,webUI
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 
 driver = get_driver()

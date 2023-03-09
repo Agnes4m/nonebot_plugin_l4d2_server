@@ -3,8 +3,10 @@ import pandas as pd
 
 async def df_to_guoguanlv(df:pd.DataFrame):
     """分析救援关过图率"""
-    data = df
+    data = df[df['游戏模式'] == 'AnneHappy药役']
+    other = df[df['游戏模式'].isin(['牛牛冲刺', '单人装逼'])]
     all_map = len(data['地图'])
+    other_map = len(other['地图'])
     resen = 0
     last_maps = {}
     for m in SAVE_MAP:
@@ -36,5 +38,8 @@ async def df_to_guoguanlv(df:pd.DataFrame):
             
     # print(result)
     # result = '救援图过关率: {:.2%}'.format(resen)
+    
+    # 加上特殊关卡
+    resen += other_map / (all_map + other_map)
     result = {"救援关":str('{:.2%}'.format(resen))}
     return result

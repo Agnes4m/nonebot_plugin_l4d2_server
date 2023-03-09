@@ -136,7 +136,10 @@ def anne_rank_dict(name:str):
     headers = {
         'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
     }
-    data = httpx.get(url,headers=headers,timeout=5).content.decode('utf-8')
+    data = httpx.get(url=url,headers=headers,timeout=5)
+    if data.status_code != 200:
+        return [f"查询错误，状态码{data.status_code}"]
+    data = data.content.decode('utf-8')
     data = BeautifulSoup(data, 'html.parser')
     detail = data.find_all('table')
     n = 0
@@ -194,9 +197,10 @@ async def anne_messgae(name:str,usr_id:str):
                 name = steamid
         # steamid
         msg = anne_rank_dict(name)[0]
-        msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
-        logger.info('使用图片')
-        msg = await out_png(usr_id,msg)
+        if type(msg) == dict:
+            msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
+            logger.info('使用图片')
+            msg = await out_png(usr_id,msg)
         return msg
     else:
         """
@@ -225,9 +229,10 @@ async def anne_messgae(name:str,usr_id:str):
                 name = message[0]['steamid']
         # name是steamid
         msg = anne_rank_dict(name)[0]
-        msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
-        logger.info('使用图片')
-        msg = await out_png(usr_id,msg)
+        if type(msg) == dict:
+            msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
+            logger.info('使用图片')
+            msg = await out_png(usr_id,msg)
         return msg
     
 async def anne_map_msg(steamid:str):
