@@ -23,7 +23,7 @@ from time import sleep
 from .config import *
 from .utils import *
 from .command import *
-from .l4d2_image.steam import url_to_byte
+from .l4d2_image.steam import url_to_byte,url_to_byte_name
 from nonebot.plugin import PluginMetadata
 from .l4d2_data import sq_L4D2
 from nonebot import get_driver
@@ -465,7 +465,7 @@ async def _():
     await find_vpk.finish(mode_txt_to_img(mes,msg))
     
 @search_api.handle()
-async def _(args:Message = CommandArg()):
+async def _(state:T_State,args:Message = CommandArg()):
     msg:str = args.extract_plain_text()
     # if msg.startswith('代码'):
         # 建图代码返回三方图信息
@@ -474,9 +474,29 @@ async def _(args:Message = CommandArg()):
     if type(data) == str:
         await search_api.finish(data)
     else:
-        await search_api.finish(await map_dict_to_str(data))
+        state['maps'] = data
+        await search_api.send(await map_dict_to_str(data))
         
-    
+@search_api.got("is_sure",prompt='如果需要上传，请发送 "yes"')    
+async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
+    is_sure = str(state["is_sure"])
+    if is_sure == 'yes':
+        data_dict:dict = state['maps'][0]
+        if type(data_dict) == dict:
+            logger.info('开始上传')
+            data_file,file_name = await url_to_byte_name(data_dict['url'])
+            await search_api.send('获取地址成功，尝试上传')
+            await upload_file(bot, event, data_file, file_name)
+        else:
+            logger.info('开始上传')
+            for data_one in data_dict:
+                data_file,file_name = await url_to_byte_name(data_one['url'])
+                await all_zip_to_one
+                await upload_file(bot, event, data_file, file_name)
+    else:
+        await search_api.finish('已取消上传')
+        
+            
 @driver.on_shutdown
 async def close_db():
     """关闭数据库"""

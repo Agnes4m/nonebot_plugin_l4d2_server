@@ -1,5 +1,5 @@
 import httpx
-
+from typing import List
 
 async def seach_map(msg:str,qq:str,key:str):
     url = "http://106.13.207.45:4015/l4d2"
@@ -20,8 +20,10 @@ async def seach_map(msg:str,qq:str,key:str):
     elif file.status_code == 401:
         return file.json()
 
-async def map_dict_to_str(data:dict):
+async def map_dict_to_str(data:List[dict]):
     msg = ""
     for key,value in data[0].items():
+        if key == "url":
+            continue
         msg += f"{key}:{value}\n"
     return msg

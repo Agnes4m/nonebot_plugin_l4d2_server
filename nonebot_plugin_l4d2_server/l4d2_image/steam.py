@@ -3,6 +3,7 @@ import httpx
 import aiohttp
 from bs4 import BeautifulSoup
 import io
+from urllib.parse import unquote
 from ..config import l4_proxies
 
     
@@ -44,7 +45,20 @@ async def url_to_byte(url:str,filename:str =''):
             else:
                 return None
 
-
+async def url_to_byte_name(url:str,filename:str =''):
+    """获取URL数据的字节流"""
+    headers = {
+    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers, timeout=600) as response:
+            content_disposition:str = response.headers.get("Content-Disposition")
+            file_name = content_disposition.split("''")[-1]
+            file_name = unquote(file_name)
+            if response.status == 200:
+                return [await response.read(),file_name]
+            else:
+                return None
             
 async def url_for_byte(url):
     """所有代理_url终将绳之以法"""
