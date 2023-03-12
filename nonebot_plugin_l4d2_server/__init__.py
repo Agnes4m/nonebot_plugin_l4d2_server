@@ -465,7 +465,7 @@ async def _():
     await find_vpk.finish(mode_txt_to_img(mes,msg))
     
 @search_api.handle()
-async def _(state:T_State,args:Message = CommandArg()):
+async def _(state:T_State,event:GroupMessageEvent,args:Message = CommandArg()):
     msg:str = args.extract_plain_text()
     # if msg.startswith('代码'):
         # 建图代码返回三方图信息
@@ -484,7 +484,10 @@ async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
         data_dict:dict = state['maps'][0]
         if type(data_dict) == dict:
             logger.info('开始上传')
-            data_file,file_name = await url_to_byte_name(data_dict['url'])
+            if l4_only:
+                data_file,file_name = await url_to_byte_name(data_dict['url'],'htp')
+            else:
+                data_file,file_name = await url_to_byte_name(data_dict['url'])
             await search_api.send('获取地址成功，尝试上传')
             await upload_file(bot, event, data_file, file_name)
         else:

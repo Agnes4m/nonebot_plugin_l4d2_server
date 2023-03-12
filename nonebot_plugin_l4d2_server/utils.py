@@ -227,16 +227,30 @@ async def get_anne_server_ip(ip):
 
 async def upload_file(bot: Bot, event: MessageEvent, file_data: memoryview, filename: str):
     """上传临时文件"""
-    with tempfile.NamedTemporaryFile("wb+") as f:
-        f.write(file_data)
-        if isinstance(event, GroupMessageEvent):
-            await bot.call_api(
-                "upload_group_file", group_id=event.group_id, file=f.name, name=filename
-            )
-        else:
-            await bot.call_api(
-                "upload_private_file", user_id=event.user_id, file=f.name, name=filename
-            )
+    if systems == "win" or "other":
+        with open(Path().joinpath(filename),"wb+") as f:
+            f.write(file_data)
+            if isinstance(event, GroupMessageEvent):
+                await bot.call_api(
+                    "upload_group_file", group_id=event.group_id, file=f.name, name=filename
+                )
+            else:
+                await bot.call_api(
+                    "upload_private_file", user_id=event.user_id, file=f.name, name=filename
+                )
+        os.remove(Path().joinpath(filename))
+    elif systems == "linux":
+        with tempfile.NamedTemporaryFile("wb+") as f:
+            f.write(file_data)
+            if isinstance(event, GroupMessageEvent):
+                await bot.call_api(
+                    "upload_group_file", group_id=event.group_id, file=f.name, name=filename
+                )
+            else:
+                await bot.call_api(
+                    "upload_private_file", user_id=event.user_id, file=f.name, name=filename
+                )
+
 
 async def json_server_to_tag_dict(key:str,msg:str):
     """

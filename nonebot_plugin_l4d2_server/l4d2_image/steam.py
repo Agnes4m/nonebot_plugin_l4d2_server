@@ -39,7 +39,7 @@ async def url_to_byte(url:str,filename:str =''):
     'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
     }
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers, timeout=600) as response:
+        async with session.get(url, headers=headers, timeout=(5,600)) as response:
             if response.status == 200:
                 return await response.read()
             else:
@@ -50,15 +50,28 @@ async def url_to_byte_name(url:str,filename:str =''):
     headers = {
     'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
     }
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers, timeout=600) as response:
-            content_disposition:str = response.headers.get("Content-Disposition")
+    if filename == "htp":
+        response = httpx.get(url,headers=headers,timeout=600)
+        content_disposition:str = response.headers.get("Content-Disposition")
+        if "''" in content_disposition:
             file_name = content_disposition.split("''")[-1]
-            file_name = unquote(file_name)
-            if response.status == 200:
-                return [await response.read(),file_name]
-            else:
-                return None
+        else: 
+            file_name = content_disposition
+        file_name = unquote(file_name)
+        return [response.read(),file_name]
+    else:       
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers, timeout=600) as response:
+                content_disposition:str = response.headers.get("Content-Disposition")
+                if "''" in content_disposition:
+                    file_name = content_disposition.split("''")[-1]
+                else: 
+                    file_name = content_disposition
+                file_name = unquote(file_name)
+                if response.status == 200:
+                    return [await response.read(),file_name]
+                else:
+                    return None
             
 async def url_for_byte(url):
     """所有代理_url终将绳之以法"""
