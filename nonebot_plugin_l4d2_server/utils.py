@@ -225,11 +225,12 @@ async def get_anne_server_ip(ip):
     msg += '\nconnect ' + ip
     return msg
 
-async def upload_file(bot: Bot, event: MessageEvent, file_data: memoryview, filename: str):
+async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
     """上传临时文件"""
     if systems == "win" or "other":
-        with open(Path().joinpath(filename),"wb+") as f:
-            f.write(file_data)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with open(Path(temp_dir) / filename, "wb") as f:
+                f.write(file_data)
             if isinstance(event, GroupMessageEvent):
                 await bot.call_api(
                     "upload_group_file", group_id=event.group_id, file=f.name, name=filename
