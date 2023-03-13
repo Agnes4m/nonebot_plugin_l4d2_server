@@ -42,7 +42,7 @@ event:NoticeEvent):
         if superuse:
             return usr_id in superuse and name.endswith(file_format)
         else:
-            return name.endswith(file_format)
+            return False
 
 up = on_notice(rule=wenjian)
 
