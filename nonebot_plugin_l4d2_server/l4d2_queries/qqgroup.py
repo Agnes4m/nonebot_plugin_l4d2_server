@@ -87,9 +87,9 @@ async def process_message(number, host, port, msg_list):
 async def get_tan_jian(msg:List[tuple],mode:int):
     """获取anne列表抽一个"""
     msg_list = []
-    rank = 0
+    random.shuffle(msg)
     for i in msg:
-        number,host,port = i 
+        number,host,port = i
         try:
             if mode == 1:
                 # 探监
@@ -142,11 +142,14 @@ async def get_tan_jian(msg:List[tuple],mode:int):
                     msg_list.append(msg1)
         except errors:
             continue
+        if msg_list != []:
+            break
     # 随机选一个牢房
+    logger.info(msg_list)
     if len(msg_list) == 0:
         return '暂时没有这种牢房捏'
     logger.info(len(msg_list))
-    mse = random.choice(msg_list)
+    mse = msg_list[0]
     message:str = ''
     if mode == 1:
         ranks = mse['ranks']
@@ -178,6 +181,8 @@ async def get_tan_jian(msg:List[tuple],mode:int):
         message += '服务器里，是空空的呢\n'
     message += 'connect ' + mse['ip']
     return message
+
+
 
 async def get_server_ip(number):
     group,host,port = await si.query_number(number)
