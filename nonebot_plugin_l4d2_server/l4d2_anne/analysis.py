@@ -40,6 +40,9 @@ async def df_to_guoguanlv(df:pd.DataFrame):
     # result = '救援图过关率: {:.2%}'.format(resen)
     
     # 加上特殊关卡
-    resen += other_map / (all_map + other_map)
+    if all_map + other_map == 0:
+        resen = {"救援关":"错误"}
+    else:
+        resen += other_map / (all_map + other_map)
     result = {"救援关":str('{:.2%}'.format(resen))}
     return result
