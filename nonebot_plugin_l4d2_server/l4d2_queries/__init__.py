@@ -29,7 +29,6 @@ async def queries_dict(ip:str,port:int) -> dict:
         msg_dict['enabled'] = True
     else:
         msg_dict['enabled'] = False
-    print(msg_dict)
     return msg_dict
     
 async def player_queries_anne_dict(ip:str,port:int): 

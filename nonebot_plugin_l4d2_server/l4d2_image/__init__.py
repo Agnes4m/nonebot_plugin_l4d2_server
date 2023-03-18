@@ -80,8 +80,6 @@ async def server_ip_pic(msg_list:List[dict]):
             while len(players_list) < 4:
                 players_list.append("")
             server_info['Players'] = players_list
-            print(server_info['Players'])
-
     pic = await get_help_img(msg_list)
 
     return pic

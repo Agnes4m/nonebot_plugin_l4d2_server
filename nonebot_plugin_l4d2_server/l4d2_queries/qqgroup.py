@@ -51,10 +51,10 @@ async def qq_ip_queries(msg:List[tuple]):
         messsage += '序号、'+ str(number) + '\n' + msg1 + msg2 + '--------------------\n'
     return messsage
             
-async def qq_ip_queries_pic(msg:list):
-    """输入一个ip的三元元组组成的列表，返回一个输出消息的图片"""
+async def qq_ip_queries_pic(msg: list):
     msg_list = []
     pic = None
+    tasks = []  # 用来保存异步任务
     if msg != []:
         for i in msg:
             try:
@@ -62,19 +62,27 @@ async def qq_ip_queries_pic(msg:list):
             except ValueError:
                 number,qqgroup,host,port = i
             finally:
-                try:
-                    msg2 = await player_queries_anne_dict(host,port)
-                    msg1 = await queries_dict(host,port)
-                    msg1.update({'Players':msg2})
-                    msg1.update({'number':number})
-                    # msg1是一行数据完整的字典
-                    msg_list.append(msg1)
-                except errors:
-                    continue
+                # 将异步任务添加到任务列表中
+                tasks.append(asyncio.create_task(process_message(number, host, port, msg_list)))
+        # 等待所有异步任务完成
+        await asyncio.gather(*tasks)
         pic = await server_ip_pic(msg_list)
     if pic == None:
         return None
     return pic
+
+
+async def process_message(number, host, port, msg_list):
+    try:
+        msg2 = await player_queries_anne_dict(host, port)
+        msg1 = await queries_dict(host, port)
+        msg1.update({'Players':msg2})
+        msg1.update({'number':number})
+        msg_list.append(msg1)
+    except errors:
+        pass  # 忽略异常，继续下一次循环
+
+
     
 async def get_tan_jian(msg:List[tuple],mode:int):
     """获取anne列表抽一个"""
