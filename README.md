@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://s2.loli.net/2022/06/16/opBDE8Swad5rU3n.png" width="180" height="180" alt="NoneBotPluginLogo">
+  <img src="http://124.223.41.76:9091/index.php/s/RJ3EcJ6t6v26y6Z/download" width="180" height="180" alt="NoneBotPluginLogo">
   <br>
   <p><img src="https://s2.loli.net/2022/06/16/xsVUGRrkbn1ljTD.png" width="240" alt="NoneBotPluginText"></p>
 </div>
@@ -294,6 +294,9 @@ anne:<br>
 <details>
 <summary>展开/收起</summary>
 
+### 0.3.8--2022.3
+
+ - 新增web控制台
 
 ### 0.3.7--2022.3
 
