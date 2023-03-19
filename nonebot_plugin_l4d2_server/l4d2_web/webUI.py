@@ -8,14 +8,14 @@ from ..config import NICKNAME
 
 logo = Html(html='''
 <p align="center">
-    <a href="https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat/">
-        <img src="http://static.cherishmoon.fun/LittlePaimon/readme/logo.png"
+    <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server">
+        <img src="http://124.223.41.76:9091/index.php/s/RJ3EcJ6t6v26y6Z/download"
          width="256" height="256" alt="Learning-Chat">
     </a>
 </p>
-<h1 align="center">Nonebot-Plugin-Learning-Chat 控制台</h1>
+<h1 align="center">Nonebot-Plugin-L4d2-Server 控制台</h1>
 <div align="center">
-    <a href="https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat/" target="_blank">
+    <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/" target="_blank">
     Github仓库</a>
 </div>
 <br>
@@ -335,16 +335,16 @@ database_page = PageSchema(label='数据库', icon='fa fa-database',
 config_page = PageSchema(url='/configs', isDefaultPage=True, icon='fa fa-wrench', label='配置',
                          schema=Page(title='配置', initApi='/l4d2/api/get_group_list',
                                      body=[global_config_form, group_select, group_config_form]))
-chat_page = PageSchema(label='群聊学习', icon='fa fa-wechat (alias)', children=[config_page, database_page])
+chat_page = PageSchema(label='求生之路', icon='fa fa-wechat (alias)', children=[config_page, database_page])
 
 github_logo = Tpl(className='w-full',
-                  tpl='<div class="flex justify-between"><div></div><div><a href="https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat" target="_blank" title="Copyright"><i class="fa fa-github fa-2x"></i></a></div></div>')
+                  tpl='<div class="flex justify-between"><div></div><div><a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server" target="_blank" title="Copyright"><i class="fa fa-github fa-2x"></i></a></div></div>')
 header = Flex(className='w-full', justify='flex-end', alignItems='flex-end', items=[github_logo])
 
 admin_app = App(brandName='Learning-Chat',
-                logo='http://static.cherishmoon.fun/LittlePaimon/readme/logo.png',
+                logo='http://124.223.41.76:9091/index.php/s/RJ3EcJ6t6v26y6Z/download',
                 header=header,
                 pages=[{
                     'children': [config_page, database_page]
                 }],
-                footer='<div class="p-2 text-center bg-blue-100">Copyright © 2021 - 2022 <a href="https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat" target="_blank" class="link-secondary">Learning-Chat</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>')
+                footer='<div class="p-2 text-center bg-blue-100">Copyright © 2021 - 2022 <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server" target="_blank" class="link-secondary">AGNES_DIGIAL</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>')
