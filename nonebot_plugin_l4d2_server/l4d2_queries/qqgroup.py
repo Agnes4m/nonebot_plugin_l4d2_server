@@ -58,18 +58,21 @@ async def qq_ip_queries_pic(msg: list):
     if msg != []:
         for i in msg:
             try:
-                number,host,port = i
+                number, host, port = i
             except ValueError:
-                number,qqgroup,host,port = i
+                number, qqgroup, host, port = i
             finally:
                 # 将异步任务添加到任务列表中
                 tasks.append(asyncio.create_task(process_message(number, host, port, msg_list)))
         # 等待所有异步任务完成
         await asyncio.gather(*tasks)
+        # 对msg_list按照number顺序排序
+        msg_list = sorted(msg_list, key=lambda x: x['number'])
         pic = await server_ip_pic(msg_list)
-    if pic == None:
+    if pic is None:
         return None
     return pic
+
 
 
 async def process_message(number, host, port, msg_list):
