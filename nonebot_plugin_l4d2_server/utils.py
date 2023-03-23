@@ -28,17 +28,13 @@ async def get_file(url:str,down_file:Path):
             maps = await url_to_byte(url)
         else:
             maps = httpx.get(url).content
-        if maps == None:
-            print('没有数据啊')
-            mes = None
         logger.info('已获取文件，尝试新建文件并写入')
         with open(down_file ,'wb') as mfile:
             mfile.write(maps)
             logger.info('下载成功')
             mes ='文件已下载,正在解压'
     except Exception as e:
-        print(e)
-        logger.info("文件获取不到/已损坏")
+        logger.info(f"文件获取不到/已损坏:原因是{e}")
         mes = None
     return mes
 

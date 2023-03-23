@@ -16,7 +16,7 @@
 """
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
-from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,RawCommand
+from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,RawCommand,CommandStart
 
 from typing import Tuple,Union,List
 from time import sleep
@@ -388,7 +388,8 @@ async def _(event:MessageEvent):
 
 @get_ip.handle()
 async def _(command: str = RawCommand(),args:Message = CommandArg()):
-    logger.info(command)
+    if CommandStart:
+        command.replace('CommandStart','')
     msg:str = args.extract_plain_text()
     if not msg:
         # 以图片输出全部当前
