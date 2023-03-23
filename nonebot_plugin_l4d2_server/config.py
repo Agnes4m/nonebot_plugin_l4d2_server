@@ -19,6 +19,7 @@ file_format = (".vpk",".zip",".7z",'rar')
 # 权限
 
 driver = get_driver()
+COMMAND_START = list[driver.config.command_start]
 try:
     NICKNAME: str = list(driver.config.nickname)[0]
 except Exception:
