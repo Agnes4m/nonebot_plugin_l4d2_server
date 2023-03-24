@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="http://124.223.41.76:9091/index.php/s/RJ3EcJ6t6v26y6Z/download" width="180" height="180" alt="NoneBotPluginLogo">
+  <img src="https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/logo.png" width="180" height="180" alt="NoneBotPluginLogo">
   <br>
   <p><img src="https://s2.loli.net/2022/06/16/xsVUGRrkbn1ljTD.png" width="240" alt="NoneBotPluginText"></p>
 </div>
@@ -224,13 +224,13 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 ## ✨ 效果展示
 
 订阅:<br>
-![ip](image/ip_server.png)<br>
+![ip](https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/ip_server.png)<br>
 anne:<br>
-![anne](image/anne.png)<br>
+![anne](https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/anne.png)<br>
 群聊：<br>
-![list](image/list.png)<br>
+![list](https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/list.png)<br>
 私聊：<br>
-![up](image/up.png)<br>
+![up](https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/up.png)<br>
 
 ## 🤔 FAQ
 
@@ -294,9 +294,11 @@ anne:<br>
 <details>
 <summary>展开/收起</summary>
 
-### 0.3.8--2022.3
+
+### 0.4.0--2022.3
 
  - 新增web控制台
+ - 修复传图超时参数错误
 
 ### 0.3.7--2022.3
 
@@ -470,7 +472,6 @@ anne:<br>
 </details>
 
 ## ✨ 开发环境
-win10 python3.9 <br>
 ubuntu20.04 python3.10
 
 ## 📖许可证GPL3.0
