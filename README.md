@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/logo.jpg" width="180" height="180" alt="NoneBotPluginLogo">
+  <img src="https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/logo.jpg" width="180" height="180" style="border-radius:50%;" alt="AgnesDigitalLogo">
   <br>
   <p><img src="https://s2.loli.net/2022/06/16/xsVUGRrkbn1ljTD.png" width="240" alt="NoneBotPluginText"></p>
 </div>
@@ -482,7 +482,7 @@ ubuntu20.04 python3.10
 <h2 id="ty">🌐感谢</h2>
 
 - [修仙](https://github.com/s52047qwas/nonebot_plugin_xiuxian) - 数据库的写法来自于他
-- ~[自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ)~已弃用
+- ~ [自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ) ~已弃用
 - [@MeetWq](https://github.com/MeetWq) - 非常热心解答nonebot2相关的写法
   - [可爱小Q](https://github.com/MeetWq/mybot) - 服务器图片写法参考小Q帮助
 - [群聊学习](https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat) - web控制台的写法来自于他
