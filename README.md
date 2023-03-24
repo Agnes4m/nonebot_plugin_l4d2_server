@@ -24,8 +24,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
     <img src="https://img.shields.io/pypi/dm/nonebot_plugin_l4d2_server" alt="pypi download">
 </a>
-    <img src="https://img.shields.io/badge/python-3.7+-blue.svg" alt="python">
-    <img src="https://img.shields.io/badge/nonebot-2.0.0rc1+-red.svg" alt="NoneBot">
+    <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/nonebot-2.0.0rc3-red.svg" alt="NoneBot">
 </div>
 
 # 导航
@@ -481,14 +481,12 @@ ubuntu20.04 python3.10
 
 <h2 id="ty">🌐感谢</h2>
 
-- 1、[修仙插件的数据库写法](https://github.com/s52047qwas/nonebot_plugin_xiuxian)
-- 2、~[自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ)~
-- 3、[可爱小Q的帮助(太好看了tql)](https://github.com/MeetWq/mybot)
-- 4、感谢petpet交流群各位大佬指点nonebot2事件处理api
-- 5、ArcPav改的暗♂黑风格菜单
-- 6、呆呆整理的三方地图表格和个人网盘
-
-<h2 id="cx">服务器相关 </h2>
+- [修仙](https://github.com/s52047qwas/nonebot_plugin_xiuxian) - 数据库的写法来自于他
+- ~[自己写的求生之路查询库](https://github.com/Umamusume-Agnes-Digital/VSQ)~已弃用
+- [@MeetWq](https://github.com/MeetWq) - 非常热心解答nonebot2相关的写法
+  - [可爱小Q](https://github.com/MeetWq/mybot) - 服务器图片写法参考小Q帮助
+- [群聊学习](https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat) - web控制台的写法来自于他
+- 呆呆 - 提供三方地图的详细数据
 
 目前插件会内置经腐竹同意的服的查询（未来将使用api）
 
@@ -498,6 +496,7 @@ ubuntu20.04 python3.10
 | 呆呆 | 呆呆的小窝 | 提莫大魔王 | 15
 | 橘 | 橘希实香的小窝 | 橘希实香 | 8
 | 竹 | 竹烨 | 竹烨oО柠檬茶 | 9
+| 音理 | 星空列车与白的旅行 | 音理 | 2
 
 如果需要上传自己的ip可以Pr、iss或者进qq群
 
