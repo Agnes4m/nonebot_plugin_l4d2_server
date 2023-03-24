@@ -158,14 +158,26 @@ tables_columns = {
 # 求生anne服务器
 anne_url = "https://server.trygek.com/"
 
+gamemode_list = [
+    '战役',
+    '多特',
+    '写专',
+    'anne',
+    '药抗',
+    '包抗',
+    '绝境',
+    '死专',
+    'ast',
+    '清道夫',
+]
 
 # 系统
-if platform.system() == 'Windows':
-    systems:str = 'win'
-elif platform.system() == 'Linux':
-    systems:str = 'linux'
-else:
-    systems:str = 'others'
+# if platform.system() == 'Windows':
+#     systems:str = 'win'
+# elif platform.system() == 'Linux':
+#     systems:str = 'linux'
+# else:
+#     systems:str = 'others'
 
 
 

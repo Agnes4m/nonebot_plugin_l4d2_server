@@ -20,6 +20,7 @@ from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,RawCommand,Com
 
 from typing import Tuple,Union,List
 from time import sleep
+
 from .config import *
 from .utils import *
 from .command import *
@@ -404,6 +405,11 @@ async def _(command: str = RawCommand(),args:Message = CommandArg()):
         else:
             await read_ip.finish("服务器无响应")
     else:
+        if not msg[0].isdigit():
+            if msg.startswith(gamemode_list):
+                pass
+            else:
+                return
         message = await json_server_to_tag_dict(command,msg)
         if len(message) == 0:
             # 关键词不匹配，忽略
