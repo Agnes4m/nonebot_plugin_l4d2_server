@@ -505,8 +505,11 @@ async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
     else:
         await search_api.finish('已取消上传')
         
+
+
             
 @driver.on_shutdown
 async def close_db():
     """关闭数据库"""
     sq_L4D2._close()
+    logger.info('已断开求生数据库')

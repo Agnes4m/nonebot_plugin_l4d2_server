@@ -27,8 +27,7 @@ try:
 except Exception:
     NICKNAME = 'bot'
 CHECK_FILE:int = 0
-ANNE_IP:dict = json.load(open(Path(__file__).parent.joinpath(
-        'data/L4D2/l4d2.json'), "r", encoding="utf8"))
+
 
 reMaster = SUPERUSER | GROUP_OWNER 
 Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER 
@@ -167,12 +166,7 @@ tables_columns = {
 
 # 求生anne服务器
 anne_url = "https://server.trygek.com/"
-ALL_HOST.update(seach_map(l4_tag,l4_qq,l4_key,'ip'))
-def count_ips(ip_dict):
-    for key, value in ip_dict.items():
-        count = len(value)
-        logger.info(f'已加载：{key} | {count}个')
-count_ips(ALL_HOST)
+
 gamemode_list = [
     '战役',
     '多特',
@@ -193,4 +187,17 @@ elif platform.system() == 'Linux':
     systems:str = 'linux'
 else:
     systems:str = 'others'
+ANNE_IP = {}
 
+@driver.on_bot_connect
+async def start_ip():
+    global ALL_HOST
+    global ANNE_IP
+    ALL_HOST.update()
+    def count_ips(ip_dict):
+        for key, value in ip_dict.items():
+            count = len(value)
+            logger.info(f'已加载：{key} | {count}个')
+            if key == '云':
+                ANNE_IP = {key:value}
+    count_ips(ALL_HOST)
