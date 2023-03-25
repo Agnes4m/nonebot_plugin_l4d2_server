@@ -42,6 +42,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     l4_port = ['20715']
     l4_rcon = ['1145149191810']
     l4_font = 'simsun.ttc'
+    l4_tag = ['呆呆']
     l4_only = True
 
 <h2 id="gn">主要功能</h2>
@@ -51,6 +52,14 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 - 创意工坊下载和喷漆制作
 - [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
 
+
+<h2 id="gn">如何获取key</h2>
+
+为了使得ip不被滥用，我采取这种方式管理。
+[点击这里加群](https://jq.qq.com/?_wv=1027&k=HdjoCcAe)
+如果你只查询自己的服务器ip则可以忽略如下，并且更改env设置：
+
+        l4_tag = []
 
 
 ## 🔖 更新日志
