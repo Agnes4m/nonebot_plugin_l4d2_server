@@ -15,7 +15,7 @@ from nonebot.adapters.onebot.v11 import (
     PrivateMessageEvent
     )
 from .l4d2_anne.server import server_key,ANNE_IP
-from .config import Master,ADMINISTRATOR,reMaster,file_format
+from .config import Master,ADMINISTRATOR,reMaster,file_format,driver
 
 help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 
@@ -71,7 +71,6 @@ prison = on_command('zl',aliases={'坐牢'},priority=20,block=True)
 open_prison = on_command('kl',aliases={'开牢'},priority=20,block=True)
 
 updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
-get_ip = on_command('114514919181',aliases=server_key(),priority=80,block=True)
 def reload_ip():
     global updata,get_ip
     updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
@@ -83,7 +82,7 @@ queries = on_command('queries',aliases={'求生ip','求生IP'},priority=20,block
 add_queries = on_command('addq',aliases={"求生添加订阅"},priority=20,block=True,permission= Master)
 del_queries = on_command('delq',aliases={"求生取消订阅"},priority=20,block=True,permission= Master)
 show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=True)
-join_server = on_command('showq',aliases={"求生加入"},priority=20,block=True)
+join_server = on_command('ld_jr',aliases={"求生加入"},priority=20,block=True)
 connect_rcon = on_command("Rrcon", aliases={"求生连接", '求生链接','求生rcon'}, priority=50, block=False)
 end_connect = ['stop', '结束', '连接结束', '结束连接']
 search_api = on_command('search',aliases={'求生三方'}, priority=20, block=True,permission= Master)

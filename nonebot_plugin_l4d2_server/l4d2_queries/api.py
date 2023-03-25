@@ -1,5 +1,6 @@
 import httpx
 from typing import List
+from nonebot.log import logger
 
 async def seach_map(msg:str,qq:str,key:str,mode:str = 'zh'):
     url = "http://106.13.207.45:4015/l4d2"
@@ -9,7 +10,6 @@ async def seach_map(msg:str,qq:str,key:str,mode:str = 'zh'):
         "qq":qq,
         "key":key
     }
-    print(json)
     file = httpx.post(url,json=json)
     if mode == 'zh':
         if file.status_code == 200:
@@ -21,6 +21,11 @@ async def seach_map(msg:str,qq:str,key:str,mode:str = 'zh'):
         elif file.status_code == 401:
             return file.json()
     elif mode == 'ip':
+        rep:dict = file.json()
+        try:
+            logger.error(rep['error_'])
+        except:
+            pass
         return file.json()
     elif mode == 'first':
         ip_tag:list = file.json()
