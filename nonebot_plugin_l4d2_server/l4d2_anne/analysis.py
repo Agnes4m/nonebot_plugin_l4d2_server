@@ -44,7 +44,9 @@ async def df_to_guoguanlv(df:pd.DataFrame):
         resen += other_map / (all_map + other_map)
         result = {"救援关":str('{:.2%}'.format(resen))}
     except (TypeError,KeyError):
-        resen = {"救援关":"错误"}
+        result = {"救援关":"错误"}
     except ZeroDivisionError:
-        resen = {"救援关":"0.00%"}
+        result = {"救援关":"0.00%"}
+    except:
+        result = {"救援关":"错误"}
     return result
