@@ -1,6 +1,7 @@
-import nonebot
+
 from nonebot.permission import SUPERUSER
 from nonebot import get_driver
+from nonebot.log import logger
 from nonebot.adapters.onebot.v11.permission import (
     GROUP_ADMIN,
     GROUP_OWNER,
@@ -14,7 +15,8 @@ try:
     import ujson as json
 except:
     import json
-    
+from .l4d2_queries.ohter import ALL_HOST    
+from .l4d2_queries.api import seach_map,map_dict_to_str
 file_format = (".vpk",".zip",".7z",'rar')
 # 权限
 
@@ -81,14 +83,17 @@ try:
     l4_master: List[str] = driver.config.l4_master
 except:
     l4_master: List[str] = ['114514']
-   
-    
 try:
-    l4_proxies: set = {
-            'http://':driver.config.l4_proxies
-        }
+    l4_qq: str = list(driver.config.superusers)[0]
 except:
-    l4_proxies = ''
+    l4_qq: str =  ''
+    
+# try:
+#     l4_proxies: set = {
+#             'http://':driver.config.l4_proxies
+#         }
+# except:
+#     l4_proxies = ''
 
 try:
     l4_style:str = driver.config.l4_style
@@ -100,9 +105,14 @@ try:
 except:
     l4_key:str = ""
 
-l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master]
+try:
+    l4_tag:list = driver.config.l4_tag
+except:
+    l4_tag:list = ['呆呆','橘']
+# 强制转list
+l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master,l4_tag]
 l4_list = [ast.literal_eval(i) if isinstance(i, str) else i for i in l4_list]
-l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master = l4_list
+l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master, l4_tag= l4_list
         
 '''
 地图路径
@@ -157,7 +167,12 @@ tables_columns = {
 
 # 求生anne服务器
 anne_url = "https://server.trygek.com/"
-
+ALL_HOST.update(seach_map(l4_tag,l4_qq,l4_key,'ip'))
+def count_ips(ip_dict):
+    for key, value in ip_dict.items():
+        count = len(value)
+        logger.info(f'已加载：{key} | {count}个')
+count_ips(ALL_HOST)
 gamemode_list = [
     '战役',
     '多特',
@@ -172,12 +187,10 @@ gamemode_list = [
 ]
 
 # 系统
-# if platform.system() == 'Windows':
-#     systems:str = 'win'
-# elif platform.system() == 'Linux':
-#     systems:str = 'linux'
-# else:
-#     systems:str = 'others'
-
-
+if platform.system() == 'Windows':
+    systems:str = 'win'
+elif platform.system() == 'Linux':
+    systems:str = 'linux'
+else:
+    systems:str = 'others'
 

@@ -4,6 +4,7 @@ except:
         import json
 from pathlib import Path
 import os
+
 BOT_DIR = os.path.dirname(os.path.abspath(__file__))
 filename = 'data/L4D2/l4d2.json'
 global_file = Path(Path(__file__).parent.parent,filename)

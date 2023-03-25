@@ -14,7 +14,6 @@ from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
 from .l4d2_queries import queries,player_queries
 from .l4d2_queries.qqgroup import *
 from .l4d2_server.workshop import workshop_to_dict
-from .l4d2_queries.ohter import ALL_HOST
 from .l4d2_image.steam import url_to_byte
 import tempfile
 import random
