@@ -12,7 +12,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
         <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/wiki/%E6%96%87%E6%A1%A3" target="_blank">文档</a> &nbsp; · &nbsp;
         <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/wiki/%E6%96%87%E6%A1%A3#zl" target="_blank">指令列表</a> &nbsp; · &nbsp;
         <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/wiki/BUG%E5%8F%8D%E9%A6%88">常见问题</a>
-</div>
+</div><br>
 <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/stargazers">
         <img alt="GitHub stars" src="https://img.shields.io/github/stars/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server" alt="stars">
 </a>
@@ -32,16 +32,6 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     <img src="https://img.shields.io/badge/nonebot-2.0.0rc3-red.svg" alt="NoneBot">
 </div>
 
-# 导航
-
- - [主要功能](#gn)
- - [安装](#az)
- - [env一键设置](#env)
- - [前置操作](#qz)
- - [指令](#zl)
- - [env参数](#cs)
- - [感谢](#ty)
- - [内置的查询ip](#cx)
 
 ## 快速使用（env示例）
     # 复制到env文件里，没有默认就是下列值，如需修改安装下面env设置
