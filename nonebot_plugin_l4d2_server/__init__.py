@@ -20,6 +20,7 @@ from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,RawCommand,Com
 
 from typing import Tuple,Union,List
 from time import sleep
+import asyncio
 
 from .config import *
 from .utils import *
@@ -41,7 +42,7 @@ scheduler = require("nonebot_plugin_apscheduler").scheduler
 driver = get_driver()
 
 
-__version__ = "0.3.7"
+__version__ = "0.4.0"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
@@ -387,41 +388,6 @@ async def _(event:MessageEvent):
     msg = await get_tan_jian(ip_anne_list,1)
     await tan_jian.finish(msg)
 
-@get_ip.handle()
-async def _(command: str = RawCommand(),args:Message = CommandArg()):
-    if CommandStart:
-        command.replace('CommandStart','')
-    msg:str = args.extract_plain_text()
-    if not msg:
-        # 以图片输出全部当前
-        this_ips = ALL_HOST[command]
-        ip_list = []
-        for one_ip in this_ips:
-            host,port = split_maohao(one_ip['ip'])
-            ip_list.append((one_ip['id'],host,port))
-        img = await qq_ip_queries_pic(ip_list)
-        if img:
-            await read_ip.finish(MessageSegment.image(img)) 
-        else:
-            await read_ip.finish("服务器无响应")
-    else:
-        if not msg[0].isdigit():
-            if msg.startswith(gamemode_list):
-                pass
-            else:
-                return
-        message = await json_server_to_tag_dict(command,msg)
-        if len(message) == 0:
-            # 关键词不匹配，忽略
-            return
-        ip = str(message['ip'])
-        logger.info(ip)
-        try:
-            msg= await get_anne_server_ip(ip)
-            await get_ip.finish(msg)
-        except OSError:
-            await get_ip.finish('服务器无响应')
-
             
 @vtf_make.handle()
 async def _(matcher:Matcher,state:T_State,args:Message = CommandArg()):
@@ -506,6 +472,43 @@ async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
         await search_api.finish('已取消上传')
         
 
+@driver.on_bot_connect
+async def _():
+    get_ip = on_command('114514919181',aliases=server_key(),priority=80,block=True)
+    @get_ip.handle()
+    async def _(command: str = RawCommand(),args:Message = CommandArg()):
+        if CommandStart:
+            command.replace('CommandStart','')
+        msg:str = args.extract_plain_text()
+        if not msg:
+            # 以图片输出全部当前
+            this_ips = ALL_HOST[command]
+            ip_list = []
+            for one_ip in this_ips:
+                host,port = split_maohao(one_ip['ip'])
+                ip_list.append((one_ip['id'],host,port))
+            img = await qq_ip_queries_pic(ip_list)
+            if img:
+                await read_ip.finish(MessageSegment.image(img)) 
+            else:
+                await read_ip.finish("服务器无响应")
+        else:
+            if not msg[0].isdigit():
+                if msg.startswith(gamemode_list):
+                    pass
+                else:
+                    return
+            message = await json_server_to_tag_dict(command,msg)
+            if len(message) == 0:
+                # 关键词不匹配，忽略
+                return
+            ip = str(message['ip'])
+            logger.info(ip)
+            try:
+                msg= await get_anne_server_ip(ip)
+                await get_ip.finish(msg)
+            except (OSError,asyncio.exceptions.TimeoutError):
+                await get_ip.finish('服务器无响应')
 
             
 @driver.on_shutdown
