@@ -66,7 +66,6 @@ smx_file = on_command('l4_smx',aliases={'求生插件'},priority=20,block=True,p
 anne_player = on_command('Ranne',aliases={"求生anne"},priority=25,block=True)
 anne_bind = on_command('Rbind',aliases={'steam绑定','求生绑定','anne绑定'},priority=20,block=True)
 del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解绑'},priority=20,block=True)
-read_ip = on_command('anne',aliases={'求生云服'},priority=20,block=True)
 prison = on_command('zl',aliases={'坐牢'},priority=20,block=True)
 open_prison = on_command('kl',aliases={'开牢'},priority=20,block=True)
 

@@ -375,13 +375,6 @@ async def _(args:Message = CommandArg()):
         message = await write_json(msg)
         await updata.finish(message)
   
-@read_ip.handle()
-async def _():
-    img = await qq_ip_queries_pic(ip_anne_list)
-    if img == None:
-        return "电信服的地址请加主群自行填写哦"
-    await read_ip.finish(MessageSegment.image(img))
-
 @tan_jian.handle()
 async def _(event:MessageEvent):
     await tan_jian.send('正在寻找牢房...')
@@ -474,11 +467,13 @@ async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
 
 @driver.on_bot_connect
 async def _():
-    get_ip = on_command('114514919181',aliases=server_key(),priority=80,block=True)
+    get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
     @get_ip.handle()
     async def _(command: str = RawCommand(),args:Message = CommandArg()):
-        if CommandStart:
-            command.replace('CommandStart','')
+        if CommandStart():
+            command.replace(CommandStart(),'')
+        if command == 'anne':
+            command = '云'
         msg:str = args.extract_plain_text()
         if not msg:
             # 以图片输出全部当前
@@ -489,9 +484,9 @@ async def _():
                 ip_list.append((one_ip['id'],host,port))
             img = await qq_ip_queries_pic(ip_list)
             if img:
-                await read_ip.finish(MessageSegment.image(img)) 
+                await get_ip.finish(MessageSegment.image(img)) 
             else:
-                await read_ip.finish("服务器无响应")
+                await get_ip.finish("服务器无响应")
         else:
             if not msg[0].isdigit():
                 if msg.startswith(gamemode_list):
