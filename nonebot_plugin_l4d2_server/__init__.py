@@ -31,7 +31,7 @@ from .l4d2_data import sq_L4D2
 from nonebot import get_driver, require
 from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.ohter import load_josn
-from .l4d2_queries.qqgroup import write_json,ip_anne_list
+from .l4d2_queries.qqgroup import write_json
 from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
 
 from .txt_to_img import mode_txt_to_img
@@ -375,11 +375,6 @@ async def _(args:Message = CommandArg()):
         message = await write_json(msg)
         await updata.finish(message)
   
-@tan_jian.handle()
-async def _(event:MessageEvent):
-    await tan_jian.send('正在寻找牢房...')
-    msg = await get_tan_jian(ip_anne_list,1)
-    await tan_jian.finish(msg)
 
             
 @vtf_make.handle()
@@ -407,16 +402,6 @@ async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
     await upload_file(bot, event, img_bytes, file_name)
 
 
-@prison.handle()
-async def _(event:MessageEvent):
-    msg = await get_tan_jian(ip_anne_list,2)
-    await tan_jian.finish(msg)
-
-@open_prison.handle()
-async def _(event:MessageEvent):
-
-    msg = await get_tan_jian(ip_anne_list,3)
-    await tan_jian.finish(msg)
 
 @smx_file.handle()
 async def _():
@@ -467,11 +452,33 @@ async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
 
 @driver.on_bot_connect
 async def _():
+    global ALL_HOST
+    global ANNE_IP
+    ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
+    def count_ips(ip_dict:dict):
+        for key, value in ip_dict.items():
+            if key == 'error_':
+                continue
+            count = len(value)
+            logger.info(f'已加载：{key} | {count}个')
+            if key == '云':
+                ANNE_IP = {key:value}
+    count_ips(ALL_HOST)
+    
+    ip_anne_list=[] 
+    try:
+        ips = ALL_HOST['云']
+        ip_anne_list = []
+        for one_ip in ips:
+            host,port = split_maohao(one_ip['ip'])
+            ip_anne_list.append((one_ip['id'],host,port))
+    except KeyError:
+        pass
     get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
     @get_ip.handle()
-    async def _(command: str = RawCommand(),args:Message = CommandArg()):
-        if CommandStart():
-            command.replace(CommandStart(),'')
+    async def _(start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg(),):
+        if start:
+            command.replace(start,'')
         if command == 'anne':
             command = '云'
         msg:str = args.extract_plain_text()
@@ -504,10 +511,26 @@ async def _():
                 await get_ip.finish(msg)
             except (OSError,asyncio.exceptions.TimeoutError):
                 await get_ip.finish('服务器无响应')
+                
+    @tan_jian.handle()
+    async def _(event:MessageEvent):
+        await tan_jian.send('正在寻找牢房...')
+        msg = await get_tan_jian(ip_anne_list,1)
+        await tan_jian.finish(msg)  
+        
+    @prison.handle()
+    async def _(event:MessageEvent):
+        msg = await get_tan_jian(ip_anne_list,2)
+        await tan_jian.finish(msg)
 
+    @open_prison.handle()
+    async def _(event:MessageEvent):
+
+        msg = await get_tan_jian(ip_anne_list,3)
+        await tan_jian.finish(msg)
+    
             
 @driver.on_shutdown
 async def close_db():
     """关闭数据库"""
     sq_L4D2._close()
-    logger.info('已断开求生数据库')

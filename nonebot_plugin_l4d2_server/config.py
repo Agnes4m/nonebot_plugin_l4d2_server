@@ -194,19 +194,3 @@ try:
     os.remove(Path().parent.joinpath('data/L4D2/l4d2.yml'))
 except:
     pass
-
-@driver.on_bot_connect
-async def start_ip():
-    global ALL_HOST
-    global ANNE_IP
-    ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
-    def count_ips(ip_dict:dict):
-        for key, value in ip_dict.items():
-            if key == 'error_':
-                continue
-            count = len(value)
-            logger.info(f'已加载：{key} | {count}个')
-            if key == '云':
-                ANNE_IP = {key:value}
-    count_ips(ALL_HOST)
-    
