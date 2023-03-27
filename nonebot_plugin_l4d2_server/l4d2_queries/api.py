@@ -34,6 +34,7 @@ async def seach_map(msg:str,qq:str,key:str,mode:str = 'zh'):
 
 async def map_dict_to_str(data:List[dict]):
     msg = ""
+    print(data)
     for key,value in data[0].items():
         if key == "url":
             continue

@@ -60,7 +60,9 @@ async def url_to_byte_name(url:str,filename:str =''):
     if filename == "htp":
         response = httpx.get(url,headers=headers,timeout=600)
         content_disposition:str = response.headers.get("Content-Disposition")
-        if "''" in content_disposition:
+        if not content_disposition:
+            return None
+        elif "''" in content_disposition:
             file_name = content_disposition.split("''")[-1]
         else: 
             file_name = content_disposition

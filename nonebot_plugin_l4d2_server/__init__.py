@@ -438,8 +438,11 @@ async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
                 data_file,file_name = await url_to_byte_name(data_dict['url'],'htp')
             else:
                 data_file,file_name = await url_to_byte_name(data_dict['url'])
-            await search_api.send('获取地址成功，尝试上传')
-            await upload_file(bot, event, data_file, file_name)
+            if data_file:
+                await search_api.send('获取地址成功，尝试上传')
+                await upload_file(bot, event, data_file, file_name)
+            else:
+                await search_api.send('出错了，原因是下载链接不存在')
         else:
             logger.info('开始上传')
             for data_one in data_dict:
@@ -496,7 +499,7 @@ async def _():
                 await get_ip.finish("服务器无响应")
         else:
             if not msg[0].isdigit():
-                if msg.startswith(gamemode_list):
+                if any(mode in msg for mode in gamemode_list):
                     pass
                 else:
                     return
