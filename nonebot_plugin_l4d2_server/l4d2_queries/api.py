@@ -3,6 +3,8 @@ from typing import List
 from nonebot.log import logger
 
 async def seach_map(msg:str,qq:str,key:str,mode:str = 'zh'):
+    if not msg:
+        return {}
     url = "http://106.13.207.45:4015/l4d2"
     json = {
         "mode":mode,
