@@ -41,8 +41,12 @@ def open_packet(name:str,down_file:Path):
     if systems == 'win':
         if name.endswith('.zip'):
             mes = 'zip文件已下载,正在解压'
-            with support_gbk(ZipFile(down_file, 'r')) as z:
-                z.extractall(down_path)
+            try:
+                with support_gbk(ZipFile(down_file, 'r')) as z:
+                    z.extractall(down_path)
+            except UnicodeEncodeError:
+                with ZipFile(down_file, 'r') as z:
+                    z.extractall(down_path)                
             os.remove(down_file)
         elif name.endswith('.7z'):
             mes ='7z文件已下载,正在解压'
@@ -78,7 +82,7 @@ def open_packet(name:str,down_file:Path):
             mes ='vpk文件已下载'        
     return mes
 
-def support_gbk(zip_file):
+def support_gbk(zip_file:ZipFile):
     '''
     压缩包中文恢复
     '''
@@ -91,16 +95,6 @@ def support_gbk(zip_file):
                 info.filename = real_name
                 del name_to_info[name]
                 name_to_info[real_name] = info
-    elif type(zip_file) == RarFile:
-        rar_file = zip_file
-        name_to_info = {info.filename: info for info in rar_file.infolist()}
-        for name, info in name_to_info.copy().items():
-            real_name = name.encode(sys.getfilesystemencoding(), errors='ignore').decode('gbk')
-            if real_name != name:
-                info.filename = real_name
-                del name_to_info[name]
-                name_to_info[real_name] = info
-                zip_file = rar_file
     return zip_file
 
 
