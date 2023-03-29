@@ -453,7 +453,7 @@ async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
         await search_api.finish('已取消上传')
         
 
-@driver.on_bot_connect
+@driver.on_startup
 async def _():
     global ALL_HOST
     global ANNE_IP
