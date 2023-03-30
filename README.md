@@ -42,7 +42,6 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     l4_port = ['20715']
     l4_rcon = ['1145149191810']
     l4_font = 'simsun.ttc'
-    l4_tag = ['呆呆']
     l4_only = True
 
 <h2 id="gn">主要功能</h2>
@@ -56,12 +55,47 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <h2 id="gn">如何获取key</h2>
 
 为了使得ip不被滥用，我采取这种方式管理。
-[点击这里加群](https://jq.qq.com/?_wv=1027&k=HdjoCcAe)
+[点击这里加群](https://jq.qq.com/?_wv=1027&k=HdjoCcAe)并在群内发送“申请求生key”
 如果你只查询自己的服务器ip则可以忽略如下，并且更改env设置：
 
         l4_tag = ['呆呆','橘']   # 这里是内置可以查询的服的list对象
         l4_key = ''             # 这里是获取的key，是13个字符组成的字符串
 
+
+
+<h2 id="ty">🌐 默认服务器</h2>
+目前 **已授权** 的服务器查询，如果需要加入自己的ip可以进qq群私聊群主
+
+| 指令 | 服务器 | op | 数量 |
+|:-----:|:----:|:----:|:----:|
+| 数码 | 爱丽数码想要涩涩 | 爱丽数码 | 3
+| 云 | anne电信服云服 | 东 | 27
+| 呆呆 | 呆呆的小窝 | 提莫大魔王 | 15
+| 橘 | 橘希实香的小窝 | 橘希实香 | 12
+| 竹 | 竹烨 | 竹烨oО柠檬茶 | 9
+| 音理 | 星空列车与白的旅行 | 音理 | 2
+| 尤 | 尤尤 | 晓音 | 1
+| 鱼 | 飞鱼の小窝 | 飞鱼桑 | 1
+| 恋恋 | 恋氏集团雪糕制作研究中心 | 古明地恋 | 1
+
+## 🚑  提交自己的服务器？
+
+**本项目原旨在方便自己查询管理服务器，如果你希望提供了ip**
+
+**那么我只能尽可能保证您的ip不会泄漏，如果无法承担风险则请勿提供ip**
+
+
+新增一个json文件，格式如下,文件名与需要响应的指令一致
+
+        {
+        "呆呆": [
+                {
+                "id": 1,
+                "version": "战役",
+                "ip": "43.248.188.17:27031"
+                }
+        ]
+        }
 
 ## 🔖 更新日志
 
@@ -69,12 +103,18 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <summary>展开/收起</summary>
 
 
-### 0.4.0--2022.3
+### 0.4.1--2022.3
+
+ - 修复rar压缩包命名错误
+ - emmmm
+
+### 0.4.0--2022.3.27
 
  - 新增web控制台
  - 修复传图超时参数错误
  - 重写求生ip获取方法 ~ 数据库苦手 ~
  - 重写文档
+ - 不再内置ip（毕竟ipv4都暴露太危险了）
 
 ### 0.3.7--2022.3
 
@@ -255,7 +295,6 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 + [GPL-3.0 License](https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/blob/main/LICENSE) ©[@Umamusume-Agnes-Digital](https://github.com/Umamusume-Agnes-Digital)
         
 
-
 <h2 id="ty">🌐 感谢</h2>
 
 - [修仙](https://github.com/s52047qwas/nonebot_plugin_xiuxian) - 数据库的写法来自于他
@@ -265,20 +304,3 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 - [群聊学习](https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat) - web控制台的写法来自于他
 - [gsuid](https://github.com/KimigaiiWuyi/GenshinUID) - readme和wiki的格式参考
 - 呆呆 - 提供三方地图的详细数据
-
-<h2 id="ty">🌐 默认服务器</h2>
-目前 **已授权** 的服务器查询，如果需要加入自己的ip可以进qq群私聊群主
-
-| 指令 | 服务器 | op | 数量 |
-|:-----:|:----:|:----:|:----:|
-| 数码 | 爱丽数码想要涩涩 | 爱丽数码 | 3
-| 云 | anne电信服云服 | 东 | 27
-| 呆呆 | 呆呆的小窝 | 提莫大魔王 | 15
-| 橘 | 橘希实香的小窝 | 橘希实香 | 12
-| 竹 | 竹烨 | 竹烨oО柠檬茶 | 9
-| 音理 | 星空列车与白的旅行 | 音理 | 2
-| 尤 | 尤尤 | 晓音 | 1
-| 鱼 | 飞鱼の小窝 | 飞鱼桑 | 1
-| 恋恋 | 恋氏集团雪糕制作研究中心 | 古明地恋 | 1
-
-**如果提供了ip，那么我只能尽可能保证您的ipv4不会泄漏，如果无法承担风险则请勿提供ip**
