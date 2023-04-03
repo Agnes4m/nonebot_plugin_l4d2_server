@@ -44,6 +44,11 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     l4_font = 'simsun.ttc'
     l4_only = True
 
+
+## 新文档（暂未完成）
+
+[点击这里](https://umamusume-agnes-digital.github.io/l4d2)
+
 <h2 id="gn">主要功能</h2>
 
 - 求生服务器-本地多路径操作（传地图）
