@@ -108,11 +108,16 @@ except:
 try:
     l4_tag:list = driver.config.l4_tag
 except:
-    l4_tag:list = ['呆呆','橘']
+    l4_tag:list = []
 # 强制转list
-l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master,l4_tag]
-l4_list = [ast.literal_eval(i) if isinstance(i, str) else i for i in l4_list]
-l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master, l4_tag= l4_list
+if l4_tag !=None:
+    l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master,l4_tag]
+    l4_list = [ast.literal_eval(i) if isinstance(i, str) else i for i in l4_list]
+    l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master, l4_tag= l4_list
+else:
+    l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master]
+    l4_list = [ast.literal_eval(i) if isinstance(i, str) else i for i in l4_list]
+    l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master= l4_list            
         
 '''
 地图路径

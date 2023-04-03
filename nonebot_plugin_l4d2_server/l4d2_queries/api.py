@@ -1,10 +1,8 @@
 import httpx
-from typing import List
+from typing import List,Union
 from nonebot.log import logger
 
-async def seach_map(msg:str,qq:str,key:str,mode:str = 'zh'):
-    if not msg:
-        return {}
+async def seach_map(msg:Union[list,str],qq:str,key:str,mode:str = 'zh'):
     url = "http://106.13.207.45:4015/l4d2"
     json = {
         "mode":mode,
@@ -12,7 +10,7 @@ async def seach_map(msg:str,qq:str,key:str,mode:str = 'zh'):
         "qq":qq,
         "key":key
     }
-    file = httpx.post(url,json=json)
+    file = httpx.post(url=url,json=json)
     if mode == 'zh':
         if file.status_code == 200:
             return file.json()

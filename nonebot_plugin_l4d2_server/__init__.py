@@ -457,26 +457,28 @@ async def _(bot:Bot,event:GroupMessageEvent,state:T_State):
 async def _():
     global ALL_HOST
     global ANNE_IP
-    ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
-    def count_ips(ip_dict:dict):
-        for key, value in ip_dict.items():
-            if key == 'error_':
-                continue
-            count = len(value)
-            logger.info(f'已加载：{key} | {count}个')
-            if key == '云':
-                ANNE_IP = {key:value}
-    count_ips(ALL_HOST)
-    
-    ip_anne_list=[] 
-    try:
-        ips = ALL_HOST['云']
-        ip_anne_list = []
-        for one_ip in ips:
-            host,port = split_maohao(one_ip['ip'])
-            ip_anne_list.append((one_ip['id'],host,port))
-    except KeyError:
+    if l4_tag == None:
         pass
+    else:
+        ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
+        def count_ips(ip_dict:dict):
+            for key, value in ip_dict.items():
+                if key == 'error_':
+                    continue
+                count = len(value)
+                logger.info(f'已加载：{key} | {count}个')
+                if key == '云':
+                    ANNE_IP = {key:value}
+        count_ips(ALL_HOST)
+        ip_anne_list=[] 
+        try:
+            ips = ALL_HOST['云']
+            ip_anne_list = []
+            for one_ip in ips:
+                host,port = split_maohao(one_ip['ip'])
+                ip_anne_list.append((one_ip['id'],host,port))
+        except KeyError:
+            pass
     get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
     @get_ip.handle()
     async def _(start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg(),):
