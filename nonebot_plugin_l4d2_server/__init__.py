@@ -483,7 +483,7 @@ async def _():
     @get_ip.handle()
     async def _(start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg(),):
         if start:
-            command.replace(start,'')
+            command = command.replace(start,'')
         if command == 'anne':
             command = '云'
         msg:str = args.extract_plain_text()
