@@ -18,7 +18,7 @@ from .l4d2_image.steam import url_to_byte
 import tempfile
 import random
 
-async def get_file(url:str,down_file:Path):
+async def get_file(url: str, down_file: Path):
     '''
     下载指定Url到指定位置
     '''
@@ -28,58 +28,54 @@ async def get_file(url:str,down_file:Path):
         else:
             maps = httpx.get(url).content
         logger.info('已获取文件，尝试新建文件并写入')
-        with open(down_file ,'wb') as mfile:
+        with open(down_file, 'wb') as mfile:
             mfile.write(maps)
-            logger.info('下载成功')
-            mes ='文件已下载,正在解压'
+        logger.info('下载成功')
+        return '文件已下载，正在解压'
     except Exception as e:
         logger.info(f"文件获取不到/已损坏:原因是{e}")
-        mes = None
-    return mes
+        return None
 
-def get_vpk(vpk_list:list,path,file_:str = '.vpk'):
+
+def get_vpk(path: Path, file_: str = '.vpk') -> List[str]:
     '''
     获取所有vpk文件
     '''
-    for file in os.listdir(path):
-        if file.endswith(file_):
-            vpk_list.append(file)
-    return vpk_list
+    return [file for file in os.listdir(path) if file.endswith(file_)]
 
-def mes_list(mes:str,name_list:list):
-    n = 0
+
+def mes_list(mes: str, name_list: List[str]) -> str:
     if name_list:
-        for i in name_list:
-            n += 1
-            mes += "\n" + str(n) + "、" + i
+        for idx, name in enumerate(name_list):
+            mes += f'\n{idx+1}、{name}'
     return mes
 
 
 
-def del_map(num,map_path):
+
+def del_map(num: int, map_path: Path) -> str:
     '''
     删除指定的地图
     '''
-    vpk_list = []
-    map = get_vpk(vpk_list,map_path)
-    map_name = map[int(num)-1]
-    del_file = Path(map_path,map_name)
+    map = get_vpk(map_path)
+    map_name = map[num - 1]
+    del_file = map_path / map_name
     os.remove(del_file)
     return map_name
 
-def rename_map(num,rename,map_path):
+
+def rename_map(num: int, rename: str, map_path: Path) -> str:
     '''
     改名指定的地图
     '''
-    vpk_list = []
-    name = str(rename)
-    map = get_vpk(vpk_list,map_path)
-    map_name = map[int(num)-1]
-    old_file = Path(map_path,map_name)
-    new_file = Path(map_path,name)
-    os.rename(old_file,new_file)
+    map = get_vpk(map_path)
+    map_name = map[num - 1]
+    old_file = map_path / map_name
+    new_file = map_path / rename
+    os.rename(old_file, new_file)
     logger.info('改名成功')
     return map_name
+
 
 def text_to_png(msg: str) -> bytes:
     """文字转png"""
@@ -107,47 +103,28 @@ def name_exist(id:str):
     """删除绑定信息"""
     return del_player(id)
 
-async def get_message_at(data: str) -> list:
-    '''
-    获取at列表
-    :param data: event.json()
-    抄的groupmate_waifu
-    '''
-    qq_list = []
+def get_message_at(data: str) -> list:
     data = json.loads(data)
-    try:
-        for msg in data['message']:
-            if msg['type'] == 'at':
-                qq_list.append(int(msg['data']['qq']))
-        return qq_list
-    except Exception:
-        return []
+    return [int(msg['data']['qq']) for msg in data['message'] if msg['type'] == 'at']
+
     
 
 def at_to_usrid(at):
-    """at对象变qqid否则返回usr_id"""
-    if at != []:
-        at:str = at[0]
-        usr_id:str = at
-        return usr_id
-    else:
-        return None
+    return at[0] if at else None
 
-async def command_server(msg:str):
-    """rcon控制台返回信息"""
+
+async def rcon_command(rcon, cmd):
+    return await rcon_server(rcon, cmd.strip())
+
+async def command_server(msg: str):
     rcon = await read_server_cfg_rcon()
-    l4_host_ = l4_host[CHECK_FILE]
-    l4_port_ = l4_port[CHECK_FILE]
-    logger.info([msg,l4_host_,l4_port_,rcon])
-    msg = await rcon_server(rcon,msg)
-    logger.info(msg)
-    if len(msg)==0:
+    msg = await rcon_command(rcon, msg)
+    if not msg:
         msg = '你可能发送了一个无用指令，或者换图导致服务器无响应'
-    if msg.startswith('Unknown command'):
-        msg = msg.replace('Unknown command','').strip()
-        msg = '无效指令：' + msg
-    msg = msg.strip()
-    return msg
+    elif msg.startswith('Unknown command'):
+        msg = '无效指令：' + msg.replace('Unknown command', '').strip()
+    return msg.strip().replace('\n', '')
+
 
 
 
@@ -258,14 +235,12 @@ async def json_server_to_tag_dict(key:str,msg:str):
     data_dict = {}
     data_list = []
     msg = msg.replace(' ','')
-    n = 0
     # 腐竹循环
     for tag,value in ALL_HOST.items():
         value:List[dict]  
         if tag == key:
             data_dict.update({'server':tag})
-            n = 1
-            if msg == '':
+            if not msg:
                 # 腐竹
                 data_dict.update(random.choice(value))
             elif msg.isdigit():
@@ -273,20 +248,22 @@ async def json_server_to_tag_dict(key:str,msg:str):
                 for server in value:
                     if msg == str(server['id']):
                         data_dict.update(server)
+                        break
             else:
                 logger.info("腐竹 + 模式 + 序号")
                 for server in value:
                     if msg.startswith(server['version']):
-                        n = 2
                         data_list.append(server)
                         msg_id = msg[len(server['version']):]
                         if msg_id == str(server['id']):
-                            n = 3
                             data_dict.update(server)
-                if n == 2:
+                            break
+                else:
                     # 腐竹 + 模式
                     data_dict.update(random.choice(data_list))
+
     logger.info(data_dict)
     return data_dict
+
 
 

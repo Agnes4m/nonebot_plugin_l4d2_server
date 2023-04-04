@@ -200,69 +200,65 @@ def split_maohao(msg:str) -> list:
     mse = [msg[0],msg[-1]] if msg[0] != msg[-1] else [msg[0],20715]
     return mse
 
-async def write_json(data_str:str):
-    """添加数据或者删除数据
+async def write_json(data_str: str):
+    """
+    添加数据或者删除数据
      - 【求生更新 添加 腐竹 ip 模式 序号】
      - 【求生更新 添加 腐竹 ip 模式】
      - 【求生更新 删除 腐竹 序号】
     """
-    data_list = data_str.split(' ')
+    data_list = data_str.split()
     logger.info(data_list)
-    if data_list[0]=="添加":
+    if data_list[0] == "添加":
         add_server = {}
         server_dict = ALL_HOST.get(data_list[1], {})
         if not server_dict:
             logger.info('新建分支')
             ALL_HOST[data_list[1]] = []
-        for key,value in ALL_HOST.items():
+        for key, value in ALL_HOST.items():
             if data_list[1] == key:
-                ids = []
+                ids = [server['id'] for server in value]
                 # 序号
                 if len(data_list) == 4:
-                    data_num:int = 1
-                    for server in value:
-                        ids.append(str(server['id']))
-                    while data_num in ids:
-                        data_num += 1
-                    data_id = str(data_num)
-                    add_server.update({'id':data_num})
-                if len(data_list) == 5:
-                    for server in value:
-                        ids.append(str(server['id']))
-                    if data_list[4].isdigit():
-                        if data_list[4] not in ids:
-                            data_id = data_list[4]
-                            add_server.update({'id':int(data_id)})
-                        else:
-                            return '该序号已存在，请尝试删除原序号【求生更新 删除 腐竹 序号】'
-                    else:
+                    data_num = max(ids, default=0) + 1
+                    add_server.update({'id': data_num})
+                elif len(data_list) == 5:
+                    if not data_list[4].isdigit():
                         return '序号应该为大于0的正整数，请输入【求生更新 添加 腐竹 ip 模式 序号】'
+                    data_num = int(data_list[4])
+                    if data_num in ids:
+                        return '该序号已存在，请尝试删除原序号【求生更新 删除 腐竹 序号】'
+                    add_server.update({'id': data_num})
+                else:
+                    return '输入参数错误，请输入【求生更新 添加 腐竹 ip 模式 序号】或【求生更新 添加 腐竹 ip 模式】'
                 # 模式，ip
-                add_server.update({'version':data_list[3]})
                 try:
-                    host,port = split_maohao(data_list[2])
-                    add_server.update({'host':host,'port':port})
+                    host, port = split_maohao(data_list[2])
+                    add_server.update({'host': host, 'port': port})
                 except KeyError:
                     return 'ip格式不正确【114.11.4.514:9191】'
+                add_server.update({'version': data_list[3]})
                 value.append(add_server)
-                ALL_HOST.update({key:value})
-                with open('data/L4D2/l4d2.json', "r", encoding="utf8") as f_new:
+                ALL_HOST[key] = value
+                with open('data/L4D2/l4d2.json', 'w', encoding='utf8') as f_new:
                     json.dump(ALL_HOST, f_new, ensure_ascii=False, indent=4)
-                return f'添加成功，指令为{key}{data_id}'
+                return f'添加成功，指令为{key}{data_num}'
             
-    elif data_list[0]=="删除":
-        for key,value in ALL_HOST.items():
-            value:List[dict]
+    elif data_list[0] == "删除":
+        for key, value in ALL_HOST.items():
             if data_list[1] == key:
-                for server in value:
-                    if int(data_list[2]) == server['id']:
-                        value.remove(server)
+                try:
+                    data_num = int(data_list[2])
+                except ValueError:
+                    return '序号应该为大于0的正整数，请输入【求生更新 删除 腐竹 序号】'
+                for i, server in enumerate(value):
+                    if data_num == server['id']:
+                        value.pop(i)
                         if not value:
                             ALL_HOST.pop(key)
-                        else:
-                            ALL_HOST[key] = value
-                        with open('data/L4D2/l4d2.json', "r", encoding="utf8") as f_new:
+                        with open('data/L4D2/l4d2.json', 'w', encoding='utf8') as f_new:
                             json.dump(ALL_HOST, f_new, ensure_ascii=False, indent=4)
                         return '删除成功喵'
                 return '序号不正确，请输入【求生更新 删除 腐竹 序号】'
-        return '腐竹名不存在，请输入【求生更新 删除 腐竹 序号】'    
+        return '腐竹名不存在，请输入【求生更新 删除 腐竹 序号】'   
+
