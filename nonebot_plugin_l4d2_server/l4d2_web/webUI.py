@@ -1,7 +1,7 @@
-from amis import ColumnList, AmisList, ActionType, TableCRUD, TableColumn
-from amis import Dialog, PageSchema, Switch, InputNumber, InputTag, Action, App
-from amis import Form, InputText, InputPassword, DisplayModeEnum, Horizontal, Remark, Html, Page, AmisAPI, Wrapper,Combo,CRUD
-from amis import LevelEnum, Select, InputArray, Alert, Tpl, Flex
+from amis import  ActionType, TableCRUD, TableColumn
+from amis import  PageSchema, Switch, InputNumber, InputTag, Action, App
+from amis import Form, InputText, InputPassword, DisplayModeEnum, Horizontal, Remark, Html, Page, AmisAPI, Wrapper
+from amis import LevelEnum, Select,  Alert, Tpl, Flex
 
 
 from ..config import NICKNAME
