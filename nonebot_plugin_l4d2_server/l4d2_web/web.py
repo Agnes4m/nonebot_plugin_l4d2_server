@@ -132,7 +132,6 @@ async def init_web():
         try:
             from ..command import ALL_HOST
             this_ips = ALL_HOST
-            print(ALL_HOST)
             ip_lists = []
             for ip_list, v in this_ips.items():
                 for d in v:
@@ -140,7 +139,6 @@ async def init_web():
                     ip_lists.append((d['id'], ip_list, host, port))
             data_dict = await qq_ip_querie(ip_lists)
             data_list = data_dict['msg_list']
-            print(data_list)
             return {
                 'status': 0,
                 'msg': 'ok',

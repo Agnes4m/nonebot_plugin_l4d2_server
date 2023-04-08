@@ -132,7 +132,6 @@ async def command_server(msg: str):
 
 async def queries_server(msg:list) -> str:
     """查询ip返回信息"""
-    print(msg)
     ip = msg[0]
     port = msg[1]
     msgs = ''

@@ -45,7 +45,7 @@ from .l4d2_web import web,webUI
 driver = get_driver()
 
 
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',

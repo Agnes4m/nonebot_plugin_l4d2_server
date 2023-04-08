@@ -3,7 +3,7 @@ from typing import List, Dict
 from pathlib import Path
 
 from pydantic import BaseModel, Field
-from nonebot import logger
+
 from ruamel import yaml
 
 

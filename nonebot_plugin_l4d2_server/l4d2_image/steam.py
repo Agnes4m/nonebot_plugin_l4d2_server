@@ -1,8 +1,7 @@
-from PIL import Image
+# from PIL import Image
 import httpx
 import aiohttp
 # from bs4 import BeautifulSoup
-import io
 from urllib.parse import unquote
 
     
