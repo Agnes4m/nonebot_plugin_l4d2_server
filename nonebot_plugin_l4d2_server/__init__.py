@@ -455,6 +455,7 @@ async def _():
     if l4_tag == None:
         pass
     else:
+        print(l4_tag)
         ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
         def count_ips(ip_dict:dict):
             for key, value in ip_dict.items():
