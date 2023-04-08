@@ -109,6 +109,12 @@ try:
     l4_tag:list = driver.config.l4_tag
 except:
     l4_tag = None
+
+try:
+    l4_web:bool = driver.config.l4_web
+except:
+    l4_web:bool = True
+    
 # 强制转list
 if type(l4_tag) == str or list:
     l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master,l4_tag]
@@ -199,3 +205,5 @@ try:
     os.remove(Path().parent.joinpath('data/L4D2/l4d2.yml'))
 except:
     pass
+          
+          

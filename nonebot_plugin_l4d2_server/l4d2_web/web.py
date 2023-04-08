@@ -13,7 +13,11 @@ from pathlib import Path
 from nonebot import get_driver, logger
 from ruamel import yaml
 from .config import *
+from ..config import *
+from ..utils import split_maohao
+from ..l4d2_queries.qqgroup import qq_ip_querie
 CONFIG_PATH = Path() / 'data' / 'L4D2' / 'l4d2.yml'
+
 CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 driver = get_driver()
@@ -64,7 +68,7 @@ async def init_web():
     if not config_manager.config.total_enable:
         return
     app: FastAPI = get_app()
-
+    logger.success('成功加载网页控制台')
     @app.post('/l4d2/api/login', response_class=JSONResponse)
     async def login(user: UserModel):
         if user.username != config_manager.config.web_username or user.password != config_manager.config.web_password:
@@ -123,7 +127,34 @@ async def init_web():
                 'status': -100,
                 'msg':    '获取群和好友列表失败，请确认已连接GOCQ'
             }
-
+            
+    @app.get('/l4d2/api/get_chat_contexts', response_class=JSONResponse, dependencies=[authentication()])
+    async def get_chat_context():
+        try:
+            from ..command import ALL_HOST
+            this_ips = ALL_HOST
+            print(ALL_HOST)
+            ip_lists = []
+            for ip_list, v in this_ips.items():
+                for d in v:
+                    host, port = split_maohao(d['ip'])
+                    ip_lists.append((d['id'], ip_list, host, port))
+            data_dict = await qq_ip_querie(ip_lists)
+            data_list = data_dict['msg_list']
+            print(data_list)
+            return {
+                'status': 0,
+                'msg': 'ok',
+                'data': {
+                    'items': data_list,
+                    'total': len(data_list),
+                }
+            }
+        except ValueError:
+            return {
+                'status': -100,
+                'msg':    '返回失败，请确保网络连接正常'
+            }
 
 
     @app.get('/l4d2', response_class=RedirectResponse)

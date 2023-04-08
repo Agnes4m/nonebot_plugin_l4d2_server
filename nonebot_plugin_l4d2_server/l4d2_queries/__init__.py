@@ -23,6 +23,7 @@ async def queries_dict(ip:str,port:int) -> dict:
     msg_dict['map_'] =  msg.map_name
     msg_dict['players'] =  msg.player_count
     msg_dict['max_players'] =  msg.max_players
+    msg_dict['rank_players'] =  f'{msg.player_count}/{msg.max_players}'
     msg_dict['ip'] = str(ip) + ':' +str(port)
     msg_dict['ping'] = f"{msg.ping*1000:.0f}ms"
     if msg_dict['players'] < msg_dict['max_players']:

@@ -14,21 +14,23 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from typing import Tuple,Union,List
+from time import sleep
+
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
 from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,RawCommand,CommandStart
+from nonebot import get_driver, require
+from nonebot.plugin import PluginMetadata
 
-from typing import Tuple,Union,List
-from time import sleep
-import asyncio
 
 from .config import *
 from .utils import *
 from .command import *
 from .l4d2_image.steam import url_to_byte,url_to_byte_name
-from nonebot.plugin import PluginMetadata
+
 from .l4d2_data import sq_L4D2
-from nonebot import get_driver, require
+
 from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.ohter import load_josn
 from .l4d2_queries.qqgroup import write_json
@@ -36,8 +38,9 @@ from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
 
 from .txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
-# from .l4d2_web import web,webUI
 scheduler = require("nonebot_plugin_apscheduler").scheduler
+
+from .l4d2_web import web,webUI
 
 driver = get_driver()
 
@@ -414,7 +417,7 @@ async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message =
     msg:str = args.extract_plain_text()
     # if msg.startswith('代码'):
         # 建图代码返回三方图信息
-    data = await seach_map(msg,l4_qq,l4_key)
+    data = seach_map(msg,l4_qq,l4_key)
     # else:
     if type(data) == str:
         await matcher.finish(data)
@@ -448,88 +451,6 @@ async def _(matcher:Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
         await matcher.finish('已取消上传')
         
 
-@driver.on_startup
-async def _():
-    global ALL_HOST
-    global ANNE_IP
-    if l4_tag == None:
-        pass
-    else:
-        print(l4_tag)
-        ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
-        def count_ips(ip_dict:dict):
-            for key, value in ip_dict.items():
-                if key == 'error_':
-                    continue
-                count = len(value)
-                logger.info(f'已加载：{key} | {count}个')
-                if key == '云':
-                    ANNE_IP = {key:value}
-        count_ips(ALL_HOST)
-        ip_anne_list=[] 
-        try:
-            ips = ALL_HOST['云']
-            ip_anne_list = []
-            for one_ip in ips:
-                host,port = split_maohao(one_ip['ip'])
-                ip_anne_list.append((one_ip['id'],host,port))
-        except KeyError:
-            pass
-    get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
-    @get_ip.handle()
-    async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg(),):
-        if start:
-            command = command.replace(start,'')
-        if command == 'anne':
-            command = '云'
-        msg:str = args.extract_plain_text()
-        if not msg:
-            # 以图片输出全部当前
-            this_ips = ALL_HOST[command]
-            ip_list = []
-            for one_ip in this_ips:
-                host,port = split_maohao(one_ip['ip'])
-                ip_list.append((one_ip['id'],host,port))
-            img = await qq_ip_queries_pic(ip_list)
-            if img:
-                await matcher.finish(MessageSegment.image(img)) 
-            else:
-                await matcher.finish("服务器无响应")
-        else:
-            if not msg[0].isdigit():
-                if any(mode in msg for mode in gamemode_list):
-                    pass
-                else:
-                    return
-            message = await json_server_to_tag_dict(command,msg)
-            if len(message) == 0:
-                # 关键词不匹配，忽略
-                return
-            ip = str(message['ip'])
-            logger.info(ip)
-            try:
-                msg= await get_anne_server_ip(ip)
-                await matcher.finish(msg)
-            except (OSError,asyncio.exceptions.TimeoutError):
-                await matcher.finish('服务器无响应')
-                
-    @tan_jian.handle()
-    async def _(matcher:Matcher,event:MessageEvent):
-        msg = await get_tan_jian(ip_anne_list,1)
-        await matcher.finish(msg)  
-        
-    @prison.handle()
-    async def _(matcher:Matcher,event:MessageEvent):
-        msg = await get_tan_jian(ip_anne_list,2)
-        await matcher.finish(msg)
-
-    @open_prison.handle()
-    async def _(matcher:Matcher,event:MessageEvent):
-
-        msg = await get_tan_jian(ip_anne_list,3)
-        await matcher.finish(msg)
-    
-            
 @driver.on_shutdown
 async def close_db():
     """关闭数据库"""

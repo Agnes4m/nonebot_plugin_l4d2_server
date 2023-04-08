@@ -3,8 +3,7 @@ from typing import List, Dict
 from pathlib import Path
 
 from pydantic import BaseModel, Field
-
-from nonebot import get_driver, logger
+from nonebot import logger
 from ruamel import yaml
 
 
@@ -82,3 +81,4 @@ config_manager = L4d2ConfigManager()
 class UserModel(BaseModel):
     username: str
     password: str
+    

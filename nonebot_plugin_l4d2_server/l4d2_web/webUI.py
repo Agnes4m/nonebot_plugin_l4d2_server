@@ -105,19 +105,6 @@ message_table = TableCRUD(
     syncLocation=False,
     api='/l4d2/api/get_chat_messages',
     interval=12000,
-    headerToolbar=[ActionType.Ajax(label='删除所有聊天记录',
-                                    level=LevelEnum.warning,
-                                    confirmText='确定要删除所有聊天记录吗？',
-                                    api='put:/l4d2/api/delete_all?type=message')],
-    itemActions=[ActionType.Ajax(tooltip='禁用',
-                                icon='fa fa-ban text-danger',
-                                confirmText='禁用该聊天记录相关的学习内容和回复',
-                                api='put:/l4d2/api/ban_chat?type=message&id=${id}'),
-                ActionType.Ajax(tooltip='删除',
-                                icon='fa fa-times text-danger',
-                                confirmText='删除该条聊天记录',
-                                api='delete:/l4d2/api/delete_chat?type=message&id=${id}')
-                ],
     footable=True,
     columns=[TableColumn(label='序号', name='message_id'),
             TableColumn(label='服务器ip', name='group_id', searchable=True),
@@ -131,105 +118,37 @@ message_table = TableCRUD(
             TableColumn(type='tpl', tpl='${time|date:YYYY-MM-DD HH\\:mm\\:ss}', label='时间',
                         name='time', sortable=True)
             ])
-answer_table = TableCRUD(
-    mode='table',
-    syncLocation=False,
-    footable=True,
-    api='/l4d2/api/get_chat_answers',
-    interval=12000,
-    headerToolbar=[ActionType.Ajax(label='删除所有已学习的回复',
-                                   level=LevelEnum.warning,
-                                   confirmText='确定要删除所有已学习的回复吗？',
-                                   api='put:/l4d2/api/delete_all?type=answer')],
-    itemActions=[ActionType.Ajax(tooltip='禁用',
-                                 icon='fa fa-ban text-danger',
-                                 confirmText='禁用并删除该已学回复',
-                                 api='put:/l4d2/api/ban_chat?type=answer&id=${id}'),
-                 ActionType.Ajax(tooltip='删除',
-                                 icon='fa fa-times text-danger',
-                                 confirmText='仅删除该已学回复，不会禁用，所以依然能继续学',
-                                 api='delete:/l4d2/api/delete_chat?type=answer&id=${id}')],
-    columns=[TableColumn(label='ID', name='id', visible=False),
-             TableColumn(label='群ID', name='group_id', searchable=True),
-             TableColumn(type='tpl', tpl='${keywords|truncate:20}', label='内容/关键词', name='keywords',
-                         searchable=True, popOver={'mode': 'dialog', 'title': '内容全文', 'className': 'break-all',
-                                                   'body': {'type': 'tpl', 'tpl': '${keywords}'}}),
-             TableColumn(type='tpl', tpl='${time|date:YYYY-MM-DD HH\\:mm\\:ss}', label='最后学习时间', name='time',
-                         sortable=True),
-             TableColumn(label='次数', name='count', sortable=True),
-             ColumnList(label='完整消息', name='messages', breakpoint='*', source='${messages}',
-                        listItem=AmisList.Item(body={'name': 'msg'}))
-             ])
-answer_table_on_context = TableCRUD(
-    mode='table',
-    syncLocation=False,
-    footable=True,
-    api='/l4d2/api/get_chat_answers?context_id=${id}&page=${page}&perPage=${perPage}&orderBy=${orderBy}&orderDir=${orderDir}',
-    interval=12000,
-    headerToolbar=[ActionType.Ajax(label='删除该内容所有回复',
-                                   level=LevelEnum.warning,
-                                   confirmText='确定要删除该条内容已学习的回复吗？',
-                                   api='put:/l4d2/api/delete_all?type=answer&id=${id}')],
-    itemActions=[ActionType.Ajax(tooltip='禁用',
-                                 icon='fa fa-ban text-danger',
-                                 confirmText='禁用并删除该已学回复',
-                                 api='put:/l4d2/api/ban_chat?type=answer&id=${id}'),
-                 ActionType.Ajax(tooltip='删除',
-                                 icon='fa fa-times text-danger',
-                                 confirmText='仅删除该已学回复，但不禁用，依然能继续学',
-                                 api='delete:/l4d2/api/delete_chat?type=answer&id=${id}')],
-    columns=[TableColumn(label='ID', name='id', visible=False),
-             TableColumn(label='群ID', name='group_id'),
-             TableColumn(type='tpl', tpl='${keywords|truncate:20}', label='内容/关键词', name='keywords',
-                         searchable=True, popOver={'mode': 'dialog', 'title': '内容全文', 'className': 'break-all',
-                                                   'body': {'type': 'tpl', 'tpl': '${keywords}'}}),
-             TableColumn(type='tpl', tpl='${time|date:YYYY-MM-DD HH\\:mm\\:ss}', label='最后学习时间', name='time',
-                         sortable=True),
-             TableColumn(label='次数', name='count', sortable=True),
-             ColumnList(label='完整消息', name='messages', breakpoint='*', source='${messages}',
-                        listItem=AmisList.Item(body={'name': 'msg'}))
-             ])
+
 context_table = TableCRUD(mode='table',
                           title='',
                           syncLocation=False,
                           api='/l4d2/api/get_chat_contexts',
-                          interval=12000,
-                          headerToolbar=[ActionType.Ajax(label='删除所有学习内容',
-                                                         level=LevelEnum.warning,
-                                                         confirmText='确定要删除所有已学习的内容吗？',
-                                                         api='put:/l4d2/api/delete_all?type=context')],
-                          itemActions=[ActionType.Dialog(tooltip='回复列表',
-                                                         icon='fa fa-book text-info',
-                                                         dialog=Dialog(title='回复列表',
-                                                                       size='lg',
-                                                                       body=answer_table_on_context)),
-                                       ActionType.Ajax(tooltip='禁用',
-                                                       icon='fa fa-ban text-danger',
-                                                       confirmText='禁用并删除该学习的内容及其所有回复',
-                                                       api='put:/l4d2/api/ban_chat?type=context&id=${id}'),
-                                       ActionType.Ajax(tooltip='删除',
-                                                       icon='fa fa-times text-danger',
-                                                       confirmText='仅删除该学习的内容及其所有回复，但不禁用，依然能继续学',
-                                                       api='delete:/l4d2/api/delete_chat?type=context&id=${id}')
-                                       ],
+                          interval=60000,
                           footable=True,
-                          columns=[TableColumn(label='ID', name='id', visible=False),
-                                   TableColumn(type='tpl', tpl='${keywords|truncate:20}', label='内容/关键词',
-                                               name='keywords', searchable=True,
-                                               popOver={'mode': 'dialog', 'title': '内容全文', 'className': 'break-all',
-                                                        'body': {'type': 'tpl', 'tpl': '${keywords}'}}),
-                                   TableColumn(type='tpl', tpl='${time|date:YYYY-MM-DD HH\\:mm\\:ss}',
-                                               label='最后学习时间', name='time', sortable=True),
-                                   TableColumn(label='已学次数', name='count', sortable=True),
-                                   ])
+                          itemActions=[ActionType.Url(
+                                tooltip='加入游戏',
+                                icon='fa fa-gamepad',
+                                confirmText = "加入steam://connect/"+'${ip}',
+                                url= "steam://connect/"+'${ip}',
+                                # url= "http://"+'${ip}',
+                                blank= True
+                                 ),
+                            ],
+                          columns = [
+                                    TableColumn(label='服主', name='tag', searchable=True),
+                                    TableColumn(label='名称', name='name', searchable=True),
+                                    TableColumn(label='地图', name='map_', searchable=True),
+                                    TableColumn(label='玩家', name='rank_players', searchable=True),
+                                    TableColumn(label='延迟', name='ping', searchable=True),
+                                    TableColumn(label='IP 地址', name='ip', searchable=True),
+                                    ])
 
 message_page = PageSchema(url='/messages', icon='fa fa-comments', label='本地服务器管理',
                           schema=Page(title='本地服务器管理', body=[
                               Alert(level=LevelEnum.info,
                                     className='white-space-pre-wrap',
                                     body=(f'此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n'
-                                        #   '· 点击"禁用"可以将某条聊天记录进行禁用，这样其相关的学习就会列入禁用列表。\n'
-                                        #   '· 点击"删除"可以删除某条记录，但不会影响它的学习。\n'
+
                                           f'· 功能暂未完善')),
                               message_table]))
 context_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程服务器查询',
@@ -239,7 +158,7 @@ context_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程�
                                                   body=(f'此数据库记录了{NICKNAME}所记录可查询的服务器ip。\n'
                                                         # '· 点击"回复列表"可以查看该条内容已学习到的可能的回复。\n'
                                                         # '· 点击"禁用"可以将该学习进行禁用，以后不会再学。\n'
-                                                        '· 点击"删除"可以删除该学习，让它重新开始学习这句话。')),
+                                                        f'· 功能暂未完善')),
                                             context_table]))
 
 database_page = PageSchema(label='数据库', icon='fa fa-database',

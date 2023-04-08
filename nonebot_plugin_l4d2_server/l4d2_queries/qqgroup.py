@@ -51,36 +51,48 @@ async def qq_ip_queries(msg:List[tuple]):
         messsage += '序号、'+ str(number) + '\n' + msg1 + msg2 + '--------------------\n'
     return messsage
             
-async def qq_ip_queries_pic(msg: list):
+            
+async def qq_ip_querie(msg: list):
     msg_list = []
-    pic = None
     tasks = []  # 用来保存异步任务
     if msg != []:
         for i in msg:
             try:
                 number, host, port = i
+                qqgroup = ''
             except ValueError:
                 number, qqgroup, host, port = i
             finally:
                 # 将异步任务添加到任务列表中
-                tasks.append(asyncio.create_task(process_message(number, host, port, msg_list)))
+                tasks.append(asyncio.create_task(process_message(number, host, port, msg_list,qqgroup)))
         # 等待所有异步任务完成
         await asyncio.gather(*tasks)
         # 对msg_list按照number顺序排序
         msg_list = sorted(msg_list, key=lambda x: x['number'])
-        pic = await server_ip_pic(msg_list)
-    if pic is None:
-        return None
+        result = {'msg_list': msg_list}
+    else:
+        result = {}
+    return result
+
+
+async def qq_ip_queries_pic(msg: list):
+    result = await qq_ip_querie(msg)
+    if 'msg_list' in result:
+        pic = await server_ip_pic(result['msg_list'])
+    else:
+        pic = None
     return pic
+            
 
 
 
-async def process_message(number, host, port, msg_list):
+async def process_message(number, host, port, msg_list:list,qqgroup = ''):
     try:
         msg2 = await player_queries_anne_dict(host, port)
         msg1 = await queries_dict(host, port)
-        msg1.update({'Players':msg2})
-        msg1.update({'number':number})
+        msg1.update({'Players':msg2,'number':number,})
+        if qqgroup:
+            msg1.update({'tag':qqgroup})
         msg_list.append(msg1)
     except errors:
         pass  # 忽略异常，继续下一次循环

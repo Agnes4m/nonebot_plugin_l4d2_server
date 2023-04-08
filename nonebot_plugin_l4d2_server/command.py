@@ -1,9 +1,11 @@
-from nonebot import on_notice,on_command,on_regex,on_fullmatch,on_shell_command,on_keyword
-
 import re
+import asyncio
+
+from nonebot import on_notice,on_command,on_regex,on_keyword
+from nonebot.params import CommandArg,RawCommand,CommandStart
+from nonebot.matcher import Matcher
 import nonebot
 from nonebot.permission import SUPERUSER
-from nonebot.typing import T_Handler,T_State
 from nonebot.adapters.onebot.v11 import (
     GroupUploadNoticeEvent,
     NoticeEvent,
@@ -12,11 +14,13 @@ from nonebot.adapters.onebot.v11 import (
     Message,
     MessageSegment,
     GroupMessageEvent,
-    PrivateMessageEvent
     )
-from .l4d2_anne.server import server_key,ANNE_IP
-from .config import Master,ADMINISTRATOR,reMaster,file_format,driver
 
+from .l4d2_anne.server import server_key,ANNE_IP
+from .config import *
+from .l4d2_queries.qqgroup import split_maohao
+# from .utils import qq_ip_queries_pic,json_server_to_tag_dict,get_anne_server_ip,get_tan_jian
+from .utils import *
 help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 
 # 服务器
@@ -113,3 +117,88 @@ def get_session_id(event: MessageEvent) -> str:
         return f"group_{event.group_id}"
     else:
         return f"private_{event.user_id}"
+
+
+@driver.on_startup
+async def _():
+    global ALL_HOST
+    global ANNE_IP
+    if l4_tag == None:
+        pass
+    else:
+        ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
+        def count_ips(ip_dict:dict):
+            global ANNE_IP
+            for key, value in ip_dict.items():
+                if key in ['error_','success_']:
+                    ip_dict.pop(key)
+                    break
+                count = len(value)
+                logger.info(f'已加载：{key} | {count}个')
+                if key == '云':
+                    ANNE_IP = {key:value}
+                
+        count_ips(ALL_HOST)
+        ip_anne_list=[] 
+        try:
+            ips = ALL_HOST['云']
+            ip_anne_list = []
+            for one_ip in ips:
+                host,port = split_maohao(one_ip['ip'])
+                ip_anne_list.append((one_ip['id'],host,port))
+        except KeyError:
+            pass
+        
+    get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
+    @get_ip.handle()
+    async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg(),):
+        if start:
+            command = command.replace(start,'')
+        if command == 'anne':
+            command = '云'
+        msg:str = args.extract_plain_text()
+        if not msg:
+            # 以图片输出全部当前
+            this_ips:dict = ALL_HOST[command]
+            ip_list = []
+            for one_ip in this_ips:
+                host,port = split_maohao(one_ip['ip'])
+                ip_list.append((one_ip['id'],host,port))
+            img = await qq_ip_queries_pic(ip_list)
+            if img:
+                await matcher.finish(MessageSegment.image(img)) 
+            else:
+                await matcher.finish("服务器无响应")
+        else:
+            if not msg[0].isdigit():
+                if any(mode in msg for mode in gamemode_list):
+                    pass
+                else:
+                    return
+            message = await json_server_to_tag_dict(command,msg)
+            if len(message) == 0:
+                # 关键词不匹配，忽略
+                return
+            ip = str(message['ip'])
+            logger.info(ip)
+            try:
+                msg= await get_anne_server_ip(ip)
+                await matcher.finish(msg)
+            except (OSError,asyncio.exceptions.TimeoutError):
+                await matcher.finish('服务器无响应')
+                
+    @tan_jian.handle()
+    async def _(matcher:Matcher,event:MessageEvent):
+        msg = await get_tan_jian(ip_anne_list,1)
+        await matcher.finish(msg)  
+        
+    @prison.handle()
+    async def _(matcher:Matcher,event:MessageEvent):
+        msg = await get_tan_jian(ip_anne_list,2)
+        await matcher.finish(msg)
+
+    @open_prison.handle()
+    async def _(matcher:Matcher,event:MessageEvent):
+
+        msg = await get_tan_jian(ip_anne_list,3)
+        await matcher.finish(msg)
