@@ -103,7 +103,7 @@ def name_exist(id:str):
     """删除绑定信息"""
     return del_player(id)
 
-def get_message_at(data: str) -> list:
+async def get_message_at(data: str) -> list:
     data = json.loads(data)
     return [int(msg['data']['qq']) for msg in data['message'] if msg['type'] == 'at']
 
