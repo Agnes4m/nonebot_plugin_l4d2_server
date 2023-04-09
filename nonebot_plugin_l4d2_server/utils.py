@@ -39,11 +39,13 @@ async def get_file(url: str, down_file: Path):
         return None
 
 
-def get_vpk(path: Path, file_: str = '.vpk') -> List[str]:
+def get_vpk(vpk_list: List[str], map_path: Path, file_: str = '.vpk') -> List[str]:
     '''
-    获取所有vpk文件
+    获取路径下所有vpk文件名，并存入vpk_list列表中
     '''
-    return [file for file in os.listdir(path) if file.endswith(file_)]
+    vpk_list.extend([file for file in os.listdir(str(map_path)) if file.endswith(file_)])
+    return vpk_list
+
 
 
 def mes_list(mes: str, name_list: List[str]) -> str:

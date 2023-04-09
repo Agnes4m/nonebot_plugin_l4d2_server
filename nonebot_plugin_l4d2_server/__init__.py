@@ -39,8 +39,10 @@ from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
 from .txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
 scheduler = require("nonebot_plugin_apscheduler").scheduler
-
-from .l4d2_web import web,webUI
+if l4_web:
+    from .l4d2_web import web,webUI
+else:
+    pass
 
 driver = get_driver()
 
@@ -137,6 +139,7 @@ async def _(matcher: Matcher):
 async def _(bot:Bot,event: MessageEvent,matcher: Matcher):
     name_vpk = []
     map_path = Path(l4_file[CHECK_FILE],vpk_path)
+    print
     name_vpk = get_vpk(name_vpk,map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
