@@ -5,8 +5,8 @@ description = "L4D2 server related operations plugin for NoneBot2"
 authors = ["Agnes_Digital <Z735803792@163.com>"]
 license = "GPLv3"
 readme = "README.md"
-homepage = "https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server"
-repository = "https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server"
+homepage = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
+repository = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
 keywords = ["steam", "game", "l4d2", "nonebot2", "plugin"]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -22,8 +22,8 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-nonebot2 = "^2.0.0rc3"
+python = "^3.9"
+nonebot2 = "^2.0.0rc4"
 nonebot-adapter-onebot = ">=2.1.5"
 nonebot_plugin_htmlrender = "^0.2.0.1"
 nonebot_plugin_txt2img = ">=0.3.0"

@@ -52,7 +52,7 @@ __plugin_meta__ = PluginMetadata(
     usage='求生服务器操作指令',
     extra={
         "version": __version__,
-        "author": "Umamusume-Agnes-Digital <Z735803792@163.com>",
+        "author": "Agnes4m <Z735803792@163.com>",
     },
 )
 
