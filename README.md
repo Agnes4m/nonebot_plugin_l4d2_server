@@ -112,6 +112,11 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <details>
 <summary>展开/收起</summary>
 
+### 0.4.6--2022.4.9
+
+ - 显示无效服
+ - 优化服务器排序算法（list.sort()天下第一）
+ - 默认关闭web端
 
 ### 0.4.5--2022.4.9
 
