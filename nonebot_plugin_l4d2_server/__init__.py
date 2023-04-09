@@ -420,7 +420,7 @@ async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message =
     msg:str = args.extract_plain_text()
     # if msg.startswith('代码'):
         # 建图代码返回三方图信息
-    data = seach_map(msg,l4_qq,l4_key)
+    data = await seach_map(msg,l4_qq,l4_key)
     # else:
     if type(data) == str:
         await matcher.finish(data)
