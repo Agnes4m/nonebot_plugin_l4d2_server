@@ -68,8 +68,9 @@ async def qq_ip_querie(msg: list):
         # 等待所有异步任务完成
         await asyncio.gather(*tasks)
         # 对msg_list按照number顺序排序
-        msg_list = sorted(msg_list, key=lambda x: x['number'])
+        msg_list.sort(key=lambda x: x['number'])
         result = {'msg_list': msg_list}
+
     else:
         result = {}
     return result
@@ -95,7 +96,10 @@ async def process_message(number, host, port, msg_list:list,qqgroup = ''):
             msg1.update({'tag':qqgroup})
         msg_list.append(msg1)
     except errors:
-        pass  # 忽略异常，继续下一次循环
+        # 空白字典
+        null_dict = {key: 'null' for key in ['name', 'map_', 'players', 'max_players', 'rank_players', 'ping']}
+        null_dict.update({'number':number,'ip':f'{host}:{port}','Players':[]})
+        msg_list.append(null_dict)  
 
 
     
