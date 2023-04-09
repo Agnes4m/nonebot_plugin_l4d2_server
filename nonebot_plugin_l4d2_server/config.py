@@ -113,7 +113,7 @@ except:
 try:
     l4_web:bool = driver.config.l4_web
 except:
-    l4_web:bool = True
+    l4_web:bool = False
     
 # 强制转list
 if type(l4_tag) == str or list:
