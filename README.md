@@ -9,9 +9,9 @@
 # nonebot_plugin_l4d2_server
 _✨Nonebot & Left 4 Dead 2 server操作✨_
 <div align = "center">
-        <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server/wiki/%E6%96%87%E6%A1%A3" target="_blank">文档</a> &nbsp; · &nbsp;
-        <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server/wiki/%E6%96%87%E6%A1%A3#zl" target="_blank">指令列表</a> &nbsp; · &nbsp;
-        <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server/wiki/BUG%E5%8F%8D%E9%A6%88">常见问题</a>
+        <a href="https://agnes4m.github.io/l4d2/" target="_blank">文档</a> &nbsp; · &nbsp;
+        <a href="https://agnes4m.github.io/l4d2/reader/#%E5%8A%9F%E8%83%BD-%E6%8C%87%E4%BB%A4-%F0%9F%A4%94" target="_blank">指令列表</a> &nbsp; · &nbsp;
+        <a href="https://agnes4m.github.io/l4d2/bug/">常见问题</a>
 </div><br>
 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server/stargazers">
         <img alt="GitHub stars" src="https://img.shields.io/github/stars/Agnes4m/nonebot_plugin_l4d2_server" alt="stars">
@@ -28,7 +28,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
     <img src="https://img.shields.io/pypi/dm/nonebot_plugin_l4d2_server" alt="pypi download">
 </a>
-    <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="python">
     <img src="https://img.shields.io/badge/nonebot-2.0.0rc3-red.svg" alt="NoneBot">
 </div>
 
@@ -330,8 +330,9 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 + [GPL-3.0 License](https://github.com/Agnes4m/nonebot_plugin_l4d2_server/blob/main/LICENSE) ©[@Agnes4m](https://github.com/Agnes4m)
         
 
-<h2 id="ty">🌐 感谢</h2>
+## 🌐 感谢
 
+- [nonebot2](https://github.com/nonebot/nonebot2) - 聊天机器人的基础框架
 - [修仙](https://github.com/s52047qwas/nonebot_plugin_xiuxian) - 数据库的写法来自于他
 - [自己写的求生之路查询库](https://github.com/Agnes4m/VSQ)(已弃用)
 - [@MeetWq](https://github.com/MeetWq) - 非常热心解答nonebot2相关的写法
