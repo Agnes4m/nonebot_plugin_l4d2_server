@@ -180,10 +180,14 @@ tables_columns = {
 anne_url = "https://server.trygek.com/"
 
 gamemode_list = [
-    '战役',
+    '纯净',
+    '魔改战役',
     '多特',
+    '魔改多特',
     '写专',
-    'anne',
+    '对抗',
+    '魔改对抗',
+    '药役',
     '药抗',
     '包抗',
     '绝境',

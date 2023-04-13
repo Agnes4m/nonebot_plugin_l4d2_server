@@ -157,12 +157,19 @@ async def _():
         msg:str = args.extract_plain_text()
         if not msg:
             # 以图片输出全部当前
-            this_ips:dict = ALL_HOST[command]
+            if command in gamemode_list:
+                this_ips = [d for l in ALL_HOST.values() for d in l if d.get('version') == command]
+                igr = True
+            else:
+                this_ips:list = ALL_HOST[command]
+                igr = False
+            if not this_ips:
+                matcher.finish('')
             ip_list = []
             for one_ip in this_ips:
                 host,port = split_maohao(one_ip['ip'])
                 ip_list.append((one_ip['id'],host,port))
-            img = await qq_ip_queries_pic(ip_list)
+            img = await qq_ip_queries_pic(ip_list,igr)
             if img:
                 await matcher.finish(MessageSegment.image(img)) 
             else:

@@ -3,6 +3,7 @@ try:
 except:
         import json
 from pathlib import Path
+from typing import Dict,List
 import os
 
 BOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,4 +22,4 @@ def load_josn():
                 LOCAL_HOST:dict = {}
         return LOCAL_HOST
 
-ALL_HOST:dict = load_josn()
+ALL_HOST:Dict[str, List[dict]] = load_josn()

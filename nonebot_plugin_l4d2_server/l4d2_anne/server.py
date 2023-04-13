@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 import json
 from pathlib import Path
-from ..config import TEXT_PATH,anne_url,ANNE_IP
+from ..config import TEXT_PATH,anne_url,ANNE_IP,gamemode_list
 from ..l4d2_queries.ohter import ALL_HOST
 
 # 储存anne服务器ip
@@ -57,8 +57,9 @@ def server_key():
     try:
         for tag1,value in ALL_HOST.items():
             a.add(tag1)
+        a.update(gamemode_list)
     except AttributeError:
         a.add('希腊那我从来没有想过这个事情')
-    return  a
+    return a
             
             

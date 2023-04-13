@@ -52,7 +52,7 @@ async def qq_ip_queries(msg:List[tuple]):
     return messsage
             
             
-async def qq_ip_querie(msg: list):
+async def qq_ip_querie(msg: list,igr:bool):
     msg_list = []
     tasks = []  # 用来保存异步任务
     if msg != []:
@@ -64,7 +64,7 @@ async def qq_ip_querie(msg: list):
                 number, qqgroup, host, port = i
             finally:
                 # 将异步任务添加到任务列表中
-                tasks.append(asyncio.create_task(process_message(number, host, port, msg_list,qqgroup)))
+                tasks.append(asyncio.create_task(process_message(number, host, port, msg_list,qqgroup,igr)))
         # 等待所有异步任务完成
         await asyncio.gather(*tasks)
         # 对msg_list按照number顺序排序
@@ -76,8 +76,8 @@ async def qq_ip_querie(msg: list):
     return result
 
 
-async def qq_ip_queries_pic(msg: list):
-    result = await qq_ip_querie(msg)
+async def qq_ip_queries_pic(msg: list,igr = False):
+    result = await qq_ip_querie(msg,igr)
     if 'msg_list' in result:
         pic = await server_ip_pic(result['msg_list'])
     else:
@@ -87,7 +87,7 @@ async def qq_ip_queries_pic(msg: list):
 
 
 
-async def process_message(number, host, port, msg_list:list,qqgroup = ''):
+async def process_message(number, host, port, msg_list:list,igr:bool,qqgroup = ''):
     try:
         msg2 = await player_queries_anne_dict(host, port)
         msg1 = await queries_dict(host, port)
@@ -96,10 +96,13 @@ async def process_message(number, host, port, msg_list:list,qqgroup = ''):
             msg1.update({'tag':qqgroup})
         msg_list.append(msg1)
     except errors:
-        # 空白字典
-        null_dict = {key: 'null' for key in ['name', 'map_', 'players', 'max_players', 'rank_players', 'ping']}
-        null_dict.update({'number':number,'ip':f'{host}:{port}','Players':[]})
-        msg_list.append(null_dict)  
+        if igr:
+            pass
+        else:
+            # 空白字典
+            null_dict = {key: 'null' for key in ['name', 'map_', 'players', 'max_players', 'rank_players', 'ping']}
+            null_dict.update({'number':number,'ip':f'{host}:{port}','Players':[]})
+            msg_list.append(null_dict)  
 
 
     
