@@ -453,6 +453,16 @@ async def _(matcher:Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     else:
         await matcher.finish('已取消上传')
         
+@reload_ip.handle()
+async def _(matcher:Matcher):
+    global matchers
+    await matcher.send('正在重载ip，可能需要一点时间')
+    for _, l4_matchers in matchers.items():
+        for l4_matcher in l4_matchers:
+            l4_matcher.destroy()
+    await get_des_ip()
+    await matcher.finish('已重载ip')
+    
 
 @driver.on_shutdown
 async def close_db():

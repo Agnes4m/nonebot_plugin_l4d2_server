@@ -1,7 +1,8 @@
 import re
 import asyncio
+from typing import Type
 
-from nonebot import on_notice,on_command,on_regex,on_keyword
+from nonebot import on_notice,on_command,on_regex,on_keyword,MatcherGroup
 from nonebot.params import CommandArg,RawCommand,CommandStart
 from nonebot.matcher import Matcher
 import nonebot
@@ -72,10 +73,6 @@ prison = on_command('zl',aliases={'坐牢'},priority=20,block=True)
 open_prison = on_command('kl',aliases={'开牢'},priority=20,block=True)
 
 updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
-def reload_ip():
-    global updata,get_ip
-    updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
-    get_ip = on_command('114514919181',aliases=server_key(),priority=80,block=True)
 tan_jian = on_command('tj',aliases={'探监'},priority=20,block=True)
 
 # 查询
@@ -88,6 +85,7 @@ connect_rcon = on_command("Rrcon", aliases={"求生连接", '求生链接','求�
 end_connect = ['stop', '结束', '连接结束', '结束连接']
 search_api = on_command('search',aliases={'求生三方'}, priority=20, block=True,permission= Master)
 which_map = on_keyword(("是什么图"),priority=20, block=False)
+reload_ip = on_command('l4_reload',aliases={'重载ip'},priority=30,permission=Master)
 
 # 下载内容
 up_workshop = on_command('workshop',aliases={'创意工坊下载','求生创意工坊'},priority=20,block=True)
@@ -116,16 +114,19 @@ def get_session_id(event: MessageEvent) -> str:
     else:
         return f"private_{event.user_id}"
 
+matchers: Dict[str, List[Type[Matcher]]] = {}
 
-@driver.on_startup
-async def _():
+
+    
+async def get_des_ip():
     global ALL_HOST
     global ANNE_IP
+    global matchers
     if l4_tag == None:
         pass
     else:
         ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
-        def count_ips(ip_dict:dict):
+        async def count_ips(ip_dict:dict):
             global ANNE_IP
             for key, value in ip_dict.items():
                 if key in ['error_','success_']:
@@ -136,7 +137,7 @@ async def _():
                 if key == '云':
                     ANNE_IP = {key:value}
                 
-        count_ips(ALL_HOST)
+        await count_ips(ALL_HOST)
         ip_anne_list=[] 
         try:
             ips = ALL_HOST['云']
@@ -146,10 +147,14 @@ async def _():
                 ip_anne_list.append((one_ip['id'],host,port))
         except KeyError:
             pass
-        
+    
+    
     get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
     @get_ip.handle()
-    async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg(),):
+    async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg()):
+        if get_ip.plugin_name not in matchers:
+            matchers[get_ip.plugin_name] = []
+        matchers[get_ip.plugin_name].append(get_ip)
         if start:
             command = command.replace(start,'')
         if command == 'anne':
@@ -191,7 +196,8 @@ async def _():
                 await matcher.finish(msg)
             except (OSError,asyncio.exceptions.TimeoutError):
                 await matcher.finish('服务器无响应')
-                
+    
+           
     @tan_jian.handle()
     async def _(matcher:Matcher,event:MessageEvent):
         msg = await get_tan_jian(ip_anne_list,1)
@@ -207,3 +213,16 @@ async def _():
 
         msg = await get_tan_jian(ip_anne_list,3)
         await matcher.finish(msg)
+        
+    
+    
+async def init():
+    global matchers
+
+    await get_des_ip()
+    print('启动辣')
+   
+    
+@driver.on_startup
+async def _():
+    await init()
