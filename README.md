@@ -115,6 +115,11 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <details>
 <summary>展开/收起</summary>
 
+### 0.4.8--2022.4.16
+
+ - 新增重载ip
+ - 修复了一些windows启动下奇奇怪怪的bug
+
 ### 0.4.7--2022.4.13
 
  - 新增模式查询
