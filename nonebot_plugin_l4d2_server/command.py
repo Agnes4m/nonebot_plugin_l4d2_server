@@ -72,7 +72,7 @@ del_bind = on_command('del_bind',aliases={'steam解绑','求生解绑','anne解�
 prison = on_command('zl',aliases={'坐牢'},priority=20,block=True)
 open_prison = on_command('kl',aliases={'开牢'},priority=20,block=True)
 
-updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
+# updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
 tan_jian = on_command('tj',aliases={'探监'},priority=20,block=True)
 
 # 查询
@@ -152,6 +152,7 @@ async def get_des_ip():
     get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
     @get_ip.handle()
     async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg()):
+        global matchers
         if get_ip.plugin_name not in matchers:
             matchers[get_ip.plugin_name] = []
         matchers[get_ip.plugin_name].append(get_ip)

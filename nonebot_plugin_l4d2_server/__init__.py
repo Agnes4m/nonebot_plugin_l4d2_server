@@ -364,17 +364,17 @@ async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     
 
 
-@updata.handle()
-async def _(matcher:Matcher,args:Message = CommandArg()):
-    """更新"""
-    msg = args.extract_plain_text()
-    if not msg:
-        load_josn()
-        reload_ip()
-        await matcher.finish('已更新缓存数据')
-    else:
-        message = await write_json(msg)
-        await matcher.finish(message)
+# @updata.handle()
+# async def _(matcher:Matcher,args:Message = CommandArg()):
+#     """更新"""
+#     msg = args.extract_plain_text()
+#     if not msg:
+#         load_josn()
+#         reload_ip()
+#         await matcher.finish('已更新缓存数据')
+#     else:
+#         message = await write_json(msg)
+#         await matcher.finish(message)
   
 
             
