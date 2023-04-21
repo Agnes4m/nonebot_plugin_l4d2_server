@@ -45,6 +45,7 @@ amis-python = "^1.0.6"
 jieba = "^0.42.1"
 pandas = ">=1.5.2"
 python-jose = "^3.3.0"
+h11 = "^0.14.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

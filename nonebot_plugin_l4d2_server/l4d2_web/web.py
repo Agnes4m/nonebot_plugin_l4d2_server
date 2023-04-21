@@ -9,9 +9,7 @@ from nonebot import get_bot, get_app
 
 from pathlib import Path
 
-
 from nonebot import get_driver, logger
-from .config import *
 from ..config import *
 from ..utils import split_maohao
 from ..l4d2_queries.qqgroup import qq_ip_querie
@@ -104,6 +102,15 @@ async def init_web():
                 'status': -100,
                 'msg':    '获取群和好友列表失败，请确认已连接GOCQ'
             }
+
+    @app.post('/l4d2/api/chat_global_config', response_class=JSONResponse, dependencies=[authentication()])
+    async def post_chat_global_config(data: dict):
+        config_manager.config.update(**data)
+        config_manager.save()
+        return {
+            'status': 0,
+            'msg':    '保存成功'
+        }
 
     @app.get('/l4d2/api/chat_global_config', response_class=JSONResponse, dependencies=[authentication()])
     async def get_chat_global_config():

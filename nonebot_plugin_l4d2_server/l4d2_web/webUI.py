@@ -8,14 +8,14 @@ from ..config import NICKNAME
 
 logo = Html(html='''
 <p align="center">
-    <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server">
-        <img src="https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/logo.png"
+    <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server">
+        <img src="https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png"
          width="256" height="256" alt="Learning-Chat">
     </a>
 </p>
 <h1 align="center">Nonebot-Plugin-L4d2-Server 控制台</h1>
 <div align="center">
-    <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/" target="_blank">
+    <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server/" target="_blank">
     Github仓库</a>
 </div>
 <br>
@@ -71,6 +71,29 @@ global_config_form = Form(
     actions=[Action(label='保存', level=LevelEnum.success, type='submit'),
              Action(label='重置', level=LevelEnum.warning, type='reset')]
 )
+
+upload_map_form = Form(
+    title='全局配置',
+    name='global_config',
+    api='post:/l4d2/api/chat_map_config',
+    body=[
+        InputText(label='服务器host', name='web_username', value='${web_username}',
+                  labelRemark=Remark(shape='circle',
+                                     content='127.0.0.1')),
+        InputPassword(label='服务器', name='web_password', value='${web_password}',
+                      labelRemark=Remark(shape='circle',
+                                         content='登录本后台管理所需要的密码。')),
+        InputText(label='后台管理token密钥', name='web_secret_key', value='${web_secret_key}',
+                  labelRemark=Remark(shape='circle',
+                                     content='用于本后台管理加密验证token的密钥。')),
+        InputText(label='查询key', name='l4_key', value='${l4_key}',
+                  labelRemark=Remark(shape='circle',
+                                     content='用于获取拓展功能的key。')),
+    ],
+    actions=[Action(label='保存', level=LevelEnum.success, type='submit'),
+             Action(label='重置', level=LevelEnum.warning, type='reset')]
+)
+
 group_select = Select(label='分群配置', name='group_id', source='${group_list}',
                       placeholder='选择群')
 group_config_form = Form(
@@ -169,13 +192,13 @@ config_page = PageSchema(url='/configs', isDefaultPage=True, icon='fa fa-wrench'
 chat_page = PageSchema(label='求生之路', icon='fa fa-wechat (alias)', children=[config_page, database_page])
 
 github_logo = Tpl(className='w-full',
-                  tpl='<div class="flex justify-between"><div></div><div><a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server" target="_blank" title="Copyright"><i class="fa fa-github fa-2x"></i></a></div></div>')
+                  tpl='<div class="flex justify-between"><div></div><div><a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" title="Copyright"><i class="fa fa-github fa-2x"></i></a></div></div>')
 header = Flex(className='w-full', justify='flex-end', alignItems='flex-end', items=[github_logo])
 
 admin_app = App(brandName='L4d2-Server',
-                logo='https://raw.githubusercontent.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server/main/image/logo.png',
+                logo='https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png',
                 header=header,
                 pages=[{
                     'children': [config_page, database_page]
                 }],
-                footer='<div class="p-2 text-center bg-blue-100">Copyright © 2022 - 2023 <a href="https://github.com/Umamusume-Agnes-Digital/nonebot_plugin_l4d2_server" target="_blank" class="link-secondary">AGNES_DIGIAL</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>')
+                footer='<div class="p-2 text-center bg-blue-100">Copyright © 2022 - 2023 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" class="link-secondary">AGNES_DIGIAL</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>')
