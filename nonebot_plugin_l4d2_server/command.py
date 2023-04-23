@@ -126,7 +126,7 @@ async def get_des_ip():
         pass
     else:
         ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
-        async def count_ips(ip_dict:dict):
+        def count_ips(ip_dict:dict):
             global ANNE_IP
             for key, value in ip_dict.items():
                 if key in ['error_','success_']:
@@ -137,7 +137,7 @@ async def get_des_ip():
                 if key == '云':
                     ANNE_IP = {key:value}
                 
-        await count_ips(ALL_HOST)
+        count_ips(ALL_HOST)
         ip_anne_list=[] 
         try:
             ips = ALL_HOST['云']
@@ -224,6 +224,6 @@ async def init():
     print('启动辣')
    
     
-@driver.on_startup
+@driver.on_bot_connect
 async def _():
     await init()

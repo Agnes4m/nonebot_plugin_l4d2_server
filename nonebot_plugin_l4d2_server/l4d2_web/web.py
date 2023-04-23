@@ -10,6 +10,7 @@ from nonebot import get_bot, get_app
 from pathlib import Path
 
 from nonebot import get_driver, logger
+from .config import *
 from ..config import *
 from ..utils import split_maohao
 from ..l4d2_queries.qqgroup import qq_ip_querie

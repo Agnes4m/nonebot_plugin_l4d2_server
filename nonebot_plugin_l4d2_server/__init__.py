@@ -14,6 +14,8 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from .l4d2_web import web,webUI
+
 from typing import Tuple,Union,List
 from time import sleep
 
@@ -39,10 +41,6 @@ from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
 from .txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
 scheduler = require("nonebot_plugin_apscheduler").scheduler
-if l4_web:
-    from .l4d2_web import web,webUI
-else:
-    pass
 
 driver = get_driver()
 

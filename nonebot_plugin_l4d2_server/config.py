@@ -132,9 +132,6 @@ class UserModel(BaseModel):
     password: str
 
     
-class Config(BaseModel,extra = Extra.ignore):
-    l4_file: List[str] = ['/home/ubuntu/l4d2']
-    
 
 # env_config = Config.parse_obj(get_driver().config.dict())
 
@@ -217,7 +214,8 @@ try:
     l4_web:bool = driver.config.l4_web
 except:
     l4_web:bool = False
-    
+   
+
 # 强制转list
 if type(l4_tag) == str or list:
     l4_list = [l4_file, l4_steamid, l4_host, l4_port, l4_rcon, l4_master,l4_tag]
