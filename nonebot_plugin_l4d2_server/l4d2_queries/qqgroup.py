@@ -1,6 +1,6 @@
 from ..l4d2_data.serverip import L4D2Server
 from ..l4d2_image import server_ip_pic
-from . import queries,player_queries,queries_dict,player_queries_anne_dict,msg_ip_to_list
+from . import queries,player_queries,queries_dict,player_queries_anne_dict,msg_ip_to_list,server_rule_dict
 from nonebot.log import logger
 import random
 import asyncio
@@ -91,7 +91,9 @@ async def process_message(number, host, port, msg_list:list,igr:bool,qqgroup = '
     try:
         msg2 = await player_queries_anne_dict(host, port)
         msg1 = await queries_dict(host, port)
+        msg3 = await server_rule_dict(host, port)
         msg1.update({'Players':msg2,'number':number,})
+        msg1.update(msg3)
         if qqgroup:
             msg1.update({'tag':qqgroup})
         msg_list.append(msg1)

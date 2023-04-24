@@ -1,6 +1,6 @@
 import a2s
 from typing import List
-
+import rcon
 async def queries(ip:str,port:int):
     port = int(port)
     msg_dict = await queries_dict(ip,port)
@@ -27,7 +27,6 @@ async def queries_dict(ip:str,port:int) -> dict:
     msg_dict['ip'] = str(ip) + ':' +str(port)
     msg_dict['ping'] = f"{msg.ping*1000:.0f}ms"
     msg_dict['system'] =  f"{msg.platform}.svg"
-    print(msg_dict['system'])
     if msg_dict['players'] < msg_dict['max_players']:
         msg_dict['enabled'] = True
     else:
@@ -101,4 +100,15 @@ async def convert_duration(duration: int) -> str:
     time_str += f"{int(seconds)}s"
     return time_str.strip()
 
+async def server_rule_dict(ip:str,port:int): 
+    port = int(port)
+    ip = str(ip)
+    msg_dict = {}
+    # message_dict = await l4d(ip,port)
+    try:
+        msg:dict = await a2s.arules((ip,port))
+        msg_dict['tick'] = msg['l4d2_tickrate_enabler'] + "tick"
+    except:
+        msg_dict['tick'] = ''
+    return msg_dict
 

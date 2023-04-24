@@ -1,6 +1,7 @@
 import re
 import asyncio
 from typing import Type
+from time import sleep
 
 from nonebot import on_notice,on_command,on_regex,on_keyword,MatcherGroup
 from nonebot.params import CommandArg,RawCommand,CommandStart
@@ -126,6 +127,7 @@ async def get_des_ip():
         pass
     else:
         ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
+        sleep(1)
         def count_ips(ip_dict:dict):
             global ANNE_IP
             for key, value in ip_dict.items():
