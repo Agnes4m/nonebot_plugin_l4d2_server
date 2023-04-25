@@ -1,6 +1,6 @@
 import a2s
 from typing import List
-import rcon
+
 async def queries(ip:str,port:int):
     port = int(port)
     msg_dict = await queries_dict(ip,port)

@@ -3,7 +3,7 @@ from typing import List,Union
 from nonebot.log import logger
 
 async def seach_map(msg:Union[list,str],qq:str,key:str,mode:str = 'zh'):
-    url = "http://bot.agnesdigital.xyz:4015/l4d2"
+    url = "http://106.13.207.45:4015/l4d2"
     json = {
         "mode":mode,
         "map_name":msg,

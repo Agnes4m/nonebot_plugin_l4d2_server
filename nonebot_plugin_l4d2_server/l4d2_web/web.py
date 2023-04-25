@@ -128,6 +128,16 @@ async def init_web():
                      member in members])
             config = config_manager.config.dict(exclude={'group_config'})
             config['member_list'] = member_list
+
+            server_list = []
+            server_list.extend(
+                [{'label':name,
+                    'value': name}
+                for 
+                name,value in config_manager.config.l4_ipall.items()
+                ]
+                )
+            config['server_list'] = server_list
             return config
         except ValueError:
             return {
@@ -146,6 +156,11 @@ async def init_web():
                     host, port = split_maohao(d['ip'])
                     ip_lists.append((d['id'], ip_list, host, port))
             data_dict = await qq_ip_querie(ip_lists)
+            if not data_dict:
+                return{
+                'status': -100,
+                'msg':    '返回失败，请确保有可用的服务器ip' 
+                }
             data_list = data_dict['msg_list']
             return {
                 'status': 0,

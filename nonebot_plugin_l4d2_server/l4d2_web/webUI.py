@@ -67,6 +67,7 @@ global_config_form = Form(
                  placeholder='添加qq号', visibleOn='${total_enable}', joinValues=False, extractValue=True,
                  labelRemark=Remark(shape='circle',
                                     content='在这里加入的用户，才能上传地图')),
+
     ],
     actions=[Action(label='保存', level=LevelEnum.success, type='submit'),
              Action(label='重置', level=LevelEnum.warning, type='reset')]
@@ -89,11 +90,14 @@ upload_map_form = Form(
         InputText(label='查询key', name='l4_key', value='${l4_key}',
                   labelRemark=Remark(shape='circle',
                                      content='用于获取拓展功能的key。')),
+
     ],
     actions=[Action(label='保存', level=LevelEnum.success, type='submit'),
              Action(label='重置', level=LevelEnum.warning, type='reset')]
 )
 
+server_select = Select(label='服务器设置', name='server_id', source='${server_list}',
+                      placeholder='选择服务器')
 group_select = Select(label='分群配置', name='group_id', source='${group_list}',
                       placeholder='选择群')
 group_config_form = Form(
@@ -158,7 +162,7 @@ context_table = TableCRUD(mode='table',
                                  ),
                             ],
                           columns = [
-                                    TableColumn(label='服主', name='tag', searchable=True),
+                                    TableColumn(label='服主', name='master', searchable=True),
                                     TableColumn(label='名称', name='name', searchable=True),
                                     TableColumn(label='地图', name='map_', searchable=True),
                                     TableColumn(label='玩家', name='rank_players', searchable=True),
@@ -188,7 +192,7 @@ database_page = PageSchema(label='数据库', icon='fa fa-database',
                            children=[message_page, context_page])
 config_page = PageSchema(url='/configs', isDefaultPage=True, icon='fa fa-wrench', label='配置',
                          schema=Page(title='配置', initApi='/l4d2/api/get_group_list',
-                                     body=[global_config_form, group_select, group_config_form]))
+                                     body=[global_config_form, server_select,group_select, group_config_form]))
 chat_page = PageSchema(label='求生之路', icon='fa fa-wechat (alias)', children=[config_page, database_page])
 
 github_logo = Tpl(className='w-full',

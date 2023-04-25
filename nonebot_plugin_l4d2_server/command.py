@@ -30,7 +30,7 @@ help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 
 def wenjian(
 event:NoticeEvent):
-    superuse = nonebot.get_driver().config.l4_master
+    superuse = config_manager.config.l4_master
     args = event.dict()
     try:
         name: str = args['file']['name']
@@ -123,10 +123,10 @@ async def get_des_ip():
     global ALL_HOST
     global ANNE_IP
     global matchers
-    if l4_tag == None:
+    if config_manager.config.l4_tag == None:
         pass
     else:
-        ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
+        ALL_HOST.update(await seach_map(l4_config.l4_tag,l4_qq,l4_config.l4_key,'ip'))
         sleep(1)
         def count_ips(ip_dict:dict):
             global ANNE_IP

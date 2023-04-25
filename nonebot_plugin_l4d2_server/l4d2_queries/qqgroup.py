@@ -52,7 +52,7 @@ async def qq_ip_queries(msg:List[tuple]):
     return messsage
             
             
-async def qq_ip_querie(msg: list,igr:bool):
+async def qq_ip_querie(msg: list,igr:bool = True):
     msg_list = []
     tasks = []  # 用来保存异步任务
     if msg != []:
@@ -69,6 +69,9 @@ async def qq_ip_querie(msg: list,igr:bool):
         await asyncio.gather(*tasks)
         # 对msg_list按照number顺序排序
         msg_list.sort(key=lambda x: x['number'])
+        for i in msg_list:
+            print(i)
+            break
         result = {'msg_list': msg_list}
 
     else:
