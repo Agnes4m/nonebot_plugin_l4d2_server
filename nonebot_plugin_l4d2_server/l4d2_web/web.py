@@ -104,8 +104,8 @@ async def init_web():
                 'msg':    '获取群和好友列表失败，请确认已连接GOCQ'
             }
 
-    @app.post('/l4d2/api/chat_global_config', response_class=JSONResponse, dependencies=[authentication()])
-    async def post_chat_global_config(data: dict):
+    @app.post('/l4d2/api/l4d2_global_config', response_class=JSONResponse, dependencies=[authentication()])
+    async def post_l4d2_global_config(data: dict):
         config_manager.config.update(**data)
         config_manager.save()
         return {
@@ -113,8 +113,8 @@ async def init_web():
             'msg':    '保存成功'
         }
 
-    @app.get('/l4d2/api/chat_global_config', response_class=JSONResponse, dependencies=[authentication()])
-    async def get_chat_global_config():
+    @app.get('/l4d2/api/l4d2_global_config', response_class=JSONResponse, dependencies=[authentication()])
+    async def get_l4d2_global_config():
         try:
             bot = get_bot()
             groups = await bot.get_group_list()
@@ -129,15 +129,15 @@ async def init_web():
             config = config_manager.config.dict(exclude={'group_config'})
             config['member_list'] = member_list
 
-            server_list = []
-            server_list.extend(
-                [{'label':name,
-                    'value': name}
-                for 
-                name,value in config_manager.config.l4_ipall.items()
-                ]
-                )
-            config['server_list'] = server_list
+            # server_list = []
+            # server_list.extend(
+            #     [{'label':name['id'],
+            #         'value': name}
+            #     for 
+            #     name in config_manager.config.l4_ipall
+            #     ]
+            #     )
+            # config['server_list'] = server_list
             return config
         except ValueError:
             return {
@@ -145,8 +145,8 @@ async def init_web():
                 'msg':    '获取群和好友列表失败，请确认已连接GOCQ'
             }
             
-    @app.get('/l4d2/api/get_chat_contexts', response_class=JSONResponse, dependencies=[authentication()])
-    async def get_chat_context():
+    @app.get('/l4d2/api/get_query_contexts', response_class=JSONResponse, dependencies=[authentication()])
+    async def get_query_context():
         try:
             from ..command import ALL_HOST
             this_ips = ALL_HOST
@@ -176,6 +176,22 @@ async def init_web():
                 'msg':    '返回失败，请确保网络连接正常'
             }
 
+    @app.get('/l4d2/api/get_l4d2_messages', response_class=JSONResponse, dependencies=[authentication()])
+    async def get_l4d2_messages():
+        try:
+            # l4_ipall = config_manager.config.dict()
+            l4_ipall = config_manager.config.l4_ipall
+            config = [item['id'] for item in l4_ipall]
+            return {
+                'status': 0,
+                'msg': 'ok',
+                'data': {'server_list':config}
+            }
+        except ValueError:
+            return {
+                'status': -100,
+                'msg':    '返回失败，请确保网络连接正常'
+            }
 
     @app.get('/l4d2', response_class=RedirectResponse)
     async def redirect_page():
@@ -188,7 +204,7 @@ async def init_web():
 
     @app.get('/l4d2/admin', response_class=HTMLResponse)
     async def admin_page_app():
-        return admin_app.render(site_title='l4d2-Chat 后台管理',
+        return admin_app.render(site_title='l4d2-l4d2 后台管理',
                                 theme='ang',
                                 requestAdaptor=requestAdaptor,
                                 responseAdaptor=responseAdaptor)

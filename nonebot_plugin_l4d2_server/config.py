@@ -63,22 +63,23 @@ class L4d2Config(BaseModel):
     l4_host: List[str] = Field(['127.0.0.1'], alias='求生服务器地址')
     l4_port: List[str] = Field(['20715'], alias='求生服务器端口')
     l4_rcon: List[str] = Field(['114514'], alias='求生服务器rcon密码')
-    l4_ipall: List[Dict[str,str]] = Field(
-        [{'id':'本地地图',
+    l4_ipall: List[Dict] = Field(
+        [{
         'place':'local',
         'location':'C:\\l4d2',
         'host':'127.0.0.1',
         'port':'20715',
-        'rcon':'114514'
+        'rcon':'114514',
+        'id':'本地地图',
         },{
-        'id':'远程地图',
         'place':'remote',
         'location':'/home/unbuntu/coop',
         'host':'11.4.51.4',
         'port':'20715',
-        'rcon':'9191810'
+        'rcon':'9191810',
+        'id':'远程地图',
         }],
-          alias='求生服务器ip集合')
+          alias='l4服务器ip集合')
     web_secret_key: str = Field('49c294d32f69b732ef6447c18379451ce1738922a75cd1d4812ef150318a2ed0',
                                 alias='后台管理token密钥')
     l4_master: List[str] = Field([], alias='求生地图全局管理员qq')

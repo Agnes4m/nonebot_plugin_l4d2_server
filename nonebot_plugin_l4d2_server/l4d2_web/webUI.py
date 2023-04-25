@@ -10,7 +10,7 @@ logo = Html(html='''
 <p align="center">
     <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server">
         <img src="https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png"
-         width="256" height="256" alt="Learning-Chat">
+         width="256" height="256" alt="l4d2-server">
     </a>
 </p>
 <h1 align="center">Nonebot-Plugin-L4d2-Server 控制台</h1>
@@ -44,8 +44,8 @@ login_page = Page(title='', body=[logo, body])
 global_config_form = Form(
     title='全局配置',
     name='global_config',
-    initApi='/l4d2/api/chat_global_config',
-    api='post:/l4d2/api/chat_global_config',
+    initApi='/l4d2/api/l4d2_global_config',
+    api='post:/l4d2/api/l4d2_global_config',
     body=[
         Switch(label='求生功能总开关', name='total_enable', value='${total_enable}', onText='开启', offText='关闭',
                labelRemark=Remark(shape='circle',
@@ -76,7 +76,7 @@ global_config_form = Form(
 upload_map_form = Form(
     title='全局配置',
     name='global_config',
-    api='post:/l4d2/api/chat_map_config',
+    api='post:/l4d2/api/l4d2_map_config',
     body=[
         InputText(label='服务器host', name='web_username', value='${web_username}',
                   labelRemark=Remark(shape='circle',
@@ -96,15 +96,14 @@ upload_map_form = Form(
              Action(label='重置', level=LevelEnum.warning, type='reset')]
 )
 
-server_select = Select(label='服务器设置', name='server_id', source='${server_list}',
-                      placeholder='选择服务器')
+
 group_select = Select(label='分群配置', name='group_id', source='${group_list}',
                       placeholder='选择群')
 group_config_form = Form(
     title='分群配置（暂未完成）',
     visibleOn='group_id != null',
-    initApi='/l4d2/api/chat_group_config?group_id=${group_id}',
-    api='post:/l4d2/api/chat_group_config?group_id=${group_id}',
+    initApi='/l4d2/api/l4d2_group_config?group_id=${group_id}',
+    api='post:/l4d2/api/l4d2_group_config?group_id=${group_id}',
     body=[
         Switch(label='分群开关', name='enable', value='${enable}', onText='开启', offText='关闭',
                labelRemark=Remark(shape='circle', content='针对该群的群聊学习开关，关闭后，仅该群不会学习和回复。')),
@@ -121,35 +120,56 @@ group_config_form = Form(
                  label='保存至所有群',
                  level=LevelEnum.primary,
                  confirmText='确认将当前配置保存至所有群？',
-                 api='post:/l4d2/api/chat_group_config?group_id=all'
+                 api='post:/l4d2/api/l4d2_group_config?group_id=all'
              ),
              Action(label='重置', level=LevelEnum.warning, type='reset')]
 )
 
-message_table = TableCRUD(
-    mode='table',
+server_control = Form(
     title='',
-    syncLocation=False,
-    api='/l4d2/api/get_chat_messages',
-    interval=12000,
-    footable=True,
-    columns=[TableColumn(label='序号', name='message_id'),
-            TableColumn(label='服务器ip', name='group_id', searchable=True),
-            TableColumn(label='服务器端口', name='user_id', searchable=True),
-            TableColumn(type='tpl', tpl='${raw_message|truncate:20}', label='rcon密码',
-                        name='message',
-                        searchable=True, popOver={'mode':      'dialog', 'title': '消息全文',
-                                                    'className': 'break-all',
-                                                    'body':      {'type': 'tpl',
-                                                                'tpl':  '${raw_message}'}}),
-            TableColumn(type='tpl', tpl='${time|date:YYYY-MM-DD HH\\:mm\\:ss}', label='时间',
-                        name='time', sortable=True)
-            ])
+    api='post/l4d2/api/post_l4d2_global_config',
+    initApi='/l4d2/api/get_l4d2_messages',
+    body=[
+        Select(label='服务器设置', name='server_id', source='${server_list}',
+                      placeholder='选择服务器'),
+        Switch(label='是否是远程服务器', name='local', value='${local}', onText='是的', offText='不是',
+               labelRemark=Remark(shape='circle',
+                                  content='开启则确认为远程服务器')),
+        InputText(label='host', name='host', value='${host}',
+                  labelRemark=Remark(shape='circle',
+                                     content='服务端所在ip')),
+        InputText(label='port', name='port', value='${port}',
+                      labelRemark=Remark(shape='circle',
+                                         content='服务端所在端口')),
+        InputPassword(label='rcon', name='rcon', value='${rcon}',
+                      labelRemark=Remark(shape='circle',
+                                         content='服务端rcon密码')),
+        InputText(label='服务器位置', name='location', value='${location}',
+                      labelRemark=Remark(shape='circle',
+                                         content='求生服务器所在路径')),        
+        InputText(label='远程账户', name='web_secret_key', value='${web_secret_key}',
+                  visibleOn='${total_enable}',
+                  labelRemark=Remark(shape='circle',
+                                     content='用于本后台管理加密验证token的密钥。')),
+        InputPassword(label='远程密码', name='l4_key', value='${l4_key}',
+                      visibleOn='${total_enable}',
+                  labelRemark=Remark(shape='circle',
+                                     content='用于获取拓展功能的key。')),
+        InputTag(label='求生上传地图用户', name='l4_master', value='${l4_master}',
+                 enableBatchAdd=True,
+                 placeholder='添加qq号', visibleOn='${total_enable}', joinValues=False, extractValue=True,
+                 labelRemark=Remark(shape='circle',
+                                    content='在这里加入的用户，才能上传地图')),
 
-context_table = TableCRUD(mode='table',
+    ],
+    actions=[Action(label='保存', level=LevelEnum.success, type='submit'),
+             Action(label='重置', level=LevelEnum.warning, type='reset')]
+)
+
+query_table = TableCRUD(mode='table',
                           title='',
                           syncLocation=False,
-                          api='/l4d2/api/get_chat_contexts',
+                          api='/l4d2/api/get_query_contexts',
                           interval=60000,
                           footable=True,
                           itemActions=[ActionType.Url(
@@ -170,15 +190,15 @@ context_table = TableCRUD(mode='table',
                                     TableColumn(label='IP 地址', name='ip', searchable=True),
                                     ])
 
-message_page = PageSchema(url='/messages', icon='fa fa-comments', label='本地服务器管理',
+server_page = PageSchema(url='/messages', icon='fa fa-comments', label='本地服务器管理',
                           schema=Page(title='本地服务器管理', body=[
                               Alert(level=LevelEnum.info,
                                     className='white-space-pre-wrap',
                                     body=(f'此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n'
 
                                           f'· 功能暂未完善')),
-                              message_table]))
-context_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程服务器查询',
+                              server_control]))
+query_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程服务器查询',
                           schema=Page(title='远程服务器查询',
                                       body=[Alert(level=LevelEnum.info,
                                                   className='white-space-pre-wrap',
@@ -186,14 +206,14 @@ context_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程�
                                                         # '· 点击"回复列表"可以查看该条内容已学习到的可能的回复。\n'
                                                         # '· 点击"禁用"可以将该学习进行禁用，以后不会再学。\n'
                                                         f'· 功能暂未完善')),
-                                            context_table]))
+                                            query_table]))
 
 database_page = PageSchema(label='数据库', icon='fa fa-database',
-                           children=[message_page, context_page])
+                           children=[server_page, query_page])
 config_page = PageSchema(url='/configs', isDefaultPage=True, icon='fa fa-wrench', label='配置',
                          schema=Page(title='配置', initApi='/l4d2/api/get_group_list',
-                                     body=[global_config_form, server_select,group_select, group_config_form]))
-chat_page = PageSchema(label='求生之路', icon='fa fa-wechat (alias)', children=[config_page, database_page])
+                                     body=[global_config_form,group_select, group_config_form]))
+l4d2_page = PageSchema(label='求生之路', icon='fa fa-wechat (alias)', children=[config_page, database_page])
 
 github_logo = Tpl(className='w-full',
                   tpl='<div class="flex justify-between"><div></div><div><a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" title="Copyright"><i class="fa fa-github fa-2x"></i></a></div></div>')
