@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List,Dict
+from typing import List,Dict,Union
 import ast
 import platform
 import os
@@ -65,14 +65,14 @@ class L4d2Config(BaseModel):
     l4_rcon: List[str] = Field(['114514'], alias='求生服务器rcon密码')
     l4_ipall: List[Dict] = Field(
         [{
-        'place':'local',
+        'place':False,
         'location':'C:\\l4d2',
         'host':'127.0.0.1',
         'port':'20715',
         'rcon':'114514',
         'server_id':'本地地图',
         },{
-        'place':'remote',
+        'place':True,
         'location':'/home/unbuntu/coop',
         'host':'11.4.51.4',
         'port':'20715',

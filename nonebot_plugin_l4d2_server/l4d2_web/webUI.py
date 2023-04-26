@@ -130,11 +130,11 @@ server_control = Select(label='服务器设置', name='server_id', source='${ser
 
 server_ditail= Form(
     title='',
-    api='post/l4d2/api/post_l4d2_global_config',
+    api='post/l4d2/api/l4d2_server_config?server_id=${server_id}',
     initApi='/l4d2/api/l4d2_server_config?server_id=${server_id}',
     visibleOn='server_id != null',
     body=[
-        Switch(label='是否是远程服务器', name='local', value='${local}', onText='是的', offText='不是',
+        Switch(label='是否是远程服务器', name='place', value='${place}', onText='是的', offText='不是',
                labelRemark=Remark(shape='circle',
                                   content='开启则确认为远程服务器')),
         InputText(label='server_id', name='server_id', value='${server_id}',
@@ -153,11 +153,11 @@ server_ditail= Form(
                       labelRemark=Remark(shape='circle',
                                          content='求生服务器所在路径')),        
         InputText(label='远程账户', name='account', value='${account}',
-                  visibleOn='${local}',
+                  visibleOn='${place}',
                   labelRemark=Remark(shape='circle',
                                      content='远程服务器的登录账户名')),
         InputPassword(label='远程密码', name='password', value='${password}',
-                      visibleOn='${local}',
+                      visibleOn='${place}',
                   labelRemark=Remark(shape='circle',
                                      content='远程服务器的登录密码')),
     ],
@@ -189,7 +189,7 @@ query_table = TableCRUD(mode='table',
                                     TableColumn(label='IP 地址', name='ip', searchable=True),
                                     ])
 
-server_page = PageSchema(url='/messages', icon='fa fa-comments', label='本地服务器管理',
+server_page = PageSchema(url='/messages', icon='fa fa-comment', label='本地服务器管理',
                           schema=Page(title='本地服务器管理',
                                       initApi='/l4d2/api/get_l4d2_messages',
                                         body=[
@@ -199,7 +199,7 @@ server_page = PageSchema(url='/messages', icon='fa fa-comments', label='本地�
 
                                           f'· 功能暂未完善')),
                               server_control,server_ditail]))
-query_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程服务器查询',
+query_page = PageSchema(url='/contexts', icon='fa fa-comments', label='远程服务器查询',
                           schema=Page(title='远程服务器查询',
                                       body=[Alert(level=LevelEnum.info,
                                                   className='white-space-pre-wrap',
@@ -209,9 +209,9 @@ query_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程服�
                                                         f'· 功能暂未完善')),
                                             query_table]))
 
-database_page = PageSchema(label='数据库', icon='fa fa-wrench',
+database_page = PageSchema(label='数据库', icon='fa fa-database',
                            children=[server_page, query_page])
-config_page = PageSchema(url='/configs', isDefaultPage=True, icon='fa fa-database', label='配置',
+config_page = PageSchema(url='/configs', isDefaultPage=True, icon='fa fa-wrench', label='配置',
                          schema=Page(title='配置', initApi='/l4d2/api/get_group_list',
                                      body=[global_config_form,group_select, group_config_form]))
 l4d2_page = PageSchema(label='求生之路', icon='fa fa-wechat (alias)', children=[config_page, database_page])

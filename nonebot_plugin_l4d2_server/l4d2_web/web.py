@@ -105,6 +105,7 @@ async def init_web():
 
     @app.post('/l4d2/api/l4d2_global_config', response_class=JSONResponse, dependencies=[authentication()])
     async def post_l4d2_global_config(data: dict):
+        print(data)
         config_manager.config.update(**data)
         config_manager.save()
         return {
@@ -203,6 +204,19 @@ async def init_web():
                 'status': -100,
                 'msg':    '返回失败，请确保网络连接正常'
             }
+        
+    @app.post('/l4d2/api/l4d2_server_config', response_class=JSONResponse, dependencies=[authentication()])
+    async def post_l4d2_server_config(server_id :str,data: dict):
+        print(data)
+        for one in config_manager.config.l4_ipall:
+            if one['server_id']==server_id:
+                one.update(**data)
+        config_manager.save()
+        return {
+            'status': 0,
+            'msg':    '保存成功'
+        }        
+
         
     @app.get('/l4d2', response_class=RedirectResponse)
     async def redirect_page():
