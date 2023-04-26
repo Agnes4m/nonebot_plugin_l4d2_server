@@ -125,16 +125,21 @@ group_config_form = Form(
              Action(label='重置', level=LevelEnum.warning, type='reset')]
 )
 
-server_control = Form(
+server_control = Select(label='服务器设置', name='server_id', source='${server_list}',
+                      placeholder='选择服务器')
+
+server_ditail= Form(
     title='',
     api='post/l4d2/api/post_l4d2_global_config',
-    initApi='/l4d2/api/get_l4d2_messages',
+    initApi='/l4d2/api/l4d2_server_config?server_id=${server_id}',
+    visibleOn='server_id != null',
     body=[
-        Select(label='服务器设置', name='server_id', source='${server_list}',
-                      placeholder='选择服务器'),
         Switch(label='是否是远程服务器', name='local', value='${local}', onText='是的', offText='不是',
                labelRemark=Remark(shape='circle',
                                   content='开启则确认为远程服务器')),
+        InputText(label='server_id', name='server_id', value='${server_id}',
+                  labelRemark=Remark(shape='circle',
+                                     content='服务器名字')),
         InputText(label='host', name='host', value='${host}',
                   labelRemark=Remark(shape='circle',
                                      content='服务端所在ip')),
@@ -147,20 +152,14 @@ server_control = Form(
         InputText(label='服务器位置', name='location', value='${location}',
                       labelRemark=Remark(shape='circle',
                                          content='求生服务器所在路径')),        
-        InputText(label='远程账户', name='web_secret_key', value='${web_secret_key}',
-                  visibleOn='${total_enable}',
+        InputText(label='远程账户', name='account', value='${account}',
+                  visibleOn='${local}',
                   labelRemark=Remark(shape='circle',
-                                     content='用于本后台管理加密验证token的密钥。')),
-        InputPassword(label='远程密码', name='l4_key', value='${l4_key}',
-                      visibleOn='${total_enable}',
+                                     content='远程服务器的登录账户名')),
+        InputPassword(label='远程密码', name='password', value='${password}',
+                      visibleOn='${local}',
                   labelRemark=Remark(shape='circle',
-                                     content='用于获取拓展功能的key。')),
-        InputTag(label='求生上传地图用户', name='l4_master', value='${l4_master}',
-                 enableBatchAdd=True,
-                 placeholder='添加qq号', visibleOn='${total_enable}', joinValues=False, extractValue=True,
-                 labelRemark=Remark(shape='circle',
-                                    content='在这里加入的用户，才能上传地图')),
-
+                                     content='远程服务器的登录密码')),
     ],
     actions=[Action(label='保存', level=LevelEnum.success, type='submit'),
              Action(label='重置', level=LevelEnum.warning, type='reset')]
@@ -191,13 +190,15 @@ query_table = TableCRUD(mode='table',
                                     ])
 
 server_page = PageSchema(url='/messages', icon='fa fa-comments', label='本地服务器管理',
-                          schema=Page(title='本地服务器管理', body=[
+                          schema=Page(title='本地服务器管理',
+                                      initApi='/l4d2/api/get_l4d2_messages',
+                                        body=[
                               Alert(level=LevelEnum.info,
                                     className='white-space-pre-wrap',
                                     body=(f'此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n'
 
                                           f'· 功能暂未完善')),
-                              server_control]))
+                              server_control,server_ditail]))
 query_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程服务器查询',
                           schema=Page(title='远程服务器查询',
                                       body=[Alert(level=LevelEnum.info,
@@ -208,9 +209,9 @@ query_page = PageSchema(url='/contexts', icon='fa fa-comment', label='远程服�
                                                         f'· 功能暂未完善')),
                                             query_table]))
 
-database_page = PageSchema(label='数据库', icon='fa fa-database',
+database_page = PageSchema(label='数据库', icon='fa fa-wrench',
                            children=[server_page, query_page])
-config_page = PageSchema(url='/configs', isDefaultPage=True, icon='fa fa-wrench', label='配置',
+config_page = PageSchema(url='/configs', isDefaultPage=True, icon='fa fa-database', label='配置',
                          schema=Page(title='配置', initApi='/l4d2/api/get_group_list',
                                      body=[global_config_form,group_select, group_config_form]))
 l4d2_page = PageSchema(label='求生之路', icon='fa fa-wechat (alias)', children=[config_page, database_page])

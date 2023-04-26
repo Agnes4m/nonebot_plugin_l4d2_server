@@ -10,7 +10,6 @@ from nonebot import get_bot, get_app
 from pathlib import Path
 
 from nonebot import get_driver, logger
-from .config import *
 from ..config import *
 from ..utils import split_maohao
 from ..l4d2_queries.qqgroup import qq_ip_querie
@@ -129,15 +128,7 @@ async def init_web():
             config = config_manager.config.dict(exclude={'group_config'})
             config['member_list'] = member_list
 
-            # server_list = []
-            # server_list.extend(
-            #     [{'label':name['id'],
-            #         'value': name}
-            #     for 
-            #     name in config_manager.config.l4_ipall
-            #     ]
-            #     )
-            # config['server_list'] = server_list
+
             return config
         except ValueError:
             return {
@@ -179,9 +170,8 @@ async def init_web():
     @app.get('/l4d2/api/get_l4d2_messages', response_class=JSONResponse, dependencies=[authentication()])
     async def get_l4d2_messages():
         try:
-            # l4_ipall = config_manager.config.dict()
             l4_ipall = config_manager.config.l4_ipall
-            config = [item['id'] for item in l4_ipall]
+            config = [item['server_id'] for item in l4_ipall]
             return {
                 'status': 0,
                 'msg': 'ok',
@@ -192,7 +182,28 @@ async def init_web():
                 'status': -100,
                 'msg':    '返回失败，请确保网络连接正常'
             }
-
+    @app.get('/l4d2/api/l4d2_server_config', response_class=JSONResponse, dependencies=[authentication()])
+    async def get_l4d2_server_config(server_id :str):
+        try:
+            l4_ipall = config_manager.config.l4_ipall
+            config = {}
+            print(l4_ipall)
+            for item in l4_ipall:
+                if item['server_id'] == server_id :
+                    config = item
+                    break
+            print(config)
+            return {
+                'status': 0,
+                'msg': 'ok',
+                'data': config
+            }
+        except ValueError:
+            return {
+                'status': -100,
+                'msg':    '返回失败，请确保网络连接正常'
+            }
+        
     @app.get('/l4d2', response_class=RedirectResponse)
     async def redirect_page():
         return RedirectResponse('/l4d2/login')

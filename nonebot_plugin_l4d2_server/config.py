@@ -70,14 +70,16 @@ class L4d2Config(BaseModel):
         'host':'127.0.0.1',
         'port':'20715',
         'rcon':'114514',
-        'id':'本地地图',
+        'server_id':'本地地图',
         },{
         'place':'remote',
         'location':'/home/unbuntu/coop',
         'host':'11.4.51.4',
         'port':'20715',
         'rcon':'9191810',
-        'id':'远程地图',
+        'account':'root',
+        'password':'114514',
+        'server_id':'远程地图',
         }],
           alias='l4服务器ip集合')
     web_secret_key: str = Field('49c294d32f69b732ef6447c18379451ce1738922a75cd1d4812ef150318a2ed0',
