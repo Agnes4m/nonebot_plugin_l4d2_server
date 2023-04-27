@@ -1,16 +1,20 @@
 
 from nonebot.log import logger
 
+import pandas as pd
+from typing import List
+
+from .analysis import df_to_guoguanlv
 from ..config import l4_steamid
 from ..seach import *
 from ..l4d2_data.players import L4D2Player
 from ..l4d2_image import out_png
+# from .anne_telecom import ANNE_API
 
-
-    
 
 s = L4D2Player()
 
+    
 async def anne_html(name:str):
     """搜索里提取玩家信息，返回列表字典""" 
     data_title = anne_search(name)
@@ -53,16 +57,21 @@ async def anne_html(name:str):
 def anne_html_msg(data_list:list):
     """从搜索结果的字典列表中，返回发送信息"""
     mes = '搜索到以下玩家信息'
+    ns = 0
+    
     for one in data_list:
         one:dict
+        ns += 1
         if l4_steamid:
-            x = 7
-        else:
             x = 6
+        else:
+            x = 5
         titles = list(one.keys())
         for i in range(x):
-            mes += '\n' + str(titles[i]) + ':' + str(one[titles[i]])
-        mes += '\n--------------------'    
+            mes += '\n' + titles[i] + ':' + str(one[titles[i]])
+        mes += '\n--------------------'
+        if ns>4:
+            break
     return mes
 
 
@@ -88,10 +97,10 @@ async def write_player(id,msg:str,nickname:str):
         # try:
         data_tuple = s._query_player_qq(id)
         if data_tuple != None:
-            qq , nicknam , steamid = data_tuple
+            id , nicknam , steamid = data_tuple
         else:
             steamid = None
-        await s._add_player_all(qq , msg , steamid)
+        await s._add_player_all(id , msg , steamid)
         # except TypeError:
         #     await s._add_player_nickname(id , msg ) 
         mes = '绑定成功喵~\nQQ:' + nickname +'\n' + 'steam昵称:'+msg
@@ -102,7 +111,7 @@ async def write_player(id,msg:str,nickname:str):
         
 def del_player(id:str):
     """删除绑定信息,返回消息"""
-    if not s._query_player(id):
+    if not s._query_player_qq(id):
         return '你还没有绑定过，请使用[求生绑定+昵称/steamid]'
     if s._delete_player:
         return '删除成功喵~'
@@ -112,6 +121,7 @@ def del_player(id:str):
 async def id_to_mes(name:str):
     """根据name从数据库,返回steamid、或者空白"""
     data_tuple = await s.search_data(None,name,None)
+    print(data_tuple)
     if data_tuple:
         steamid = data_tuple[2]
         return steamid
@@ -125,12 +135,15 @@ def anne_rank_dict(name:str):
     headers = {
         'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
     }
-    data = httpx.get(url,headers=headers,timeout=30).content.decode('utf-8')
+    data = httpx.get(url=url,headers=headers,timeout=5)
+    if data.status_code != 200:
+        return [f"查询错误，状态码{data.status_code}"]
+    data = data.content.decode('utf-8')
     data = BeautifulSoup(data, 'html.parser')
     detail = data.find_all('table')
     n = 0
     while n < 2:
-        data_list = []
+        data_list:List[dict] = []
         detail2 = detail[n]
         tr = detail2.find_all('tr')
         for i in tr:
@@ -140,6 +153,16 @@ def anne_rank_dict(name:str):
             data_dict.update(new_dict)
         data_list.append(data_dict)
         n += 1
+    # 获取头像
+    element:str = data.find_all(attrs={"style": "cursor:pointer"})[0].get("onclick")
+    player_url = element.split("'")[1]
+    data_list[0].update({"个人资料":player_url})
+    # 获取一言
+    message = data.select("html body div.content.text-center.text-md-left div.container.text-left div.col-md-12.h-100 div.card-body.worldmap.d-flex.flex-column.justify-content-center.text-center span")
+    msg_list = []
+    for i in message:
+        msg_list.append(i.text)
+    data_list[0].update({"一言":msg_list})
     return data_list
 
 def anne_rank_dict_msg(data_list):
@@ -173,8 +196,10 @@ async def anne_messgae(name:str,usr_id:str):
                 name = steamid
         # steamid
         msg = anne_rank_dict(name)[0]
-        logger.info('使用图片')
-        msg = await out_png(usr_id,msg)
+        if type(msg) == dict:
+            msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
+            logger.info('使用图片')
+            msg = await out_png(usr_id,msg)
         return msg
     else:
         """
@@ -184,25 +209,47 @@ async def anne_messgae(name:str,usr_id:str):
         """
         logger.info("qq信息查询")
         data_tuple = s._query_player_qq(usr_id)
-        if not data_tuple:
-            return "没有绑定信息..."
+        logger.info(data_tuple)
+        if data_tuple== None:
+            return f"没有绑定信息...请使用【求生绑定 xxx】\n"
         # 只有名字，先查询数据在判断
-        elif not data_tuple[2]:
-            name = await id_to_mes(data_tuple[1])
-            if not name:
-                return f'未找到该玩家...\n'
-            msg = anne_html(name)
-            logger.info('有' + str(len(msg)) + '个信息')
-            if str(len(msg)) !=1:
-                logger.info('使用文字')
-                msg = anne_html_msg(msg)
-                return msg
-            name = msg[0]['steamid']
-        else:
+        elif data_tuple[2]:
             name = data_tuple[2]
+        elif data_tuple[1]:
+            name = await id_to_mes(data_tuple[1])
+            logger.info(name)
+            if not name:
+                message = await anne_html(data_tuple[1])
+                usr_id = "1145149191810"
+                if len(message) == 0:
+                    return '没有叫这个名字的...\n'
+                if len(message) > 1:
+                    return anne_html_msg(message)
+                name = message[0]['steamid']
         # name是steamid
-        msg = anne_rank_dict(name)
-        logger.info('使用图片')
-        msg = msg[0]
-        msg = await out_png(usr_id,msg)
+        msg = anne_rank_dict(name)[0]
+        if type(msg) == dict:
+            msg.update(await df_to_guoguanlv(await anne_map_msg(name)))
+            logger.info('使用图片')
+            msg = await out_png(usr_id,msg)
         return msg
+    
+async def anne_map_msg(steamid:str):
+    """steamid->地图信息"""
+    url = f"https://sb.trygek.com/l4d_stats/ranking/timedmaps.php?steamid={steamid}"
+    headers = {
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+    }
+    data = httpx.get(url,headers=headers,timeout=5).content.decode('utf-8')
+    soup = BeautifulSoup(data, 'html.parser')
+    data_list = []
+    cards = soup.select('div.card.rounded-0')
+    for card in cards:
+        tbodies = card.select('tbody')
+        for tbody in tbodies:
+            rows = [td.text.strip() for td in tbody.find_all('td')]
+            for i in range(0, len(rows), 9):
+                row = rows[i:i+9]
+                data_list.append(row)
+    df = pd.DataFrame(data_list, columns=['游戏模式', '地图', '难度', '完成时间', '特感数量', '刷新间隔', 'B数使用', '刷特模式', 'Anne版本'])
+    return df

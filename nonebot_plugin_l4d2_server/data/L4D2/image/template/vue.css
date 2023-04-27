@@ -13,12 +13,25 @@ html {
 
 body {
     font-family: var(--font-sans-serif);
-    color: #34495e;
+    color: #004d99;
     -webkit-font-smoothing: antialiased;
     line-height: 1.6rem;
     letter-spacing: 0;
     margin: 0;
     overflow-x: hidden;
+    box-sizing: border-box;
+    border-color: solid 50px rgb(0, 255, 42);
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0);
+    z-index: -1;
 }
 
 #write {
@@ -240,35 +253,44 @@ blockquote {
 }
 
 table {
-    padding: 0;
-    word-break: initial;
+    position: relative;
+}
+table::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    margin-top:50px;
 }
 
 table tr {
     border-top: 1px solid #dfe2e5;
     margin: 0;
     padding: 0;
-}
-
-table tr:nth-child(2n),
-thead {
-    background-color: #fafafa;
+    background: transparent;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 table tr th {
+    color: #0080ff;
     font-weight: bold;
-    border: 1px solid #dfe2e5;
+    border: 1px solid #00ff66;
     border-bottom: 0;
     text-align: left;
     margin: 0;
     padding: 6px 13px;
+    /* background-color: rgba(255, 255, 255, 0.5); */
 }
-
 table tr td {
-    border: 1px solid #dfe2e5;
+    color: #0080ff;
+    border: 1px solid #00ff66;
     text-align: left;
     margin: 0;
     padding: 6px 13px;
+    /* background-color: rgba(255, 255, 255, 0.5); */
 }
 
 table tr th:first-child,
@@ -485,5 +507,25 @@ footer {
 }
 
 .transparent-bg {
-    background-color: transparent;
+    background-color: rgba(255,255,255,0.5);
 }
+
+
+.myinfo {
+    width: 90%;
+    margin: auto;
+}
+
+/* .pc {
+    width: 1080px;
+    height: 400px;
+    padding: 0;
+    box-sizing: border-box;
+    border: solid 50px #fd7be7;
+}
+*/
+@media only screen and (min-height: 400px) {
+    .pc {
+        height: auto;
+    }
+} 
