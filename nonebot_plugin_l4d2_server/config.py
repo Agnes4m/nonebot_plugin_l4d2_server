@@ -63,8 +63,9 @@ class L4d2Config(BaseModel):
     l4_host: List[str] = Field(['127.0.0.1'], alias='求生服务器地址')
     l4_port: List[str] = Field(['20715'], alias='求生服务器端口')
     l4_rcon: List[str] = Field(['114514'], alias='求生服务器rcon密码')
-    l4_ipall: List[Dict] = Field(
+    l4_ipall: List[Dict[str,Union[str,bool]]] = Field(
         [{
+        'id_rank':'1',
         'place':False,
         'location':'C:\\l4d2',
         'host':'127.0.0.1',
@@ -72,6 +73,7 @@ class L4d2Config(BaseModel):
         'rcon':'114514',
         'server_id':'本地地图',
         },{
+        'id_rank':'2',
         'place':True,
         'location':'/home/unbuntu/coop',
         'host':'11.4.51.4',

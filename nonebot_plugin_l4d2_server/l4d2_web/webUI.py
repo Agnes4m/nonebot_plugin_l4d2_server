@@ -130,7 +130,7 @@ server_control = Select(label='服务器设置', name='server_id', source='${ser
 
 server_ditail= Form(
     title='',
-    api='post/l4d2/api/l4d2_server_config?server_id=${server_id}',
+    api='post:/l4d2/api/l4d2_server_config?server_id=${server_id}',
     initApi='/l4d2/api/l4d2_server_config?server_id=${server_id}',
     visibleOn='server_id != null',
     body=[

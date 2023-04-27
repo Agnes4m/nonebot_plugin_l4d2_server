@@ -123,11 +123,10 @@ async def get_des_ip():
     global ALL_HOST
     global ANNE_IP
     global matchers
-    if config_manager.config.l4_tag == None:
+    if l4_tag == None:
         pass
     else:
-        ALL_HOST.update(await seach_map(l4_config.l4_tag,l4_qq,l4_config.l4_key,'ip'))
-        sleep(1)
+        ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
         def count_ips(ip_dict:dict):
             global ANNE_IP
             for key, value in ip_dict.items():
@@ -138,7 +137,7 @@ async def get_des_ip():
                 logger.info(f'已加载：{key} | {count}个')
                 if key == '云':
                     ANNE_IP = {key:value}
-                
+        sleep(1)
         count_ips(ALL_HOST)
         ip_anne_list=[] 
         try:
@@ -221,9 +220,9 @@ async def get_des_ip():
     
 async def init():
     global matchers
-
-    await get_des_ip()
     print('启动辣')
+    await get_des_ip()
+    
    
     
 @driver.on_bot_connect

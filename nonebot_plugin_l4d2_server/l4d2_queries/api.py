@@ -26,6 +26,7 @@ async def seach_map(msg:Union[list,str],qq:str,key:str,mode:str = 'zh'):
             logger.error(rep['error_'])
         except:
             pass
+        print(file.json())
         return file.json()
     elif mode == 'first':
         ip_tag:list = file.json()
