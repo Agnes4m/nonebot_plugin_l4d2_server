@@ -47,9 +47,9 @@ global_config_form = Form(
     initApi='/l4d2/api/l4d2_global_config',
     api='post:/l4d2/api/l4d2_global_config',
     body=[
-        Switch(label='求生功能总开关', name='total_enable', value='${total_enable}', onText='开启', offText='关闭',
+        Switch(label='控制总开关（摆设）', name='total_enable', value='${total_enable}', onText='开启', offText='关闭',
                labelRemark=Remark(shape='circle',
-                                  content='关闭后，全局都将禁用求生功能。')),
+                                  content='关闭后，禁用网页控制台，请参考文档启动方法')),
         InputText(label='后台管理用户名', name='web_username', value='${web_username}',
                   labelRemark=Remark(shape='circle',
                                      content='登录本后台管理所需要的用户名。')),
@@ -61,7 +61,18 @@ global_config_form = Form(
                                      content='用于本后台管理加密验证token的密钥。')),
         InputText(label='查询key', name='l4_key', value='${l4_key}',
                   labelRemark=Remark(shape='circle',
-                                     content='用于获取拓展功能的key。')),
+                                     content='用于获取拓展功能的key,加q群399365126领取。')),
+        InputText(label='字体', name='l4_font', value='${l4_font}',
+                  labelRemark=Remark(shape='circle',
+                                     content='机器人返回图片中文字的字体。')),
+        Select(label='图片风格', name='l4_style', value='${l4_style}',source='${l4_styles}',
+                  labelRemark=Remark(shape='circle',
+                                     content='仅仅是批量查询的风格')),
+        InputTag(label='查询的远程服务器tag', name='l4_tag', value='${l4_tag}',
+                 enableBatchAdd=True,
+                 placeholder='添加qq号', visibleOn='${total_enable}', joinValues=False, extractValue=True,
+                 labelRemark=Remark(shape='circle',
+                                    content='在这里加入的用户，才能上传地图')),
         InputTag(label='求生上传地图用户', name='l4_master', value='${l4_master}',
                  enableBatchAdd=True,
                  placeholder='添加qq号', visibleOn='${total_enable}', joinValues=False, extractValue=True,
@@ -97,7 +108,7 @@ upload_map_form = Form(
 )
 
 
-group_select = Select(label='分群配置', name='group_id', source='${group_list}',
+group_select = Select(label='分群配置（暂未完成）', name='group_id', source='${group_list}',
                       placeholder='选择群')
 group_config_form = Form(
     title='分群配置（暂未完成）',
@@ -125,33 +136,37 @@ group_config_form = Form(
              Action(label='重置', level=LevelEnum.warning, type='reset')]
 )
 
-server_control = Select(label='服务器设置', name='server_id', source='${server_list}',
+server_control = Select(label='服务器设置', name='id_rank', source='${server_list}',
                       placeholder='选择服务器')
 
 server_ditail= Form(
     title='',
-    api='post:/l4d2/api/l4d2_server_config?server_id=${server_id}',
-    initApi='/l4d2/api/l4d2_server_config?server_id=${server_id}',
+    api='post:/l4d2/api/l4d2_server_config?id_rank=${id_rank}',
+    initApi='/l4d2/api/l4d2_server_config?id_rank=${id_rank}',
+<<<<<<< Updated upstream
     visibleOn='server_id != null',
+=======
+    visibleOn='id_rank != null',
+>>>>>>> Stashed changes
     body=[
         Switch(label='是否是远程服务器', name='place', value='${place}', onText='是的', offText='不是',
                labelRemark=Remark(shape='circle',
                                   content='开启则确认为远程服务器')),
-        InputText(label='server_id', name='server_id', value='${server_id}',
+        InputText(label='服务器名称', name='server_id', value='${server_id}',
                   labelRemark=Remark(shape='circle',
                                      content='服务器名字')),
-        InputText(label='host', name='host', value='${host}',
+        InputText(label='服务器ip地址', name='host', value='${host}',
                   labelRemark=Remark(shape='circle',
-                                     content='服务端所在ip')),
-        InputText(label='port', name='port', value='${port}',
+                                     content='服务端所在ip地址,也可以是域名')),
+        InputText(label='所在端口', name='port', value='${port}',
                       labelRemark=Remark(shape='circle',
                                          content='服务端所在端口')),
-        InputPassword(label='rcon', name='rcon', value='${rcon}',
+        InputPassword(label='rcon控制台密码', name='rcon', value='${rcon}',
                       labelRemark=Remark(shape='circle',
                                          content='服务端rcon密码')),
-        InputText(label='服务器位置', name='location', value='${location}',
+        InputText(label='服务器本地文件位置', name='location', value='${location}',
                       labelRemark=Remark(shape='circle',
-                                         content='求生服务器所在路径')),        
+                                         content='求生服务器所在路径,该路径下有文件srcds_run')),        
         InputText(label='远程账户', name='account', value='${account}',
                   visibleOn='${place}',
                   labelRemark=Remark(shape='circle',
@@ -191,6 +206,7 @@ query_table = TableCRUD(mode='table',
 
 server_page = PageSchema(url='/messages', icon='fa fa-comment', label='本地服务器管理',
                           schema=Page(title='本地服务器管理',
+                                      interval=120000,
                                       initApi='/l4d2/api/get_l4d2_messages',
                                         body=[
                               Alert(level=LevelEnum.info,

@@ -59,14 +59,13 @@ __plugin_meta__ = PluginMetadata(
 
 """相当于启动就检查数据库"""
 
-
 @up.handle()
 async def _(matcher:Matcher,event: NoticeEvent):
     args = event.dict()
     if args['notice_type'] != 'offline_file':
         matcher.set_arg('txt',args)
         return
-    l4_file_path = l4_file[CHECK_FILE]
+    l4_file_path = l4_config.l4_ipall[CHECK_FILE]['location']
     map_path = Path(l4_file_path, vpk_path)
     # 检查下载路径是否存在
     if not Path(l4_file_path).exists():
@@ -75,7 +74,7 @@ async def _(matcher:Matcher,event: NoticeEvent):
     if not Path(map_path).exists():
         await matcher.finish("这个路径并不是求生服务器的路径，请再看看罢")
         return
-    url = args['file']['url']
+    url:str = args['file']['url']
     name: str = args['file']['name']
     # 如果不符合格式则忽略
     await up.send('已收到文件，开始下载')
@@ -92,6 +91,7 @@ async def _(matcher:Matcher,event: NoticeEvent):
 @up.got("is_sure", prompt="请选择上传位置（输入阿拉伯数字)")    
 async def _(matcher: Matcher):
     args = matcher.get_arg('txt')
+    l4_file = l4_config.l4_ipall[CHECK_FILE]['location']
     if not args:
         await matcher.finish('获取文件出错辣，再试一次吧')
 
@@ -136,8 +136,7 @@ async def _(matcher: Matcher):
 @find_vpk.handle()
 async def _(bot:Bot,event: MessageEvent,matcher: Matcher):
     name_vpk = []
-    map_path = Path(l4_file[CHECK_FILE],vpk_path)
-    print
+    map_path = Path(l4_config.l4_ipall[CHECK_FILE]['location'],vpk_path)
     name_vpk = get_vpk(name_vpk,map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
@@ -154,14 +153,14 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
 
 @del_vpk.got("num",prompt="你要删除第几个序号的地图(阿拉伯数字)")
 async def _(matcher: Matcher,tag:int = ArgPlainText("num")):
-    map_path = Path(l4_file[CHECK_FILE],vpk_path)
+    map_path = Path(l4_config.l4_ipall[CHECK_FILE]['location'],vpk_path)
     vpk_name = del_map(tag,map_path)
     await matcher.finish('已删除地图：' + vpk_name)
     
 @rename_vpk.handle()
 async def _(matcher:Matcher,matched: Tuple[int,str, str] = RegexGroup(),):
     num,useless,rename = matched
-    map_path = Path(l4_file[CHECK_FILE],vpk_path)
+    map_path = Path(l4_config.l4_ipall[CHECK_FILE]['location'],vpk_path)
     logger.info('检查是否名字是.vpk后缀')
     if not rename.endswith('.vpk'):
         rename = rename + '.vpk'
@@ -214,9 +213,9 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
 async def _(matcher:Matcher,tag:str = ArgPlainText("command")):
     tag = tag.strip()
     msg = await command_server(tag)
-    if l4_image:
+    try:
         await matcher.finish(mode_txt_to_img('服务器返回',msg))
-    else:
+    except:
         await matcher.finish(msg,reply_message = True)
         
 
@@ -245,14 +244,14 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
     msg = args.extract_plain_text()
     if msg.startswith('切换'):
         msg_number = int(''.join(msg.replace('切换', ' ').split()))
-        if msg_number > len(l4_file) or msg_number < 0:
+        if msg_number > len(l4_config.l4_ipall) or msg_number < 0:
             await matcher.send('没有这个序号的路径呐')
         else:
             CHECK_FILE = msg_number - 1
-            now_path = l4_file[CHECK_FILE]
+            now_path = l4_config.l4_ipall[CHECK_FILE]['location']
             await matcher.send(f'已经切换路径为\n{str(CHECK_FILE+1)}、{now_path}')
     else: 
-        now_path = l4_file[CHECK_FILE]
+        now_path = l4_config.l4_ipall[CHECK_FILE]['location']
         await matcher.send(f'当前的路径为\n{str(CHECK_FILE+1)}、{now_path}')
         
         
@@ -404,7 +403,7 @@ async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
 
 @smx_file.handle()
 async def _(matcher:Matcher,):
-    smx_path = Path(l4_file[CHECK_FILE],"left4dead2/addons/sourcemod/plugins")
+    smx_path = Path(l4_config.l4_ipall[CHECK_FILE]['location'],"left4dead2/addons/sourcemod/plugins")
     smx_list = []
     name_smx = get_vpk(smx_list,smx_path,file_=".smx")
     logger.info("获取文件列表成功")
@@ -418,7 +417,7 @@ async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message =
     msg:str = args.extract_plain_text()
     # if msg.startswith('代码'):
         # 建图代码返回三方图信息
-    data = await seach_map(msg,l4_qq,l4_key)
+    data = await seach_map(msg,l4_config.l4_master[0],l4_config.l4_key)
     # else:
     if type(data) == str:
         await matcher.finish(data)
@@ -433,7 +432,7 @@ async def _(matcher:Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
         data_dict:dict = state['maps'][0]
         if type(data_dict) == dict:
             logger.info('开始上传')
-            if l4_only:
+            if l4_config.l4_only:
                 data_file,file_name = await url_to_byte_name(data_dict['url'],'htp')
             else:
                 data_file,file_name = await url_to_byte_name(data_dict['url'])
@@ -451,15 +450,15 @@ async def _(matcher:Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
     else:
         await matcher.finish('已取消上传')
         
-@reload_ip.handle()
-async def _(matcher:Matcher):
-    global matchers
-    await matcher.send('正在重载ip，可能需要一点时间')
-    for _, l4_matchers in matchers.items():
-        for l4_matcher in l4_matchers:
-            l4_matcher.destroy()
-    await get_des_ip()
-    await matcher.finish('已重载ip')
+# @reload_ip.handle()
+# async def _(matcher:Matcher):
+#     global matchers
+#     await matcher.send('正在重载ip，可能需要一点时间')
+#     for _, l4_matchers in matchers.items():
+#         for l4_matcher in l4_matchers:
+#             l4_matcher.destroy()
+#     await get_des_ip()
+#     await matcher.finish('已重载ip')
     
 
 @driver.on_shutdown

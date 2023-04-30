@@ -2,8 +2,9 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from nonebot.adapters.onebot.v11 import MessageSegment
 from nonebot_plugin_txt2img import Txt2Img
-from .config import l4_font
+from .config import l4_config
 
+l4_font = l4_config.l4_font
 """直接超的智障回复"""
 def txt_to_img(text: str, font_size=30, font_path=l4_font) -> bytes:
     text = line_break(text)
