@@ -123,10 +123,14 @@ async def get_des_ip():
     global ALL_HOST
     global ANNE_IP
     global matchers
-    if l4_tag == None:
+    if l4_config.l4_tag == None:
         pass
     else:
-        ALL_HOST.update(await seach_map(l4_tag,l4_qq,l4_key,'ip'))
+        # try:
+        #     qq = l4_config.l4_master[0]
+        # except:
+        #     qq = list(nonebot.get_bot().config.superusers)[0]
+        # ALL_HOST.update(await seach_map(msg = l4_config.l4_tag,qq = qq, key=l4_config.l4_key,mode='ip'))
         def count_ips(ip_dict:dict):
             global ANNE_IP
             for key, value in ip_dict.items():
@@ -220,7 +224,7 @@ async def get_des_ip():
     
 async def init():
     global matchers
-    print('启动辣')
+    # print('启动辣')
     await get_des_ip()
     
    

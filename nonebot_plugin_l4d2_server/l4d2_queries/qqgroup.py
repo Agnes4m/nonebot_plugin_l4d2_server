@@ -221,7 +221,7 @@ async def get_server_ip(number):
 def split_maohao(msg:str) -> list:
     """分割大小写冒号"""
     msg:list = re.split(":|：",msg.strip())
-    mse = [msg[0],msg[-1]] if msg[0] != msg[-1] else [msg[0],20715]
+    mse = [msg[0],msg[-1]] if len(msg)==2 else [msg[0],20715]
     return mse
 
 async def write_json(data_str: str):

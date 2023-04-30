@@ -9,7 +9,7 @@ from ..config import TEXT_PATH
 from .download import get_head_by_user_id_and_save
 from .send_image_tool import convert_img
 import jinja2
-from ..config import l4_style
+from ..config import l4_config
 template_path = TEXT_PATH/"template"
 
 env = jinja2.Environment(
@@ -87,7 +87,7 @@ async def server_ip_pic(msg_list:List[dict]):
 
 async def get_help_img(plugins: List[dict]) -> Optional[bytes]:
     try:
-        if l4_style == 'black':
+        if l4_config.l4_style == 'black':
             template = env.get_template("help_dack.html")
         else:
             template = env.get_template("help.html")

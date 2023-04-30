@@ -25,7 +25,7 @@ async def get_file(url: str, down_file: Path):
     下载指定Url到指定位置
     '''
     try:
-        if l4_only:
+        if l4_config.l4_only:
             maps = await url_to_byte(url)
         else:
             maps = httpx.get(url).content

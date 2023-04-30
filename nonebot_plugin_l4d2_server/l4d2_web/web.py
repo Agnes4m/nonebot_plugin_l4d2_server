@@ -105,7 +105,6 @@ async def init_web():
 
     @app.post('/l4d2/api/l4d2_global_config', response_class=JSONResponse, dependencies=[authentication()])
     async def post_l4d2_global_config(data: dict):
-        print(data)
         config_manager.config.update(**data)
         config_manager.save()
         return {
@@ -128,7 +127,7 @@ async def init_web():
                      member in members])
             config = config_manager.config.dict(exclude={'group_config'})
             config['member_list'] = member_list
-
+            config['l4_styles'] = ['standard','black']
 
             return config
         except ValueError:
@@ -172,6 +171,7 @@ async def init_web():
     async def get_l4d2_messages():
         try:
             l4_ipall = config_manager.config.l4_ipall
+<<<<<<< Updated upstream
             server_list = []
             config = config_manager.config.dict(exclude={'group_config'})
             server_list.extend(
@@ -180,6 +180,15 @@ async def init_web():
                     for item in l4_ipall])
             config['server_list'] = server_list
             return config
+=======
+            config = [{'label': item['server_id'] , 'value': item['id_rank']}
+                for item in l4_ipall]
+            return {
+                'status': 0,
+                'msg': 'ok',
+                'data': {'server_list':config}
+            }
+>>>>>>> Stashed changes
         except ValueError:
             return {
                 'status': -100,
@@ -190,12 +199,14 @@ async def init_web():
         try:
             l4_ipall = config_manager.config.l4_ipall
             config = {}
-            print(l4_ipall)
             for item in l4_ipall:
                 if item['id_rank'] == id_rank :
+<<<<<<< Updated upstream
+=======
+                    item['place'] = item['place'] == 'True' or item['place'] == True
+>>>>>>> Stashed changes
                     config = item
                     break
-            print(config)
             return {
                 'status': 0,
                 'msg': 'ok',
@@ -209,7 +220,10 @@ async def init_web():
         
     @app.post('/l4d2/api/l4d2_server_config', response_class=JSONResponse, dependencies=[authentication()])
     async def post_l4d2_server_config(id_rank :str,data: dict):
+<<<<<<< Updated upstream
         print(data)
+=======
+>>>>>>> Stashed changes
         for one in config_manager.config.l4_ipall:
             if one['id_rank']==id_rank:
                 one.update(**data)

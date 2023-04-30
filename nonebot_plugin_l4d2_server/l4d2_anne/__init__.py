@@ -5,7 +5,6 @@ import pandas as pd
 from typing import List
 
 from .analysis import df_to_guoguanlv
-from ..config import l4_steamid
 from ..seach import *
 from ..l4d2_data.players import L4D2Player
 from ..l4d2_image import out_png
@@ -62,10 +61,8 @@ def anne_html_msg(data_list:list):
     for one in data_list:
         one:dict
         ns += 1
-        if l4_steamid:
-            x = 6
-        else:
-            x = 5
+        x = 6
+
         titles = list(one.keys())
         for i in range(x):
             mes += '\n' + titles[i] + ':' + str(one[titles[i]])
