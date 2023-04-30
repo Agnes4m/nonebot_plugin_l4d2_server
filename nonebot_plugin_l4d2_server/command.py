@@ -30,7 +30,6 @@ help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 
 def wenjian(
 event:NoticeEvent):
-    superuse = config_manager.config.l4_master
     args = event.dict()
     try:
         name: str = args['file']['name']
@@ -38,13 +37,13 @@ event:NoticeEvent):
     except KeyError:
         return False
     if args['notice_type'] == 'offline_file':
-        if superuse:
-            return name.endswith(file_format) and usr_id in superuse
+        if l4_config.l4_master:
+            return name.endswith(file_format) and usr_id in l4_config.l4_master
         else:
             return name.endswith(file_format)
     elif args['notice_type'] == 'group_upload':
-        if superuse:
-            return usr_id in superuse and name.endswith(file_format)
+        if l4_config.l4_master:
+            return usr_id in l4_config.l4_master and name.endswith(file_format)
         else:
             return False
 
