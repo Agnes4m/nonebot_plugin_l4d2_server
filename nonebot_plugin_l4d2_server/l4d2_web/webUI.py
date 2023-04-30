@@ -143,11 +143,7 @@ server_ditail= Form(
     title='',
     api='post:/l4d2/api/l4d2_server_config?id_rank=${id_rank}',
     initApi='/l4d2/api/l4d2_server_config?id_rank=${id_rank}',
-<<<<<<< Updated upstream
-    visibleOn='server_id != null',
-=======
     visibleOn='id_rank != null',
->>>>>>> Stashed changes
     body=[
         Switch(label='是否是远程服务器', name='place', value='${place}', onText='是的', offText='不是',
                labelRemark=Remark(shape='circle',

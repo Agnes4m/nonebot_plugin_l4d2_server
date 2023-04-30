@@ -34,13 +34,18 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </div>
 
+## 顶置公告
 
+0.5.0破坏式更新，不再使用env配置，采用web控制台管理
+
+同时不再支持远程查询，改为只允许本地查询
 
 ## 主要功能
 
 - 求生服务器-本地多路径操作（传地图）
 - 批量查询指定ip服务器状态和玩家
 - 创意工坊下载和喷漆制作
+- web控制台
 - [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
 
 
