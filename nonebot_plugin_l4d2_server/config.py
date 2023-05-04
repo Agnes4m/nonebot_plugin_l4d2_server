@@ -19,8 +19,7 @@ from nonebot.adapters.onebot.v11.permission import (
     PRIVATE_FRIEND,
 )
 
-from .l4d2_queries.ohter import ALL_HOST    
-from .l4d2_queries.api import seach_map,map_dict_to_str
+from .l4d2_queries.ohter import ALL_HOST
 file_format = (".vpk",".zip",".7z",'rar')
 # 权限
 

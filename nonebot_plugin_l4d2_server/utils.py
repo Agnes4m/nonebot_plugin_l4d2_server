@@ -6,7 +6,7 @@ import httpx
 import os
 from pathlib import Path
 
-from typing import List,Dict,Union
+from typing import List,Dict,Union,Optional
 from .txt_to_img import txt_to_img
 from .config import *
 from .l4d2_anne import write_player,del_player,anne_messgae
@@ -270,3 +270,28 @@ async def json_server_to_tag_dict(key:str,msg:str):
 
 
 
+sub_menus = []
+
+def register_menu_func(
+    func: str,
+    trigger_condition: str,
+    brief_des: str,
+    trigger_method: str = '指令',
+    detail_des: Optional[str] = None,
+):
+    sub_menus.append(
+        {
+            'func': func,
+            'trigger_method': trigger_method,
+            'trigger_condition': trigger_condition,
+            'brief_des': brief_des,
+            'detail_des': detail_des or brief_des,
+        }
+    )
+
+def register_menu(*args, **kwargs):
+    def decorator(f):
+        register_menu_func(*args, **kwargs)
+        return f
+
+    return decorator
