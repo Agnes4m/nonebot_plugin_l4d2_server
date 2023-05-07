@@ -412,18 +412,18 @@ async def _(matcher:Matcher,):
     msg = mes_list(msg,name_smx).replace(" ","")
     await matcher.finish(mode_txt_to_img(mes,msg))
     
-@search_api.handle()
-async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message = CommandArg()):
-    msg:str = args.extract_plain_text()
-    # if msg.startswith('代码'):
-        # 建图代码返回三方图信息
-    data = await seach_map(msg,l4_config.l4_master[0],l4_config.l4_key)
-    # else:
-    if type(data) == str:
-        await matcher.finish(data)
-    else:
-        state['maps'] = data
-        await matcher.send(await map_dict_to_str(data))
+# @search_api.handle()
+# async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message = CommandArg()):
+#     msg:str = args.extract_plain_text()
+#     # if msg.startswith('代码'):
+#         # 建图代码返回三方图信息
+#     data = await seach_map(msg,l4_config.l4_master[0],l4_config.l4_key)
+#     # else:
+#     if type(data) == str:
+#         await matcher.finish(data)
+#     else:
+#         state['maps'] = data
+#         await matcher.send(await map_dict_to_str(data))
         
 @search_api.got("is_sure",prompt='如果需要上传，请发送 "yes"')    
 async def _(matcher:Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):

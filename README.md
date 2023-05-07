@@ -114,7 +114,14 @@ bot所在文件夹下
 <details>
 <summary>展开/收起</summary>
 
-### 0.5.1--2022.5.01
+
+### 0.5.3--2022.5.07
+
+- 新增`l4更新`和`l4重启`
+- 注释无效项（三方图查询）
+- 
+
+### 0.5.2--2022.5.01
 
 - 解决了main和dev分支的一个严重bug（也许没解决
 - 本地化，更好的添加,删除远程分支
@@ -360,6 +367,6 @@ bot所在文件夹下
   - [可爱小Q](https://github.com/MeetWq/mybot)- 服务器图片参考
 - [群聊学习](https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat)- web控制台参考
 - [日向麻麻](https://github.com/Special-Week)- 代码优化参考
-- [gsuid](https://github.com/KimigaiiWuyi/GenshinUID)- readme和wiki的格式参考
+- [gsuid](https://github.com/KimigaiiWuyi/GenshinUID)- readme和wiki的格式参考，以及3.1版本的更新和重启
 - 呆呆- 提供三方地图的详细数据
 - ArcPav -积极反馈bug，提供改进思路

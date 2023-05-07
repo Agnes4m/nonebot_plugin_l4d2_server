@@ -6,7 +6,7 @@ import platform
 import subprocess
 from pathlib import Path
 
-from ..utils.db_operation.db_operation import config_check
+# from ..utils.db_operation.db_operation import config_check
 
 bot_start = Path().cwd() / 'bot.py'
 restart_sh_path = Path().cwd() / 'gs_restart.sh'
@@ -23,10 +23,10 @@ async def get_restart_sh(extra: str) -> str:
 
 
 async def restart_genshinuid(send_type: str, send_id: str) -> None:
-    extra = ''
-    if await config_check('UsePoetry'):
-        extra = 'poetry run '
-    extra += sys.executable
+    # extra = ''
+    # if await config_check('UsePoetry'):
+    #     extra = 'poetry run '
+    extra = sys.executable
     restart_sh = await get_restart_sh(extra)
     if not restart_sh_path.exists():
         with open(restart_sh_path, "w", encoding="utf8") as f:

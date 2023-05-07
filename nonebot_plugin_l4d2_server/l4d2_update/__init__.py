@@ -12,10 +12,10 @@ from ..rule import FullCommand
 from .draw_update_log import draw_update_log_img
 from .restart import restart_message, restart_genshinuid
 
-gs_restart = on_command('l4重启', rule=FullCommand())
+l4d_restart = on_command('l4重启', rule=FullCommand())
 get_update_log = on_command('更新记录', rule=FullCommand())
-gs_update = on_regex(
-    r'^(gs)(强行)?(强制)?(更新)$',
+l4d_update = on_regex(
+    r'^(l4d)(强行)?(强制)?(更新)$',
     block=True,
 )
 
@@ -71,14 +71,14 @@ async def send_updatelog_msg(
         await matcher.finish('发生了未知错误,请联系管理员检查后台输出!')
 
 
-@gs_restart.handle()
+@l4d_restart.handle()
 @register_menu(
     '重启Bot',
-    'gs重启',
+    'l4重启',
     '重启Bot框架',
     trigger_method='超级用户指令',
     detail_des=(
-        '介绍：\n' '重启Bot框架\n' ' \n' '指令：\n' '- <ft color=(238,120,0)>gs重启</ft>'
+        '介绍：\n' '重启Bot框架\n' ' \n' '指令：\n' '- <ft color=(238,120,0)>l4重启</ft>'
     ),
 )
 async def send_restart_msg(
@@ -96,14 +96,14 @@ async def send_restart_msg(
     else:
         send_id = qid
         send_type = 'private'
-    await matcher.send('正在执行[gs重启]...')
+    await matcher.send('正在执行[l4重启]...')
     await restart_genshinuid(send_type, str(send_id))
 
 
-@gs_update.handle()
+@l4d_update.handle()
 @register_menu(
     '更新插件',
-    'gs更新',
+    'l4更新',
     '手动更新插件',
     detail_des=(
         '介绍：\n'
@@ -112,7 +112,7 @@ async def send_restart_msg(
         '当执行等级≥1时会还原上次更改，等级≥2时会清空暂存\n'
         ' \n'
         '指令：\n'
-        '- <ft color=(238,120,0)>gs</ft>'
+        '- <ft color=(238,120,0)>l4d</ft>'
         '<ft color=(125,125,125)>(强行)(强制)</ft>'
         '<ft color=(238,120,0)>更新</ft>'
     ),
@@ -126,14 +126,14 @@ async def send_update_msg(
     if not await SUPERUSER(bot, event):
         return
 
-    logger.info('[gs更新] 正在执行 ...')
+    logger.info('[l4d更新] 正在执行 ...')
     level = 2
     if args[1] is None:
         level -= 1
     if args[2] is None:
         level -= 1
-    logger.info(f'[gs更新] 更新等级为{level}')
-    await matcher.send(f'开始执行[gs更新], 执行等级为{level}')
+    logger.info(f'[l4d更新] 更新等级为{level}')
+    await matcher.send(f'开始执行[l4d更新], 执行等级为{level}')
     im = await draw_update_log_img(level)
     if isinstance(im, str):
         await matcher.finish(im)
