@@ -224,6 +224,7 @@ async def get_des_ip():
 async def init():
     global matchers
     # print('启动辣')
+    from .l4d2_update import l4d_restart,l4d_update,get_update_log,driver
     await get_des_ip()
     
    
