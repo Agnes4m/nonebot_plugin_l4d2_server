@@ -7,8 +7,8 @@ from nonebot.permission import SUPERUSER
 from nonebot import get_bot, on_regex, get_driver, on_command
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 
-from ..utils import register_menu
-from ..rule import FullCommand
+from ..l4d2_utils.utils import register_menu
+from ..l4d2_utils.rule import FullCommand
 from .draw_update_log import draw_update_log_img
 from .restart import restart_message, restart_genshinuid
 

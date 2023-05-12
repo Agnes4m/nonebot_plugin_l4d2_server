@@ -26,9 +26,9 @@ from nonebot import get_driver, require
 from nonebot.plugin import PluginMetadata
 
 
-from .config import *
-from .utils import *
-from .command import *
+from l4d2_utils.config import *
+from l4d2_utils.utils import *
+from l4d2_utils.command import *
 from .l4d2_image.steam import url_to_byte,url_to_byte_name
 
 from .l4d2_data import sq_L4D2
@@ -38,7 +38,7 @@ from .l4d2_queries.ohter import load_josn
 from .l4d2_queries.qqgroup import write_json
 from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
 
-from .txt_to_img import mode_txt_to_img
+from l4d2_utils.txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 

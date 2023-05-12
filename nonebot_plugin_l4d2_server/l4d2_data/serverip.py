@@ -1,4 +1,4 @@
-from ..config import DATASQLITE
+from ..l4d2_utils.config import DATASQLITE
 import sqlite3
 
 

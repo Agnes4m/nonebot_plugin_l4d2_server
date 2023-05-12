@@ -6,8 +6,8 @@ import os
 import io
 from typing import List
 
-from ..utils import get_file,get_vpk
-from ..config import systems
+from ..l4d2_utils.utils import get_file,get_vpk
+from ..l4d2_utils.config import systems
 from nonebot.log import logger
 from rarfile import RarFile
 import rarfile

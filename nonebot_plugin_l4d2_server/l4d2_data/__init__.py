@@ -1,4 +1,4 @@
-from ..config import (
+from ..l4d2_utils.config import (
     DATASQLITE,
     table_data,
     L4d2_players_tag,

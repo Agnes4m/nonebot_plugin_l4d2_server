@@ -1,7 +1,7 @@
 from rcon.source import rcon
 import asyncio
 from pathlib import Path
-from ..config import l4_config,CHECK_FILE
+from ..l4d2_utils.config import l4_config,CHECK_FILE
 # from ..config import l4_rcon,l4_host,l4_port,l4_rcon
 
 

@@ -10,8 +10,8 @@ from nonebot import get_bot, get_app
 from pathlib import Path
 
 from nonebot import get_driver, logger
-from ..config import *
-from ..utils import split_maohao
+from ..l4d2_utils.config import *
+from ..l4d2_utils.utils import split_maohao
 from ..l4d2_queries.qqgroup import qq_ip_querie
 CONFIG_PATH = Path() / 'data' / 'L4D2' / 'l4d2.yml'
 
@@ -139,7 +139,7 @@ async def init_web():
     @app.get('/l4d2/api/get_query_contexts', response_class=JSONResponse, dependencies=[authentication()])
     async def get_query_context():
         try:
-            from ..command import ALL_HOST
+            from ..l4d2_utils.command import ALL_HOST
             this_ips = ALL_HOST
             ip_lists = []
             for ip_list, v in this_ips.items():

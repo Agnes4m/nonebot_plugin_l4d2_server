@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 import json
 from pathlib import Path
-from ..config import TEXT_PATH,anne_url,ANNE_IP,gamemode_list
+from ..l4d2_utils.config import TEXT_PATH,anne_url,ANNE_IP,gamemode_list
 from ..l4d2_queries.ohter import ALL_HOST
 
 # 储存anne服务器ip

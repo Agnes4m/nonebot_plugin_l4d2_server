@@ -4,7 +4,7 @@ from amis import Form, InputText, InputPassword, DisplayModeEnum, Horizontal, Re
 from amis import LevelEnum, Select,  Alert, Tpl, Flex
 
 
-from ..config import NICKNAME
+from ..l4d2_utils.config import NICKNAME
 
 logo = Html(html='''
 <p align="center">

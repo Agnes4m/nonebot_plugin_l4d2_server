@@ -5,7 +5,7 @@ import pandas as pd
 from typing import List
 
 from .analysis import df_to_guoguanlv
-from ..seach import *
+from ..l4d2_utils.seach import *
 from ..l4d2_data.players import L4D2Player
 from ..l4d2_image import out_png
 # from .anne_telecom import ANNE_API

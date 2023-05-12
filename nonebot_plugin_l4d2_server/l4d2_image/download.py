@@ -6,7 +6,7 @@ import os
 import random
 from PIL import Image,ImageDraw
 import io
-from ..config import PLAYERSDATA,TEXT_PATH
+from ..l4d2_utils.config import PLAYERSDATA,TEXT_PATH
 # from .steam import web_player
 
 async def download_url(url: str) -> bytes:

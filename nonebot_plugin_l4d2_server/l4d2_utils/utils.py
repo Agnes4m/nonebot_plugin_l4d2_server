@@ -9,12 +9,12 @@ from pathlib import Path
 from typing import List,Dict,Union,Optional
 from .txt_to_img import txt_to_img
 from .config import *
-from .l4d2_anne import write_player,del_player,anne_messgae
-from .l4d2_server.rcon import read_server_cfg_rcon,rcon_server
-from .l4d2_queries import queries,player_queries
-from .l4d2_queries.qqgroup import *
-from .l4d2_server.workshop import workshop_to_dict
-from .l4d2_image.steam import url_to_byte
+from ..l4d2_anne import write_player,del_player,anne_messgae
+from ..l4d2_server.rcon import read_server_cfg_rcon,rcon_server
+from ..l4d2_queries import queries,player_queries
+from ..l4d2_queries.qqgroup import *
+from ..l4d2_server.workshop import workshop_to_dict
+from ..l4d2_image.steam import url_to_byte
 import tempfile
 import random
 

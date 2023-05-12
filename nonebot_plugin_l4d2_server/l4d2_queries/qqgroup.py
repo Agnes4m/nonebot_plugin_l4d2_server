@@ -5,7 +5,7 @@ from nonebot.log import logger
 import random
 import asyncio
 import re
-from ..message import PRISON,QUEREN,KAILAO
+from ..l4d2_utils.message import PRISON,QUEREN,KAILAO
 from .ohter import ALL_HOST
 from typing import List,Dict
 try:
