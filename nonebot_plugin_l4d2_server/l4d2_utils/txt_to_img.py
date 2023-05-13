@@ -2,7 +2,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from nonebot.adapters.onebot.v11 import MessageSegment
 from nonebot_plugin_txt2img import Txt2Img
-from l4d2_utils.config import l4_config
+from .config import l4_config
 
 l4_font = l4_config.l4_font
 """直接超的智障回复"""
