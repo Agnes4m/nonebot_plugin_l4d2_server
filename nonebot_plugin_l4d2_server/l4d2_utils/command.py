@@ -16,9 +16,9 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
     )
 
-from .l4d2_anne.server import server_key,ANNE_IP
+from ..l4d2_anne.server import server_key,ANNE_IP
 from .config import *
-from .l4d2_queries.qqgroup import split_maohao
+from ..l4d2_queries.qqgroup import split_maohao
 # from .utils import qq_ip_queries_pic,json_server_to_tag_dict,get_anne_server_ip,get_tan_jian
 from .utils import *
 help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
@@ -151,58 +151,8 @@ async def get_des_ip():
                 ip_anne_list.append((one_ip['id'],host,port))
         except KeyError:
             pass
-    
-    
-    get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
-    @get_ip.handle()
-    async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg()):
-        global matchers
-        if get_ip.plugin_name not in matchers:
-            matchers[get_ip.plugin_name] = []
-        matchers[get_ip.plugin_name].append(get_ip)
-        if start:
-            command = command.replace(start,'')
-        if command == 'anne':
-            command = '云'
-        msg:str = args.extract_plain_text()
-        if not msg:
-            # 以图片输出全部当前
-            if command in gamemode_list:
-                this_ips = [d for l in ALL_HOST.values() for d in l if d.get('version') == command]
-                igr = True
-            else:
-                this_ips:list = ALL_HOST[command]
-                igr = False
-            if not this_ips:
-                matcher.finish('')
-            ip_list = []
-            for one_ip in this_ips:
-                host,port = split_maohao(one_ip['ip'])
-                ip_list.append((one_ip['id'],host,port))
-            img = await qq_ip_queries_pic(ip_list,igr)
-            if img:
-                await matcher.finish(MessageSegment.image(img)) 
-            else:
-                await matcher.finish("服务器无响应")
-        else:
-            if not msg[0].isdigit():
-                if any(mode in msg for mode in gamemode_list):
-                    pass
-                else:
-                    return
-            message = await json_server_to_tag_dict(command,msg)
-            if len(message) == 0:
-                # 关键词不匹配，忽略
-                return
-            ip = str(message['ip'])
-            logger.info(ip)
-            try:
-                msg= await get_anne_server_ip(ip)
-                await matcher.finish(msg)
-            except (OSError,asyncio.exceptions.TimeoutError):
-                await matcher.finish('服务器无响应')
-    
-           
+        await get_read_ip(ip_anne_list)
+        
     @tan_jian.handle()
     async def _(matcher:Matcher,event:MessageEvent):
         msg = await get_tan_jian(ip_anne_list,1)
@@ -221,10 +171,67 @@ async def get_des_ip():
         
     
     
+async def get_read_ip(ip_anne_list):    
+    get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
+    @get_ip.handle()
+    async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg()):
+        global matchers
+        if get_ip.plugin_name not in matchers:
+            matchers[get_ip.plugin_name] = []
+        matchers[get_ip.plugin_name].append(get_ip)
+        if start:
+            command = command.replace(start,'')
+        if command == 'anne':
+            command = '云'
+        msg:str = args.extract_plain_text()
+        await get_ip_to_mes(msg, command, matcher)
+                
+async def get_ip_to_mes(msg:str ,command: str = '', matcher:Matcher = None):   
+    if not msg:
+        # 以图片输出全部当前
+        if command in gamemode_list:
+            this_ips = [d for l in ALL_HOST.values() for d in l if d.get('version') == command]
+            igr = True
+        else:
+            this_ips:list = ALL_HOST[command]
+            igr = False
+        if not this_ips:
+            matcher.finish('')
+        ip_list = []
+        for one_ip in this_ips:
+            host,port = split_maohao(one_ip['ip'])
+            ip_list.append((one_ip['id'],host,port))
+        img = await qq_ip_queries_pic(ip_list,igr)
+        if img:
+            await matcher.finish(MessageSegment.image(img)) 
+        else:
+            await matcher.finish("服务器无响应")
+    else:
+        if not msg[0].isdigit():
+            if any(mode in msg for mode in gamemode_list):
+                pass
+            else:
+                return
+        message = await json_server_to_tag_dict(command,msg)
+        if len(message) == 0:
+            # 关键词不匹配，忽略
+            return
+        ip = str(message['ip'])
+        logger.info(ip)
+        try:
+            msg= await get_anne_server_ip(ip)
+            await matcher.finish(msg)
+        except (OSError,asyncio.exceptions.TimeoutError):
+            await matcher.finish('服务器无响应')
+    
+           
+
+    
+    
 async def init():
     global matchers
     # print('启动辣')
-    from .l4d2_update import l4d_restart,l4d_update,get_update_log,driver
+    from ..l4d2_update import l4d_restart,l4d_update,get_update_log,driver
     await get_des_ip()
     
    
