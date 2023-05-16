@@ -36,6 +36,6 @@ async def draw_update_log_img(
 
     result = 'L4D2Bot 更新记录\n\n'
     for log in log_list:
-        result += f'- {log[2:]}\n'
+        result += f'- {log}\n'
 
     return result

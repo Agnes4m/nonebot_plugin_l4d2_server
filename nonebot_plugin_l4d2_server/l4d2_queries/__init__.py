@@ -17,7 +17,6 @@ async def queries_dict(ip:str,port:int) -> dict:
     msg_dict = {}
     # message_dict = await l4d(ip,port)
     msg:a2s.SourceInfo = await a2s.ainfo((ip,port))
-    # message_dict = await l4d2.server(ip,port,times=5)
     msg_dict['folder'] =  msg.folder
     msg_dict['name'] =  msg.server_name
     msg_dict['map_'] =  msg.map_name

@@ -1,5 +1,6 @@
 from pathlib import Path
 import re
+import a2s
 from typing import Dict,List,Union
 try:
     import ujson as json
@@ -21,8 +22,9 @@ require("nonebot_plugin_apscheduler")
 from nonebot_plugin_apscheduler import scheduler
 
 from ..l4d2_utils.command import get_ip_to_mes
-from ..l4d2_utils.utils import extract_last_digit
+from ..l4d2_utils.utils import extract_last_digit,json_server_to_tag_dict,split_maohao
 from ..l4d2_utils.config import l4_config
+from ..l4d2_queries import queries_dict
 
 driver = get_driver()
 sch_json = Path('data/L4D2/scheduler.json')
@@ -43,15 +45,14 @@ async def _(event:GroupMessageEvent , matcher:Matcher ,args: Message = CommandAr
         await matcher.finish('无响应的服务器，请检查')
     else:
         return_msg = await add_or_update_data(group_id,msg)
-        print(return_msg)
         if isinstance(push_msg , bytes):
             await matcher.send(MessageSegment.image(push_msg))
         else:
             await matcher.send(push_msg)
         if return_msg == 'add':
-            await matcher.send(f'已添加群定时任务【{msg}】10次')
+            await matcher.send(f'已添加群定时任务【{msg}】{l4_config.l4_push_times}次')
         elif return_msg in ['update','change']:
-            await matcher.send(f'已更新群定时任务【{msg}】10次')
+            await matcher.send(f'已更新群定时任务【{msg}】{l4_config.l4_push_times}次')
 
 @del_rss.handle()
 async def _(event:GroupMessageEvent , matcher:Matcher):
@@ -72,18 +73,29 @@ async def add_or_update_data(group_id:int, some_str :str = '',ad_mode :str = 'ad
             with sch_json.open(encoding='utf-8') as f:
                 scheduler_data = json.load(f)
             try:
-                times , old_msg = scheduler_data[group_id]
-                scheduler_data[group_id] = [l4_config.l4_push_times, some_str]
+                msg_dict = scheduler_data[group_id]
+                times = msg_dict['times'] 
+                old_msg = msg_dict['msg']
+                scheduler_data[group_id] = {
+                    'times' :l4_config.l4_push_times, 
+                    'msg' :some_str
+                    }
                 if old_msg == some_str:
                     mode = 'update' 
                 else:
                     mode = 'change'
             except:
-                scheduler_data[group_id] = [l4_config.l4_push_times, some_str]
+                scheduler_data[group_id] = {
+                    'times' :l4_config.l4_push_times, 
+                    'msg' :some_str
+                    }
                 mode = 'new'
 
         else:
-            scheduler_data = {group_id: [l4_config.l4_push_times, some_str]}
+            scheduler_data = {group_id: {
+                    'times' :l4_config.l4_push_times, 
+                    'msg' :some_str
+                    }}
             mode = 'new'
             
         with sch_json.open('w',encoding='utf-8') as f:
@@ -92,14 +104,25 @@ async def add_or_update_data(group_id:int, some_str :str = '',ad_mode :str = 'ad
     else:
         if sch_json.exists():
             with sch_json.open() as f:
-                scheduler_data = json.load(f)
+                scheduler_data:Dict[str,Dict[str,Union[str,int]]] = json.load(f)
             try:
-                times , old_msg = scheduler_data[group_id]  
-                scheduler_data[group_id] = [0, old_msg]
+                msg_dict = scheduler_data[group_id]
+                times = msg_dict['times'] 
+                old_msg = msg_dict['msg'] 
+                scheduler_data[group_id] = {
+                    'times' :0, 
+                    'msg' :old_msg
+                    }
             except:      
-                scheduler_data[group_id] = [0, some_str]
+                scheduler_data[group_id] = {
+                    'times' :0, 
+                    'msg' :some_str
+                    }
         else:
-            scheduler_data = {group_id: [0, some_str]}
+            scheduler_data = {group_id: {
+                    'times' :0, 
+                    'msg' :some_str
+                    }}
         mode = 'del'
             
         with sch_json.open('w',encoding='utf-8') as f:
@@ -108,34 +131,63 @@ async def add_or_update_data(group_id:int, some_str :str = '',ad_mode :str = 'ad
     return mode
 
 async def rss_ip():
+    """推送一次"""
     sch_json = Path('data/L4D2/scheduler.json')
     
     if sch_json.exists():
         with sch_json.open(encoding='utf-8') as f:
-            scheduler_data:Dict[str,List[Union[int,str]]] = json.load(f)
+            scheduler_data:Dict[str,Dict[str,Union[int,str]]] = json.load(f)
             
             for key, value in scheduler_data.items():
-                recipient_id = int(key)
-                count = value[0]
-                msg = value[-1]
-                
-                if count > 0:
-                    await send_message(recipient_id, msg)
-                    count -= 1
-                
-                scheduler_data[key][0] = count  # 更新次数
+                try:
+                    recipient_id = int(key)
+                    count = value['times']
+                    msg = value['msg']
+        
+                    if count > 0:
+                        msg_read = await send_message(recipient_id, msg ,value)
+                        print(msg_read)
+                        if msg_read:
+                            scheduler_data[key]['ip_detail']  = msg_read
+                        count -= 1
+                    
+                    scheduler_data[key]['times'] = count
+                except TypeError:
+                    continue
                 
         with sch_json.open(mode='w',encoding='utf-8') as f:
             json.dump(scheduler_data, f ,ensure_ascii=False)
         
-async def send_message(recipient_id :int, msg :str):
+async def send_message(recipient_id :int, msg :str ,value :Dict[str,Union[int,str]] = None):
     # 执行发送消息的操作，参数可以根据需要进行传递和使用
     command,message = await extract_last_digit(msg)
     push_msg =  await get_ip_to_mes(msg= message,  command= command)
     if isinstance(push_msg ,bytes):
         await get_bot().send_group_msg(group_id=recipient_id, message=MessageSegment.image(push_msg))
     elif msg and isinstance(push_msg ,str):
-        await get_bot().send_group_msg(group_id=recipient_id, message=push_msg)
+        # 单服务器
+        message = await json_server_to_tag_dict(msg,command)
+        if len(message) == 0:
+            # 关键词不匹配，忽略
+            return
+        try:
+            old_msg = value.get('ip_detail',{})
+            ip = str(message['ip'])
+            host,port = split_maohao(ip)
+            msg:a2s.SourceInfo = await a2s.ainfo((host,port))
+            value['map_'] = msg.map_name
+            value['rank_players'] = f'{msg.player_count}/{msg.max_players}'
+            if old_msg['map_'] == value['map_'] and old_msg['rank_players'] == value['rank_players']:
+                logger.info(f'{msg}{command}人数和地图未发生变化')
+            else:
+                await get_bot().send_group_msg(group_id=recipient_id, message=push_msg)
+        except Exception as e:
+            logger.warning(e)
+            
+        return value
+    
+async def server_is_change():
+    """检测服务器是否发生变化""" 
     
 @driver.on_bot_connect
 async def _():    
