@@ -185,7 +185,7 @@ async def get_read_ip(ip_anne_list):
         if command == 'anne':
             command = '云'
         msg:str = args.extract_plain_text()
-        push_msg = await get_ip_to_mes(msg, command, matcher)
+        push_msg = await get_ip_to_mes(msg, command)
         if isinstance(msg ,bytes):
             await matcher.finish(MessageSegment.image(push_msg))
         elif msg and isinstance(msg ,str):

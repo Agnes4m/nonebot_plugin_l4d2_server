@@ -92,6 +92,8 @@ class L4d2Config(BaseModel):
     l4_only:bool = Field(False, alias='下载地图是是否阻碍其他指令')
     l4_tag: List[str] = Field(['呆呆','橘'], alias='查服的名')
     l4_key: str = Field('q1145149191810', alias='key')
+    l4_push_interval: int = Field(3, alias='定时任务间隔')
+    l4_push_times: int = Field(10, alias='定时任务次数')
     group_config: Dict[int, L4d2GroupConfig] = Field({}, alias='分群配置')
 
     def update(self, **kwargs):

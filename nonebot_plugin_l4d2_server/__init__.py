@@ -26,9 +26,9 @@ from nonebot import get_driver, require
 from nonebot.plugin import PluginMetadata
 
 
-from l4d2_utils.config import *
-from l4d2_utils.utils import *
-from l4d2_utils.command import *
+from .l4d2_utils.config import *
+from .l4d2_utils.utils import *
+from .l4d2_utils.command import *
 from .l4d2_image.steam import url_to_byte,url_to_byte_name
 
 from .l4d2_data import sq_L4D2

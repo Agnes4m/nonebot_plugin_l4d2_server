@@ -295,3 +295,13 @@ def register_menu(*args, **kwargs):
         return f
 
     return decorator
+
+
+async def extract_last_digit(msg: str) -> tuple[str, str]:
+    "分离str和数字"
+    for i in range(len(msg) - 1, -1, -1):
+        if msg[i].isdigit():
+            last_digit = msg[i]
+            new_msg = msg[:i]
+            return new_msg, last_digit
+    return msg, ''
