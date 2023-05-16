@@ -32,7 +32,7 @@ async def update_from_git(
 
         try:
             pull_log = o.pull()
-            logger.info(f'[gs更新] {pull_log}')
+            logger.info(f'[l4更新] {pull_log}')
         except GitCommandError as e:
             logger.warning(e)
             return []
@@ -57,9 +57,9 @@ async def update_genshinuid(
         return (
             '更新失败!更多错误信息请查看控制台...\n '
             '>> 可以尝试使用\n '
-            '>> [gs强制更新](危险)\n '
-            '>> [gs强行强制更新](超级危险)!'
+            '>> [l4强制更新](危险)\n '
+            '>> [l4强行强制更新](超级危险)!'
         )
     log = '\n'.join(log_list)
-    logger.info(f'[gs更新]\n{log}')
+    logger.info(f'[l4更新]\n{log}')
     return f'更新成功!\n >> 最近有效更新为:\n{log}'

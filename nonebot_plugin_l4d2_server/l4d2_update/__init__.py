@@ -126,14 +126,14 @@ async def send_update_msg(
     if not await SUPERUSER(bot, event):
         return
 
-    logger.info('[l4d更新] 正在执行 ...')
+    logger.info('[l4更新] 正在执行 ...')
     level = 2
     if args[1] is None:
         level -= 1
     if args[2] is None:
         level -= 1
-    logger.info(f'[l4d更新] 更新等级为{level}')
-    await matcher.send(f'开始执行[l4d更新], 执行等级为{level}')
+    logger.info(f'[l4更新] 更新等级为{level}')
+    await matcher.send(f'开始执行[l4更新], 执行等级为{level}')
     im = await draw_update_log_img(level)
     if isinstance(im, str):
         await matcher.finish(im)

@@ -31,8 +31,8 @@ async def draw_update_log_img(
     if len(log_list) == 0:
         return '更新失败!更多错误信息请查看控制台...\n' \
                '>> 可以尝试使用\n' \
-               '>> [gs强制更新](危险)\n' \
-               '>> [gs强行强制更新](超级危险)!'
+               '>> [l4强制更新](危险)\n' \
+               '>> [l4强行强制更新](超级危险)!'
 
     result = 'L4D2Bot 更新记录\n\n'
     for log in log_list:
