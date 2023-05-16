@@ -42,6 +42,15 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 文档暂时没时间更新ozr
 
+## 安装
+
+以下方法任选其一：
+
+        nb plugin install nonebot-plugin-l4d2-server
+        pip install nonebot-plugin-l4d2-server
+        pipx install nonebot-plugin-l4d2-server
+        git clone https://github.com/Agnes4m/nonebot_plugin_l4d2_server.git
+
 ## 主要功能
 
 - 求生服务器-本地多路径操作（传地图）
@@ -50,10 +59,10 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 - web控制台
 - [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
 
-
 ## 数据结构
 
 bot所在文件夹下
+
 ```txt
 举例：
 └── data
@@ -115,11 +124,13 @@ bot所在文件夹下
 ## 🔖 更新日志
 
 <details>
+
 <summary>展开/收起</summary>
 
 ### 0.5.4--2022.5.16
 
 - 添加定时任务
+- 增加自动更新
 
 ### 0.5.3--2022.5.07
 

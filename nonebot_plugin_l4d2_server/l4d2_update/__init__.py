@@ -13,7 +13,7 @@ from .draw_update_log import draw_update_log_img
 from .restart import restart_message, restart_genshinuid
 
 l4d_restart = on_command('l4重启', rule=FullCommand())
-get_update_log = on_command('更新记录', rule=FullCommand())
+get_update_log = on_command('l4更新记录', rule=FullCommand())
 l4d_update = on_regex(
     r'^(l4)(强行)?(强制)?(更新)$',
     block=True,
