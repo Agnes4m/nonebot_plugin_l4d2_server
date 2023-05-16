@@ -149,7 +149,7 @@ vpk_path = "left4dead2/addons"
 
 PLAYERSDATA = Path() / "data/L4D2/image/players"
 """用户数据路径"""
-TEXT_PATH = Path(__file__).parent / 'data/L4D2/image'
+TEXT_PATH = Path(__file__).parent.parent / 'data/L4D2/image'
 """图片存储路径"""
 TEXT_XPATH = Path() / 'data/L4D2/image'
 """内置图片路径"""
@@ -158,7 +158,7 @@ TEXT_XPATH = Path() / 'data/L4D2/image'
 
 PLAYERSDATA = Path() / "data/L4D2/sql"
 """数据库路径"""
-DATASQLITE = Path().parent / "data/L4D2/sql/L4D2.db"
+DATASQLITE = Path().parent.parent / "data/L4D2/sql/L4D2.db"
 """数据库！"""  
 
 table_data = ["L4d2_players","L4D2_server"]

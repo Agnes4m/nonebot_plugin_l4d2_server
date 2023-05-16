@@ -81,6 +81,7 @@ async def qq_ip_querie(msg: list,igr:bool = True):
 
 async def qq_ip_queries_pic(msg: list,igr = False):
     result = await qq_ip_querie(msg,igr)
+    print(result)
     if 'msg_list' in result:
         pic = await server_ip_pic(result['msg_list'])
     else:

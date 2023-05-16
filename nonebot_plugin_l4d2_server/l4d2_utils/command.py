@@ -186,14 +186,15 @@ async def get_read_ip(ip_anne_list):
             command = '云'
         msg:str = args.extract_plain_text()
         push_msg = await get_ip_to_mes(msg, command)
-        if isinstance(msg ,bytes):
+        if isinstance(push_msg ,bytes):
             await matcher.finish(MessageSegment.image(push_msg))
-        elif msg and isinstance(msg ,str):
+        elif msg and isinstance(push_msg ,str):
             await matcher.finish(push_msg)
                 
 async def get_ip_to_mes(msg:str ,command: str = ''):   
     if not msg:
         # 以图片输出全部当前
+        igr = False
         if command in gamemode_list:
             this_ips = [d for l in ALL_HOST.values() for d in l if d.get('version') == command]
             igr = True

@@ -34,7 +34,6 @@ async def out_png(usr_id,data_dict:dict):
                 wait=0,
                 viewport={"width": 1100, "height": 800},
                 template_path=f"file://{template_path.absolute()}",)
-    print(type(pic))
     return pic
 
 
@@ -84,7 +83,10 @@ async def server_ip_pic(msg_list:List[dict]):
                 players_list.append("")
             server_info['Players'] = players_list
     pic = await get_help_img(msg_list)
-
+    if pic:
+        logger.success('正在输出图片')
+    else:
+        logger.warning('我的图图呢')
     return pic
 
 
