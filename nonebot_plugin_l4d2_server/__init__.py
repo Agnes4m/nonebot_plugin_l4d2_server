@@ -21,7 +21,7 @@ from time import sleep
 
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
-from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg,RawCommand,CommandStart
+from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg
 from nonebot import get_driver, require
 from nonebot.plugin import PluginMetadata
 
@@ -38,14 +38,14 @@ from .l4d2_queries.ohter import load_josn
 from .l4d2_queries.qqgroup import write_json
 from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
 
-from l4d2_utils.txt_to_img import mode_txt_to_img
+from .l4d2_utils.txt_to_img import mode_txt_to_img
 # from .l4d2_server import RCONClient
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 
 driver = get_driver()
 
 
-__version__ = "0.5.3.1"
+__version__ = "0.5.3"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
