@@ -152,6 +152,7 @@ async def get_des_ip():
         except KeyError:
             pass
         await get_read_ip(ip_anne_list)
+
         
     @tan_jian.handle()
     async def _(matcher:Matcher,event:MessageEvent):
@@ -184,9 +185,13 @@ async def get_read_ip(ip_anne_list):
         if command == 'anne':
             command = '云'
         msg:str = args.extract_plain_text()
-        await get_ip_to_mes(msg, command, matcher)
+        push_msg = await get_ip_to_mes(msg, command, matcher)
+        if isinstance(msg ,bytes):
+            await matcher.finish(MessageSegment.image(push_msg))
+        elif msg and isinstance(msg ,str):
+            await matcher.finish(push_msg)
                 
-async def get_ip_to_mes(msg:str ,command: str = '', matcher:Matcher = None):   
+async def get_ip_to_mes(msg:str ,command: str = ''):   
     if not msg:
         # 以图片输出全部当前
         if command in gamemode_list:
@@ -196,16 +201,16 @@ async def get_ip_to_mes(msg:str ,command: str = '', matcher:Matcher = None):
             this_ips:list = ALL_HOST[command]
             igr = False
         if not this_ips:
-            matcher.finish('')
+            return
         ip_list = []
         for one_ip in this_ips:
             host,port = split_maohao(one_ip['ip'])
             ip_list.append((one_ip['id'],host,port))
         img = await qq_ip_queries_pic(ip_list,igr)
         if img:
-            await matcher.finish(MessageSegment.image(img)) 
+            return img
         else:
-            await matcher.finish("服务器无响应")
+            return "服务器无响应"
     else:
         if not msg[0].isdigit():
             if any(mode in msg for mode in gamemode_list):
@@ -220,9 +225,9 @@ async def get_ip_to_mes(msg:str ,command: str = '', matcher:Matcher = None):
         logger.info(ip)
         try:
             msg= await get_anne_server_ip(ip)
-            await matcher.finish(msg)
+            return  msg
         except (OSError,asyncio.exceptions.TimeoutError):
-            await matcher.finish('服务器无响应')
+            return '服务器无响应'
     
            
 
