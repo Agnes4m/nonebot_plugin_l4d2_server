@@ -21,6 +21,9 @@ from .config import *
 from ..l4d2_queries.qqgroup import split_maohao
 # from .utils import qq_ip_queries_pic,json_server_to_tag_dict,get_anne_server_ip,get_tan_jian
 from .utils import *
+from .txt_to_img import mode_txt_to_img
+from ..l4d2_image.one import one_server_img
+
 help_ = on_command('l4_help',aliases={'求生帮助'},priority=20,block=True)
 
 # 服务器
@@ -188,9 +191,19 @@ async def get_read_ip(ip_anne_list):
         push_msg = await get_ip_to_mes(msg, command)
         if isinstance(push_msg ,bytes):
             await matcher.finish(MessageSegment.image(push_msg))
+        elif msg and isinstance(push_msg ,list):
+            await matcher.finish(MessageSegment.image(push_msg[0]) + Message(push_msg[-1]))
         elif msg and isinstance(push_msg ,str):
-            await matcher.finish(push_msg)
+            try:
+                await matcher.finish(push_msg)
+            except nonebot.adapters.onebot.v11.exception.ActionFailed:
+                lines = push_msg.splitlines()
+                first_str = lines[0]
+                last_str = lines[-1]
+                push_msg = '\n'.join(lines[1:-1])
+                await matcher.finish(mode_txt_to_img(first_str,push_msg)+Message(last_str))
                 
+
 async def get_ip_to_mes(msg:str ,command: str = ''):   
     if not msg:
         # 以图片输出全部当前
@@ -213,6 +226,7 @@ async def get_ip_to_mes(msg:str ,command: str = ''):
         else:
             return "服务器无响应"
     else:
+
         if not msg[0].isdigit():
             if any(mode in msg for mode in gamemode_list):
                 pass
@@ -224,9 +238,16 @@ async def get_ip_to_mes(msg:str ,command: str = ''):
             return
         ip = str(message['ip'])
         logger.info(ip)
+        
         try:
-            msg= await get_anne_server_ip(ip)
-            return  msg
+            if l4_config.l4_image:
+                host,port = split_maohao(ip)
+                msgs = await queries_dict(host,port)
+                msgs['Players'] += await player_queries_anne_dict(host,port)
+                imgs = await one_server_img()
+            else:
+                msgs = await get_anne_server_ip(ip)
+                return  msgs
         except (OSError,asyncio.exceptions.TimeoutError):
             return '服务器无响应'
     

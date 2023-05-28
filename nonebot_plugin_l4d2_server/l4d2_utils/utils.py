@@ -191,7 +191,7 @@ async def save_file(file:bytes,path_name):
     with open(path_name,'w') as files:
         files.write(file)
         
-async def get_anne_server_ip(ip):
+async def get_anne_server_ip(ip ,ismsg :bool = False):
     """输出查询ip和ping"""
     host,port = split_maohao(ip)
     data = await queries_server([host,port])

@@ -58,6 +58,7 @@ class L4d2Config(BaseModel):
     web_username: str = Field('l4d2', alias='后台管理用户名')
     web_password: str = Field('admin', alias='后台管理密码')
     l4_style: str = Field("standard", alias='图片风格')
+    l4_image: bool = Field(False , alias='是否启用图片')
     # l4_file: List[str] = Field(	["/home/ubuntu/l4d2/coop"], alias='本地求生服务器地址')
     # l4_host: List[str] = Field(['127.0.0.1'], alias='求生服务器地址')
     # l4_port: List[str] = Field(['20715'], alias='求生服务器端口')
