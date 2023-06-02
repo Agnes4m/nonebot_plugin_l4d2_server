@@ -179,10 +179,10 @@ async def get_read_ip(ip_anne_list):
     get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
     @get_ip.handle()
     async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg()):
-        global matchers
-        if get_ip.plugin_name not in matchers:
-            matchers[get_ip.plugin_name] = []
-        matchers[get_ip.plugin_name].append(get_ip)
+        # global matchers
+        # if get_ip.plugin_name not in matchers:
+        #     matchers[get_ip.plugin_name] = []
+        # matchers[get_ip.plugin_name].append(get_ip)
         if start:
             command = command.replace(start,'')
         if command == 'anne':
@@ -194,15 +194,14 @@ async def get_read_ip(ip_anne_list):
         elif msg and isinstance(push_msg ,list):
             await matcher.finish(MessageSegment.image(push_msg[0]) + Message(push_msg[-1]))
         elif msg and isinstance(push_msg ,str):
-            try:
-                await matcher.finish(push_msg)
-            except nonebot.adapters.onebot.v11.exception.ActionFailed:
+            if l4_config.l4_image:
                 lines = push_msg.splitlines()
                 first_str = lines[0]
                 last_str = lines[-1]
                 push_msg = '\n'.join(lines[1:-1])
                 await matcher.finish(mode_txt_to_img(first_str,push_msg)+Message(last_str))
-                
+            else:
+                await matcher.finish(push_msg)
 
 async def get_ip_to_mes(msg:str ,command: str = ''):   
     if not msg:
