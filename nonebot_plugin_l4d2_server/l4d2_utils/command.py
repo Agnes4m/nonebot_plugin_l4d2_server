@@ -239,14 +239,14 @@ async def get_ip_to_mes(msg:str ,command: str = ''):
         logger.info(ip)
         
         try:
-            if l4_config.l4_image:
-                host,port = split_maohao(ip)
-                msgs = await queries_dict(host,port)
-                msgs['Players'] += await player_queries_anne_dict(host,port)
-                imgs = await one_server_img()
-            else:
-                msgs = await get_anne_server_ip(ip)
-                return  msgs
+        #     if l4_config.l4_image:
+        #         host,port = split_maohao(ip)
+        #         msgs = await queries_dict(host,port)
+        #         msgs['Players'] += await player_queries_anne_dict(host,port)
+        #         imgs = await one_server_img()
+            # else:
+            msgs = await get_anne_server_ip(ip)
+            return  msgs
         except (OSError,asyncio.exceptions.TimeoutError):
             return '服务器无响应'
     
