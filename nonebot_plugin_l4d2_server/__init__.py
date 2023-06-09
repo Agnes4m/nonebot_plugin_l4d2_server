@@ -70,10 +70,8 @@ async def _(matcher:Matcher,event: NoticeEvent):
     # 检查下载路径是否存在
     if not Path(l4_file_path).exists():
         await matcher.finish("你填写的路径不存在辣")
-        return
     if not Path(map_path).exists():
         await matcher.finish("这个路径并不是求生服务器的路径，请再看看罢")
-        return
     url:str = args['file']['url']
     name: str = args['file']['name']
     # 如果不符合格式则忽略
@@ -91,23 +89,26 @@ async def _(matcher:Matcher,event: NoticeEvent):
 @up.got("is_sure", prompt="请选择上传位置（输入阿拉伯数字)")    
 async def _(matcher: Matcher):
     args = matcher.get_arg('txt')
-    l4_file = l4_config.l4_ipall[CHECK_FILE]['location']
+    l4_file = l4_config.l4_ipall
     if not args:
         await matcher.finish('获取文件出错辣，再试一次吧')
 
     is_sure = str(matcher.get_arg('is_sure')).strip()
     if not is_sure.isdigit():
         await matcher.finish('已取消上传')
-    file_number = len(l4_file)
-    is_sure = int(is_sure)
-    if is_sure > file_number or is_sure <= 0:
-        await matcher.finish('没有该序号')
-    l4_file_path = l4_file[is_sure - 1]
+    
+    file_path:str = ''
+    for one_server in l4_file:
+        if one_server['id_rank'] == is_sure:
+            file_path = one_server['location']
+    if not file_path:
+        await matcher.finish("没有这个序号拉baka")
 
-    map_path = Path(l4_file_path, vpk_path)
+
+    map_path = Path(file_path, vpk_path)
 
     # 检查下载路径是否存在
-    if not Path(l4_file_path).exists():
+    if not Path(file_path).exists():
         await matcher.finish("你填写的路径不存在辣")
     if not map_path.exists():
         await matcher.finish("这个路径并不是求生服务器的路径，请再看看罢")
