@@ -54,15 +54,10 @@ class L4d2GroupConfig(BaseModel):
 
 class L4d2Config(BaseModel):
     total_enable: bool = Field(True, alias='是否全局启用求生功能')
-    map_path: List[str] = Field([], alias='求生地图路径')
     web_username: str = Field('l4d2', alias='后台管理用户名')
     web_password: str = Field('admin', alias='后台管理密码')
     l4_style: str = Field("standard", alias='图片风格')
     l4_image: bool = Field(False , alias='是否启用图片')
-    # l4_file: List[str] = Field(	["/home/ubuntu/l4d2/coop"], alias='本地求生服务器地址')
-    # l4_host: List[str] = Field(['127.0.0.1'], alias='求生服务器地址')
-    # l4_port: List[str] = Field(['20715'], alias='求生服务器端口')
-    # l4_rcon: List[str] = Field(['114514'], alias='求生服务器rcon密码')
     
     l4_ipall: List[Dict[str,Union[str,int,bool]]] = Field(
         [{
@@ -91,8 +86,6 @@ class L4d2Config(BaseModel):
     # l4_ip:bool = Field(False, alias='查询地图是否显示ip')
     l4_font: str = Field('simsun.ttc', alias='字体')
     l4_only:bool = Field(False, alias='下载地图是是否阻碍其他指令')
-    l4_tag: List[str] = Field(['呆呆','橘'], alias='查服的名')
-    l4_key: str = Field('q1145149191810', alias='key')
     l4_push_interval: int = Field(3, alias='定时任务间隔')
     l4_push_times: int = Field(10, alias='定时任务次数')
     group_config: Dict[int, L4d2GroupConfig] = Field({}, alias='分群配置')

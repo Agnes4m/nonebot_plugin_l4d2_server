@@ -10,7 +10,7 @@ async def update_from_git(
     level: int = 0,
     repo_path: Union[str, Path, None] = None,
     log_config: dict = {
-        'key': '✨🐛',
+        'key': '✨🐛🎨⚡🍱♻️',
         'num': 7,
     },
     is_update: bool = True,
