@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-l4d2-server"
-version = "0.5.5.3"
+version = "0.5.5.4"
 description = "L4D2 server related operations plugin for NoneBot2"
 authors = ["Agnes_Digital <Z735803792@163.com>"]
 license = "GPLv3"
@@ -14,6 +14,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
 ]
 include = [
