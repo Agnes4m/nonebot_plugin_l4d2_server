@@ -52,5 +52,3 @@ async def remote(mode:str,host:str,user:str,password:str,local_path = '',port=22
     elif mode == 'del':
         await client.delete(remote_path)
 
-if __name__ == '__main__':
-    asyncio.run(remote(mode='upload',host='106.13.207.45',user='root',password='Taojie@114514',local_path='E:\\zhang\\文件\\login_info.txt',remote_path='/home/'))
