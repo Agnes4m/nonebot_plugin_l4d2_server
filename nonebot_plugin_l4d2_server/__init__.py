@@ -49,7 +49,9 @@ __version__ = "0.5.6"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
-    usage='求生服务器操作指令',
+    usage="""
+    查询：【关键词】([序号])
+    """,
     type="application",
     homepage="https://github.com/Agnes4m/nonebot_plugin_l4d2_server",
     supported_adapters={"~onebot.v11"},
@@ -68,7 +70,7 @@ async def _(matcher:Matcher,event: NoticeEvent):
     if args['notice_type'] != 'offline_file':
         matcher.set_arg('txt',args)
         return
-    l4_file_path = l4_config.l4_ipall[CHECK_FILE]['location']
+    l4_file_path = l4_config.l4_ipall[l4_config.l4_number]['location']
     map_path = Path(l4_file_path, vpk_path)
     # 检查下载路径是否存在
     if not Path(l4_file_path).exists():
@@ -140,7 +142,7 @@ async def _(matcher: Matcher):
 @find_vpk.handle()
 async def _(bot:Bot,event: MessageEvent,matcher: Matcher):
     name_vpk = []
-    map_path = Path(l4_config.l4_ipall[CHECK_FILE]['location'],vpk_path)
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]['location'],vpk_path)
     name_vpk = get_vpk(name_vpk,map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
@@ -157,14 +159,14 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
 
 @del_vpk.got("num",prompt="你要删除第几个序号的地图(阿拉伯数字)")
 async def _(matcher: Matcher,tag:int = ArgPlainText("num")):
-    map_path = Path(l4_config.l4_ipall[CHECK_FILE]['location'],vpk_path)
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]['location'],vpk_path)
     vpk_name = del_map(tag,map_path)
     await matcher.finish('已删除地图：' + vpk_name)
     
 @rename_vpk.handle()
 async def _(matcher:Matcher,matched: Tuple[int,str, str] = RegexGroup(),):
     num,useless,rename = matched
-    map_path = Path(l4_config.l4_ipall[CHECK_FILE]['location'],vpk_path)
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]['location'],vpk_path)
     logger.info('检查是否名字是.vpk后缀')
     if not rename.endswith('.vpk'):
         rename = rename + '.vpk'
@@ -223,40 +225,22 @@ async def _(matcher:Matcher,tag:str = ArgPlainText("command")):
         await matcher.finish(msg,reply_message = True)
         
 
-# 连续rcon连接
-# @connect_rcon.handle()
-# async def _(State:T_State,args:Message = CommandArg()):
-#     msg = args.extract_plain_text()
-    # client = RCONClient(l4_host[CHECK_FILE], l4_port[CHECK_FILE], l4_rcon[CHECK_FILE])
-    # await client.connect()
-    # State['client'] = client
-#     if msg:
-#         connect_rcon.set_arg(key="prompt",message=args)
-        
-# @connect_rcon.got("prompt", prompt="连接开始...如果需要停止则输入“结束连接”")
-# async def handle_chat(State:T_State,event: MessageEvent, prompt: Message = Arg(), msg: str = ArgPlainText("prompt")):
-    # session_id = event.get_session_id()
-    # client:RCONClient = State['client']
-
-    # await client.close()
-    # await connect_rcon.finish('聊天结束...')
-        
         
 @check_path.handle()
 async def _(matcher:Matcher,args:Message = CommandArg()):
-    global CHECK_FILE
     msg = args.extract_plain_text()
     if msg.startswith('切换'):
         msg_number = int(''.join(msg.replace('切换', ' ').split()))
         if msg_number > len(l4_config.l4_ipall) or msg_number < 0:
             await matcher.send('没有这个序号的路径呐')
         else:
-            CHECK_FILE = msg_number - 1
-            now_path = l4_config.l4_ipall[CHECK_FILE]['location']
-            await matcher.send(f'已经切换路径为\n{str(CHECK_FILE+1)}、{now_path}')
+            l4_config.l4_number = msg_number - 1
+            now_path = l4_config.l4_ipall[l4_config.l4_number]['location']
+            await matcher.send(f'已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}')
+            config_manager.save()
     else: 
-        now_path = l4_config.l4_ipall[CHECK_FILE]['location']
-        await matcher.send(f'当前的路径为\n{str(CHECK_FILE+1)}、{now_path}')
+        now_path = l4_config.l4_ipall[l4_config.l4_number]['location']
+        await matcher.send(f'当前的路径为\n{str(l4_config.l4_number+1)}、{now_path}')
         
         
 @queries.handle()
@@ -407,7 +391,7 @@ async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
 
 @smx_file.handle()
 async def _(matcher:Matcher,):
-    smx_path = Path(l4_config.l4_ipall[CHECK_FILE]['location'],"left4dead2/addons/sourcemod/plugins")
+    smx_path = Path(l4_config.l4_ipall[l4_config.l4_number]['location'],"left4dead2/addons/sourcemod/plugins")
     smx_list = []
     name_smx = get_vpk(smx_list,smx_path,file_=".smx")
     logger.info("获取文件列表成功")

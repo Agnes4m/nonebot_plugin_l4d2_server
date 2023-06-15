@@ -57,8 +57,7 @@ class L4d2Config(BaseModel):
     web_username: str = Field('l4d2', alias='后台管理用户名')
     web_password: str = Field('admin', alias='后台管理密码')
     l4_style: str = Field("standard", alias='图片风格')
-    l4_image: bool = Field(False , alias='是否启用图片')
-    
+    l4_image: bool = Field(False , alias='是否启用图片')l
     l4_ipall: List[Dict[str,Union[str,int,bool]]] = Field(
         [{
         'id_rank':'1',
@@ -80,6 +79,8 @@ class L4d2Config(BaseModel):
         'server_id':'远程地图',
         }],
           alias='l4服务器ip集合')
+    
+    l4_number :int = Field(1,alias='第几个地图路径')
     web_secret_key: str = Field('49c294d32f69b732ef6447c18379451ce1738922a75cd1d4812ef150318a2ed0',
                                 alias='后台管理token密钥')
     l4_master: List[str] = Field(['114514919'], alias='求生地图全局管理员qq')
