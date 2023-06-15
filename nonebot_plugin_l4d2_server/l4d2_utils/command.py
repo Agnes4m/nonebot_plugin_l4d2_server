@@ -125,36 +125,28 @@ async def get_des_ip():
     global ALL_HOST
     global ANNE_IP
     global matchers
-    if l4_config.l4_tag == None:
-        pass
-    else:
-        # try:
-        #     qq = l4_config.l4_master[0]
-        # except:
-        #     qq = list(nonebot.get_bot().config.superusers)[0]
-        # ALL_HOST.update(await seach_map(msg = l4_config.l4_tag,qq = qq, key=l4_config.l4_key,mode='ip'))
-        def count_ips(ip_dict:dict):
-            global ANNE_IP
-            for key, value in ip_dict.items():
-                if key in ['error_','success_']:
-                    ip_dict.pop(key)
-                    break
-                count = len(value)
-                logger.info(f'已加载：{key} | {count}个')
-                if key == '云':
-                    ANNE_IP = {key:value}
+    def count_ips(ip_dict:dict):
+        global ANNE_IP
+        for key, value in ip_dict.items():
+            if key in ['error_','success_']:
+                ip_dict.pop(key)
+                break
+            count = len(value)
+            logger.info(f'已加载：{key} | {count}个')
+            if key == '云':
+                ANNE_IP = {key:value}
         sleep(1)
-        count_ips(ALL_HOST)
-        ip_anne_list=[] 
-        try:
-            ips = ALL_HOST['云']
-            ip_anne_list = []
-            for one_ip in ips:
-                host,port = split_maohao(one_ip['ip'])
-                ip_anne_list.append((one_ip['id'],host,port))
-        except KeyError:
-            pass
-        await get_read_ip(ip_anne_list)
+    count_ips(ALL_HOST)
+    ip_anne_list=[] 
+    try:
+        ips = ALL_HOST['云']
+        ip_anne_list = []
+        for one_ip in ips:
+            host,port = split_maohao(one_ip['ip'])
+            ip_anne_list.append((one_ip['id'],host,port))
+    except KeyError:
+        pass
+    await get_read_ip(ip_anne_list)
 
         
     @tan_jian.handle()
