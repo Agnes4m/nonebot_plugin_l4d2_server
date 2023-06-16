@@ -57,7 +57,7 @@ class L4d2Config(BaseModel):
     web_username: str = Field('l4d2', alias='后台管理用户名')
     web_password: str = Field('admin', alias='后台管理密码')
     l4_style: str = Field("standard", alias='图片风格')
-    l4_image: bool = Field(False , alias='是否启用图片')l
+    l4_image: bool = Field(False , alias='是否启用图片')
     l4_ipall: List[Dict[str,Union[str,int,bool]]] = Field(
         [{
         'id_rank':'1',
