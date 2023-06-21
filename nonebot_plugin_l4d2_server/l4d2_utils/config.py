@@ -79,7 +79,7 @@ class L4d2Config(BaseModel):
         'server_id':'远程地图',
         }],
           alias='l4服务器ip集合')
-    
+    l4_zl_tag :List[str] = Field(['云'], alias='坐牢三指令')
     l4_number :int = Field(1,alias='第几个地图路径')
     web_secret_key: str = Field('49c294d32f69b732ef6447c18379451ce1738922a75cd1d4812ef150318a2ed0',
                                 alias='后台管理token密钥')

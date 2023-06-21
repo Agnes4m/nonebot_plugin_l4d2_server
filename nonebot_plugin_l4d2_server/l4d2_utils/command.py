@@ -3,7 +3,7 @@ import asyncio
 from typing import Type
 from time import sleep
 
-from nonebot import on_notice,on_command,on_regex,on_keyword,MatcherGroup
+from nonebot import on_notice,on_command,on_regex,on_keyword
 from nonebot.params import CommandArg,RawCommand,CommandStart
 from nonebot.matcher import Matcher
 import nonebot
@@ -79,7 +79,7 @@ open_prison = on_command('kl',aliases={'开牢'},priority=20,block=True)
 tan_jian = on_command('tj',aliases={'探监'},priority=20,block=True)
 
 # 查询
-queries = on_command('queries',aliases={'求生ip','求生IP'},priority=20,block=True)
+queries_comm = on_keyword(keywords={'queries','求生ip','求生IP','connect'},priority=20,block=True)
 add_queries = on_command('addq',aliases={"求生添加订阅"},priority=20,block=True,permission= Master)
 del_queries = on_command('delq',aliases={"求生取消订阅"},priority=20,block=True,permission= Master)
 show_queries = on_command('showq',aliases={"求生订阅"},priority=20,block=True)

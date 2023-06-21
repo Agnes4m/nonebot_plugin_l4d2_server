@@ -76,7 +76,12 @@ global_config_form = Form(
                                      content='设置好后，将按照推送间隔时间推送x此')),        
         InputNumber(label='当前路径序号', name='l4_number', value='${l4_number}',
                   labelRemark=Remark(shape='circle',
-                                     content='如果选定了路径，则上传地图优先传这个路径')),        
+                                     content='如果选定了路径，则上传地图优先传这个路径')),     
+        InputTag(label='求生上传地图用户', name='l4_master', value='${l4_master}',
+                 enableBatchAdd=True,
+                 placeholder='添加qq号', visibleOn='${total_enable}', joinValues=False, extractValue=True,
+                 labelRemark=Remark(shape='circle',
+                                    content='在这里加入的用户，才能上传地图')),           
 
         InputTag(label='求生上传地图用户', name='l4_master', value='${l4_master}',
                  enableBatchAdd=True,

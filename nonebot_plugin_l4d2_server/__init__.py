@@ -23,6 +23,8 @@ from nonebot.matcher import Matcher
 from nonebot.typing import T_State
 from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg
 from nonebot import get_driver, require
+from typing import Annotated
+from nonebot.params import Keyword
 
 from .l4d2_utils.config import *
 from .l4d2_utils.utils import *
@@ -39,15 +41,48 @@ scheduler = require("nonebot_plugin_apscheduler").scheduler
 from nonebot.plugin import PluginMetadata
 
 driver = get_driver()
+logo ="""
+    ......                  ` .]]@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO^       
+    ......                ,/@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO^       
+    ......            /O@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO^       
+    `.....           ,@^=.OOO\/\@@@@@@@@@@@@@@@@@@@@OO//@@@@@/OO\]]]OO\]
+    ``....          ,@@/=^OOOOOOOO@@@@@@@@@@@\]OOOOOOO^^=@@@@OOOOOOOOOOO
+    `.....          O@O^==OOOOOOOO@@@/.,@@@OOOOOOOOOOO\O,@@@@OOOOOOOOO@@
+    ......    ,    .@@@^=`OOOOOOOOO/  ,O@@OOOOOOOOOOOOOO.O@@@OO/[[[[[[[.
+    ......    =..,//@@@^=`OOOOOOOOO@.*=@@@OOOOOOOOOOOOOO]@@@OOO.     ,/`
+    ......    =.\O]`,@O^\=OOOO@@@@@@O`=@@@@@@@OOOOOOOO*O,OO^....[[``]./]
+    ......    ,^.oOoO@O^=,OO@@@@@OoO`\O\OO@@@@OOOOOOOOO]@@^.]]]/OOOo.,OO
+    ......     =.=OOOO@@@@/[[=/.^,/....*.=^,[O@@@@OOOO.@@OOOOOOOOO/..OOO
+    ......      \.\OO`.,....*`.=.^.......=....=@O[\@@O@@[^ ,`.=Oo*.,OOO/
+    ......       ,@,`...  ....=^/......../....=/O^....\..O]/[\O[*]/OOO. 
+    ......       ]@^.,....*..=O\^........^..*.O.\O.^..=^\..,\/\@OOO[.   
+    ......    ,,`O^.,..../.,O`//........=..=`=^.=O`O..=^..OOO*/OOO.     
+    ......   .=.=@..^...=^/O`*OO.]...o**\.,/=^...O^@^..^...OO^=`OOO`    
+    ......  `=.,O^./.*.,OO`,.,/@/.*,O`,O*/@/`....\O\^......Oo^.^,OOO.   
+    ...... .,`.o=^=^.../`...]/`***/O^/@oO@`..[[[[\/=\......O^^...=OO^   
+    ......  ^.=`O^O.*.=\],]]]/\O/\@O[=O/`        =.=O....=^O^*....OOO.  
+    ...... =../=OO^.*.=@@[[,@@@\ .. ..    ,\@@@@@] =O...`=^@`.....=OO^  
+    ...... `..^=OO^.^,@`  ^ =oO\          .O\O@\.,\@@..,^OoO......=OOO. 
+    ...... ^...=OO^.^.@^ =^*=^,O          \..Ooo^  ,@..=OOOO..*....OOO. 
+    ...... ^...=o@^.`.O@. .  ... .. ....  ^.*`.*^  =^..o@oO@*.=....OOO^ 
+    ...... ^...=oOO.*.\O   ... .......... .\   ` ,=^*.,OOOO@^.=`^..=OO\ 
+    ...... ^...*`OO.*.=O ........          ......,`*^.=OOOo@^.=^^..=OOO.
+    ...... \....*oO^..*O^ ....... @OO[[[`  ......../.,@OOOo@^..OO...OOO`
+    ...... =.....*.=`..,O`       .O.....=   ... ^.=..OOOOO=O@..=O^..OOO^
+    ...... .^...**.O@...\O^ .     \.....`   .^ /.,^.=O@OO`=O@^..OO`.=OO\
+    ...... .^...,.=O=@...OO@\      ,[O\=.    ./`.*.*OOOOO..OOO*..OO.,OOO
+    ....../O....../^=O@`..O@@@@@]`    .* .,/@@/..../OOOOO*.,OOO..,OO`=OO
+    @OO\ooO....,*/@^,@@@\..@^[\@@@@@@O]*]//[`@^*^*=OOOOOO^..=OO\...\^.\@
+    OOooo^..`./oOO@/ =^\/^.^\\....=]......,/@@^O^*O.... .,][],OO\....\`.
+    @Oooo\/]OOOOOO/  .  \.=^....,..........[.,OO^=^.    /    ,`\OO`.....
+    """
 
 
 __version__ = "0.5.6"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
-    usage="""
-    查询：【关键词】([序号])
-    """,
+    usage=logo,
     type="application",
     homepage="https://github.com/Agnes4m/nonebot_plugin_l4d2_server",
     supported_adapters={"~onebot.v11"},
@@ -85,9 +120,14 @@ async def _(matcher:Matcher,event: NoticeEvent):
     else:
         await matcher.finish("你可能上传了相同的文件，或者解压失败了捏")
 
-
-
-@up.got("is_sure", prompt="请选择上传位置（输入阿拉伯数字)")    
+path_list:str = '请选择上传位置（输入阿拉伯数字)'
+times = 0
+for one_path in l4_config.l4_ipall:
+    times += 1
+    path_msg = one_path['location']
+    path_list += f'\n {str(times)} | {path_msg}'
+    
+@up.got("is_sure", prompt=path_list)    
 async def _(matcher: Matcher):
     args = matcher.get_arg('txt')
     l4_file = l4_config.l4_ipall
@@ -239,16 +279,19 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
         await matcher.send(f'当前的路径为\n{str(l4_config.l4_number+1)}、{now_path}')
         
         
-@queries.handle()
-async def _(matcher:Matcher,args:Message = CommandArg()):
-    msg = args.extract_plain_text()
-    if msg:
-        matcher.set_arg("ip",args)
-
-@queries.got("ip",prompt="请输入ip,格式如中括号内【127.0.0.1】【114.51.49.19:1810】")
-async def _(matcher:Matcher,tag:str = ArgPlainText("ip")):
-    ip = split_maohao(tag)
-    msg = await queries_server(ip)
+@queries_comm.handle()
+async def _(matcher:Matcher,event:MessageEvent,keyword:str = Keyword()):
+    msg = event.get_plaintext()
+    if not msg:
+        await matcher.finish('ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】')
+    ip = msg.split(keyword)[-1].split('\r')[0].split(' ')
+    for one_msg in ip:
+        if one_msg and one_msg[-1].isdigit():
+            break
+    if not one_msg:
+        await matcher.finish()
+    ip_list = split_maohao(one_msg)
+    msg = await queries_server(ip_list)
     await matcher.finish(msg)
     
 
