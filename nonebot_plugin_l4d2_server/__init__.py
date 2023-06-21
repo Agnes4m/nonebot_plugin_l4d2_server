@@ -284,7 +284,7 @@ async def _(matcher:Matcher,event:MessageEvent,keyword:str = Keyword()):
     msg = event.get_plaintext()
     if not msg:
         await matcher.finish('ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】')
-    ip = msg.split(keyword)[-1].split('\r')[0].split(' ')
+    ip = msg.split(keyword)[-1].split('\r')[0].split('\n')[0].split(' ')
     for one_msg in ip:
         if one_msg and one_msg[-1].isdigit():
             break
