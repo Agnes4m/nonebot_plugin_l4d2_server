@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-l4d2-server"
-version = "0.5.6.6"
+version = "0.5.6.7"
 description = "L4D2 server related operations plugin for NoneBot2"
 authors = ["Agnes_Digital <Z735803792@163.com>"]
 license = "GPLv3"
@@ -25,7 +25,7 @@ include = [
 python = "^3.9"
 nonebot2 = "^2.0.0"
 nonebot-adapter-onebot = ">=2.1.5"
-nonebot_plugin_htmlrender = "^0.2.0.1"
+nonebot-plugin-htmlrender = "^0.2.0.3"
 nonebot_plugin_txt2img = ">=0.3.0"
 nonebot_plugin_apscheduler = "^0.2.0"
 asyncio = ">=3.4.3"
@@ -48,6 +48,12 @@ python-jose = "^3.3.0"
 gitpython = ">=3.1.27"
 attrs = "^23.1.0"
 
+[[tool.poetry.source]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+priority = "default"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
