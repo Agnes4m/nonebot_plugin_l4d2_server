@@ -14,6 +14,10 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from nonebot import require
+require('nonebot_plugin_apscheduler')
+require('nonebot_plugin_htmlrender')
+require('nonebot_plugin_txt2img')
 from .l4d2_web import web,webUI
 
 from typing import Tuple,Union,List

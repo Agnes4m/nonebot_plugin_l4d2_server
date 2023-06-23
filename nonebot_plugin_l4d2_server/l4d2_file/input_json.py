@@ -58,6 +58,6 @@ async def up_date(data, name):
     
     file_path = directory / name
     with open(file_path, 'w') as json_file:
-        json.dump(data, json_file)
+        json.dump(data, json_file,ensure_ascii=False)
     
     return True
