@@ -82,7 +82,7 @@ logo ="""
     """
 
 
-__version__ = "0.5.6"
+__version__ = "0.5.7"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description='群内对有关求生之路的查询和操作',
@@ -296,7 +296,7 @@ async def _(matcher:Matcher,event:MessageEvent,keyword:str = Keyword()):
         await matcher.finish()
     ip_list = split_maohao(one_msg)
     msg = await queries_server(ip_list)
-    await matcher.finish(msg)
+    await str_to_picstr(msg,matcher)
     
 
 @add_queries.handle()

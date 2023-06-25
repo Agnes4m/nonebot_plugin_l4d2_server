@@ -54,10 +54,10 @@ class L4d2GroupConfig(BaseModel):
 
 class L4d2Config(BaseModel):
     total_enable: bool = Field(True, alias='是否全局启用求生功能')
+    l4_image: bool = Field(False , alias='是否启用图片')
     web_username: str = Field('l4d2', alias='后台管理用户名')
     web_password: str = Field('admin', alias='后台管理密码')
     l4_style: str = Field("standard", alias='图片风格')
-    l4_image: bool = Field(False , alias='是否启用图片')
     l4_ipall: List[Dict[str,Union[str,int,bool]]] = Field(
         [{
         'id_rank':'1',
@@ -89,6 +89,7 @@ class L4d2Config(BaseModel):
     l4_only:bool = Field(False, alias='下载地图是是否阻碍其他指令')
     l4_push_interval: int = Field(3, alias='定时任务间隔')
     l4_push_times: int = Field(10, alias='定时任务次数')
+    l4_connect: bool = Field(True, alias="是否在查服命令后加入connect ip")
     group_config: Dict[int, L4d2GroupConfig] = Field({}, alias='分群配置')
 
     def update(self, **kwargs):

@@ -4,7 +4,6 @@ from typing import List
 async def queries(ip:str,port:int):
     port = int(port)
     msg_dict = await queries_dict(ip,port)
-    message = 'ip:' + msg_dict['ip'] + '\n'
     message += '名称：' + msg_dict['name'] + '\n'
     message += f"地图：{msg_dict['map_']}\n"
     message += f"延迟：{msg_dict['ping']}\n"

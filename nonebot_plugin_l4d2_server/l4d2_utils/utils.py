@@ -1,6 +1,7 @@
 
 from nonebot.adapters.onebot.v11 import Bot,MessageEvent,GroupMessageEvent
 from nonebot.log import logger
+from nonebot.matcher import Matcher
 import struct
 import httpx
 import os
@@ -15,6 +16,7 @@ from ..l4d2_queries import queries,player_queries
 from ..l4d2_queries.qqgroup import *
 from ..l4d2_server.workshop import workshop_to_dict
 from ..l4d2_image.steam import url_to_byte
+from .txt_to_img import mode_txt_to_img
 import tempfile
 import random
 
@@ -140,6 +142,7 @@ async def queries_server(msg:list) -> str:
     try:
         msgs = await  queries(ip,port)
         msgs += await player_queries(ip,port)
+        msgs += f"connect {ip}:{port}"
     except (struct.error,TimeoutError):
         pass
     # except Exception:
@@ -305,3 +308,20 @@ async def extract_last_digit(msg: str) -> tuple[str, str]:
             new_msg = msg[:i]
             return new_msg, last_digit
     return msg, ''
+
+async def str_to_picstr(push_msg:str,matcher:Matcher):
+    """判断图片输出还是正常输出"""
+    if l4_config.l4_image:
+        lines = push_msg.splitlines()
+        first_str = lines[0]
+        last_str = lines[-1]
+        push_msg = '\n'.join(lines[1:-1])
+        if l4_config.l4_connect:
+            await matcher.send(mode_txt_to_img(first_str,push_msg)+last_str)
+        else:
+            await matcher.send(mode_txt_to_img(first_str,push_msg))
+    else:
+        if l4_config.l4_connect:
+            await matcher.send(push_msg)
+        else:
+            await matcher.send('\n'.join(push_msg.splitlines()[1:-1]))

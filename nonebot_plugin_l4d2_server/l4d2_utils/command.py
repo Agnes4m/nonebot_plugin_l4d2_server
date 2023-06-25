@@ -139,11 +139,12 @@ async def get_des_ip():
     count_ips(ALL_HOST)
     ip_anne_list=[] 
     try:
-        ips = ALL_HOST['云']
-        ip_anne_list = []
-        for one_ip in ips:
-            host,port = split_maohao(one_ip['ip'])
-            ip_anne_list.append((one_ip['id'],host,port))
+        for one_tag in l4_config.l4_zl_tag:
+            ips = ALL_HOST[one_tag]
+            ip_anne_list = []
+            for one_ip in ips:
+                host,port = split_maohao(one_ip['ip'])
+                ip_anne_list.append((one_ip['id'],host,port))
     except KeyError:
         pass
     await get_read_ip(ip_anne_list)
@@ -152,18 +153,18 @@ async def get_des_ip():
     @tan_jian.handle()
     async def _(matcher:Matcher,event:MessageEvent):
         msg = await get_tan_jian(ip_anne_list,1)
-        await matcher.finish(msg)  
+        await str_to_picstr(push_msg=msg,matcher=matcher) 
         
     @prison.handle()
     async def _(matcher:Matcher,event:MessageEvent):
         msg = await get_tan_jian(ip_anne_list,2)
-        await matcher.finish(msg)
+        await str_to_picstr(push_msg=msg,matcher=matcher)
 
     @open_prison.handle()
     async def _(matcher:Matcher,event:MessageEvent):
 
         msg = await get_tan_jian(ip_anne_list,3)
-        await matcher.finish(msg)
+        await str_to_picstr(push_msg=msg,matcher=matcher)
         
     
     
@@ -171,10 +172,6 @@ async def get_read_ip(ip_anne_list):
     get_ip = on_command('anne',aliases=server_key(),priority=80,block=True)
     @get_ip.handle()
     async def _(matcher:Matcher,start:str = CommandStart(),command: str = RawCommand(),args:Message = CommandArg()):
-        # global matchers
-        # if get_ip.plugin_name not in matchers:
-        #     matchers[get_ip.plugin_name] = []
-        # matchers[get_ip.plugin_name].append(get_ip)
         if start:
             command = command.replace(start,'')
         if command == 'anne':
@@ -186,14 +183,7 @@ async def get_read_ip(ip_anne_list):
         elif msg and isinstance(push_msg ,list):
             await matcher.finish(MessageSegment.image(push_msg[0]) + Message(push_msg[-1]))
         elif msg and isinstance(push_msg ,str):
-            if l4_config.l4_image:
-                lines = push_msg.splitlines()
-                first_str = lines[0]
-                last_str = lines[-1]
-                push_msg = '\n'.join(lines[1:-1])
-                await matcher.finish(mode_txt_to_img(first_str,push_msg)+Message(last_str))
-            else:
-                await matcher.finish(push_msg)
+            await str_to_picstr(push_msg,matcher)
 
 async def get_ip_to_mes(msg:str ,command: str = ''):   
     if not msg:
@@ -254,6 +244,6 @@ async def init():
     
    
     
-@driver.on_bot_connect
+@driver.on_startup
 async def _():
     await init()

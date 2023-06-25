@@ -68,6 +68,9 @@ global_config_form = Form(
         Switch(label='是否优先上传地图', name='l4_only', value='${l4_only}', onText='开启', offText='关闭',
                labelRemark=Remark(shape='circle',
                                   content='开启时，上传地图会保证优先级，从而阻碍其他指令')),
+        Switch(label='是否显示connect', name='l4_connect', value='${l4_connect}', onText='开启', offText='关闭',
+               labelRemark=Remark(shape='circle',
+                                  content='关闭后，查询服务器将不再显示connect和ip地址')),
         InputNumber(label='定时推送间隔（min）', name='l4_push_interval', value='${l4_push_interval}',
                   labelRemark=Remark(shape='circle',
                                      content='设置好后，使用推送服务器定时指令，将以x分钟为间隔推送一次')),
@@ -83,11 +86,11 @@ global_config_form = Form(
                  labelRemark=Remark(shape='circle',
                                     content='在这里加入的用户，才能上传地图')),           
 
-        InputTag(label='求生上传地图用户', name='l4_master', value='${l4_master}',
+        InputTag(label='坐牢三指令tag', name='l4_zl_tag', value='${l4_zl_tag}',
                  enableBatchAdd=True,
                  placeholder='添加qq号', visibleOn='${total_enable}', joinValues=False, extractValue=True,
                  labelRemark=Remark(shape='circle',
-                                    content='在这里加入的用户，才能上传地图')),
+                                    content='在这里的指令，可以响应坐牢三指令')),
 
     ],
     actions=[Action(label='保存', level=LevelEnum.success, type='submit'),
