@@ -142,7 +142,6 @@ async def queries_server(msg:list) -> str:
     try:
         msgs = await  queries(ip,port)
         msgs += await player_queries(ip,port)
-        msgs += f"connect {ip}:{port}"
     except (struct.error,TimeoutError):
         pass
     # except Exception:
@@ -309,7 +308,7 @@ async def extract_last_digit(msg: str) -> tuple[str, str]:
             return new_msg, last_digit
     return msg, ''
 
-async def str_to_picstr(push_msg:str,matcher:Matcher):
+async def str_to_picstr(push_msg:str,matcher:Matcher,keyword:str = None):
     """判断图片输出还是正常输出"""
     if l4_config.l4_image:
         lines = push_msg.splitlines()
@@ -321,7 +320,7 @@ async def str_to_picstr(push_msg:str,matcher:Matcher):
         else:
             await matcher.send(mode_txt_to_img(first_str,push_msg))
     else:
-        if l4_config.l4_connect:
+        if l4_config.l4_connect or keyword== "connect":
             await matcher.send(push_msg)
         else:
-            await matcher.send('\n'.join(push_msg.splitlines()[1:-1]))
+            await matcher.send('\n'.join(push_msg.splitlines()[1:-2]))
