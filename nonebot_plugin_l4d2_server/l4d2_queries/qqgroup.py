@@ -207,7 +207,6 @@ async def get_tan_jian(msg:List[tuple],mode:int):
         message += await msg_ip_to_list(mse['Players'])
     except (KeyError):
         message += '服务器里，是空空的呢\n'
-    message += 'connect ' + mse['ip']
     return message
 
 

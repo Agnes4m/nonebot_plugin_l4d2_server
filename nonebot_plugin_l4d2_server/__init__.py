@@ -22,6 +22,7 @@ from .l4d2_web import web,webUI
 
 from typing import Tuple,Union,List
 from time import sleep
+import time
 
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
@@ -286,6 +287,7 @@ async def _(matcher:Matcher,args:Message = CommandArg()):
 @queries_comm.handle()
 async def _(matcher:Matcher,event:MessageEvent,keyword:str = Keyword()):
     msg = event.get_plaintext()
+ 
     if not msg:
         await matcher.finish('ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】')
     ip = msg.split(keyword)[-1].split('\r')[0].split('\n')[0].split(' ')
@@ -296,7 +298,7 @@ async def _(matcher:Matcher,event:MessageEvent,keyword:str = Keyword()):
         await matcher.finish()
     ip_list = split_maohao(one_msg)
     msg = await queries_server(ip_list)
-    await str_to_picstr(msg,matcher)
+    await str_to_picstr(msg,matcher,keyword)
     
 
 @add_queries.handle()
