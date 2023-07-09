@@ -1,10 +1,12 @@
 # from PIL import Image
 import httpx
 import aiohttp
+
 # from bs4 import BeautifulSoup
+from typing import List, Optional
 from urllib.parse import unquote
 
-    
+
 # async def web_player(url) -> Image :
 #     """steam个人资料获取头像"""
 #     data = BeautifulSoup(await url_for_byte(url), 'html.parser')
@@ -39,10 +41,10 @@ from urllib.parse import unquote
 #     }
 #     data = httpx.get(url,headers=headers,proxies=l4_proxies,timeout=60,verify=False).content
 #     return data
-async def url_to_byte(url:str,filename:str =''):
+async def url_to_byte(url: str, filename: str = ""):
     """获取URL数据的字节流"""
     headers = {
-    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
     }
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers, timeout=600) as response:
@@ -51,33 +53,39 @@ async def url_to_byte(url:str,filename:str =''):
             else:
                 return None
 
-async def url_to_byte_name(url:str,filename:str =''):
+
+async def url_to_byte_name(url: str, filename: str = ""):
     """获取URL数据的字节流"""
     headers = {
-    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0'
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
     }
+
     if filename == "htp":
-        response = httpx.get(url,headers=headers,timeout=600)
-        content_disposition:str = response.headers.get("Content-Disposition")
+        response = httpx.get(url, headers=headers, timeout=600)
+        content_disposition = response.headers.get("Content-Disposition")
         if not content_disposition:
             return None
         elif "''" in content_disposition:
             file_name = content_disposition.split("''")[-1]
-        else: 
+        else:
             file_name = content_disposition
         file_name = unquote(file_name)
-        return [response.read(),file_name]
-    else:       
+        if response.content and file_name:
+            return [response.content, file_name]
+    else:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers, timeout=600) as response:
-                content_disposition:str = response.headers.get("Content-Disposition")
+                content_disposition = response.headers.get("Content-Disposition")
+                if not content_disposition:
+                    return
                 if "''" in content_disposition:
                     file_name = content_disposition.split("''")[-1]
-                else: 
+                else:
                     file_name = content_disposition
+                if not file_name:
+                    file_name = "anyone"
                 file_name = unquote(file_name)
                 if response.status == 200:
-                    return [await response.read(),file_name]
+                    return [await response.read(), file_name]
                 else:
                     return None
-            

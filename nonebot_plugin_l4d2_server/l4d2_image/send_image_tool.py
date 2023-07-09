@@ -19,9 +19,9 @@ async def convert_img(
       * res: bytes对象或base64编码图片。
     """
     if isinstance(img, Image.Image):
-        img = img.convert('RGBA')
+        img = img.convert("RGBA")
         result_buffer = BytesIO()
-        img.save(result_buffer, format='PNG', quality=80, subsampling=0)
+        img.save(result_buffer, format="PNG", quality=80, subsampling=0)
         res = result_buffer.getvalue()
         if is_base64:
             res = b64encode(res).decode()
@@ -29,4 +29,4 @@ async def convert_img(
     elif isinstance(img, bytes):
         return b64encode(img).decode()
     else:
-        return f'[CQ:image,file=file:///{str(img)}]'
+        return f"[CQ:image,file=file:///{str(img)}]"

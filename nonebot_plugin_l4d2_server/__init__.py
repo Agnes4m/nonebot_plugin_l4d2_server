@@ -15,18 +15,19 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from nonebot import require
-require('nonebot_plugin_apscheduler')
-require('nonebot_plugin_htmlrender')
-require('nonebot_plugin_txt2img')
-from .l4d2_web import web,webUI
 
-from typing import Tuple,Union,List
+require("nonebot_plugin_apscheduler")
+require("nonebot_plugin_htmlrender")
+require("nonebot_plugin_txt2img")
+from .l4d2_web import web, webUI
+
+from typing import Tuple, Union, List
 from time import sleep
 import time
 
 from nonebot.matcher import Matcher
 from nonebot.typing import T_State
-from nonebot.params import CommandArg,ArgPlainText,RegexGroup,Arg
+from nonebot.params import CommandArg, ArgPlainText, RegexGroup, Arg
 from nonebot import get_driver, require
 from typing import Annotated
 from nonebot.params import Keyword
@@ -34,60 +35,25 @@ from nonebot.params import Keyword
 from .l4d2_utils.config import *
 from .l4d2_utils.utils import *
 from .l4d2_utils.command import *
-from .l4d2_image.steam import url_to_byte,url_to_byte_name
+from .l4d2_image.steam import url_to_byte, url_to_byte_name
 
 from .l4d2_data import sq_L4D2
 from .l4d2_push import *
 from .l4d2_image.vtfs import img_to_vtf
-from .l4d2_file import updown_l4d2_vpk,all_zip_to_one
+from .l4d2_file import updown_l4d2_vpk, all_zip_to_one
 from .l4d2_file.input_json import *
 from .l4d2_utils.txt_to_img import mode_txt_to_img
+
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 from nonebot.plugin import PluginMetadata
 
 driver = get_driver()
-logo ="""
-    ......                  ` .]]@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO^       
-    ......                ,/@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO^       
-    ......            /O@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO^       
-    `.....           ,@^=.OOO\/\@@@@@@@@@@@@@@@@@@@@OO//@@@@@/OO\]]]OO\]
-    ``....          ,@@/=^OOOOOOOO@@@@@@@@@@@\]OOOOOOO^^=@@@@OOOOOOOOOOO
-    `.....          O@O^==OOOOOOOO@@@/.,@@@OOOOOOOOOOO\O,@@@@OOOOOOOOO@@
-    ......    ,    .@@@^=`OOOOOOOOO/  ,O@@OOOOOOOOOOOOOO.O@@@OO/[[[[[[[.
-    ......    =..,//@@@^=`OOOOOOOOO@.*=@@@OOOOOOOOOOOOOO]@@@OOO.     ,/`
-    ......    =.\O]`,@O^\=OOOO@@@@@@O`=@@@@@@@OOOOOOOO*O,OO^....[[``]./]
-    ......    ,^.oOoO@O^=,OO@@@@@OoO`\O\OO@@@@OOOOOOOOO]@@^.]]]/OOOo.,OO
-    ......     =.=OOOO@@@@/[[=/.^,/....*.=^,[O@@@@OOOO.@@OOOOOOOOO/..OOO
-    ......      \.\OO`.,....*`.=.^.......=....=@O[\@@O@@[^ ,`.=Oo*.,OOO/
-    ......       ,@,`...  ....=^/......../....=/O^....\..O]/[\O[*]/OOO. 
-    ......       ]@^.,....*..=O\^........^..*.O.\O.^..=^\..,\/\@OOO[.   
-    ......    ,,`O^.,..../.,O`//........=..=`=^.=O`O..=^..OOO*/OOO.     
-    ......   .=.=@..^...=^/O`*OO.]...o**\.,/=^...O^@^..^...OO^=`OOO`    
-    ......  `=.,O^./.*.,OO`,.,/@/.*,O`,O*/@/`....\O\^......Oo^.^,OOO.   
-    ...... .,`.o=^=^.../`...]/`***/O^/@oO@`..[[[[\/=\......O^^...=OO^   
-    ......  ^.=`O^O.*.=\],]]]/\O/\@O[=O/`        =.=O....=^O^*....OOO.  
-    ...... =../=OO^.*.=@@[[,@@@\ .. ..    ,\@@@@@] =O...`=^@`.....=OO^  
-    ...... `..^=OO^.^,@`  ^ =oO\          .O\O@\.,\@@..,^OoO......=OOO. 
-    ...... ^...=OO^.^.@^ =^*=^,O          \..Ooo^  ,@..=OOOO..*....OOO. 
-    ...... ^...=o@^.`.O@. .  ... .. ....  ^.*`.*^  =^..o@oO@*.=....OOO^ 
-    ...... ^...=oOO.*.\O   ... .......... .\   ` ,=^*.,OOOO@^.=`^..=OO\ 
-    ...... ^...*`OO.*.=O ........          ......,`*^.=OOOo@^.=^^..=OOO.
-    ...... \....*oO^..*O^ ....... @OO[[[`  ......../.,@OOOo@^..OO...OOO`
-    ...... =.....*.=`..,O`       .O.....=   ... ^.=..OOOOO=O@..=O^..OOO^
-    ...... .^...**.O@...\O^ .     \.....`   .^ /.,^.=O@OO`=O@^..OO`.=OO\
-    ...... .^...,.=O=@...OO@\      ,[O\=.    ./`.*.*OOOOO..OOO*..OO.,OOO
-    ....../O....../^=O@`..O@@@@@]`    .* .,/@@/..../OOOOO*.,OOO..,OO`=OO
-    @OO\ooO....,*/@^,@@@\..@^[\@@@@@@O]*]//[`@^*^*=OOOOOO^..=OO\...\^.\@
-    OOooo^..`./oOO@/ =^\/^.^\\....=]......,/@@^O^*O.... .,][],OO\....\`.
-    @Oooo\/]OOOOOO/  .  \.=^....,..........[.,OO^=^.    /    ,`\OO`.....
-    """
 
-
-__version__ = "0.5.7"
+__version__ = "0.5.9"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
-    description='群内对有关求生之路的查询和操作',
-    usage=logo,
+    description="群内对有关求生之路的查询和操作",
+    usage="群内对有关求生之路的查询和操作",
     type="application",
     homepage="https://github.com/Agnes4m/nonebot_plugin_l4d2_server",
     supported_adapters={"~onebot.v11"},
@@ -100,56 +66,58 @@ __plugin_meta__ = PluginMetadata(
 
 """相当于启动就检查数据库"""
 
+
 @up.handle()
-async def _(matcher:Matcher,event: NoticeEvent):
+async def _(matcher: Matcher, event: NoticeEvent):
     args = event.dict()
-    if args['notice_type'] != 'offline_file':
-        matcher.set_arg('txt',args)
+    if args["notice_type"] != "offline_file":
+        matcher.set_arg("txt", args)  # type: ignore
         return
-    l4_file_path = l4_config.l4_ipall[l4_config.l4_number]['location']
-    map_path = Path(l4_file_path, vpk_path)
+    l4_file_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
+    map_path = Path(l4_file_path, vpk_path)  # type: ignore
     # 检查下载路径是否存在
-    if not Path(l4_file_path).exists():
+    if not Path(l4_file_path).exists():  # type: ignore
         await matcher.finish("你填写的路径不存在辣")
     if not Path(map_path).exists():
         await matcher.finish("这个路径并不是求生服务器的路径，请再看看罢")
-    url:str = args['file']['url']
-    name: str = args['file']['name']
+    url: str = args["file"]["url"]
+    name: str = args["file"]["name"]
     # 如果不符合格式则忽略
-    await up.send('已收到文件，开始下载')
-    sleep(1)   # 等待一秒防止因为文件名获取出现BUG
-    vpk_files = await updown_l4d2_vpk(map_path,name,url)
+    await up.send("已收到文件，开始下载")
+    sleep(1)  # 等待一秒防止因为文件名获取出现BUG
+    vpk_files = await updown_l4d2_vpk(map_path, name, url)
     if vpk_files:
         mes = "解压成功，新增以下几个vpk文件"
-        await matcher.finish(mes_list(mes,vpk_files))
+        await matcher.finish(mes_list(mes, vpk_files))
     else:
         await matcher.finish("你可能上传了相同的文件，或者解压失败了捏")
 
-path_list:str = '请选择上传位置（输入阿拉伯数字)'
+
+path_list: str = "请选择上传位置（输入阿拉伯数字)"
 times = 0
 for one_path in l4_config.l4_ipall:
     times += 1
-    path_msg = one_path['location']
-    path_list += f'\n {str(times)} | {path_msg}'
-    
-@up.got("is_sure", prompt=path_list)    
+    path_msg = one_path["location"]
+    path_list += f"\n {str(times)} | {path_msg}"
+
+
+@up.got("is_sure", prompt=path_list)
 async def _(matcher: Matcher):
-    args = matcher.get_arg('txt')
+    args = matcher.get_arg("txt")
     l4_file = l4_config.l4_ipall
     if not args:
-        await matcher.finish('获取文件出错辣，再试一次吧')
+        await matcher.finish("获取文件出错辣，再试一次吧")
 
-    is_sure = str(matcher.get_arg('is_sure')).strip()
+    is_sure = str(matcher.get_arg("is_sure")).strip()
     if not is_sure.isdigit():
-        await matcher.finish('已取消上传')
-    
-    file_path:str = ''
+        await matcher.finish("已取消上传")
+
+    file_path: str = ""
     for one_server in l4_file:
-        if one_server['id_rank'] == is_sure:
-            file_path = one_server['location']
+        if one_server["id_rank"] == is_sure:
+            file_path = one_server["location"]
     if not file_path:
         await matcher.finish("没有这个序号拉baka")
-
 
     map_path = Path(file_path, vpk_path)
 
@@ -159,239 +127,263 @@ async def _(matcher: Matcher):
     if not map_path.exists():
         await matcher.finish("这个路径并不是求生服务器的路径，请再看看罢")
 
-    url = args['file']['url']
-    name = args['file']['name']
+    url = args["file"]["url"]
+    name = args["file"]["name"]
     # 如果不符合格式则忽略
-    if not name.endswith(file_format):
+    if not name.endswith(file_format):  # type: ignore
         return
 
-    await matcher.send('已收到文件，开始下载')
-    sleep(1)   # 等待一秒防止因为文件名获取出现BUG
-    vpk_files = await updown_l4d2_vpk(map_path, name, url)
+    await matcher.send("已收到文件，开始下载")
+    sleep(1)  # 等待一秒防止因为文件名获取出现BUG
+    vpk_files = await updown_l4d2_vpk(map_path, name, url)  # type: ignore
 
     if vpk_files:
-        logger.info('检查到新增文件')
+        logger.info("检查到新增文件")
         mes = "解压成功，新增以下几个vpk文件"
     elif vpk_files is None:
-        await matcher.finish('文件错误')
+        await matcher.finish("文件错误")
     else:
         mes = "你可能上传了相同的文件，或者解压失败了捏"
 
     await matcher.finish(mes_list(mes, vpk_files))
 
-    
+
 @find_vpk.handle()
-async def _(bot:Bot,event: MessageEvent,matcher: Matcher):
-    name_vpk = []
-    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]['location'],vpk_path)
-    name_vpk = get_vpk(name_vpk,map_path)
+async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]["location"], vpk_path)
+    name_vpk = get_vpk(map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
-    msg = ''
-    msg = mes_list(msg,name_vpk).replace(" ","")
-    
-    await matcher.finish(mode_txt_to_img(mes,msg))
+    msg = ""
+    msg = mes_list(msg, name_vpk).replace(" ", "")
+
+    await matcher.finish(mode_txt_to_img(mes, msg))
+
 
 @del_vpk.handle()
-async def _(matcher:Matcher,args:Message = CommandArg()):
+async def _(matcher: Matcher, args: Message = CommandArg()):
     num1 = args.extract_plain_text()
     if num1:
-        matcher.set_arg("num",args)
+        matcher.set_arg("num", args)
 
-@del_vpk.got("num",prompt="你要删除第几个序号的地图(阿拉伯数字)")
-async def _(matcher: Matcher,tag:int = ArgPlainText("num")):
-    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]['location'],vpk_path)
-    vpk_name = del_map(tag,map_path)
-    await matcher.finish('已删除地图：' + vpk_name)
-    
+
+@del_vpk.got("num", prompt="你要删除第几个序号的地图(阿拉伯数字)")
+async def _(matcher: Matcher, tag: str = ArgPlainText("num")):
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]["location"], vpk_path)
+    vpk_name = del_map(int(tag), map_path)
+    await matcher.finish("已删除地图：" + vpk_name)
+
+
 @rename_vpk.handle()
-async def _(matcher:Matcher,matched: Tuple[int,str, str] = RegexGroup(),):
-    num,useless,rename = matched
-    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]['location'],vpk_path)
-    logger.info('检查是否名字是.vpk后缀')
-    if not rename.endswith('.vpk'):
-        rename = rename + '.vpk'
-    logger.info('尝试改名')
+async def _(
+    matcher: Matcher,
+    matched: Tuple[int, str, str] = RegexGroup(),
+):
+    num, useless, rename = matched
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]["location"], vpk_path)
+    logger.info("检查是否名字是.vpk后缀")
+    if not rename.endswith(".vpk"):
+        rename = rename + ".vpk"
+    logger.info("尝试改名")
     try:
-        map_name = rename_map(num,rename,map_path)
+        map_name = rename_map(num, rename, map_path)
         if map_name:
-            await matcher.finish('改名成功\n原名:'+ map_name +'\n新名称:' + rename)
+            await matcher.finish("改名成功\n原名:" + map_name + "\n新名称:" + rename)
     except ValueError:
-        await matcher.finish('参数错误,请输入格式如【求生地图 5 改名 map.vpk】,或者输入【求生地图】获取全部名称')
-        
+        await matcher.finish("参数错误,请输入格式如【求生地图 5 改名 map.vpk】,或者输入【求生地图】获取全部名称")
+
+
 @anne_player.handle()
-async def _(matcher:Matcher,event:MessageEvent,args:Message = CommandArg()):
+async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg()):
     name = args.extract_plain_text()
     name = name.strip()
     at = await get_message_at(event.json())
     usr_id = at_to_usrid(at)
-    if usr_id == None:
+    if not usr_id:
         usr_id = event.user_id
     # 没有参数则从db里找数据
-    msg = await search_anne(name,usr_id)
-    if type(msg)==str:
+    msg = await search_anne(name, str(usr_id))
+    if isinstance(msg, str):
         await matcher.finish(msg)
-    else:
-        await matcher.finish(MessageSegment.image(msg)) 
-    
+    elif isinstance(msg, bytes):
+        await matcher.finish(MessageSegment.image(msg))
+
+
 @anne_bind.handle()
-async def _(matcher:Matcher,event:MessageEvent,args:Message = CommandArg()):
+async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg()):
     tag = args.extract_plain_text()
     tag = tag.strip()
-    if tag=="" or tag.isspace():
+    if tag == "" or tag.isspace():
         await matcher.finish("虚空绑定?")
     usr_id = str(event.user_id)
     nickname = event.sender.card or event.sender.nickname
-    msg = await bind_steam(usr_id,tag,nickname)
+    if not nickname:
+        nickname = "宁宁"
+    msg = await bind_steam(usr_id, tag, nickname)
     await matcher.finish(msg)
 
+
 @del_bind.handle()
-async def _(matcher:Matcher,event:MessageEvent):
+async def _(matcher: Matcher, event: MessageEvent):
     usr_id = event.user_id
-    await matcher.finish(name_exist(usr_id))
+    await matcher.finish(name_exist(str(usr_id)))
+
 
 @rcon_to_server.handle()
-async def _(matcher:Matcher,args:Message = CommandArg()):
+async def _(matcher: Matcher, args: Message = CommandArg()):
     msg = args.extract_plain_text()
     if msg:
-        matcher.set_arg("command",args)
+        matcher.set_arg("command", args)
 
-@rcon_to_server.got("command",prompt="请输入向服务器发送的指令")
-async def _(matcher:Matcher,tag:str = ArgPlainText("command")):
+
+@rcon_to_server.got("command", prompt="请输入向服务器发送的指令")
+async def _(matcher: Matcher, tag: str = ArgPlainText("command")):
     tag = tag.strip()
     msg = await command_server(tag)
     try:
-        await matcher.finish(mode_txt_to_img('服务器返回',msg))
+        await matcher.finish(mode_txt_to_img("服务器返回", msg))
     except:
-        await matcher.finish(msg,reply_message = True)
-        
+        await matcher.finish(msg, reply_message=True)
 
-        
+
 @check_path.handle()
-async def _(matcher:Matcher,args:Message = CommandArg()):
+async def _(matcher: Matcher, args: Message = CommandArg()):
     msg = args.extract_plain_text()
-    if msg.startswith('切换'):
-        msg_number = int(''.join(msg.replace('切换', ' ').split()))
+    if msg.startswith("切换"):
+        msg_number = int("".join(msg.replace("切换", " ").split()))
         if msg_number > len(l4_config.l4_ipall) or msg_number < 0:
-            await matcher.send('没有这个序号的路径呐')
+            await matcher.send("没有这个序号的路径呐")
         else:
             l4_config.l4_number = msg_number - 1
-            now_path = l4_config.l4_ipall[l4_config.l4_number]['location']
-            await matcher.send(f'已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}')
+            now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
+            await matcher.send(f"已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}")
             config_manager.save()
-    else: 
-        now_path = l4_config.l4_ipall[l4_config.l4_number]['location']
-        await matcher.send(f'当前的路径为\n{str(l4_config.l4_number+1)}、{now_path}')
-        
-        
+    else:
+        now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
+        await matcher.send(f"当前的路径为\n{str(l4_config.l4_number+1)}、{now_path}")
+
+
 @queries_comm.handle()
-async def _(matcher:Matcher,event:MessageEvent,keyword:str = Keyword()):
+async def _(matcher: Matcher, event: MessageEvent, keyword: str = Keyword()):
     msg = event.get_plaintext()
- 
+
     if not msg:
-        await matcher.finish('ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】')
-    ip = msg.split(keyword)[-1].split('\r')[0].split('\n')[0].split(' ')
-    for one_msg in ip:
-        if one_msg and one_msg[-1].isdigit():
+        await matcher.finish("ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】")
+    ip = msg.split(keyword)[-1].split("\r")[0].split("\n")[0].split(" ")
+    one_msg = None
+    for one in ip:
+        if one and one[-1].isdigit():
+            one_msg = one
             break
     if not one_msg:
         await matcher.finish()
     ip_list = split_maohao(one_msg)
     msg = await queries_server(ip_list)
-    await str_to_picstr(msg,matcher,keyword)
-    
+    await str_to_picstr(msg, matcher, keyword)
+
 
 @add_queries.handle()
-async def _(matcher:Matcher,event:GroupMessageEvent,args:Message = CommandArg()):
+async def _(matcher: Matcher, event: GroupMessageEvent, args: Message = CommandArg()):
     msg = args.extract_plain_text()
-    if len(msg)==0:
-        await matcher.finish('请在该指令后加入参数，例如【114.51.49.19:1810】')
-    [host,port] = split_maohao(msg)
+    if len(msg) == 0:
+        await matcher.finish("请在该指令后加入参数，例如【114.51.49.19:1810】")
+    [host, port] = split_maohao(msg)
     group_id = event.group_id
-    msg = await add_ip(group_id,host,port)
+    msg = await add_ip(group_id, host, port)
     await matcher.finish(msg)
 
+
 @del_queries.handle()
-async def _(event:GroupMessageEvent,matcher:Matcher,args:Message = CommandArg()):
+async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     msg = args.extract_plain_text()
     if not msg.isdigit():
-        await matcher.finish('请输入正确的序号数字')
+        await matcher.finish("请输入正确的序号数字")
     group_id = event.group_id
-    msg = await del_ip(group_id,msg)
+    msg = await del_ip(group_id, msg)
     await matcher.finish(msg)
-   
+
+
 @show_queries.handle()
-async def _(matcher:Matcher,event:GroupMessageEvent):
+async def _(matcher: Matcher, event: GroupMessageEvent):
     group_id = event.group_id
     msg = await show_ip(group_id)
     if not msg:
         await matcher.finish("当前没有启动的服务器捏")
-    if type(msg) == str:
+    if isinstance(msg, str):
         await matcher.finish(msg)
     else:
         await matcher.finish(MessageSegment.image(msg))
 
+
 @join_server.handle()
-async def _(args:Message = CommandArg()):
+async def _(args: Message = CommandArg()):
     msg = args.extract_plain_text()
     url = await get_number_url(msg)
     await join_server.finish(url)
-    
-        
+
+
 @up_workshop.handle()
-async def _(matcher:Matcher,args:Message = CommandArg()):
+async def _(matcher: Matcher, args: Message = CommandArg()):
     msg = args.extract_plain_text()
     if msg:
-        matcher.set_arg("ip",args)
-    
-@up_workshop.got("ip",prompt="请输入创意工坊网址或者物品id")
-async def _(matcher:Matcher,state:T_State,tag:str = ArgPlainText("ip")):
+        matcher.set_arg("ip", args)
+
+
+@up_workshop.got("ip", prompt="请输入创意工坊网址或者物品id")
+async def _(matcher: Matcher, state: T_State, tag: str = ArgPlainText("ip")):
     msg = await workshop_msg(tag)
     if not msg:
-        await matcher.finish('没有这个物品捏')
-    elif type(msg) == dict:
-        pic = await url_to_byte(msg['图片地址'])
-        message = ''
-        for item,value in msg.items():
-            if item in ['图片地址','下载地址','细节']:
+        await matcher.finish("没有这个物品捏")
+    elif isinstance(msg, dict):
+        pic = await url_to_byte(msg["图片地址"])
+        if not pic:
+            return
+        message = ""
+        for item, value in msg.items():
+            if item in ["图片地址", "下载地址", "细节"]:
                 continue
-            message += item + ':' + value + '\n'
-        state['dic'] = msg
+            message += item + ":" + value + "\n"
+        state["dic"] = msg
         await up_workshop.send(MessageSegment.image(pic) + Message(message))
-    elif type(msg) == list:
+    elif isinstance(msg, list):
         lenge = len(msg)
-        pic = await url_to_byte(msg[0]['图片地址'])
-        message = f'有{lenge}个文件\n'
+        pic = await url_to_byte(msg[0]["图片地址"])
+        message = f"有{lenge}个文件\n"
+        ones = []
         for one in msg:
-            ones = []
-            for item,value in one.items():
-                if item in ['图片地址','下载地址','细节']:
+            for item, value in one.items():
+                if item in ["图片地址", "下载地址", "细节"]:
                     continue
-                message += item + ':' + value + '\n'
+                message += item + ":" + value + "\n"
             ones.append(one)
-        state['dic'] = ones
-    
-@up_workshop.got("is_sure",prompt='如果需要上传，请发送 "yes"')    
-async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
+        state["dic"] = ones
+
+
+@up_workshop.got("is_sure", prompt='如果需要上传，请发送 "yes"')
+async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State):
     is_sure = str(state["is_sure"])
-    if is_sure == 'yes':
-        data_dict:Union[dict,List[dict]] = state['dic']
-        if type(data_dict) == dict:
-            logger.info('开始上传')
-            data_file = await url_to_byte(data_dict['下载地址'])
-            file_name = data_dict['名字']+ '.vpk'
-            await matcher.send('获取地址成功，尝试上传')
+    if is_sure == "yes":
+        data_dict: Union[dict, List[dict]] = state["dic"]
+        logger.info("开始上传")
+        if isinstance(data_dict, dict):
+            data_file = await url_to_byte(data_dict["下载地址"])
+            if not data_file:
+                return
+            file_name = data_dict["名字"] + ".vpk"
+            await matcher.send("获取地址成功，尝试上传")
             await upload_file(bot, event, data_file, file_name)
         else:
-            logger.info('开始上传')
+            data_file_list = []
             for data_one in data_dict:
-                data_file = await url_to_byte(data_one['下载地址'])
-                await all_zip_to_one
-            file_name = data_one['名字']+ '.vpk'
-            await upload_file(bot, event, data_file, file_name)
+                data_file = await url_to_byte(data_one["下载地址"])
+                data_file_list.append(data_file)
+                if not data_file:
+                    return
+                file_name = data_one["名字"] + ".vpk"
+                await all_zip_to_one(data_file_list)
+                await upload_file(bot, event, data_file, file_name)
     else:
-        await matcher.finish('已取消上传')
-    
+        await matcher.finish("已取消上传")
 
 
 # @updata.handle()
@@ -405,46 +397,52 @@ async def _(matcher: Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
 #     else:
 #         message = await write_json(msg)
 #         await matcher.finish(message)
-  
 
-            
+
 @vtf_make.handle()
-async def _(matcher:Matcher,state:T_State,args:Message = CommandArg()):
-    msg:str = args.extract_plain_text()
-    if msg not in ['拉伸','填充','覆盖','']:
-        await matcher.finish('错误的图片处理方式')
-    if msg == '':
-        msg = '拉伸'
-    state['way'] = msg
-    logger.info('方式',msg)
-    
-@vtf_make.got("image",prompt="请发送喷漆图片")
-async def _(bot:Bot,event:MessageEvent,state:T_State,tag = Arg("image")):
-    pic_msg:MessageSegment =  state["image"][0]
+async def _(matcher: Matcher, state: T_State, args: Message = CommandArg()):
+    msg: str = args.extract_plain_text()
+    if msg not in ["拉伸", "填充", "覆盖", ""]:
+        await matcher.finish("错误的图片处理方式")
+    if msg == "":
+        msg = "拉伸"
+    state["way"] = msg
+    logger.info("方式", msg)
+
+
+@vtf_make.got("image", prompt="请发送喷漆图片")
+async def _(bot: Bot, event: MessageEvent, state: T_State, tag=Arg("image")):
+    pic_msg: MessageSegment = state["image"][0]
     pic_url = pic_msg.data["url"]
     logger.info(pic_url)
     logger.info(type(pic_url))
-    tag = state['way']
+    tag = state["way"]
     pic_bytes = await url_to_byte(pic_url)
-    img_io = await img_to_vtf(pic_bytes,tag)
+    if not pic_bytes:
+        return
+    img_io = await img_to_vtf(pic_bytes, tag)
     img_bytes = img_io.getbuffer()
     usr_id = event.user_id
-    file_name:str = str(usr_id) + '.vtf'
+    file_name: str = str(usr_id) + ".vtf"
     await upload_file(bot, event, img_bytes, file_name)
 
 
-
 @smx_file.handle()
-async def _(matcher:Matcher,):
-    smx_path = Path(l4_config.l4_ipall[l4_config.l4_number]['location'],"left4dead2/addons/sourcemod/plugins")
-    smx_list = []
-    name_smx = get_vpk(smx_list,smx_path,file_=".smx")
+async def _(
+    matcher: Matcher,
+):
+    smx_path = Path(
+        l4_config.l4_ipall[l4_config.l4_number]["location"],
+        "left4dead2/addons/sourcemod/plugins",
+    )
+    name_smx = get_vpk(smx_path, file_=".smx")
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下smx文件"
-    msg = ''
-    msg = mes_list(msg,name_smx).replace(" ","")
-    await matcher.finish(mode_txt_to_img(mes,msg))
-    
+    msg = ""
+    msg = mes_list(msg, name_smx).replace(" ", "")
+    await matcher.finish(mode_txt_to_img(mes, msg))
+
+
 # @search_api.handle()
 # async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message = CommandArg()):
 #     msg:str = args.extract_plain_text()
@@ -457,32 +455,41 @@ async def _(matcher:Matcher,):
 #     else:
 #         state['maps'] = data
 #         await matcher.send(await map_dict_to_str(data))
-        
-@search_api.got("is_sure",prompt='如果需要上传，请发送 "yes"')    
-async def _(matcher:Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
+
+
+@search_api.got("is_sure", prompt='如果需要上传，请发送 "yes"')
+async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State):
     is_sure = str(state["is_sure"])
-    if is_sure == 'yes':
-        data_dict:dict = state['maps'][0]
-        if type(data_dict) == dict:
-            logger.info('开始上传')
+    if is_sure == "yes":
+        data_dict: dict = state["maps"][0]
+        if isinstance(data_dict, dict):
+            logger.info("开始上传")
             if l4_config.l4_only:
-                data_file,file_name = await url_to_byte_name(data_dict['url'],'htp')
+                reu = await url_to_byte_name(data_dict["url"], "htp")
             else:
-                data_file,file_name = await url_to_byte_name(data_dict['url'])
+                reu = await url_to_byte_name(data_dict["url"])
+            if not reu:
+                return
+            data_file, file_name = reu
             if data_file:
-                await matcher.send('获取地址成功，尝试上传')
+                await matcher.send("获取地址成功，尝试上传")
                 await upload_file(bot, event, data_file, file_name)
             else:
-                await search_api.send('出错了，原因是下载链接不存在')
+                await search_api.send("出错了，原因是下载链接不存在")
         else:
-            logger.info('开始上传')
-            for data_one in data_dict:
-                data_file,file_name = await url_to_byte_name(data_one['url'])
-                await all_zip_to_one
-                await upload_file(bot, event, data_file, file_name)
+            ...
+            # logger.info("开始上传")
+            # for data_one in data_dict:
+            #     reu = await url_to_byte_name(data_one["url"])
+            #     if not reu:
+            #         return
+            #     data_file, file_name = reu
+            #     await all_zip_to_one()
+            #     await upload_file(bot, event, data_file, file_name)
     else:
-        await matcher.finish('已取消上传')
-        
+        await matcher.finish("已取消上传")
+
+
 # @reload_ip.handle()
 # async def _(matcher:Matcher):
 #     global matchers
@@ -492,7 +499,7 @@ async def _(matcher:Matcher,bot:Bot,event:GroupMessageEvent,state:T_State):
 #             l4_matcher.destroy()
 #     await get_des_ip()
 #     await matcher.finish('已重载ip')
-    
+
 
 @driver.on_shutdown
 async def close_db():
