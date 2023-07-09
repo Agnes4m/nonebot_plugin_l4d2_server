@@ -2,7 +2,7 @@ from io import BytesIO
 from pathlib import Path
 from base64 import b64encode
 from typing import Union, overload
-from typing import Union,Tuple,Optional
+from typing import Union, Tuple, Optional
 import math
 import random
 
@@ -11,49 +11,53 @@ from PIL import Image
 from httpx import get
 import sys
 from pathlib import Path
+from typing import overload
 
-MAIN_PATH = Path() / 'data' / 'GenshinUID'
+
+MAIN_PATH = Path() / "data" / "GenshinUID"
 sys.path.append(str(MAIN_PATH))
-CONFIG_PATH = MAIN_PATH / 'config.json'
-RESOURCE_PATH = MAIN_PATH / 'resource'
-WIKI_PATH = MAIN_PATH / 'wiki'
-CU_BG_PATH = MAIN_PATH / 'bg'
-CU_CHBG_PATH = MAIN_PATH / 'chbg'
-WEAPON_PATH = RESOURCE_PATH / 'weapon'
-GACHA_IMG_PATH = RESOURCE_PATH / 'gacha_img'
-CHAR_PATH = RESOURCE_PATH / 'chars'
-CHAR_STAND_PATH = RESOURCE_PATH / 'char_stand'
-CHAR_SIDE_PATH = RESOURCE_PATH / 'char_side'
-CHAR_NAMECARD_PATH = RESOURCE_PATH / 'char_namecard'
-REL_PATH = RESOURCE_PATH / 'reliquaries'
-ICON_PATH = RESOURCE_PATH / 'icon'
-TEMP_PATH = RESOURCE_PATH / 'temp'
-CARD_PATH = RESOURCE_PATH / 'card'
-GUIDE_PATH = WIKI_PATH / 'guide'
-TEXT2D_PATH = Path(__file__).parents[2] / 'resource' / 'texture2d'
+CONFIG_PATH = MAIN_PATH / "config.json"
+RESOURCE_PATH = MAIN_PATH / "resource"
+WIKI_PATH = MAIN_PATH / "wiki"
+CU_BG_PATH = MAIN_PATH / "bg"
+CU_CHBG_PATH = MAIN_PATH / "chbg"
+WEAPON_PATH = RESOURCE_PATH / "weapon"
+GACHA_IMG_PATH = RESOURCE_PATH / "gacha_img"
+CHAR_PATH = RESOURCE_PATH / "chars"
+CHAR_STAND_PATH = RESOURCE_PATH / "char_stand"
+CHAR_SIDE_PATH = RESOURCE_PATH / "char_side"
+CHAR_NAMECARD_PATH = RESOURCE_PATH / "char_namecard"
+REL_PATH = RESOURCE_PATH / "reliquaries"
+ICON_PATH = RESOURCE_PATH / "icon"
+TEMP_PATH = RESOURCE_PATH / "temp"
+CARD_PATH = RESOURCE_PATH / "card"
+GUIDE_PATH = WIKI_PATH / "guide"
+TEXT2D_PATH = Path(__file__).parents[2] / "resource" / "texture2d"
 
-PLAYER_PATH = MAIN_PATH / 'players'
+PLAYER_PATH = MAIN_PATH / "players"
 
 
-TEXT2D_PATH = Path(__file__).parents[2] / 'resource' / 'texture2d'
-FETTER_PATH = TEXT2D_PATH / 'fetter'
-TALENT_PATH = TEXT2D_PATH / 'talent'
-WEAPON_BG_PATH = TEXT2D_PATH / 'weapon'
-WEAPON_AFFIX_PATH = TEXT2D_PATH / 'weapon_affix'
-LEVEL_PATH = TEXT2D_PATH / 'level'
+TEXT2D_PATH = Path(__file__).parents[2] / "resource" / "texture2d"
+FETTER_PATH = TEXT2D_PATH / "fetter"
+TALENT_PATH = TEXT2D_PATH / "talent"
+WEAPON_BG_PATH = TEXT2D_PATH / "weapon"
+WEAPON_AFFIX_PATH = TEXT2D_PATH / "weapon_affix"
+LEVEL_PATH = TEXT2D_PATH / "level"
 
-BG_PATH = Path(__file__).parent / 'bg'
-TEXT_PATH = Path(__file__).parent / 'texture2d'
-ring_pic = Image.open(TEXT_PATH / 'ring.png')
-mask_pic = Image.open(TEXT_PATH / 'mask.png')
-NM_BG_PATH = BG_PATH / 'nm_bg'
-SP_BG_PATH = BG_PATH / 'sp_bg'@overload
+BG_PATH = Path(__file__).parent / "bg"
+TEXT_PATH = Path(__file__).parent / "texture2d"
+ring_pic = Image.open(TEXT_PATH / "ring.png")
+mask_pic = Image.open(TEXT_PATH / "mask.png")
+NM_BG_PATH = BG_PATH / "nm_bg"
+SP_BG_PATH = BG_PATH / "sp_bg"
 
 if list(CU_BG_PATH.iterdir()) != []:
     bg_path = CU_BG_PATH
 else:
     bg_path = NM_BG_PATH
 
+
+@overload
 async def convert_img(img: Image.Image, is_base64: bool = False) -> bytes:
     ...
 
@@ -86,37 +90,36 @@ async def convert_img(
       * res: bytes对象或base64编码图片。
     """
     if isinstance(img, Image.Image):
-        img = img.convert('RGB')
+        img = img.convert("RGB")
         result_buffer = BytesIO()
-        img.save(result_buffer, format='PNG', quality=80, subsampling=0)
+        img.save(result_buffer, format="PNG", quality=80, subsampling=0)
         res = result_buffer.getvalue()
         if is_base64:
-            res = 'base64://' + b64encode(res).decode()
+            res = "base64://" + b64encode(res).decode()
         return res
     elif isinstance(img, bytes):
         pass
     else:
-        async with aiofiles.open(img, 'rb') as fp:
+        async with aiofiles.open(img, "rb") as fp:
             img = await fp.read()
-    return f'[CQ:image,file=base64://{b64encode(img).decode()}]'
+    return f"[CQ:image,file=base64://{b64encode(img).decode()}]"
 
 
 async def get_color_bg(
     based_w: int, based_h: int, bg: Optional[str] = None
 ) -> Image.Image:
-    image = ''
+    image = ""
     if bg:
-        path = SP_BG_PATH / f'{bg}.jpg'
+        path = SP_BG_PATH / f"{bg}.jpg"
         if path.exists():
             image = Image.open(path)
     CI_img = CustomizeImage(image, based_w, based_h)
     img = CI_img.bg_img
     color = CI_img.bg_color
-    color_mask = Image.new('RGBA', (based_w, based_h), color)
-    enka_mask = Image.open(TEXT2D_PATH / 'mask.png').resize((based_w, based_h))
+    color_mask = Image.new("RGBA", (based_w, based_h), color)
+    enka_mask = Image.open(TEXT2D_PATH / "mask.png").resize((based_w, based_h))
     img.paste(color_mask, (0, 0), enka_mask)
     return img
-
 
 
 class CustomizeImage:
@@ -140,10 +143,10 @@ class CustomizeImage:
         if isinstance(image, Image.Image):
             edit_bg = image
         elif image:
-            edit_bg = Image.open(BytesIO(get(image).content)).convert('RGBA')
+            edit_bg = Image.open(BytesIO(get(image).content)).convert("RGBA")
         else:
             path = random.choice(list(bg_path.iterdir()))
-            edit_bg = Image.open(path).convert('RGBA')
+            edit_bg = Image.open(path).convert("RGBA")
 
         # 确定图片的长宽
         bg_img = crop_center_img(edit_bg, based_w, based_h)
@@ -208,9 +211,7 @@ class CustomizeImage:
         return char_color
 
     @staticmethod
-    def get_char_high_color(
-        bg_color: Tuple[int, int, int]
-    ) -> Tuple[int, int, int]:
+    def get_char_high_color(bg_color: Tuple[int, int, int]) -> Tuple[int, int, int]:
         r = 140
         d = 20
         if max(*bg_color) > 255 - r:
@@ -223,9 +224,7 @@ class CustomizeImage:
         return char_color
 
     @staticmethod
-    def get_bg_detail_color(
-        bg_color: Tuple[int, int, int]
-    ) -> Tuple[int, int, int]:
+    def get_bg_detail_color(bg_color: Tuple[int, int, int]) -> Tuple[int, int, int]:
         r = 140
         if max(*bg_color) > 255 - r:
             r *= -1
@@ -237,43 +236,39 @@ class CustomizeImage:
         return bg_detail_color
 
     @staticmethod
-    def get_highlight_color(
-        color: Tuple[int, int, int]
-    ) -> Tuple[int, int, int]:
+    def get_highlight_color(color: Tuple[int, int, int]) -> Tuple[int, int, int]:
         red_color = color[0]
         green_color = color[1]
         blue_color = color[2]
 
         highlight_color = {
-            'red': red_color - 127 if red_color > 127 else 127,
-            'green': green_color - 127 if green_color > 127 else 127,
-            'blue': blue_color - 127 if blue_color > 127 else 127,
+            "red": red_color - 127 if red_color > 127 else 127,
+            "green": green_color - 127 if green_color > 127 else 127,
+            "blue": blue_color - 127 if blue_color > 127 else 127,
         }
 
         max_color = max(highlight_color.values())
 
-        name = ''
+        name = ""
         for _highlight_color in highlight_color:
             if highlight_color[_highlight_color] == max_color:
                 name = str(_highlight_color)
 
-        if name == 'red':
-            return red_color, highlight_color['green'], highlight_color['blue']
-        elif name == 'green':
-            return highlight_color['red'], green_color, highlight_color['blue']
-        elif name == 'blue':
-            return highlight_color['red'], highlight_color['green'], blue_color
+        if name == "red":
+            return red_color, highlight_color["green"], highlight_color["blue"]
+        elif name == "green":
+            return highlight_color["red"], green_color, highlight_color["blue"]
+        elif name == "blue":
+            return highlight_color["red"], highlight_color["green"], blue_color
         else:
             return 0, 0, 0  # Error
-        
-        
-def crop_center_img(
-    img: Image.Image, based_w: int, based_h: int
-) -> Image.Image:
+
+
+def crop_center_img(img: Image.Image, based_w: int, based_h: int) -> Image.Image:
     # 确定图片的长宽
-    based_scale = '%.3f' % (based_w / based_h)
+    based_scale = "%.3f" % (based_w / based_h)
     w, h = img.size
-    scale_f = '%.3f' % (w / h)
+    scale_f = "%.3f" % (w / h)
     new_w = math.ceil(based_h * float(scale_f))
     new_h = math.ceil(based_w / float(scale_f))
     if scale_f > based_scale:

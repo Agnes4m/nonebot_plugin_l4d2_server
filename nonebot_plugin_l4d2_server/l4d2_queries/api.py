@@ -31,7 +31,7 @@
 #     elif mode == 'first':
 #         ip_tag:list = file.json()
 #         return ip_tag
-        
+
 
 # async def map_dict_to_str(data:List[dict]):
 #     msg = ""
@@ -40,4 +40,3 @@
 #             continue
 #         msg += f"{key}:{value}\n"
 #     return msg
-

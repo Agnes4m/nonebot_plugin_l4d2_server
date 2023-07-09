@@ -4,10 +4,13 @@ import asyncio
 import hashlib
 import os
 import random
-from PIL import Image,ImageDraw
+from PIL import Image, ImageDraw
+from PIL.Image import Image as ImageS
 import io
-from ..l4d2_utils.config import PLAYERSDATA,TEXT_PATH
+from ..l4d2_utils.config import PLAYERSDATA, TEXT_PATH
+
 # from .steam import web_player
+
 
 async def download_url(url: str) -> bytes:
     async with httpx.AsyncClient() as client:
@@ -21,6 +24,7 @@ async def download_url(url: str) -> bytes:
                 await asyncio.sleep(3)
     raise Exception(f"{url} 下载失败！")
 
+
 async def download_head(user_id: str) -> bytes:
     url = f"http://q1.qlogo.cn/g?b=qq&nk={user_id}&s=640"
     data = await download_url(url)
@@ -29,26 +33,29 @@ async def download_head(user_id: str) -> bytes:
         data = await download_url(url)
     return data
 
-    
-def square_to_circle(im:Image):
+
+def square_to_circle(im: ImageS):
     """im是正方形，变圆形"""
     size = im.size
-    mask = Image.new('L', size, 0)
+    mask = Image.new("L", size, 0)
     draw = ImageDraw.Draw(mask)
     draw.ellipse((0, 0) + size, fill=255)
     # 将遮罩层应用到图像上
     im.putalpha(mask)
     return im
 
+
 async def get_head_by_user_id_and_save(user_id):
     """qq转头像"""
     user_id = str(user_id)
-    
-    USER_HEAD_PATH = PLAYERSDATA / user_id / 'HEAD.png'
+
+    USER_HEAD_PATH = PLAYERSDATA / user_id / "HEAD.png"
     DEFAULT_HEADER_PATH = TEXT_PATH / "header"
     DEFAULT_HEAD_PATH = TEXT_PATH / "head"
-    DEFAULT_HEADER = DEFAULT_HEADER_PATH /random.choice(os.listdir(DEFAULT_HEADER_PATH))
-    DEFAULT_HEAD = DEFAULT_HEAD_PATH /random.choice(os.listdir(DEFAULT_HEAD_PATH))
+    DEFAULT_HEADER = DEFAULT_HEADER_PATH / random.choice(
+        os.listdir(DEFAULT_HEADER_PATH)
+    )
+    DEFAULT_HEAD = DEFAULT_HEAD_PATH / random.choice(os.listdir(DEFAULT_HEAD_PATH))
     ## im头像 im2头像框 im3合成
     if os.path.exists(USER_HEAD_PATH):
         logger.info("使用本地头像")
@@ -61,20 +68,26 @@ async def get_head_by_user_id_and_save(user_id):
             try:
                 logger.info("正在下载头像")
                 image_bytes = await download_head(user_id)
-                im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
-                if not os.path.exists(PLAYERSDATA / user_id):#用户文件夹不存在
+                im = (
+                    Image.open(io.BytesIO(image_bytes))
+                    .resize((280, 280))
+                    .convert("RGBA")
+                )
+                if not os.path.exists(PLAYERSDATA / user_id):  # 用户文件夹不存在
                     os.makedirs(PLAYERSDATA / user_id)
                 im.save(USER_HEAD_PATH, "PNG")
             except:
                 logger.error("获取失败")
-    im2 = Image.open(DEFAULT_HEAD).resize((450,450)).convert("RGBA")
-    im3 = Image.new("RGBA", im2.size, (255,255,255,0))
+                return
+    im2 = Image.open(DEFAULT_HEAD).resize((450, 450)).convert("RGBA")
+    im3 = Image.new("RGBA", im2.size, (255, 255, 255, 0))
     r, g, b, a1 = im.split()
     r, g, b, a2 = im2.split()
     im = square_to_circle(im)
-    im3.paste(im,(75,75),mask=a1)
-    im3.paste(im2,mask=a2)
+    im3.paste(im, (75, 75), mask=a1)
+    im3.paste(im2, mask=a2)
     return im3
+
 
 # async def get_head_steam_and_save(user_id:str,urls):
 #     """保存steam头像"""
@@ -99,4 +112,3 @@ async def get_head_by_user_id_and_save(user_id):
 #             except TimeoutError:
 #                 logger.error("获取失败")
 #     return im
-    
