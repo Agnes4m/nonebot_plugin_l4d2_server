@@ -187,7 +187,6 @@ async def get_des_ip():
 
     @open_prison.handle()
     async def _(matcher: Matcher, event: MessageEvent):
-
         msg = await get_tan_jian(ip_anne_list, 3)
         await str_to_picstr(push_msg=msg, matcher=matcher)
 
@@ -242,7 +241,6 @@ async def get_ip_to_mes(msg: str, command: str = ""):
         else:
             return "服务器无响应"
     else:
-
         if not msg[0].isdigit():
             if any(mode in msg for mode in gamemode_list):
                 pass
