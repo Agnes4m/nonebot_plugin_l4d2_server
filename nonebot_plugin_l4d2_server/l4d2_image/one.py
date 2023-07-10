@@ -7,10 +7,10 @@ half_whitel_image_path = Path(__file__).parent.parent.joinpath("data/img/white.p
 half_whitel_image = Image.open(half_whitel_image_path)
 
 
-# async def one_server_img(msg: dict):
-#     """单个服务器的dict信息变成图片"""
-#     img_background = await adjust_image_size(msg["Players"])
-#     img_background = await adjust_server_name(img_background, msg["name"])
+async def one_server_img(msg: dict):
+    """单个服务器的dict信息变成图片"""
+    img_background = await adjust_image_size(msg["Players"])
+    img_background = await adjust_server_name(img_background, msg["name"])
 
 
 async def adjust_image_size(text_list):
