@@ -39,13 +39,12 @@ async def updata_anne_server():
             ip_list.append(td)
     if not ip_list:
         return None
-    ip_dict: Dict[str, List[str]] = {}
-    ip_new_list: List[Dict[str, str]] = []
+    ip_dict: Dict[str, List[Dict[str, str]]] = {"云": []}
     n: int = 0
-    for i in ip_list:
-        n += 1
-        ip_new_list.append({"id": str(n), "ip": i})
-    ip_dict = {"云": [d["ip"] for d in ip_new_list]}
+
+    for i, ip in enumerate(ip_list, start=1):
+        ip_dict["云"].append({"id": str(i), "ip": ip})
+
     # ANNE_IP.update(ip_dict)
     with open(Path(CONFIG_PATH.parent / "l4d2/云.json"), "w", encoding="utf-8") as f:
         json.dump(ip_dict, f, indent=4, ensure_ascii=False)

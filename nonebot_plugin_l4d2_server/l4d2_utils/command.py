@@ -6,9 +6,7 @@ from time import sleep
 from nonebot import on_notice, on_command, on_regex, on_keyword
 from nonebot.params import CommandArg, RawCommand, CommandStart
 from nonebot.matcher import Matcher
-import nonebot
 from nonebot.adapters.onebot.v11 import (
-    GroupUploadNoticeEvent,
     NoticeEvent,
     MessageEvent,
     Message,

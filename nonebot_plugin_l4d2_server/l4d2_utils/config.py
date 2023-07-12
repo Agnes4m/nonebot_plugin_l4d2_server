@@ -1,15 +1,11 @@
 from pathlib import Path
-from typing import List, Dict, Union, Any
-import ast
-import platform
-import os
-from ruamel import yaml
-from pydantic import Extra, BaseModel, Field
+from typing import List, Dict, Any
 
-try:
-    import ujson as json
-except:
-    import json
+import platform
+
+from ruamel import yaml
+from pydantic import BaseModel, Field
+
 
 from nonebot.permission import SUPERUSER
 from nonebot import get_driver

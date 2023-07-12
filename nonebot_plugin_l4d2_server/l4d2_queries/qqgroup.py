@@ -13,7 +13,7 @@ import random
 import asyncio
 from ..l4d2_utils.message import PRISON, QUEREN, KAILAO
 from .ohter import ALL_HOST
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any
 
 try:
     import ujson as json

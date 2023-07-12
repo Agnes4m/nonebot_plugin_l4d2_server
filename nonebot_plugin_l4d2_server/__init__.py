@@ -393,7 +393,7 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
     if not anne_ip_dict:
         await matcher.finish("网络开小差了捏")
     server_number = len(anne_ip_dict["云"])
-    await matcher.finish(f"一共更新了{server_number}个ip")
+    await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")
 
 
 @vtf_make.handle()
