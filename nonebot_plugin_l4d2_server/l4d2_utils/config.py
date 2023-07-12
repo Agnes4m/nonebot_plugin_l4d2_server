@@ -201,4 +201,4 @@ elif platform.system() == "Linux":
     systems: str = "linux"
 else:
     systems: str = "others"
-ANNE_IP = {}
+ANNE_IP: Dict[str, List[Dict[str, str]]] = {}

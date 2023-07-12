@@ -87,7 +87,9 @@ del_bind = on_command(
 prison = on_command("zl", aliases={"坐牢"}, priority=20, block=True)
 open_prison = on_command("kl", aliases={"开牢"}, priority=20, block=True)
 
-# updata = on_command('updata',aliases={'求生更新'},priority=20,block=True,permission= Master)
+updata = on_command(
+    "updata_anne", aliases={"求生更新anne"}, priority=20, block=True, permission=Master
+)
 tan_jian = on_command("tj", aliases={"探监"}, priority=20, block=True)
 
 # 查询
@@ -151,7 +153,7 @@ async def get_des_ip():
     global ANNE_IP
     global matchers
 
-    def count_ips(ip_dict: dict):
+    def count_ips(ip_dict: Dict[str, List[Dict[str, str]]]):
         global ANNE_IP
         for key, value in ip_dict.items():
             if key in ["error_", "success_"]:

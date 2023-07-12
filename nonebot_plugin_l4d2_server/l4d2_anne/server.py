@@ -11,7 +11,7 @@ from ..l4d2_queries.ohter import ALL_HOST
 
 # 储存anne服务器ip
 anne_url = "https://sb.trygek.com/"
-ANNE_IP = {}
+# ANNE_IP = {}
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
 }
@@ -46,14 +46,12 @@ async def updata_anne_server():
         n += 1
         ip_new_list.append({"id": str(n), "ip": i})
     ip_dict = {"云": [d["ip"] for d in ip_new_list]}
-    ANNE_IP.update(ip_dict)
+    # ANNE_IP.update(ip_dict)
     with open(Path(CONFIG_PATH.parent / "l4d2/云.json"), "w", encoding="utf-8") as f:
-        json.dump(ANNE_IP, f, indent=4, ensure_ascii=False)
-    print(ANNE_IP)
-    return ANNE_IP
-
-
-asyncio.run(updata_anne_server())
+        json.dump(ip_dict, f, indent=4, ensure_ascii=False)
+    # print(ANNE_IP)
+    ANNE_IP.update(ip_dict)
+    return ip_dict
 
 
 def server_key():
