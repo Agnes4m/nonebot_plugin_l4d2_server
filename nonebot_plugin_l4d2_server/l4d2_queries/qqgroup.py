@@ -269,7 +269,7 @@ async def get_server_ip(number):
         return None
 
 
-def split_maohao(msg: str) -> list:
+def split_maohao(msg: str) -> List[str]:
     """分割大小写冒号"""
     if ":" in msg:
         msgs: List[str] = msg.split(":")
@@ -303,7 +303,7 @@ async def write_json(data_str: str):
                 ids = [server["id"] for server in value]
                 # 序号
                 if len(data_list) == 4:
-                    data_num = max(ids, default=0) + 1
+                    data_num = int(max(ids, default=0)) + 1
                     add_server.update({"id": data_num})
                 elif len(data_list) == 5:
                     if not data_list[4].isdigit():

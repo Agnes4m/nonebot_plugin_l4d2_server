@@ -34,4 +34,4 @@ def load_josn():
     return LOCAL_HOST
 
 
-ALL_HOST: Dict[str, List[dict]] = load_josn()
+ALL_HOST: Dict[str, List[Dict[str, str]]] = load_josn()

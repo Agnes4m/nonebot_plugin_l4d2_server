@@ -36,7 +36,7 @@ from .l4d2_utils.config import *
 from .l4d2_utils.utils import *
 from .l4d2_utils.command import *
 from .l4d2_image.steam import url_to_byte, url_to_byte_name
-
+from .l4d2_anne.server import updata_anne_server
 from .l4d2_data import sq_L4D2
 from .l4d2_push import *
 from .l4d2_image.vtfs import img_to_vtf
@@ -386,17 +386,14 @@ async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State
         await matcher.finish("已取消上传")
 
 
-# @updata.handle()
-# async def _(matcher:Matcher,args:Message = CommandArg()):
-#     """更新"""
-#     msg = args.extract_plain_text()
-#     if not msg:
-#         load_josn()
-#         reload_ip()
-#         await matcher.finish('已更新缓存数据')
-#     else:
-#         message = await write_json(msg)
-#         await matcher.finish(message)
+@updata.handle()
+async def _(matcher: Matcher, args: Message = CommandArg()):
+    """更新"""
+    anne_ip_dict = await updata_anne_server()
+    if not anne_ip_dict:
+        await matcher.finish("网络开小差了捏")
+    server_number = len(anne_ip_dict["云"])
+    await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")
 
 
 @vtf_make.handle()

@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import httpx
-from typing import List
 
 
 def anne_search(name: str):

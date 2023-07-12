@@ -249,11 +249,9 @@ async def json_server_to_tag_dict(key: str, msg: str):
     """
     l4d2字典转tag的dict结果
      - 1、先匹配腐竹
-     - 2、再匹配模式、没有参数则从直接匹配最上面的
-     - 3、匹配数字（几服），没有参数则从结果里随机返回一个
+     - 2、匹配数字（几服），没有参数则从结果里随机返回一个
     """
     data_dict = {}
-    data_list = []
     msg = msg.replace(" ", "")
     # 腐竹循环
     for tag, value in ALL_HOST.items():
@@ -269,20 +267,7 @@ async def json_server_to_tag_dict(key: str, msg: str):
                     if msg == str(server["id"]):
                         data_dict.update(server)
                         break
-            else:
-                logger.info("腐竹 + 模式 + 序号")
-                for server in value:
-                    if msg.startswith(server["version"]):
-                        data_list.append(server)
-                        msg_id = msg[len(server["version"]) :]
-                        if msg_id == str(server["id"]):
-                            data_dict.update(server)
-                            break
-                else:
-                    # 腐竹 + 模式
-                    data_dict.update(random.choice(data_list))
 
-    logger.info(data_dict)
     return data_dict
 
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 import a2s
-from typing import Dict, List, Union
+from typing import Dict, Union
 
 try:
     import ujson as json
