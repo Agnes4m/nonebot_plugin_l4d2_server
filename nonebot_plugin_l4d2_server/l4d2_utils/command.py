@@ -1,6 +1,6 @@
 import re
 import asyncio
-from typing import Type
+from typing import Type, List, Tuple
 from time import sleep
 
 from nonebot import on_notice, on_command, on_regex, on_keyword
@@ -48,6 +48,7 @@ def wenjian(event: NoticeEvent):
             return usr_id in l4_config.l4_master and name.endswith(file_format)
         else:
             return False
+    return False
 
 
 up = on_notice(rule=wenjian)
@@ -221,20 +222,18 @@ async def get_ip_to_mes(msg: str, command: str = ""):
     if not msg:
         # 以图片输出全部当前
         igr = False
-        if command in gamemode_list:
-            this_ips = [
-                d for l in ALL_HOST.values() for d in l if d.get("version") == command
-            ]
-            igr = True
-        else:
-            this_ips: list = ALL_HOST[command]
-            igr = False
-        if not this_ips:
-            return
-        ip_list = []
+        # if command in gamemode_list:
+        #     this_ips = [
+        #         d for l in ALL_HOST.values() for d in l if d.get("version") == command
+        #     ]
+        #     igr = True
+        # else:
+        this_ips = ALL_HOST[command]
+        ip_list: List[Tuple[str, str, str]] = []
         for one_ip in this_ips:
             host, port = split_maohao(one_ip["ip"])
-            ip_list.append((one_ip["id"], host, port))
+            msg_tuple = (one_ip["id"], host, port)
+            ip_list.append(msg_tuple)
         img = await qq_ip_queries_pic(ip_list, igr)
         if img:
             return img
@@ -242,10 +241,10 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             return "服务器无响应"
     else:
         if not msg[0].isdigit():
-            if any(mode in msg for mode in gamemode_list):
-                pass
-            else:
-                return
+            # if any(mode in msg for mode in gamemode_list):
+            #     pass
+            # else:
+            return
         message = await json_server_to_tag_dict(command, msg)
         if len(message) == 0:
             # 关键词不匹配，忽略

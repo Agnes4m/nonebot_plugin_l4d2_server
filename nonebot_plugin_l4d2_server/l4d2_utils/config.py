@@ -28,6 +28,10 @@ file_format = (".vpk", ".zip", ".7z", "rar")
 driver = get_driver()
 COMMAND_START = list(driver.config.command_start)
 
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
+}
+
 try:
     NICKNAME: str = list(driver.config.nickname)[0]
 except Exception:
@@ -187,24 +191,8 @@ L4d2_BOOLEAN = ["use"]
 tables_columns = {table_data[0]: L4d2_players_tag, table_data[1]: L4d2_server_tag}
 
 # 求生anne服务器
-anne_url = "https://server.trygek.com/"
+anne_url = "https://sb.trygek.com/"
 
-gamemode_list = [
-    "纯净",
-    "魔改战役",
-    "多特",
-    "魔改多特",
-    "写专",
-    "对抗",
-    "魔改对抗",
-    "药役",
-    "药抗",
-    "包抗",
-    "绝境",
-    "死专",
-    "ast",
-    "清道夫",
-]
 
 # 系统
 if platform.system() == "Windows":
