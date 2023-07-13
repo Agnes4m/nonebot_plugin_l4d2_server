@@ -11,16 +11,9 @@ filename = "data/L4D2/l4d2.json"
 global_file = Path(Path(__file__).parent.parent, filename)
 
 
-def load_josn():
+def load_ip_json():
     # 本地模块
-    try:
-        LOCAL_HOST: dict = json.load(open(filename, "r", encoding="utf8"))
-    except IOError or FileNotFoundError:
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        data = {}
-        with open(filename, "w") as f:
-            json.dump(data, f)
-        LOCAL_HOST: dict = {}
+    LOCAL_HOST: Dict[str, List[Dict[str, str]]] = {}
     try:
         # 获取所有json文件的路径
         json_files = Path("data/L4D2/l4d2").glob("*.json")
@@ -34,4 +27,19 @@ def load_josn():
     return LOCAL_HOST
 
 
-ALL_HOST: Dict[str, List[Dict[str, str]]] = load_josn()
+def load_group_json():
+    try:
+        GROUP_HOST: Dict[str, List[str]] = json.load(
+            open(filename, "r", encoding="utf8")
+        )
+    except IOError or FileNotFoundError:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        data = {}
+        with open(filename, "w") as f:
+            json.dump(data, f)
+        GROUP_HOST: Dict[str, List[str]] = {}
+    return GROUP_HOST
+
+
+ALL_HOST: Dict[str, List[Dict[str, str]]] = load_ip_json()
+Group_All_HOST: Dict[str, List[str]] = load_group_json()

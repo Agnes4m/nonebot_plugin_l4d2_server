@@ -14,7 +14,8 @@ from nonebot.adapters.onebot.v11 import (
     GroupMessageEvent,
 )
 
-from ..l4d2_anne.server import server_key, ANNE_IP
+from ..l4d2_anne.server import server_key, ANNE_IP, group_key
+from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
 from .config import *
 from ..l4d2_queries.qqgroup import split_maohao
 
@@ -147,11 +148,14 @@ matchers: Dict[str, List[Type[Matcher]]] = {}
 
 
 async def get_des_ip():
+    """初始化"""
     global ALL_HOST
     global ANNE_IP
     global matchers
+    global Group_All_HOST
 
     def count_ips(ip_dict: Dict[str, List[Dict[str, str]]]):
+        """输出加载ip"""
         global ANNE_IP
         for key, value in ip_dict.items():
             if key in ["error_", "success_"]:
@@ -168,7 +172,7 @@ async def get_des_ip():
     try:
         for one_tag in l4_config.l4_zl_tag:
             ips = ALL_HOST[one_tag]
-            ip_anne_list = []
+            ip_anne_list: List[Tuple[str, str, str]] = []
             for one_ip in ips:
                 host, port = split_maohao(one_ip["ip"])
                 ip_anne_list.append((one_ip["id"], host, port))
@@ -192,8 +196,8 @@ async def get_des_ip():
         await str_to_picstr(push_msg=msg, matcher=matcher)
 
 
-async def get_read_ip(ip_anne_list):
-    get_ip = on_command("anne", aliases=server_key(), priority=80, block=True)
+async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
+    get_ip = on_command(server_key(), priority=50, block=True)
 
     @get_ip.handle()
     async def _(
@@ -263,6 +267,22 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             return msgs
         except (OSError, asyncio.exceptions.TimeoutError):
             return "服务器无响应"
+
+
+async def get_read_group_ip():
+    get_grou_ip = on_command(group_key(), priority=80, block=True)
+
+    @get_grou_ip.handle()
+    async def _(
+        matcher: Matcher,
+        start: str = CommandStart(),
+        command: str = RawCommand(),
+        args: Message = CommandArg(),
+    ):
+        if start:
+            command = command.replace(start, "")
+        ...
+        # 还没开始写
 
 
 async def init():

@@ -199,10 +199,8 @@ async def get_anne_server_ip(ip, ismsg: bool = False):
     """输出查询ip和ping"""
     host, port = split_maohao(ip)
     data = await queries_server([host, port])
-    lines = data.splitlines()
-    msg = "\n".join(lines[1:])
-    msg += "\nconnect " + ip
-    return msg
+    data += "\nconnect " + ip
+    return data
 
 
 async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
