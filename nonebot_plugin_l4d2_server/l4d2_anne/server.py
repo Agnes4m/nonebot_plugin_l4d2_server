@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 import json
 import asyncio
-from typing import Dict, List
+from typing import Dict, List, Set, Union, Tuple
 from pathlib import Path
 
 from nonebot.log import logger
@@ -56,23 +56,21 @@ async def updata_anne_server():
 
 def server_key():
     """响应的服务器开头"""
-    a = []
-
+    a = set()
     for tag1, value in ALL_HOST.items():
         try:
-            a.append(tag1)
+            a.add(tag1)
         except AttributeError:
-            logger.warning("有错误的群组ip,已忽略")
-    return tuple(a)
+            a.add("希腊那我从来没有想过这个事情")
+    return a
 
 
 def group_key():
     """响应群组服务器开头"""
-    a = []
-
+    a = set()
     for tag1, value in Group_All_HOST.items():
         try:
-            a.append(tag1)
+            a.add(tag1)
         except AttributeError:
-            logger.warning("有错误的群组ip,已忽略")
-    return tuple(a)
+            a.add("希腊那我从来没有想过这个事情")
+    return a
