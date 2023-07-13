@@ -197,7 +197,7 @@ async def get_des_ip():
 
 
 async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
-    get_ip = on_command(server_key(), priority=50, block=True)
+    get_ip = on_command("云", aliases=server_key(), priority=50, block=True)
 
     @get_ip.handle()
     async def _(
@@ -270,7 +270,7 @@ async def get_ip_to_mes(msg: str, command: str = ""):
 
 
 async def get_read_group_ip():
-    get_grou_ip = on_command(group_key(), priority=80, block=True)
+    get_grou_ip = on_command("anne", aliases=group_key(), priority=80, block=True)
 
     @get_grou_ip.handle()
     async def _(
