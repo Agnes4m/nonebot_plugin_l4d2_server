@@ -172,7 +172,7 @@ async def get_des_ip():
             for one_ip in ips:
                 host, port = split_maohao(one_ip["ip"])
                 ip_anne_list.append((one_ip["id"], host, port))
-    except KeyError:
+    except (KeyError,TypeError):
         pass
     await get_read_ip(ip_anne_list)
 
