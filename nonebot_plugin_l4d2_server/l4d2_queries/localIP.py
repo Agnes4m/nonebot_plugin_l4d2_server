@@ -34,7 +34,7 @@ def load_group_json():
         )
     except IOError or FileNotFoundError:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        data = {}
+        data:Dict[str,List[str]] = {"anne":["云"]}
         with open(filename, "w") as f:
             json.dump(data, f)
         GROUP_HOST: Dict[str, List[str]] = {}

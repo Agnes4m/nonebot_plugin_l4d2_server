@@ -324,3 +324,16 @@ async def str_to_picstr(push_msg: str, matcher: Matcher, keyword: Optional[str] 
             await matcher.send(push_msg)
         else:
             await matcher.send("\n".join(push_msg.splitlines()[1:-2]))
+
+def split_maohao(msg: str) -> List[str]:
+    """分割大小写冒号"""
+    if ":" in msg:
+        msgs: List[str] = msg.split(":")
+    elif "：" in msg:
+        msgs: List[str] = msg.split("：")
+    elif msg.replace(".", "").isdigit():
+        msgs: List[str] = [msg, "20715"]
+    else:
+        msgs = []
+    mse = [msgs[0], msgs[-1]]
+    return mse

@@ -11,9 +11,10 @@ from . import (
 from nonebot.log import logger
 import random
 import asyncio
+from ..l4d2_utils.utils import split_maohao
 from ..l4d2_utils.message import PRISON, QUEREN, KAILAO
 from .localIP import ALL_HOST
-from typing import List, Dict, Any
+from typing import List, Dict, Any,Tuple,Union
 
 try:
     import ujson as json
@@ -68,8 +69,8 @@ async def qq_ip_queries(msg: List[tuple]):
     return messsage
 
 
-async def qq_ip_querie(msg: list, igr: bool = True):
-    msg_list = []
+async def qq_ip_querie(msg: List[Tuple[str,str,int]], igr: bool = True):
+    msg_list:List[Dict[str, Any]] = []
     tasks = []  # 用来保存异步任务
     if msg != []:
         for i in msg:
@@ -81,7 +82,7 @@ async def qq_ip_querie(msg: list, igr: bool = True):
                 if len(i) == 3:
                     number, host, port = i
                 else:
-                    number, qqgroup, host, port = i
+                    number, qqgroup, host, port = i # type: ignore
                 # 将异步任务添加到任务列表中
                 tasks.append(
                     asyncio.create_task(
@@ -107,7 +108,7 @@ async def qq_ip_querie(msg: list, igr: bool = True):
         result = {"msg_list": msg_list}
 
     else:
-        result = {}
+        result:Dict[str,List[Dict[str, Any]]] = {}
     return result
 
 
@@ -269,18 +270,6 @@ async def get_server_ip(number):
         return None
 
 
-def split_maohao(msg: str) -> List[str]:
-    """分割大小写冒号"""
-    if ":" in msg:
-        msgs: List[str] = msg.split(":")
-    elif "：" in msg:
-        msgs: List[str] = msg.split("：")
-    elif msg.replace(".", "").isdigit():
-        msgs: List[str] = [msg, "20715"]
-    else:
-        msgs = []
-    mse = [msgs[0], msgs[-1]]
-    return mse
 
 
 async def write_json(data_str: str):
@@ -344,3 +333,5 @@ async def write_json(data_str: str):
                         return "删除成功喵"
                 return "序号不正确，请输入【求生更新 删除 腐竹 序号】"
         return "腐竹名不存在，请输入【求生更新 删除 腐竹 序号】"
+
+

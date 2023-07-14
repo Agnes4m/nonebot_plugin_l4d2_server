@@ -18,6 +18,7 @@ from ..l4d2_anne.server import server_key, ANNE_IP, group_key
 from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
 from .config import *
 from ..l4d2_queries.qqgroup import split_maohao
+from ..l4d2_queries import get_group_ip_to_msg
 
 # from .utils import qq_ip_queries_pic,json_server_to_tag_dict,get_anne_server_ip,get_tan_jian
 from .utils import *
@@ -281,8 +282,16 @@ async def get_read_group_ip():
     ):
         if start:
             command = command.replace(start, "")
-        ...
-        # 还没开始写
+        msg: str = args.extract_plain_text()
+        push_msg = await get_group_ip_to_msg(msg, command)
+        if isinstance(push_msg, bytes):
+            await matcher.finish(MessageSegment.image(push_msg))
+        elif msg and isinstance(push_msg, list):
+            await matcher.finish(
+                MessageSegment.image(push_msg[0]) + Message(push_msg[-1])
+            )
+        elif msg and isinstance(push_msg, str):
+            await str_to_picstr(push_msg, matcher)        
 
 
 async def init():
