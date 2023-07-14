@@ -2,12 +2,13 @@ import httpx
 from bs4 import BeautifulSoup
 import json
 import asyncio
-from typing import Dict, List
+from typing import Dict, List, Set, Union, Tuple
 from pathlib import Path
 
+from nonebot.log import logger
 from ..l4d2_utils.config import CONFIG_PATH, anne_url, ANNE_IP, headers
 
-from ..l4d2_queries.ohter import ALL_HOST
+from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
 
 # 储存anne服务器ip
 anne_url = "https://sb.trygek.com/"
@@ -56,9 +57,20 @@ async def updata_anne_server():
 def server_key():
     """响应的服务器开头"""
     a = set()
-    try:
-        for tag1, value in ALL_HOST.items():
+    for tag1, value in ALL_HOST.items():
+        try:
             a.add(tag1)
-    except AttributeError:
-        a.add("希腊那我从来没有想过这个事情")
+        except AttributeError:
+            a.add("希腊那我从来没有想过这个事情")
+    return a
+
+
+def group_key():
+    """响应群组服务器开头"""
+    a = set()
+    for tag1, value in Group_All_HOST.items():
+        try:
+            a.add(tag1)
+        except AttributeError:
+            a.add("希腊那我从来没有想过这个事情")
     return a

@@ -16,7 +16,6 @@ from nonebot.adapters.onebot.v11.permission import (
     PRIVATE_FRIEND,
 )
 
-from ..l4d2_queries.ohter import ALL_HOST
 
 file_format = (".vpk", ".zip", ".7z", "rar")
 # 权限
