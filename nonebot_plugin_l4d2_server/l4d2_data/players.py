@@ -7,7 +7,6 @@ class L4D2Player:
     """数据库L4D2_Player表的操作"""
 
     def __init__(self):
-
         """连接数据库"""
         self.datasqlite_path = DATASQLITE
         self.conn = sqlite3.connect(self.datasqlite_path / "L4D2.db")

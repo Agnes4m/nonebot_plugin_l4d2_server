@@ -73,6 +73,8 @@ class L4D2DataSqlite:
         错误数据默认填充NULL或者False
         """
         c = self.conn.cursor()
+        columns = None
+        table = None
         for table in table_data:
             if table == "L4d2_players":
                 columns = L4d2_players_tag

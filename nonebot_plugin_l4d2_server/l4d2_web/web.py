@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi import Header, HTTPException, Depends
 from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from jose import jwt
+from jose.exceptions import JWTError, ExpiredSignatureError
 from nonebot import get_bot, get_app
 
 from pathlib import Path
@@ -54,7 +55,7 @@ def authentication():
                 or username != config_manager.config.web_username
             ):
                 raise HTTPException(status_code=400, detail="登录验证失败或已失效，请重新登录")
-        except (jwt.JWTError, jwt.ExpiredSignatureError, AttributeError):
+        except (JWTError, ExpiredSignatureError, AttributeError):
             raise HTTPException(status_code=400, detail="登录验证失败或已失效，请重新登录")
 
     return Depends(inner)
