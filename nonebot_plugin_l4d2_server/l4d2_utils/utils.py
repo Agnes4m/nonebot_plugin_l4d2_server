@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 
 from typing import List, Dict, Union, Optional
-from .txt_to_img import txt_to_img
 from .config import *
 from ..l4d2_anne import write_player, del_player, anne_message
 from ..l4d2_server.rcon import read_server_cfg_rcon, rcon_server
@@ -77,11 +76,6 @@ def rename_map(num: int, rename: str, map_path: Path) -> str:
     os.rename(old_file, new_file)
     logger.info("改名成功")
     return map_name
-
-
-def text_to_png(msg: str) -> bytes:
-    """文字转png"""
-    return txt_to_img(msg)
 
 
 def solve(msg: str):
@@ -324,6 +318,7 @@ async def str_to_picstr(push_msg: str, matcher: Matcher, keyword: Optional[str] 
             await matcher.send(push_msg)
         else:
             await matcher.send("\n".join(push_msg.splitlines()[1:-2]))
+
 
 def split_maohao(msg: str) -> List[str]:
     """分割大小写冒号"""

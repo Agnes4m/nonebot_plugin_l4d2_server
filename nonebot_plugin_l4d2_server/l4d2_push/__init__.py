@@ -1,7 +1,7 @@
 from pathlib import Path
 import re
 import a2s
-from typing import Dict, Union
+from typing import Dict, Union, Optional, Any
 
 try:
     import ujson as json
@@ -148,12 +148,13 @@ async def rss_ip():
                 try:
                     recipient_id = int(key)
                     count = value["times"]
-                    msg = value["msg"]
+                    msg = str(value["msg"])
+                    count = int(count)
 
                     if count > 0:
                         msg_read = await send_message(recipient_id, msg, value)
                         print(msg_read)
-                        if msg_read:
+                        if msg_read and isinstance(msg_read, str):
                             scheduler_data[key]["ip_detail"] = msg_read
                         count -= 1
 
@@ -166,7 +167,7 @@ async def rss_ip():
 
 
 async def send_message(
-    recipient_id: int, msg: str, value: Dict[str, Union[int, str]] = None
+    recipient_id: int, msg: str, value: Optional[Dict[str, Union[int, str]]] = None
 ):
     # 执行发送消息的操作，参数可以根据需要进行传递和使用
     command, message = await extract_last_digit(msg)
@@ -178,16 +179,18 @@ async def send_message(
     elif msg and isinstance(push_msg, str):
         # 单服务器
         message = await json_server_to_tag_dict(msg, command)
-        if len(message) == 0:
+        if len(message) == 0 or not value:
             # 关键词不匹配，忽略
             return
         try:
             old_msg = value.get("ip_detail", {})
+            if not isinstance(old_msg, dict):
+                return
             ip = str(message["ip"])
             host, port = split_maohao(ip)
-            msg: a2s.SourceInfo = await a2s.ainfo((host, port))
-            value["map_"] = msg.map_name
-            value["rank_players"] = f"{msg.player_count}/{msg.max_players}"
+            msg_: a2s.SourceInfo = await a2s.ainfo((host, port))
+            value["map_"] = msg_.map_name
+            value["rank_players"] = f"{msg_.player_count}/{msg_.max_players}"
             if (
                 old_msg["map_"] == value["map_"]
                 and old_msg["rank_players"] == value["rank_players"]

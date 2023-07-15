@@ -336,7 +336,6 @@ query_table = TableCRUD(
     syncLocation=False,
     api="/l4d2/api/get_query_contexts",
     interval=60000,
-    footable=True,
     itemActions=[
         ActionType.Url(
             tooltip="加入游戏",

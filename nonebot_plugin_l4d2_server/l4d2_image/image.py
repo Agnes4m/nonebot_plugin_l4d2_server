@@ -126,7 +126,6 @@ class CustomizeImage:
     def __init__(
         self, image: Union[str, Image.Image], based_w: int, based_h: int
     ) -> None:
-
         self.bg_img = self.get_image(image, based_w, based_h)
         self.bg_color = self.get_bg_color(self.bg_img, is_light=True)
         self.text_color = self.get_text_color(self.bg_color)

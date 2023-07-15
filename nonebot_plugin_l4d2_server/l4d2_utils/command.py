@@ -177,7 +177,7 @@ async def get_des_ip():
             for one_ip in ips:
                 host, port = split_maohao(one_ip["ip"])
                 ip_anne_list.append((one_ip["id"], host, port))
-    except (KeyError,TypeError):
+    except (KeyError, TypeError):
         pass
     await get_read_ip(ip_anne_list)
 
@@ -291,7 +291,7 @@ async def get_read_group_ip():
                 MessageSegment.image(push_msg[0]) + Message(push_msg[-1])
             )
         elif msg and isinstance(push_msg, str):
-            await str_to_picstr(push_msg, matcher)        
+            await str_to_picstr(push_msg, matcher)
 
 
 async def init():

@@ -4,7 +4,7 @@ from time import sleep
 import sys
 import os
 import io
-from typing import List
+from typing import List, Callable
 
 from ..l4d2_utils.utils import get_file, get_vpk
 from ..l4d2_utils.config import systems
@@ -31,55 +31,59 @@ async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
     return vpk_files
 
 
-def open_packet(name: str, down_file: Path):
+import zipfile
+import rarfile
+from pyunpack import Archive
+from pathlib import Path
+from typing import Dict
+
+SUPPORTED_EXTENSIONS = (".zip", ".7z", ".rar")
+
+
+def unzip_zipfile(down_file: Path, down_path: Path):
+    """解压zip文件"""
+    with support_gbk(zipfile.ZipFile(down_file, "r")) as z:
+        z.extractall(down_path)
+    os.remove(down_file)
+
+
+def unpack_7zfile(down_file: Path, down_path: Path):
+    """解压7z文件"""
+    Archive(str(down_file)).extractall(str(down_path))
+    os.remove(down_file)
+
+
+def unpack_rarfile(down_file: Path, down_path: Path):
+    """解压rar文件"""
+    with rarfile.RarFile(down_file, "r") as z:
+        z.extractall(down_path)
+    os.remove(down_file)
+
+
+def open_packet(name: str, down_file: Path) -> str:
     """解压压缩包"""
-    down_path = os.path.dirname(down_file)
+    down_path = down_file.parent
     logger.info("文件名为：" + name)
     logger.info(f"系统为{systems}")
-    mes = ""
-    if systems == "win":
-        if name.endswith(".zip"):
-            mes = "zip文件已下载,正在解压"
-            try:
-                with support_gbk(ZipFile(down_file, "r")) as z:
-                    z.extractall(down_path)
-            except UnicodeEncodeError:
-                with ZipFile(down_file, "r") as z:
-                    z.extractall(down_path)
-            os.remove(down_file)
-        elif name.endswith(".7z"):
-            mes = "7z文件已下载,正在解压"
-            Archive(str(down_file)).extractall(down_path)
-            # with SevenZipFile(down_file, 'r') as z:
-            #     z.extractall(down_path)
-            os.remove(down_file)
-        elif name.endswith("rar"):
-            mes = "rar文件已下载,正在解压"
-            with RarFile(down_file, "r") as z:
-                z.extractall(down_path)
-            os.remove(down_file)
-        elif name.endswith(".vpk"):
-            mes = "vpk文件已下载"
-    else:
-        if name.endswith(".zip"):
-            mes = "zip文件已下载,正在解压"
-            with support_gbk(ZipFile(down_file, "r")) as z:
-                z.extractall(down_path)
-            os.remove(down_file)
-        elif name.endswith(".7z"):
-            mes = "7z文件已下载,正在解压"
-            Archive(str(down_file)).extractall(down_path)
-            # with SevenZipFile(down_file, 'r') as z:
-            #     z.extractall(down_path)
-            os.remove(down_file)
-        elif name.endswith("rar"):
-            mes = "rar文件已下载,正在解压"
-            with rarfile.RarFile(down_file, "r") as z:
-                z.extractall(down_path)
-            os.remove(down_file)
-        else:
-            mes = "vpk文件已下载"
-    return mes
+
+    if name.endswith(".vpk"):
+        return "vpk文件已下载"
+
+    for ext in SUPPORTED_EXTENSIONS:
+        if name.endswith(ext):
+            mes = f"{ext[1:]}文件已下载,正在解压"
+            unpack_funcs: Dict[str, Callable] = {
+                ".zip": unzip_zipfile,
+                ".7z": unpack_7zfile,
+                ".rar": unpack_rarfile,
+            }
+            unpack_func = unpack_funcs.get(ext, None)
+            if not unpack_func:
+                raise ValueError(f"不支持的拓展名: {ext}")
+            unpack_func(down_file, down_path)
+            return mes
+
+    raise ValueError(f"不支持的文件: {name}")
 
 
 def support_gbk(zip_file: ZipFile):
@@ -98,25 +102,14 @@ def support_gbk(zip_file: ZipFile):
     return zip_file
 
 
-async def all_zip_to_one(
-    data_list: List[bytes],
-):
+async def all_zip_to_one(data_list: List[bytes]):
     """多压缩包文件合并"""
-    file_list = []
-    for data in data_list:
-        # 将每个bytes对象解压缩成文件对象
-        # 将文件对象存储在一个列表中
-        file_list.append(io.BytesIO(data))
-
-    # 创建一个新的BytesIO对象
+    file_list = [io.BytesIO(data).getbuffer() for data in data_list]
     data_file = io.BytesIO()
 
-    # 使用zipfile将列表中的文件对象添加到zipfile中
     with ZipFile(data_file, mode="w") as zf:
         for i, file in enumerate(file_list):
-            # 将文件名设置为"file{i}.zip"，i为文件在列表中的索引
             filename = f"file{i}.zip"
-            zf.writestr(filename, file.getvalue())
+            zf.writestr(filename, file)
 
-    # 获取zipfile的bytes对象
-    return data_file.getvalue()
+    return data_file.getbuffer()

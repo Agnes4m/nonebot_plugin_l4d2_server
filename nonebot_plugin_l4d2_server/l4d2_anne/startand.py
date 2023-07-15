@@ -1,5 +1,4 @@
-
-NUMBER_MAP = [4,5,4,5,5,3,3,5,2,5,5,5,4,2]
+NUMBER_MAP = [4, 5, 4, 5, 5, 3, 3, 5, 2, 5, 5, 5, 4, 2]
 SAVE_MAP = [
     "c1m4_atrium",
     "c2m5_concert",
@@ -14,5 +13,5 @@ SAVE_MAP = [
     "c11m5_runway",
     "c12m5_cornfield",
     "c13m4_cutthroatcreek",
-    "c14m2_lighthouse"
-    ]
+    "c14m2_lighthouse",
+]

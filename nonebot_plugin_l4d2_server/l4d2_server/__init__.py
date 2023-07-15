@@ -1,24 +1,24 @@
 import asyncio
-from rcon.source.proto import Packet,Type
-from rcon.source.async_rcon import communicate,close
+from rcon.source.proto import Packet, Type
+from rcon.source.async_rcon import communicate, close
+
 
 async def main(host):
-    host = '43.142.178.212'
+    host = "43.142.178.212"
     port = 40003
-    password = '1145149191810'
-    encoding = 'utf-8'
+    password = "1145149191810"
+    encoding = "utf-8"
 
     # Connect to RCON server
-
 
     # Main loop
     while True:
         # Read user input
-        command = input('> ')
+        command = input("> ")
         if not command:
             break
 
-   # 连接服务器
+    # 连接服务器
     reader, writer = await asyncio.open_connection(host, port)
     login = Packet.make_login(password, encoding=encoding)
     response = await communicate(reader, writer, login)
@@ -34,29 +34,31 @@ async def main(host):
     # 循环接收用户输入并发送指令
     while True:
         try:
-            command = input('请输入指令：')
-            
+            command = input("请输入指令：")
+
         except EOFError:
             break
-        
-        if command=='停止':
+
+        if command == "停止":
             break
         # 发送指令
-        
-        command = f'say {command}'
+
+        command = f"say {command}"
         request = Packet.make_command(command, encoding=encoding)
         response = await communicate(reader, writer, request)
 
         # if response.id != request.id:
         #     raise SessionTimeout()
 
-        print(response.payload.decode(encoding, errors='ignore'))
+        print(response.payload.decode(encoding, errors="ignore"))
 
     # 断开连接
     await close(writer)
-    
+
+
 class WrongPassword(Exception):
     """Indicates a wrong password."""
-    
+
+
 class SessionTimeout(Exception):
     """Indicates that the session timed out."""
