@@ -19,6 +19,7 @@ from nonebot import require
 require("nonebot_plugin_apscheduler")
 require("nonebot_plugin_htmlrender")
 require("nonebot_plugin_txt2img")
+require("nonebot_plugin_saa")
 from .l4d2_web import web, webUI
 
 from typing import Tuple, Union, List
@@ -452,6 +453,21 @@ async def _(
 #     else:
 #         state['maps'] = data
 #         await matcher.send(await map_dict_to_str(data))
+@help_.handle()
+async def _():
+    msg = [
+        "=====求生机器人帮助=====",
+        "1、电信服战绩查询【求生anne[id/steamid/@]】",
+        "2、电信服绑定【求生绑定[id/steamid]】",
+        "3、电信服状态查询【云xx】" "4、创意工坊下载【创意工坊下载[物品id/链接]】",
+        "5、指定ip查询【求生ip[ip]】(可以是域名)",
+        "6、求生喷漆制作【求生喷漆】",
+        "6、本地服务器操作(略，详情看项目地址)",
+    ]
+    messgae = ""
+    for i in msg:
+        messgae += i + "\n"
+    await help_.finish(messgae)
 
 
 @search_api.got("is_sure", prompt='如果需要上传，请发送 "yes"')

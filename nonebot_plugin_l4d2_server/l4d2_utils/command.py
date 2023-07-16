@@ -13,42 +13,41 @@ from nonebot.adapters.onebot.v11 import (
     MessageSegment,
     GroupMessageEvent,
 )
+from nonebot.adapters.onebot.v11.event import MessageEvent as V11MessageEvent
+from nonebot.adapters.onebot.v12.event import MessageEvent as V12MessageEvent
+from nonebot.adapters.kaiheila.event import MessageEvent as kaiheilaMessageEvent
+from nonebot.adapters.qqguild.event import MessageEvent as qqguidMessageEvent
+from nonebot_plugin_saa import Image, Text, MessageFactory
+from nonebot_plugin_saa import extract_target, get_target, PlatformTarget
+from nonebot_plugin_saa import (
+    TargetQQGroup,
+    TargetQQGuildChannel,
+    TargetOB12Unknow,
+    TargetKaiheilaChannel,
+)
 
 from ..l4d2_anne.server import server_key, ANNE_IP, group_key
 from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
 from .config import *
-from ..l4d2_queries.qqgroup import split_maohao
+from ..l4d2_queries.qqgroup import split_maohao, get_tan_jian, qq_ip_queries_pic
 from ..l4d2_queries import get_group_ip_to_msg
+
+from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
 
 # from .utils import qq_ip_queries_pic,json_server_to_tag_dict,get_anne_server_ip,get_tan_jian
 from .utils import *
 from .txt_to_img import mode_txt_to_img
 from ..l4d2_image.one import one_server_img
+from .rule import wenjian
+
+Event = Union[
+    V11MessageEvent, V12MessageEvent, kaiheilaMessageEvent, qqguidMessageEvent
+]
 
 help_ = on_command("l4_help", aliases={"求生帮助"}, priority=20, block=True)
 
 # 服务器
 # last_operation_time = nonebot.Config.parse_obj(nonebot.get_driver().config.dict()).SUPERUSERS
-
-
-def wenjian(event: NoticeEvent):
-    args = event.dict()
-    try:
-        name: str = args["file"]["name"]
-        usr_id = str(args["user_id"])
-    except KeyError:
-        return False
-    if args["notice_type"] == "offline_file":
-        if l4_config.l4_master:
-            return name.endswith(file_format) and usr_id in l4_config.l4_master
-        else:
-            return name.endswith(file_format)
-    elif args["notice_type"] == "group_upload":
-        if l4_config.l4_master:
-            return usr_id in l4_config.l4_master and name.endswith(file_format)
-        else:
-            return False
-    return False
 
 
 up = on_notice(rule=wenjian)
@@ -121,23 +120,6 @@ up_workshop = on_command(
 vtf_make = on_command("vtf_make", aliases={"求生喷漆"}, priority=20, block=True)
 
 
-@help_.handle()
-async def _():
-    msg = [
-        "=====求生机器人帮助=====",
-        "1、电信服战绩查询【求生anne[id/steamid/@]】",
-        "2、电信服绑定【求生绑定[id/steamid]】",
-        "3、电信服状态查询【云xx】" "4、创意工坊下载【创意工坊下载[物品id/链接]】",
-        "5、指定ip查询【求生ip[ip]】(可以是域名)",
-        "6、求生喷漆制作【求生喷漆】",
-        "6、本地服务器操作(略，详情看项目地址)",
-    ]
-    messgae = ""
-    for i in msg:
-        messgae += i + "\n"
-    await help_.finish(messgae)
-
-
 def get_session_id(event: MessageEvent) -> str:
     if isinstance(event, GroupMessageEvent):
         return f"group_{event.group_id}"
@@ -203,6 +185,7 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
     @get_ip.handle()
     async def _(
         matcher: Matcher,
+        event: Event,
         start: str = CommandStart(),
         command: str = RawCommand(),
         args: Message = CommandArg(),
@@ -214,13 +197,16 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
         msg: str = args.extract_plain_text()
         push_msg = await get_ip_to_mes(msg, command)
         if isinstance(push_msg, bytes):
-            await matcher.finish(MessageSegment.image(push_msg))
+            send_msg = MessageFactory(Image(push_msg))
         elif msg and isinstance(push_msg, list):
-            await matcher.finish(
-                MessageSegment.image(push_msg[0]) + Message(push_msg[-1])
-            )
+            send_msg = MessageFactory([Image(push_msg), Text(push_msg[-1])])
         elif msg and isinstance(push_msg, str):
-            await str_to_picstr(push_msg, matcher)
+            send_msg = MessageFactory(push_msg)
+        else:
+            logger.info("出错了")
+            return
+        await send_msg.send()
+        await matcher.finish()
 
 
 async def get_ip_to_mes(msg: str, command: str = ""):
@@ -292,6 +278,14 @@ async def get_read_group_ip():
             )
         elif msg and isinstance(push_msg, str):
             await str_to_picstr(push_msg, matcher)
+
+
+tests = on_command("测试1")
+
+
+@tests.handle()
+async def _(event: Event):
+    logger.info(event)
 
 
 async def init():

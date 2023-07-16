@@ -1,12 +1,11 @@
 from ..l4d2_data.serverip import L4D2Server
 from ..l4d2_image import server_ip_pic
-from . import (
+from .utils import (
     queries,
     player_queries,
     queries_dict,
     player_queries_anne_dict,
     msg_ip_to_list,
-    server_rule_dict,
 )
 from nonebot.log import logger
 import random
@@ -331,3 +330,44 @@ async def write_json(data_str: str):
                         return "删除成功喵"
                 return "序号不正确，请输入【求生更新 删除 腐竹 序号】"
         return "腐竹名不存在，请输入【求生更新 删除 腐竹 序号】"
+
+
+async def add_ip(group_id, host, port):
+    """先查找是否存在，如果不存在则创建"""
+    return await bind_group_ip(group_id, host, port)
+
+
+async def del_ip(group_id, number):
+    """删除群ip"""
+    return await del_group_ip(group_id, number)
+
+
+async def show_ip(group_id):
+    """先查找群ip，再根据群ip返回"""
+    data_list = await get_qqgroup_ip_msg(group_id)
+    logger.info(data_list)
+    if len(data_list) == 0:
+        return "本群没有订阅"
+    msg = await qq_ip_queries_pic(data_list)
+    return msg
+
+
+async def get_number_url(number):
+    ip = await get_server_ip(number)
+    if not ip:
+        return "该序号不存在"
+    url = f"connect {ip}"
+    return url
+
+
+async def server_rule_dict(ip: str, port: int):
+    port = int(port)
+    ip = str(ip)
+    msg_dict = {}
+    # message_dict = await l4d(ip,port)
+    try:
+        msg: dict = await a2s.arules((ip, port))  # type: ignore
+        msg_dict["tick"] = msg["l4d2_tickrate_enabler"] + "tick"
+    except:
+        msg_dict["tick"] = ""
+    return msg_dict

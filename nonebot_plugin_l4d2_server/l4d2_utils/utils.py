@@ -1,22 +1,18 @@
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, GroupMessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-import struct
 import httpx
 import os
 from pathlib import Path
-
 from typing import List, Dict, Union, Optional
 from .config import *
 from ..l4d2_anne import write_player, del_player, anne_message
 from ..l4d2_server.rcon import read_server_cfg_rcon, rcon_server
-from ..l4d2_queries import queries, player_queries
-from ..l4d2_queries.qqgroup import *
 from ..l4d2_server.workshop import workshop_to_dict
 from ..l4d2_image.steam import url_to_byte
 from .txt_to_img import mode_txt_to_img
 import tempfile
-import random
+import json
 
 
 async def get_file(url: str, down_file: Path):
@@ -123,51 +119,6 @@ async def command_server(msg: str):
     return msg.strip().replace("\n", "")
 
 
-async def queries_server(msg: list) -> str:
-    """查询ip返回信息"""
-    ip = msg[0]
-    port = msg[1]
-    msgs = ""
-    try:
-        msgs = await queries(ip, port)
-        msgs += await player_queries(ip, port)
-    except (struct.error, TimeoutError):
-        pass
-    # except Exception:
-    # msgs = '有无法识别的用户名'
-    # return msgs
-    return msgs
-
-
-async def add_ip(group_id, host, port):
-    """先查找是否存在，如果不存在则创建"""
-    return await bind_group_ip(group_id, host, port)
-
-
-async def del_ip(group_id, number):
-    """删除群ip"""
-    return await del_group_ip(group_id, number)
-
-
-async def show_ip(group_id):
-    """先查找群ip，再根据群ip返回"""
-    data_list = await get_qqgroup_ip_msg(group_id)
-    logger.info(data_list)
-    if len(data_list) == 0:
-        return "本群没有订阅"
-    msg = await qq_ip_queries_pic(data_list)
-    return msg
-
-
-async def get_number_url(number):
-    "connect AGNES.DIGITAL.LINE.PM:40001"
-    ip = await get_server_ip(number)
-    if not ip:
-        return "该序号不存在"
-    url = f"connect {ip}"
-    return url
-
-
 async def workshop_msg(msg: str):
     """url变成id，拼接post请求"""
     if msg.startswith("https://steamcommunity.com/sharedfiles/filedetails/?id"):
@@ -187,14 +138,6 @@ async def save_file(file: bytes, path_name):
     """保存文件"""
     with open(path_name, "wb") as files:
         files.write(file)
-
-
-async def get_anne_server_ip(ip, ismsg: bool = False):
-    """输出查询ip和ping"""
-    host, port = split_maohao(ip)
-    data = await queries_server([host, port])
-    data += "\nconnect " + ip
-    return data
 
 
 async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
@@ -235,32 +178,6 @@ async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename:
                     file=f.name,
                     name=filename,
                 )
-
-
-async def json_server_to_tag_dict(key: str, msg: str):
-    """
-    l4d2字典转tag的dict结果
-     - 1、先匹配腐竹
-     - 2、匹配数字（几服），没有参数则从结果里随机返回一个
-    """
-    data_dict = {}
-    msg = msg.replace(" ", "")
-    # 腐竹循环
-    for tag, value in ALL_HOST.items():
-        value: List[dict]
-        if tag == key:
-            data_dict.update({"server": tag})
-            if not msg:
-                # 腐竹
-                data_dict.update(random.choice(value))
-            elif msg.isdigit():
-                logger.info("腐竹 + 序号")
-                for server in value:
-                    if msg == str(server["id"]):
-                        data_dict.update(server)
-                        break
-
-    return data_dict
 
 
 sub_menus = []
