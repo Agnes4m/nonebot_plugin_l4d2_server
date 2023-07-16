@@ -100,11 +100,9 @@ async def qq_ip_querie(msg: List[Tuple[str, str, int]], igr: bool = True):
         # 等待所有异步任务完成
         await asyncio.gather(*tasks)
         # 对msg_list按照number顺序排序
-        msg_list.sort(key=lambda x: x["number"])
-        for i in msg_list:
-            print(i)
-            break
-        result = {"msg_list": msg_list}
+        # msg_list.sort(key=lambda x: x["number"])
+        send_list =  sorted(msg_list, key=lambda x: int(x["number"]))
+        result = {"msg_list": send_list}
 
     else:
         result: Dict[str, List[Dict[str, Any]]] = {}
@@ -113,7 +111,6 @@ async def qq_ip_querie(msg: List[Tuple[str, str, int]], igr: bool = True):
 
 async def qq_ip_queries_pic(msg: list, igr=False):
     result = await qq_ip_querie(msg, igr)
-    print(result)
     if "msg_list" in result:
         pic = await server_ip_pic(result["msg_list"])
     else:
@@ -253,7 +250,6 @@ async def get_tan_jian(msg: List[tuple], mode: int):
     message += "\n" + "名称：" + mse["name"] + "\n"
     message += "地图：" + mse["map_"] + "\n"
     message += f"玩家：{mse['players']} / {mse['max_players']}\n"
-    print(mse["Players"])
     try:
         message += await msg_ip_to_list(mse["Players"])
     except KeyError:

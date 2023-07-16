@@ -5,6 +5,8 @@ import random
 from pydantic import BaseModel
 from typing import List
 from nonebot.log import logger
+from ..l4d2_utils.config import l4_config
+from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao
 from .localIP import ALL_HOST
 
@@ -46,7 +48,11 @@ async def get_anne_server_ip(ip, ismsg: bool = False):
     """输出查询ip和ping"""
     host, port = split_maohao(ip)
     data = await queries_server([host, port])
-    data += f"\nconnect {ip}"
+    
+    if l4_config.l4_image:
+        data = mode_txt_to_img(data.split("\n")[0],data.replace(data.split("\n")[0],f"\nconnect {ip}"))
+    else:
+        data += f"\nconnect {ip}"
     return data
 
 
@@ -109,7 +115,6 @@ async def msg_ip_to_list(message_list: list):
         max_duration_len = max([len(str(i["Duration"])) for i in message_list])
         max_score_len = max([len(str(i["Score"])) for i in message_list])
         for i in message_list:
-            print(i)
             n += 1
             name = i["name"]
             Score = i["Score"]
@@ -137,7 +142,6 @@ async def convert_duration(duration: float) -> str:
 async def queries(ip: str, port: int):
     port = int(port)
     msg_dict = await queries_dict(ip, port)
-    print(msg_dict["name"], type(msg_dict["name"]))
     message = f"名称：{msg_dict['name']}\n"
     message += f"地图：{msg_dict['map_']}\n"
     message += f"延迟：{msg_dict['ping']}\n"

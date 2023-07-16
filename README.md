@@ -6,7 +6,7 @@
 
 <div align="center">
 
-# nonebot_plugin_l4d2_server 0.5
+# nonebot_plugin_l4d2_server 0.6
 
 _✨Nonebot & Left 4 Dead 2 server操作✨_
 <div align = "center">
@@ -36,9 +36,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 ## 顶置公告
 
-0.5.0破坏式更新，不再使用env配置，采用web控制台管理
-
-同时不再支持远程查询，改为只允许本地查询
+0.6.0更新了适配器，初步实现了v11,v12,kook的适配，以及qq频道的部分适配
 
 文档暂时没时间更新ozr
 

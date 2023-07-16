@@ -14,17 +14,17 @@ from nonebot import require
 from nonebot.permission import SUPERUSER
 from nonebot.params import CommandArg
 from nonebot.matcher import Matcher
-from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageSegment, Message
+from nonebot.adapters.onebot.v11 import  MessageSegment
 from nonebot.adapters.onebot.v11.permission import (
     GROUP_ADMIN,
     GROUP_OWNER,
 )
-
 require("nonebot_plugin_apscheduler")
 from nonebot_plugin_apscheduler import scheduler
 
+from ..l4d2_utils.rule import MessageFactory,Image,Text,GroupEvent_,Message_
 from ..l4d2_utils.command import get_ip_to_mes
-from ..l4d2_utils.utils import extract_last_digit, split_maohao
+from ..l4d2_utils.utils import extract_last_digit, split_maohao,get_group_id
 from ..l4d2_queries.utils import json_server_to_tag_dict, queries_dict
 from ..l4d2_utils.config import l4_config
 
@@ -49,8 +49,10 @@ del_rss = on_command(
 
 
 @add_rss.handle()
-async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
-    group_id = event.group_id
+async def _(event: GroupEvent_, matcher: Matcher, args: Message_ = CommandArg()):
+    group_id = get_group_id(event)
+    if not group_id:
+        return
     msg = args.extract_plain_text()
     command, message = await extract_last_digit(msg)
     push_msg = await get_ip_to_mes(msg=message, command=command)
@@ -61,7 +63,9 @@ async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandA
     else:
         return_msg = await add_or_update_data(group_id, msg)
         if isinstance(push_msg, bytes):
-            await matcher.send(MessageSegment.image(push_msg))
+            await MessageFactory([Image(push_msg)]).send()
+        elif isinstance(push_msg, MessageFactory):
+            await push_msg.send()
         else:
             await matcher.send(push_msg)
         if return_msg == "add":
@@ -71,8 +75,10 @@ async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandA
 
 
 @del_rss.handle()
-async def _(event: GroupMessageEvent, matcher: Matcher):
-    group_id = event.group_id
+async def _(event: GroupEvent_, matcher: Matcher):
+    group_id = get_group_id(event)
+    if not group_id:
+        return
     await add_or_update_data(group_id, "", ad_mode="del")
     await matcher.finish("已删除群定时任务")
 
@@ -153,7 +159,6 @@ async def rss_ip():
 
                     if count > 0:
                         msg_read = await send_message(recipient_id, msg, value)
-                        print(msg_read)
                         if msg_read and isinstance(msg_read, str):
                             scheduler_data[key]["ip_detail"] = msg_read
                         count -= 1
@@ -208,9 +213,9 @@ async def server_is_change():
     """检测服务器是否发生变化"""
 
 
-@driver.on_bot_connect
-async def _():
-    logger.success("已成功启动求生定时推送")
-    scheduler.add_job(
-        rss_ip, "interval", minutes=l4_config.l4_push_interval, id="rss_ip"
-    )
+# @driver.on_bot_connect
+# async def _():
+#     logger.success("已成功启动求生定时推送")
+#     scheduler.add_job(
+#         rss_ip, "interval", minutes=l4_config.l4_push_interval, id="rss_ip"
+#     )

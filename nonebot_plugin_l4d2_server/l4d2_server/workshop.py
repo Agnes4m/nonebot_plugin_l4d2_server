@@ -1,4 +1,5 @@
 import httpx
+from typing import Dict,List,Union
 from nonebot.log import logger
 
 try:
@@ -18,25 +19,25 @@ async def workshop_to_dict(msg: str):
         return await only_map(i)
 
 
-async def api_get_json(msg: str) -> dict:
+async def api_get_json(msg: str):
     url_serach = "https://db.steamworkshopdownloader.io/prod/api/details/file"
-    data = {msg: None}
+    data:Dict[str,str] = {msg: ''}
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
     }
-    data = httpx.post(url=url_serach, headers=headers, data=data).content.decode(
+    data_msg = httpx.post(url=url_serach, headers=headers, data=data).content.decode(
         "utf-8"
     )
-    logger.info(data)
+    logger.info(data_msg)
     out = {}
-    data = data[1:-1]
-    data = json.loads(data)
-    return data
+    data_msg = data_msg[1:-1]
+    datas:Dict[str,str] = json.loads(data_msg)
+    return datas
 
 
-async def only_map(i: dict):
+async def only_map(i: Dict[str,str]):
     """单地图下载"""
-    out = {}
+    out:Dict[str,str] = {}
     out["名字"] = i["title"]
     out["游戏"] = i["app_name"]
     out["下载地址"] = i["file_url"]
@@ -45,9 +46,9 @@ async def only_map(i: dict):
     return out
 
 
-async def primary_map(i):
+async def primary_map(i:Dict[str,List[Dict[str,str]]]):
     """主地图返回多地图参数"""
-    map_list = []
+    map_list:List[Union[Dict[str,List[Dict[str,str]]],Dict[str,str]]] = []
     map_list.append(i)
     for one in i["children"]:
         map_list.append(await api_get_json(one["publishedfileid"]))
