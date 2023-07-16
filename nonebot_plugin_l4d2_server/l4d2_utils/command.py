@@ -7,24 +7,9 @@ from nonebot import on_notice, on_command, on_regex, on_keyword
 from nonebot.params import CommandArg, RawCommand, CommandStart
 from nonebot.matcher import Matcher
 from nonebot.adapters.onebot.v11 import (
-    NoticeEvent,
-    MessageEvent,
-    Message,
-    MessageSegment,
-    GroupMessageEvent,
+    GroupMessageEvent
 )
-from nonebot.adapters.onebot.v11.event import MessageEvent as V11MessageEvent
-from nonebot.adapters.onebot.v12.event import MessageEvent as V12MessageEvent
-from nonebot.adapters.kaiheila.event import MessageEvent as kaiheilaMessageEvent
-from nonebot.adapters.qqguild.event import MessageEvent as qqguidMessageEvent
-from nonebot_plugin_saa import Image, Text, MessageFactory
-from nonebot_plugin_saa import extract_target, get_target, PlatformTarget
-from nonebot_plugin_saa import (
-    TargetQQGroup,
-    TargetQQGuildChannel,
-    TargetOB12Unknow,
-    TargetKaiheilaChannel,
-)
+
 
 from ..l4d2_anne.server import server_key, ANNE_IP, group_key
 from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
@@ -38,11 +23,8 @@ from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
 from .utils import *
 from .txt_to_img import mode_txt_to_img
 from ..l4d2_image.one import one_server_img
-from .rule import wenjian
+from .rule import *
 
-Event = Union[
-    V11MessageEvent, V12MessageEvent, kaiheilaMessageEvent, qqguidMessageEvent
-]
 
 help_ = on_command("l4_help", aliases={"求生帮助"}, priority=20, block=True)
 
@@ -120,11 +102,6 @@ up_workshop = on_command(
 vtf_make = on_command("vtf_make", aliases={"求生喷漆"}, priority=20, block=True)
 
 
-def get_session_id(event: MessageEvent) -> str:
-    if isinstance(event, GroupMessageEvent):
-        return f"group_{event.group_id}"
-    else:
-        return f"private_{event.user_id}"
 
 
 matchers: Dict[str, List[Type[Matcher]]] = {}
@@ -185,10 +162,10 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
     @get_ip.handle()
     async def _(
         matcher: Matcher,
-        event: Event,
+        event: Event_,
         start: str = CommandStart(),
         command: str = RawCommand(),
-        args: Message = CommandArg(),
+        args: Message_ = CommandArg(),
     ):
         if start:
             command = command.replace(start, "")
@@ -196,15 +173,29 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
             command = "云"
         msg: str = args.extract_plain_text()
         push_msg = await get_ip_to_mes(msg, command)
-        if isinstance(push_msg, bytes):
-            send_msg = MessageFactory(Image(push_msg))
-        elif msg and isinstance(push_msg, list):
-            send_msg = MessageFactory([Image(push_msg), Text(push_msg[-1])])
+        if not push_msg:
+            return
+        if isinstance(push_msg,MessageFactory):
+            logger.info("构造")
+            try:
+                await push_msg.finish()
+            except Exception as E:
+                logger.warning(E)
+                return
+        elif isinstance(push_msg, bytes):
+            logger.info("直接发送图片")
+            send_msg = Image(push_msg)
+        elif msg and type(push_msg) == list:
+            logger.info("更加构造函数")
+            send_msg = MessageFactory([Image(push_msg[0]), Text(push_msg[-1])])
         elif msg and isinstance(push_msg, str):
             send_msg = MessageFactory(push_msg)
         else:
             logger.info("出错了")
             return
+        logger.info(type(send_msg))
+        if not send_msg:
+            logger.warning("没有")
         await send_msg.send()
         await matcher.finish()
 
@@ -244,12 +235,6 @@ async def get_ip_to_mes(msg: str, command: str = ""):
         logger.info(ip)
 
         try:
-            #     if l4_config.l4_image:
-            #         host,port = split_maohao(ip)
-            #         msgs = await queries_dict(host,port)
-            #         msgs['Players'] += await player_queries_anne_dict(host,port)
-            #         imgs = await one_server_img()
-            # else:
             msgs = await get_anne_server_ip(ip)
             return msgs
         except (OSError, asyncio.exceptions.TimeoutError):
@@ -264,28 +249,26 @@ async def get_read_group_ip():
         matcher: Matcher,
         start: str = CommandStart(),
         command: str = RawCommand(),
-        args: Message = CommandArg(),
+        args: Message_ = CommandArg(),
     ):
         if start:
             command = command.replace(start, "")
         msg: str = args.extract_plain_text()
         push_msg = await get_group_ip_to_msg(msg, command)
         if isinstance(push_msg, bytes):
-            await matcher.finish(MessageSegment.image(push_msg))
-        elif msg and isinstance(push_msg, list):
-            await matcher.finish(
-                MessageSegment.image(push_msg[0]) + Message(push_msg[-1])
-            )
+            send_msg = MessageFactory(Image(push_msg))
+        elif msg and type(push_msg) == list:
+            send_msg = MessageFactory([Image(push_msg[0]), Text(push_msg[-1])])
         elif msg and isinstance(push_msg, str):
             await str_to_picstr(push_msg, matcher)
 
 
-tests = on_command("测试1")
+# tests = on_command("测试1")     
 
-
-@tests.handle()
-async def _(event: Event):
-    logger.info(event)
+# @tests.handle()
+# async def _(event: Event,arg:Message=CommandArg()):
+#     logger.info(event)
+#     logger.info(arg.extract_plain_text())
 
 
 async def init():

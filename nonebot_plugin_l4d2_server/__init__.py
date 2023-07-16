@@ -44,20 +44,22 @@ from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_file import updown_l4d2_vpk, all_zip_to_one
 from .l4d2_file.input_json import *
 from .l4d2_utils.txt_to_img import mode_txt_to_img
+from .l4d2_queries.utils import queries_server
+from .l4d2_queries.qqgroup import add_ip,show_ip,del_ip,get_number_url
 
 scheduler = require("nonebot_plugin_apscheduler").scheduler
 from nonebot.plugin import PluginMetadata
 
 driver = get_driver()
 
-__version__ = "0.5.9"
+__version__ = "0.6.0"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
-    description="群内对有关求生之路的查询和操作",
+    description="适配V11,v12,kook,qq频道的多平台nonebot2插件",
     usage="群内对有关求生之路的查询和操作",
     type="application",
     homepage="https://github.com/Agnes4m/nonebot_plugin_l4d2_server",
-    supported_adapters={"~onebot.v11"},
+    supported_adapters={"~onebot.v11", "~onebot.v12", "~qqguild", "~kaiheila"},
     extra={
         "version": __version__,
         "author": "Agnes4m <Z735803792@163.com>",
@@ -69,7 +71,7 @@ __plugin_meta__ = PluginMetadata(
 
 
 @up.handle()
-async def _(matcher: Matcher, event: NoticeEvent):
+async def _(matcher: Matcher, event: NoticeEvent_):
     args = event.dict()
     if args["notice_type"] != "offline_file":
         matcher.set_arg("txt", args)  # type: ignore
@@ -158,11 +160,11 @@ async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
     msg = ""
     msg = mes_list(msg, name_vpk).replace(" ", "")
 
-    await matcher.finish(mode_txt_to_img(mes, msg))
+    await mode_txt_to_img(mes, msg).send()
 
 
 @del_vpk.handle()
-async def _(matcher: Matcher, args: Message = CommandArg()):
+async def _(matcher: Matcher, args: Message_ = CommandArg()):
     num1 = args.extract_plain_text()
     if num1:
         matcher.set_arg("num", args)
@@ -195,7 +197,7 @@ async def _(
 
 
 @anne_player.handle()
-async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg()):
+async def _(matcher: Matcher, event: MessageEvent, args: Message_ = CommandArg()):
     name = args.extract_plain_text()
     name = name.strip()
     at = await get_message_at(event.json())
@@ -211,7 +213,7 @@ async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg())
 
 
 @anne_bind.handle()
-async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg()):
+async def _(matcher: Matcher, event: MessageEvent, args: Message_ = CommandArg()):
     tag = args.extract_plain_text()
     tag = tag.strip()
     if tag == "" or tag.isspace():
@@ -231,7 +233,7 @@ async def _(matcher: Matcher, event: MessageEvent):
 
 
 @rcon_to_server.handle()
-async def _(matcher: Matcher, args: Message = CommandArg()):
+async def _(matcher: Matcher, args: Message_ = CommandArg()):
     msg = args.extract_plain_text()
     if msg:
         matcher.set_arg("command", args)
@@ -242,13 +244,13 @@ async def _(matcher: Matcher, tag: str = ArgPlainText("command")):
     tag = tag.strip()
     msg = await command_server(tag)
     try:
-        await matcher.finish(mode_txt_to_img("服务器返回", msg))
+        await mode_txt_to_img("服务器返回", msg).send()
     except:
         await matcher.finish(msg, reply_message=True)
 
 
 @check_path.handle()
-async def _(matcher: Matcher, args: Message = CommandArg()):
+async def _(matcher: Matcher, args: Message_ = CommandArg()):
     msg = args.extract_plain_text()
     if msg.startswith("切换"):
         msg_number = int("".join(msg.replace("切换", " ").split()))
@@ -284,7 +286,7 @@ async def _(matcher: Matcher, event: MessageEvent, keyword: str = Keyword()):
 
 
 @add_queries.handle()
-async def _(matcher: Matcher, event: GroupMessageEvent, args: Message = CommandArg()):
+async def _(matcher: Matcher, event: GroupMessageEvent, args: Message_ = CommandArg()):
     msg = args.extract_plain_text()
     if len(msg) == 0:
         await matcher.finish("请在该指令后加入参数，例如【114.51.49.19:1810】")
@@ -295,7 +297,7 @@ async def _(matcher: Matcher, event: GroupMessageEvent, args: Message = CommandA
 
 
 @del_queries.handle()
-async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
+async def _(event: GroupMessageEvent, matcher: Matcher, args: Message_ = CommandArg()):
     msg = args.extract_plain_text()
     if not msg.isdigit():
         await matcher.finish("请输入正确的序号数字")
@@ -317,14 +319,14 @@ async def _(matcher: Matcher, event: GroupMessageEvent):
 
 
 @join_server.handle()
-async def _(args: Message = CommandArg()):
+async def _(args: Message_ = CommandArg()):
     msg = args.extract_plain_text()
     url = await get_number_url(msg)
     await join_server.finish(url)
 
 
 @up_workshop.handle()
-async def _(matcher: Matcher, args: Message = CommandArg()):
+async def _(matcher: Matcher, args: Message_ = CommandArg()):
     msg = args.extract_plain_text()
     if msg:
         matcher.set_arg("ip", args)
@@ -332,6 +334,7 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
 
 @up_workshop.got("ip", prompt="请输入创意工坊网址或者物品id")
 async def _(matcher: Matcher, state: T_State, tag: str = ArgPlainText("ip")):
+    # 这一部分注释类型有大问题，反正能跑就不改了
     msg = await workshop_msg(tag)
     if not msg:
         await matcher.finish("没有这个物品捏")
@@ -339,23 +342,23 @@ async def _(matcher: Matcher, state: T_State, tag: str = ArgPlainText("ip")):
         pic = await url_to_byte(msg["图片地址"])
         if not pic:
             return
-        message = ""
+        message:str = ''
         for item, value in msg.items():
-            if item in ["图片地址", "下载地址", "细节"]:
+            if item in ["图片地址", "下载地址", "细节"] or not isinstance(item,str):
                 continue
-            message += item + ":" + value + "\n"
+            message +=  item + ":" + value + "\n"
         state["dic"] = msg
-        await up_workshop.send(MessageSegment.image(pic) + Message(message))
+        await MessageFactory([Image(pic),Text(message)]).send()
     elif isinstance(msg, list):
         lenge = len(msg)
-        pic = await url_to_byte(msg[0]["图片地址"])
-        message = f"有{lenge}个文件\n"
+        pic = await url_to_byte(msg[0]["图片地址"]) # type: ignore
+        message:str = f"有{lenge}个文件\n"
         ones = []
         for one in msg:
             for item, value in one.items():
                 if item in ["图片地址", "下载地址", "细节"]:
                     continue
-                message += item + ":" + value + "\n"
+                message += f"{item}:{value}\n"
             ones.append(one)
         state["dic"] = ones
 
@@ -388,7 +391,7 @@ async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State
 
 
 @updata.handle()
-async def _(matcher: Matcher, args: Message = CommandArg()):
+async def _(matcher: Matcher, args: Message_ = CommandArg()):
     """更新"""
     anne_ip_dict = await updata_anne_server()
     if not anne_ip_dict:
@@ -398,7 +401,7 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
 
 
 @vtf_make.handle()
-async def _(matcher: Matcher, state: T_State, args: Message = CommandArg()):
+async def _(matcher: Matcher, state: T_State, args: Message_ = CommandArg()):
     msg: str = args.extract_plain_text()
     if msg not in ["拉伸", "填充", "覆盖", ""]:
         await matcher.finish("错误的图片处理方式")
@@ -438,11 +441,11 @@ async def _(
     mes = "当前服务器下有以下smx文件"
     msg = ""
     msg = mes_list(msg, name_smx).replace(" ", "")
-    await matcher.finish(mode_txt_to_img(mes, msg))
+    await mode_txt_to_img(mes, msg).send()
 
 
 # @search_api.handle()
-# async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message = CommandArg()):
+# async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message_ = CommandArg()):
 #     msg:str = args.extract_plain_text()
 #     # if msg.startswith('代码'):
 #         # 建图代码返回三方图信息
@@ -454,7 +457,7 @@ async def _(
 #         state['maps'] = data
 #         await matcher.send(await map_dict_to_str(data))
 @help_.handle()
-async def _():
+async def _(matcher:Matcher):
     msg = [
         "=====求生机器人帮助=====",
         "1、电信服战绩查询【求生anne[id/steamid/@]】",
@@ -467,7 +470,7 @@ async def _():
     messgae = ""
     for i in msg:
         messgae += i + "\n"
-    await help_.finish(messgae)
+    await matcher.finish(messgae)
 
 
 @search_api.got("is_sure", prompt='如果需要上传，请发送 "yes"')
