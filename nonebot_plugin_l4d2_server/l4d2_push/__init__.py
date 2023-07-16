@@ -24,9 +24,9 @@ require("nonebot_plugin_apscheduler")
 from nonebot_plugin_apscheduler import scheduler
 
 from ..l4d2_utils.command import get_ip_to_mes
-from ..l4d2_utils.utils import extract_last_digit, json_server_to_tag_dict, split_maohao
+from ..l4d2_utils.utils import extract_last_digit, split_maohao
+from ..l4d2_queries.utils import json_server_to_tag_dict, queries_dict
 from ..l4d2_utils.config import l4_config
-from ..l4d2_queries import queries_dict
 
 driver = get_driver()
 sch_json = Path("data/L4D2/scheduler.json")

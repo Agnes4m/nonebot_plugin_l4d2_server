@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-l4d2-server"
-version = "0.5.9.2"
+version = "0.5.9.3"
 description = "L4D2 server related operations plugin for NoneBot2"
 authors = ["Agnes_Digital <Z735803792@163.com>"]
 license = "GPLv3"
@@ -24,10 +24,12 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.9"
 nonebot2 = "^2.0.0"
+nonebot2[fastapi,websockets]>=2.0.0rc4
 nonebot-adapter-onebot = ">=2.2.1"
 nonebot-plugin-htmlrender = "^0.2.0.3"
 nonebot_plugin_txt2img = ">=0.3.0"
 nonebot_plugin_apscheduler = "^0.2.0"
+nonebot-plugin-send-anything-anywhere = "0.2.7"
 asyncio = ">=3.4.3"
 aiohttp = "^3.8.4"
 jinja2 = ">=3.0.0"
