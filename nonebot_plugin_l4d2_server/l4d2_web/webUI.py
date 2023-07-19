@@ -21,7 +21,7 @@ logo = Html(
     html="""
 <p align="center">
     <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server">
-        <img src="https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png"
+        <img src="https://ghproxy.com/https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png"
          width="256" height="256" alt="l4d2-server">
     </a>
 </p>
@@ -104,6 +104,14 @@ global_config_form = Form(
             name="l4_font",
             value="${l4_font}",
             labelRemark=Remark(shape="circle", content="机器人返回图片中文字的字体。"),
+        ),
+        Switch(
+            label="是否图片发送单服务器查询",
+            name="l4_image",
+            value="${l4_image}",
+            onText="开启",
+            offText="关闭",
+            labelRemark=Remark(shape="circle", content="开启时，会查询单服务器会使用图片，避免长信息风控"),
         ),
         Select(
             label="图片风格",
@@ -347,7 +355,8 @@ query_table = TableCRUD(
         ),
     ],
     columns=[
-        TableColumn(label="服主", name="master", searchable=True),
+        TableColumn(label="服主", name="tag", searchable=True),
+        TableColumn(label="序号", name="number", searchable=True),
         TableColumn(label="名称", name="name", searchable=True),
         TableColumn(label="地图", name="map_", searchable=True),
         TableColumn(label="玩家", name="rank_players", searchable=True),
@@ -400,6 +409,7 @@ query_page = PageSchema(
 database_page = PageSchema(
     label="数据库", icon="fa fa-database", children=[server_page, query_page]
 )  # type: ignore
+
 config_page = PageSchema(
     url="/configs",
     isDefaultPage=True,
@@ -425,7 +435,7 @@ header = Flex(
 
 admin_app = App(
     brandName="L4d2-Server",
-    logo="https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png",
+    logo="https://ghproxy.com/https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png",
     header=header,
     pages=[{"children": [config_page, database_page]}],
     footer='<div class="p-2 text-center bg-blue-100">Copyright © 2022 - 2023 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" class="link-secondary">AGNES_DIGIAL</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>',
