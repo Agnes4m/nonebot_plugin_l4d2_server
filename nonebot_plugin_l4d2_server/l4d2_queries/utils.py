@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-import struct
-import a2s
 import random
-from pydantic import BaseModel
+import struct
 from typing import List
+
+import a2s
 from nonebot.log import logger
+from pydantic import BaseModel
+
 from ..l4d2_utils.config import l4_config
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao
@@ -48,9 +50,11 @@ async def get_anne_server_ip(ip, ismsg: bool = False):
     """输出查询ip和ping"""
     host, port = split_maohao(ip)
     data = await queries_server([host, port])
-    
+
     if l4_config.l4_image:
-        data = mode_txt_to_img(data.split("\n")[0],data.replace(data.split("\n")[0],f"\nconnect {ip}"))
+        data = mode_txt_to_img(
+            data.split("\n")[0], data.replace(data.split("\n")[0], f"\nconnect {ip}")
+        )
     else:
         data += f"\nconnect {ip}"
     return data

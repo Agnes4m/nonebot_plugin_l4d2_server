@@ -1,19 +1,17 @@
 import datetime
-from typing import Optional, Union
-
-from fastapi import FastAPI
-from fastapi import Header, HTTPException, Depends
-from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
-from jose import jwt
-from jose.exceptions import JWTError, ExpiredSignatureError
-from nonebot import get_bot, get_app
-
 from pathlib import Path
+from typing import Optional
 
-from nonebot import get_driver, logger
+from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from jose import jwt
+from jose.exceptions import ExpiredSignatureError, JWTError
+from nonebot import get_adapter, get_app, get_driver, logger
+from nonebot.adapters.onebot.v11 import Adapter
+
+from ..l4d2_queries.qqgroup import qq_ip_querie
 from ..l4d2_utils.config import *
 from ..l4d2_utils.utils import split_maohao
-from ..l4d2_queries.qqgroup import qq_ip_querie
 
 CONFIG_PATH = Path() / "data" / "L4D2" / "l4d2.yml"
 
@@ -21,7 +19,8 @@ CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 driver = get_driver()
 
-from .webUI import login_page, admin_app
+from .webUI import admin_app, login_page
+from .webUI_s import user_app
 
 requestAdaptor = """
 requestAdaptor(api) {
@@ -98,7 +97,11 @@ async def init_web():
     )
     async def get_group_list_api():
         try:
-            group_list = await get_bot().get_group_list()
+            bots = get_adapter(Adapter).bots
+            if len(bots) == 0:
+                return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
+            bot = list(bots.values())[0]
+            group_list = await bot.get_group_list()
             group_list = [
                 {
                     "label": f'{group["group_name"]}({group["group_id"]})',
@@ -127,7 +130,10 @@ async def init_web():
     )
     async def get_l4d2_global_config():
         try:
-            bot = get_bot()
+            bots = get_adapter(Adapter).bots
+            if len(bots) == 0:
+                return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
+            bot = list(bots.values())[0]
             groups = await bot.get_group_list()
             member_list = []
             for group in groups:
@@ -149,6 +155,7 @@ async def init_web():
         except ValueError:
             return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
 
+    @app.get("/l4d2/api/user/get_query_contexts", response_class=JSONResponse)
     @app.get(
         "/l4d2/api/get_query_contexts",
         response_class=JSONResponse,
@@ -168,6 +175,7 @@ async def init_web():
             if not data_dict:
                 return {"status": -100, "msg": "返回失败，请确保有可用的服务器ip"}
             data_list = data_dict["msg_list"]
+            # logger.info(data_list)
             return {
                 "status": 0,
                 "msg": "ok",
@@ -240,4 +248,11 @@ async def init_web():
             theme="ang",
             requestAdaptor=requestAdaptor,
             responseAdaptor=responseAdaptor,
+        )
+
+    @app.get("/l4d2/user", response_class=HTMLResponse)
+    async def user_page_app():
+        return user_app.render(
+            site_title="l4d2服务器查询",
+            theme="ang",
         )

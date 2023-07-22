@@ -1,17 +1,18 @@
-from pathlib import Path
-from zipfile import ZipFile
-from time import sleep
-import sys
-import os
 import io
-from typing import List, Callable
+import os
+import sys
+from pathlib import Path
+from time import sleep
+from typing import Callable, List
+from zipfile import ZipFile
 
-from ..l4d2_utils.utils import get_file, get_vpk
-from ..l4d2_utils.config import systems
-from nonebot.log import logger
-from rarfile import RarFile
 import rarfile
+from nonebot.log import logger
 from pyunpack import Archive
+from rarfile import RarFile
+
+from ..l4d2_utils.config import systems
+from ..l4d2_utils.utils import get_file, get_vpk
 
 
 async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
@@ -32,10 +33,11 @@ async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
 
 
 import zipfile
-import rarfile
-from pyunpack import Archive
 from pathlib import Path
 from typing import Dict
+
+import rarfile
+from pyunpack import Archive
 
 SUPPORTED_EXTENSIONS = (".zip", ".7z", ".rar")
 

@@ -1,6 +1,7 @@
-from ..l4d2_utils.config import DATASQLITE
 import sqlite3
-from typing import Union, Tuple, Optional, List
+from typing import List, Optional, Tuple, Union
+
+from ..l4d2_utils.config import DATASQLITE
 
 
 class L4D2Player:

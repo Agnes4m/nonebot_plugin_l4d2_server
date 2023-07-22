@@ -36,9 +36,12 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 ## 顶置公告
 
-0.6.0更新了适配器，初步实现了v11,v12,kook的适配，以及qq频道的部分适配
+多适配器版本请查看[分支](https://github.com/Agnes4m/nonebot_plugin_l4d2_server/tree/nb_adapter)
 
 文档暂时没时间更新ozr
+
+网页端管理端 `https://{ip}:{port}/l4d2`
+网页用户端 `https://{ip}:{port}/l4d2/user`
 
 ## 安装
 
@@ -119,14 +122,12 @@ bot所在文件夹下
 | 迷茫 | 迷茫 | 迷茫 | 10
 | 尸鬼 | 尸鬼狂潮 | ❀几❀ | 13
 
-
 ## To do
 
 - [ ] 帮助图片
 - [ ] 网页控制台查看服务器地图
 - [ ] 网页控制台启动和关闭服务器
 - [ ] 网页控制台管理封禁用户
-
 
 ## 其他
 
