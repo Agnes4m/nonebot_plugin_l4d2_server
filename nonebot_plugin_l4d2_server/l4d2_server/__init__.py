@@ -1,6 +1,7 @@
 import asyncio
+
+from rcon.source.async_rcon import close, communicate
 from rcon.source.proto import Packet, Type
-from rcon.source.async_rcon import communicate, close
 
 
 async def main(host):

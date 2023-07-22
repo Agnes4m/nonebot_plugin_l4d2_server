@@ -1,32 +1,29 @@
-from pathlib import Path
 import re
+from pathlib import Path
+from typing import Any, Dict, Optional, Union
+
 import a2s
-from typing import Dict, Union, Optional, Any
 
 try:
     import ujson as json
 except:
     import json
 
+from nonebot import get_bot, get_driver, on_command, require
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, Message, MessageSegment
+from nonebot.adapters.onebot.v11.permission import GROUP_ADMIN, GROUP_OWNER
 from nonebot.log import logger
-from nonebot import get_driver, on_command, get_bot
-from nonebot import require
-from nonebot.permission import SUPERUSER
-from nonebot.params import CommandArg
 from nonebot.matcher import Matcher
-from nonebot.adapters.onebot.v11 import  MessageSegment
-from nonebot.adapters.onebot.v11.permission import (
-    GROUP_ADMIN,
-    GROUP_OWNER,
-)
+from nonebot.params import CommandArg
+from nonebot.permission import SUPERUSER
+
 require("nonebot_plugin_apscheduler")
 from nonebot_plugin_apscheduler import scheduler
 
-from ..l4d2_utils.rule import MessageFactory,Image,Text,GroupEvent_,Message_
-from ..l4d2_utils.command import get_ip_to_mes
-from ..l4d2_utils.utils import extract_last_digit, split_maohao,get_group_id
 from ..l4d2_queries.utils import json_server_to_tag_dict, queries_dict
+from ..l4d2_utils.command import get_ip_to_mes
 from ..l4d2_utils.config import l4_config
+from ..l4d2_utils.utils import extract_last_digit, split_maohao
 
 driver = get_driver()
 sch_json = Path("data/L4D2/scheduler.json")
@@ -49,8 +46,8 @@ del_rss = on_command(
 
 
 @add_rss.handle()
-async def _(event: GroupEvent_, matcher: Matcher, args: Message_ = CommandArg()):
-    group_id = get_group_id(event)
+async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
+    group_id = event.group_id
     if not group_id:
         return
     msg = args.extract_plain_text()
@@ -63,9 +60,9 @@ async def _(event: GroupEvent_, matcher: Matcher, args: Message_ = CommandArg())
     else:
         return_msg = await add_or_update_data(group_id, msg)
         if isinstance(push_msg, bytes):
-            await MessageFactory([Image(push_msg)]).send()
-        elif isinstance(push_msg, MessageFactory):
-            await push_msg.send()
+            await matcher.finish(MessageSegment.image(push_msg))
+        elif isinstance(push_msg, Message | MessageSegment):
+            await matcher.finish(push_msg)
         else:
             await matcher.send(push_msg)
         if return_msg == "add":
@@ -75,8 +72,8 @@ async def _(event: GroupEvent_, matcher: Matcher, args: Message_ = CommandArg())
 
 
 @del_rss.handle()
-async def _(event: GroupEvent_, matcher: Matcher):
-    group_id = get_group_id(event)
+async def _(event: GroupMessageEvent, matcher: Matcher):
+    group_id = event.group_id
     if not group_id:
         return
     await add_or_update_data(group_id, "", ad_mode="del")

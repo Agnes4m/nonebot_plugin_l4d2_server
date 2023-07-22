@@ -1,6 +1,7 @@
-from PIL import Image, ImageDraw, ImageFont
-from typing import List
 from pathlib import Path
+from typing import List
+
+from PIL import Image, ImageDraw, ImageFont
 
 # 半透明素材
 half_whitel_image_path = Path(__file__).parent.parent.joinpath("data/img/white.png")

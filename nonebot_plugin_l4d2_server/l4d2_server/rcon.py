@@ -1,7 +1,9 @@
-from rcon.source import rcon
 import asyncio
 from pathlib import Path
-from ..l4d2_utils.config import l4_config, CHECK_FILE
+
+from rcon.source import rcon
+
+from ..l4d2_utils.config import CHECK_FILE, l4_config
 
 
 async def rcon_server(PASSWORD: str, msg: str):

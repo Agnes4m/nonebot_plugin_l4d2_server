@@ -1,5 +1,6 @@
-from ..l4d2_utils.config import DATASQLITE
 import sqlite3
+
+from ..l4d2_utils.config import DATASQLITE
 
 
 class L4D2Server:

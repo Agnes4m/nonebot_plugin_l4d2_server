@@ -1,6 +1,7 @@
-from typing import List, Tuple, Dict
-from .localIP import Group_All_HOST, ALL_HOST
+from typing import Dict, List, Tuple
+
 from ..l4d2_utils.utils import split_maohao
+from .localIP import ALL_HOST, Group_All_HOST
 from .qqgroup import qq_ip_querie
 
 

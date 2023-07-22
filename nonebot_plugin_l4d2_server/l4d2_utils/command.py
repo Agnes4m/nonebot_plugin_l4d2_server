@@ -1,30 +1,25 @@
-import re
 import asyncio
-from typing import Type, List, Tuple
+import re
 from time import sleep
+from typing import List, Tuple, Type
 
-from nonebot import on_notice, on_command, on_regex, on_keyword
-from nonebot.params import CommandArg, RawCommand, CommandStart
+from nonebot import on_command, on_keyword, on_notice, on_regex
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageSegment
 from nonebot.matcher import Matcher
-from nonebot.adapters.onebot.v11 import (
-    GroupMessageEvent
-)
+from nonebot.params import CommandArg, CommandStart, RawCommand
 
-
-from ..l4d2_anne.server import server_key, ANNE_IP, group_key
-from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
-from .config import *
-from ..l4d2_queries.qqgroup import split_maohao, get_tan_jian, qq_ip_queries_pic
+from ..l4d2_anne.server import ANNE_IP, group_key, server_key
+from ..l4d2_image.one import one_server_img
 from ..l4d2_queries import get_group_ip_to_msg
-
+from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
+from ..l4d2_queries.qqgroup import get_tan_jian, qq_ip_queries_pic, split_maohao
 from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
+from .config import *
+from .rule import *
+from .txt_to_img import mode_txt_to_img
 
 # from .utils import qq_ip_queries_pic,json_server_to_tag_dict,get_anne_server_ip,get_tan_jian
 from .utils import *
-from .txt_to_img import mode_txt_to_img
-from ..l4d2_image.one import one_server_img
-from .rule import *
-
 
 help_ = on_command("l4_help", aliases={"求生帮助"}, priority=20, block=True)
 
@@ -102,8 +97,6 @@ up_workshop = on_command(
 vtf_make = on_command("vtf_make", aliases={"求生喷漆"}, priority=20, block=True)
 
 
-
-
 matchers: Dict[str, List[Type[Matcher]]] = {}
 
 
@@ -162,10 +155,10 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
     @get_ip.handle()
     async def _(
         matcher: Matcher,
-        event: Event_,
+        event: MessageEvent,
         start: str = CommandStart(),
         command: str = RawCommand(),
-        args: Message_ = CommandArg(),
+        args: Message = CommandArg(),
     ):
         if start:
             command = command.replace(start, "")
@@ -175,29 +168,28 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
         push_msg = await get_ip_to_mes(msg, command)
         if not push_msg:
             return
-        if isinstance(push_msg,MessageFactory):
+        if isinstance(push_msg, Message):
             logger.info("构造")
             try:
-                await push_msg.finish()
+                await matcher.finish(push_msg)
             except Exception as E:
                 logger.warning(E)
                 return
         elif isinstance(push_msg, bytes):
             logger.info("直接发送图片")
-            send_msg = Image(push_msg)
+            send_msg = MessageSegment.image(push_msg)
         elif msg and type(push_msg) == list:
             logger.info("更加构造函数")
-            send_msg = MessageFactory([Image(push_msg[0]), Text(push_msg[-1])])
+            send_msg = Message(MessageSegment.image(push_msg[0]) + push_msg[-1])
         elif msg and isinstance(push_msg, str):
-            send_msg = MessageFactory(push_msg)
+            send_msg = push_msg
         else:
             logger.info("出错了")
             return
         logger.info(type(send_msg))
         if not send_msg:
             logger.warning("没有")
-        await send_msg.send()
-        await matcher.finish()
+        await matcher.finish(send_msg)
 
 
 async def get_ip_to_mes(msg: str, command: str = ""):
@@ -249,21 +241,21 @@ async def get_read_group_ip():
         matcher: Matcher,
         start: str = CommandStart(),
         command: str = RawCommand(),
-        args: Message_ = CommandArg(),
+        args: Message = CommandArg(),
     ):
         if start:
             command = command.replace(start, "")
         msg: str = args.extract_plain_text()
         push_msg = await get_group_ip_to_msg(msg, command)
         if isinstance(push_msg, bytes):
-            send_msg = MessageFactory(Image(push_msg))
+            send_msg = MessageSegment.image(push_msg)
         elif msg and type(push_msg) == list:
-            send_msg = MessageFactory([Image(push_msg[0]), Text(push_msg[-1])])
+            send_msg = Message(MessageSegment.image(push_msg[0]) + push_msg[-1])
         elif msg and isinstance(push_msg, str):
             await str_to_picstr(push_msg, matcher)
 
 
-# tests = on_command("测试1")     
+# tests = on_command("测试1")
 
 # @tests.handle()
 # async def _(event: Event,arg:Message=CommandArg()):
@@ -274,7 +266,7 @@ async def get_read_group_ip():
 async def init():
     global matchers
     # print('启动辣')
-    from ..l4d2_update import l4d_restart, l4d_update, get_update_log, driver
+    from ..l4d2_update import driver, get_update_log, l4d_restart, l4d_update
 
     await get_des_ip()
 

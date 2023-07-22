@@ -1,12 +1,14 @@
-import httpx
-from nonebot.log import logger
 import asyncio
 import hashlib
+import io
 import os
 import random
+
+import httpx
+from nonebot.log import logger
 from PIL import Image, ImageDraw
 from PIL.Image import Image as ImageS
-import io
+
 from ..l4d2_utils.config import PLAYERSDATA, TEXT_PATH
 
 # from .steam import web_player

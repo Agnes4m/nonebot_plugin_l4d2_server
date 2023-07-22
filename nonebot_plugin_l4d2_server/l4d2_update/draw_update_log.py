@@ -1,9 +1,10 @@
 from pathlib import Path
 from typing import Union
 
+from .update import update_from_git
+
 # from PIL import Image, ImageDraw
 
-from .update import update_from_git
 
 # from ..l4d2_image.image import convert_img
 # from ..l4d2_image.image import get_color_bg

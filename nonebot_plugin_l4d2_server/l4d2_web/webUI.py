@@ -1,19 +1,29 @@
-from amis import ActionType, TableCRUD, TableColumn
-from amis import PageSchema, Switch, InputNumber, InputTag, Action, App
 from amis import (
-    Form,
-    InputText,
-    InputPassword,
-    DisplayModeEnum,
-    Horizontal,
-    Remark,
-    Html,
-    Page,
+    Action,
+    ActionType,
+    Alert,
     AmisAPI,
+    App,
+    DisplayModeEnum,
+    Flex,
+    Form,
+    Horizontal,
+    Html,
+    InputNumber,
+    InputPassword,
+    InputTag,
+    InputText,
+    LevelEnum,
+    Page,
+    PageSchema,
+    Remark,
+    Select,
+    Switch,
+    TableColumn,
+    TableCRUD,
+    Tpl,
     Wrapper,
 )
-from amis import LevelEnum, Select, Alert, Tpl, Flex
-
 
 from ..l4d2_utils.config import NICKNAME
 

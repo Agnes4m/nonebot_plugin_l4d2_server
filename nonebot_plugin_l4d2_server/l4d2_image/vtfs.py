@@ -1,6 +1,7 @@
-from PIL import Image
-from nonebot.log import logger
 from io import BytesIO
+
+from nonebot.log import logger
+from PIL import Image
 
 # import sys
 # sys.modules["srctools._cy_vtf_readwrite"] = None

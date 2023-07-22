@@ -1,19 +1,21 @@
+import asyncio
+import random
+from typing import Any, Dict, List, Tuple, Union
+
+from nonebot.log import logger
+
 from ..l4d2_data.serverip import L4D2Server
 from ..l4d2_image import server_ip_pic
-from .utils import (
-    queries,
-    player_queries,
-    queries_dict,
-    player_queries_anne_dict,
-    msg_ip_to_list,
-)
-from nonebot.log import logger
-import random
-import asyncio
+from ..l4d2_utils.message import KAILAO, PRISON, QUEREN
 from ..l4d2_utils.utils import split_maohao
-from ..l4d2_utils.message import PRISON, QUEREN, KAILAO
 from .localIP import ALL_HOST
-from typing import List, Dict, Any, Tuple, Union
+from .utils import (
+    msg_ip_to_list,
+    player_queries,
+    player_queries_anne_dict,
+    queries,
+    queries_dict,
+)
 
 try:
     import ujson as json
@@ -101,7 +103,7 @@ async def qq_ip_querie(msg: List[Tuple[str, str, int]], igr: bool = True):
         await asyncio.gather(*tasks)
         # 对msg_list按照number顺序排序
         # msg_list.sort(key=lambda x: x["number"])
-        send_list =  sorted(msg_list, key=lambda x: int(x["number"]))
+        send_list = sorted(msg_list, key=lambda x: int(x["number"]))
         result = {"msg_list": send_list}
 
     else:

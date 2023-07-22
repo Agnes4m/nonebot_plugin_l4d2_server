@@ -1,19 +1,21 @@
-from nonebot.adapters.onebot.v11 import Bot, MessageEvent, GroupMessageEvent
+import json
+import os
+import tempfile
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+
+import httpx
+from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-import httpx
-import os
-from pathlib import Path
-from typing import List, Dict, Union, Optional
-from .config import *
-from ..l4d2_anne import write_player, del_player, anne_message
-from ..l4d2_server.rcon import read_server_cfg_rcon, rcon_server
-from ..l4d2_server.workshop import workshop_to_dict
+
+from ..l4d2_anne import anne_message, del_player, write_player
 from ..l4d2_image.steam import url_to_byte
+from ..l4d2_server.rcon import rcon_server, read_server_cfg_rcon
+from ..l4d2_server.workshop import workshop_to_dict
+from .config import *
 from .rule import *
 from .txt_to_img import mode_txt_to_img
-import tempfile
-import json
 
 
 async def get_file(url: str, down_file: Path):
@@ -228,9 +230,9 @@ async def str_to_picstr(push_msg: str, matcher: Matcher, keyword: Optional[str] 
         last_str = lines[-1]
         push_msg = "\n".join(lines[1:-1])
         if l4_config.l4_connect:
-            await mode_txt_to_img(first_str, push_msg,last_str).send()
+            await matcher.finish(mode_txt_to_img(first_str, push_msg, last_str))
         else:
-            await mode_txt_to_img(first_str, push_msg).send()
+            await matcher.finish(mode_txt_to_img(first_str, push_msg))
     else:
         if l4_config.l4_connect or keyword == "connect":
             await matcher.send(push_msg)
@@ -250,17 +252,3 @@ def split_maohao(msg: str) -> List[str]:
         msgs = []
     mse = [msgs[0], msgs[-1]]
     return mse
-
-def get_group_id(event: GroupEvent_) -> Optional[int]:
-    if isinstance(event, (V11GroupMessageEvent, V12GroupMessageEvent)):
-        group_id = event.group_id
-    elif isinstance(event, kaiheilaChannelMessageEvent):
-        group_id = int(event.group_id)
-    elif isinstance(event, qqguidChannelEvent):
-        if event.id:
-            group_id = event.id
-        else:
-            group_id = None
-    else:
-        group_id =  None
-    return group_id

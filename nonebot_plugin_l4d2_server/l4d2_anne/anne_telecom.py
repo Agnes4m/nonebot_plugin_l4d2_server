@@ -4,7 +4,7 @@
 
 # 暂时废弃
 # class ANNE_API:
-    
+
 #     async def __init__(
 #         self,
 #         STEAMID:str,
@@ -16,8 +16,8 @@
 #         elif tag == '长':
 #             msg1 = await self.anne_msg()
 #             msg1.update(await self.anne_map())
-        
-    
+
+
 #     async def anne_msg(self):
 #         """个人资料表"""
 #         data_bytes = await url_to_byte('https://sb.trygek.com/l4d_stats/ranking/player.php?steamid={self.STEAMID}')
@@ -47,7 +47,7 @@
 #             msg_list.append(i.text)
 #         data_list[0].update({"一言":msg_list})
 #         return data_list
-        
+
 #     async def anne_map(self):
 #         """个人地图表"""
 #         data_dict = {}
@@ -72,5 +72,5 @@
 #                         data_dict[title] = [data_text]
 #             if special_amount and refresh_interval:
 #                 data_dict['刷特时间'] = special_amount + refresh_interval
-                
+
 #         return data_dict

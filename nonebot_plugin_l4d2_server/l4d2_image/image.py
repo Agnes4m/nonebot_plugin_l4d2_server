@@ -1,18 +1,14 @@
-from io import BytesIO
-from pathlib import Path
-from base64 import b64encode
-from typing import Union, overload
-from typing import Union, Tuple, Optional
 import math
 import random
+import sys
+from base64 import b64encode
+from io import BytesIO
+from pathlib import Path
+from typing import Optional, Tuple, Union, overload
 
 import aiofiles
-from PIL import Image
 from httpx import get
-import sys
-from pathlib import Path
-from typing import overload
-
+from PIL import Image
 
 MAIN_PATH = Path() / "data" / "GenshinUID"
 sys.path.append(str(MAIN_PATH))

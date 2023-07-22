@@ -1,19 +1,17 @@
 import datetime
+from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI
-from fastapi import Header, HTTPException, Depends
-from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
+from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from jose import jwt
-from jose.exceptions import JWTError, ExpiredSignatureError
-
-from pathlib import Path
-
+from jose.exceptions import ExpiredSignatureError, JWTError
+from nonebot import get_adapter, get_app, get_driver, logger
 from nonebot.adapters.onebot.v11 import Adapter
-from nonebot import get_driver, get_app, get_adapter, logger
+
+from ..l4d2_queries.qqgroup import qq_ip_querie
 from ..l4d2_utils.config import *
 from ..l4d2_utils.utils import split_maohao
-from ..l4d2_queries.qqgroup import qq_ip_querie
 
 CONFIG_PATH = Path() / "data" / "L4D2" / "l4d2.yml"
 
@@ -21,7 +19,7 @@ CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 driver = get_driver()
 
-from .webUI import login_page, admin_app
+from .webUI import admin_app, login_page
 from .webUI_s import user_app
 
 requestAdaptor = """
@@ -114,7 +112,7 @@ async def init_web():
             return {"status": 0, "msg": "ok", "data": {"group_list": group_list}}
         except ValueError:
             return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
-        
+
     @app.post(
         "/l4d2/api/l4d2_global_config",
         response_class=JSONResponse,
@@ -157,10 +155,7 @@ async def init_web():
         except ValueError:
             return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
 
-    @app.get(
-        "/l4d2/api/user/get_query_contexts",
-        response_class=JSONResponse
-    )
+    @app.get("/l4d2/api/user/get_query_contexts", response_class=JSONResponse)
     @app.get(
         "/l4d2/api/get_query_contexts",
         response_class=JSONResponse,
@@ -191,8 +186,6 @@ async def init_web():
             }
         except ValueError:
             return {"status": -100, "msg": "返回失败，请确保网络连接正常"}
-        
-
 
     @app.get(
         "/l4d2/api/get_l4d2_messages",
@@ -256,6 +249,7 @@ async def init_web():
             requestAdaptor=requestAdaptor,
             responseAdaptor=responseAdaptor,
         )
+
     @app.get("/l4d2/user", response_class=HTMLResponse)
     async def user_page_app():
         return user_app.render(

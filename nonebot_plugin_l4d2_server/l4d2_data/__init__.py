@@ -1,15 +1,17 @@
+import sqlite3
+
+from nonebot.log import logger
+
 from ..l4d2_utils.config import (
     DATASQLITE,
-    table_data,
+    L4d2_BOOLEAN,
+    L4d2_INTEGER,
     L4d2_players_tag,
     L4d2_server_tag,
-    L4d2_INTEGER,
     L4d2_TEXT,
-    L4d2_BOOLEAN,
+    table_data,
     tables_columns,
 )
-import sqlite3
-from nonebot.log import logger
 
 
 class L4D2DataSqlite:

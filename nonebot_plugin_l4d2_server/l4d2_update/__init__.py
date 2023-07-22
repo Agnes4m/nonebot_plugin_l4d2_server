@@ -1,16 +1,16 @@
 from typing import Any, Tuple
 
+from nonebot import get_bot, get_driver, on_command, on_regex
+from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import RegexGroup
 from nonebot.permission import SUPERUSER
-from nonebot import get_bot, on_regex, get_driver, on_command
-from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment
 
-from ..l4d2_utils.utils import register_menu
 from ..l4d2_utils.rule import FullCommand
+from ..l4d2_utils.utils import register_menu
 from .draw_update_log import draw_update_log_img
-from .restart import restart_message, restart_genshinuid
+from .restart import restart_genshinuid, restart_message
 
 l4d_restart = on_command("l4重启", rule=FullCommand())
 get_update_log = on_command("l4更新记录", rule=FullCommand())

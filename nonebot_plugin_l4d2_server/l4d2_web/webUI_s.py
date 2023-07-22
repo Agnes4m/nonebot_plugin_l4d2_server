@@ -1,18 +1,29 @@
-from amis import ActionType, TableCRUD, TableColumn
-from amis import PageSchema, Switch, InputNumber, InputTag, Action, App
 from amis import (
-    Form,
-    InputText,
-    InputPassword,
-    DisplayModeEnum,
-    Horizontal,
-    Remark,
-    Html,
-    Page,
+    Action,
+    ActionType,
+    Alert,
     AmisAPI,
+    App,
+    DisplayModeEnum,
+    Flex,
+    Form,
+    Horizontal,
+    Html,
+    InputNumber,
+    InputPassword,
+    InputTag,
+    InputText,
+    LevelEnum,
+    Page,
+    PageSchema,
+    Remark,
+    Select,
+    Switch,
+    TableColumn,
+    TableCRUD,
+    Tpl,
     Wrapper,
 )
-from amis import LevelEnum, Select, Alert, Tpl, Flex
 
 from ..l4d2_utils.config import NICKNAME
 from .webUI import header
@@ -34,15 +45,14 @@ query_table = TableCRUD(
         ),
     ],
     columns=[
-        TableColumn(label="服主", name="tag", searchable=True,sortable=True),
-        TableColumn(label="序号", name="number",sortable=True, searchable=True),
-        TableColumn(label="名称", name="name",sortable=True, searchable=True),
-        TableColumn(label="地图", name="map_",sortable=True, searchable=True),
-        TableColumn(label="玩家", name="rank_players",sortable=True, searchable=True),
-        TableColumn(label="延迟", name="ping",sortable=True, searchable=True),
-        TableColumn(label="IP 地址", name="ip",sortable=True, searchable=True),
+        TableColumn(label="服主", name="tag", searchable=True, sortable=True),
+        TableColumn(label="序号", name="number", sortable=True, searchable=True),
+        TableColumn(label="名称", name="name", sortable=True, searchable=True),
+        TableColumn(label="地图", name="map_", sortable=True, searchable=True),
+        TableColumn(label="玩家", name="rank_players", sortable=True, searchable=True),
+        TableColumn(label="延迟", name="ping", sortable=True, searchable=True),
+        TableColumn(label="IP 地址", name="ip", sortable=True, searchable=True),
     ],
-    footable=True,
 )
 
 
@@ -69,8 +79,8 @@ query_page = PageSchema(
 )
 
 database_page = PageSchema(
-    label="数据库", 
-    icon="fa fa-database", 
+    label="数据库",
+    icon="fa fa-database",
     url="/contexts",
     isDefaultPage=True,
     schema=Page(
