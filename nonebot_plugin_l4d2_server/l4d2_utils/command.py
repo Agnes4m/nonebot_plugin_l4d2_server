@@ -36,7 +36,9 @@ find_vpk = on_command("l4_map", aliases={"求生地图"}, priority=25, block=Tru
 del_vpk = on_command(
     "l4_del_map", aliases={"求生地图删除", "地图删除"}, priority=20, permission=Master
 )
-rcon_to_server = on_command("rcon", aliases={"求生服务器指令", "服务器指令"}, permission=Master)
+rcon_to_server = on_command(
+    "rcon", aliases={"求生服务器指令", "服务器指令"}, permission=Master
+)  # noqa: E501
 check_path = on_command(
     "l4_check", aliases={"求生路径"}, priority=20, block=True, permission=Master
 )
