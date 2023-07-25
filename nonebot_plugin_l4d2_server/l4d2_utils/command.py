@@ -1,30 +1,25 @@
-import re
 import asyncio
-from typing import Type, List, Tuple
+import re
 from time import sleep
+from typing import List, Tuple, Type
 
-from nonebot import on_notice, on_command, on_regex, on_keyword
-from nonebot.params import CommandArg, RawCommand, CommandStart
+from nonebot import on_command, on_keyword, on_notice, on_regex
+from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from nonebot.matcher import Matcher
-from nonebot.adapters.onebot.v11 import (
-    GroupMessageEvent
-)
+from nonebot.params import CommandArg, CommandStart, RawCommand
 
-
-from ..l4d2_anne.server import server_key, ANNE_IP, group_key
-from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
-from .config import *
-from ..l4d2_queries.qqgroup import split_maohao, get_tan_jian, qq_ip_queries_pic
+from ..l4d2_anne.server import ANNE_IP, group_key, server_key
+from ..l4d2_image.one import one_server_img
 from ..l4d2_queries import get_group_ip_to_msg
-
+from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
+from ..l4d2_queries.qqgroup import get_tan_jian, qq_ip_queries_pic, split_maohao
 from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
+from .config import *
+from .rule import *
+from .txt_to_img import mode_txt_to_img
 
 # from .utils import qq_ip_queries_pic,json_server_to_tag_dict,get_anne_server_ip,get_tan_jian
 from .utils import *
-from .txt_to_img import mode_txt_to_img
-from ..l4d2_image.one import one_server_img
-from .rule import *
-
 
 help_ = on_command("l4_help", aliases={"求生帮助"}, priority=20, block=True)
 
@@ -102,8 +97,6 @@ up_workshop = on_command(
 vtf_make = on_command("vtf_make", aliases={"求生喷漆"}, priority=20, block=True)
 
 
-
-
 matchers: Dict[str, List[Type[Matcher]]] = {}
 
 
@@ -141,17 +134,17 @@ async def get_des_ip():
     await get_read_ip(ip_anne_list)
 
     @tan_jian.handle()
-    async def _(matcher: Matcher, event: MessageEvent):
+    async def _(matcher: Matcher, event: Event_):
         msg = await get_tan_jian(ip_anne_list, 1)
         await str_to_picstr(push_msg=msg, matcher=matcher)
 
     @prison.handle()
-    async def _(matcher: Matcher, event: MessageEvent):
+    async def _(matcher: Matcher, event: Event_):
         msg = await get_tan_jian(ip_anne_list, 2)
         await str_to_picstr(push_msg=msg, matcher=matcher)
 
     @open_prison.handle()
-    async def _(matcher: Matcher, event: MessageEvent):
+    async def _(matcher: Matcher, event: Event_):
         msg = await get_tan_jian(ip_anne_list, 3)
         await str_to_picstr(push_msg=msg, matcher=matcher)
 
@@ -175,7 +168,7 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
         push_msg = await get_ip_to_mes(msg, command)
         if not push_msg:
             return
-        if isinstance(push_msg,MessageFactory):
+        if isinstance(push_msg, MessageFactory):
             logger.info("构造")
             try:
                 await push_msg.finish()
@@ -263,7 +256,7 @@ async def get_read_group_ip():
             await str_to_picstr(push_msg, matcher)
 
 
-# tests = on_command("测试1")     
+# tests = on_command("测试1")
 
 # @tests.handle()
 # async def _(event: Event,arg:Message=CommandArg()):
@@ -274,7 +267,7 @@ async def get_read_group_ip():
 async def init():
     global matchers
     # print('启动辣')
-    from ..l4d2_update import l4d_restart, l4d_update, get_update_log, driver
+    from ..l4d2_update import driver, get_update_log, l4d_restart, l4d_update
 
     await get_des_ip()
 
