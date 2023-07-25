@@ -1,30 +1,24 @@
 import asyncio
 import re
 from time import sleep
-from typing import List, Tuple, Type
+from typing import Dict, List, Tuple, Type
 
 from nonebot import on_command, on_keyword, on_notice, on_regex
-from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import Message, MessageEvent, MessageSegment
+from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 
-from ..l4d2_anne.server import ANNE_IP, group_key, server_key
-from ..l4d2_image.one import one_server_img
+from ..l4d2_anne.server import group_key, server_key
 from ..l4d2_queries import get_group_ip_to_msg
-from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
+from ..l4d2_queries.localIP import ALL_HOST
 from ..l4d2_queries.qqgroup import get_tan_jian, qq_ip_queries_pic, split_maohao
 from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
-from .config import *
-from .rule import *
-from .txt_to_img import mode_txt_to_img
-
-# from .utils import qq_ip_queries_pic,json_server_to_tag_dict,get_anne_server_ip,get_tan_jian
-from .utils import *
+from .config import Master, driver, l4_config
+from .rule import wenjian
+from .utils import str_to_picstr
 
 help_ = on_command("l4_help", aliases={"求生帮助"}, priority=20, block=True)
-
-# 服务器
-# last_operation_time = nonebot.Config.parse_obj(nonebot.get_driver().config.dict()).SUPERUSERS
 
 
 up = on_notice(rule=wenjian)
@@ -38,13 +32,11 @@ rename_vpk = on_regex(
     permission=Master,
 )
 
-find_vpk = on_command("l4_map", aliases={"求生地图", "查看求生地图"}, priority=25, block=True)
+find_vpk = on_command("l4_map", aliases={"求生地图"}, priority=25, block=True)
 del_vpk = on_command(
-    "l4_del_map", aliases={"求生地图删除", "地图删除"}, priority=20, block=True, permission=Master
+    "l4_del_map", aliases={"求生地图删除", "地图删除"}, priority=20, permission=Master
 )
-rcon_to_server = on_command(
-    "rcon", aliases={"求生服务器指令", "服务器指令", "求生服务器控制台"}, block=True, permission=Master
-)
+rcon_to_server = on_command("rcon", aliases={"求生服务器指令", "服务器指令"}, permission=Master)
 check_path = on_command(
     "l4_check", aliases={"求生路径"}, priority=20, block=True, permission=Master
 )
@@ -234,6 +226,7 @@ async def get_ip_to_mes(msg: str, command: str = ""):
 
 
 async def get_read_group_ip():
+    """输出群组服务器"""
     get_grou_ip = on_command("anne", aliases=group_key(), priority=80, block=True)
 
     @get_grou_ip.handle()
@@ -253,6 +246,10 @@ async def get_read_group_ip():
             send_msg = Message(MessageSegment.image(push_msg[0]) + push_msg[-1])
         elif msg and isinstance(push_msg, str):
             await str_to_picstr(push_msg, matcher)
+            return
+        else:
+            return
+        await matcher.finish(send_msg)
 
 
 # tests = on_command("测试1")
@@ -266,7 +263,6 @@ async def get_read_group_ip():
 async def init():
     global matchers
     # print('启动辣')
-    from ..l4d2_update import driver, get_update_log, l4d_restart, l4d_update
 
     await get_des_ip()
 

@@ -10,8 +10,10 @@ from nonebot import get_adapter, get_app, get_driver, logger
 from nonebot.adapters.onebot.v11 import Adapter
 
 from ..l4d2_queries.qqgroup import qq_ip_querie
-from ..l4d2_utils.config import *
+from ..l4d2_utils.config import UserModel, config_manager
 from ..l4d2_utils.utils import split_maohao
+from .webUI import admin_app, login_page
+from .webUI_s import user_app
 
 CONFIG_PATH = Path() / "data" / "L4D2" / "l4d2.yml"
 
@@ -19,8 +21,6 @@ CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 driver = get_driver()
 
-from .webUI import admin_app, login_page
-from .webUI_s import user_app
 
 requestAdaptor = """
 requestAdaptor(api) {
@@ -45,7 +45,9 @@ def authentication():
     def inner(token: Optional[str] = Header(...)):
         try:
             if not token:
-                raise HTTPException(status_code=400, detail="登录验证失败或已失效，请重新登录")
+                raise HTTPException(
+                    status_code=400, detail="登录验证失败或已失效，请重新登录"
+                )  # noqa: E501
             payload = jwt.decode(
                 token, config_manager.config.web_secret_key, algorithms="HS256"
             )
@@ -53,9 +55,13 @@ def authentication():
                 not (username := payload.get("username"))
                 or username != config_manager.config.web_username
             ):
-                raise HTTPException(status_code=400, detail="登录验证失败或已失效，请重新登录")
+                raise HTTPException(
+                    status_code=400, detail="登录验证失败或已失效，请重新登录"
+                )  # noqa: E501
         except (JWTError, ExpiredSignatureError, AttributeError):
-            raise HTTPException(status_code=400, detail="登录验证失败或已失效，请重新登录")
+            raise HTTPException(
+                status_code=400, detail="登录验证失败或已失效，请重新登录"
+            )  # noqa: E501
 
     return Depends(inner)
 
@@ -141,7 +147,7 @@ async def init_web():
                 member_list.extend(
                     [
                         {
-                            "label": f'{member["nickname"] or member["card"]}({member["user_id"]})',
+                            "label": f'{member["nickname"] or member["card"]}({member["user_id"]})',  # noqa: E501
                             "value": member["user_id"],
                         }
                         for member in members
@@ -214,7 +220,7 @@ async def init_web():
             config = {}
             for item in l4_ipall:
                 if item["id_rank"] == id_rank:
-                    item["place"] = item["place"] == "True" or item["place"] == True
+                    item["place"] = item["place"] is True or item["place"] is True
                     config = item
                     break
             return {"status": 0, "msg": "ok", "data": config}

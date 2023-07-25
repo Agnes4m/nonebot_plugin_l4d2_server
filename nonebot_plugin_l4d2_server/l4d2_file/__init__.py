@@ -1,15 +1,14 @@
 import io
 import os
-import sys
+import zipfile
 from pathlib import Path
 from time import sleep
-from typing import Callable, List
+from typing import Callable, Dict, List
 from zipfile import ZipFile
 
 import rarfile
 from nonebot.log import logger
 from pyunpack import Archive
-from rarfile import RarFile
 
 from ..l4d2_utils.config import systems
 from ..l4d2_utils.utils import get_file, get_vpk
@@ -19,7 +18,7 @@ async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
     """从url下载压缩包并解压到位置"""
     original_vpk_files = get_vpk(map_paths)
     down_file = Path(map_paths, name)
-    if await get_file(url, down_file) == None:
+    if await get_file(url, down_file) is None:
         return None
     sleep(1)
     msg = open_packet(name, down_file)
@@ -31,13 +30,6 @@ async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
     vpk_files = list(set(extracted_vpk_files) - set(original_vpk_files))
     return vpk_files
 
-
-import zipfile
-from pathlib import Path
-from typing import Dict
-
-import rarfile
-from pyunpack import Archive
 
 SUPPORTED_EXTENSIONS = (".zip", ".7z", ".rar")
 

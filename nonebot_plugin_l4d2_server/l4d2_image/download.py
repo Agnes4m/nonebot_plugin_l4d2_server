@@ -78,7 +78,7 @@ async def get_head_by_user_id_and_save(user_id):
                 if not os.path.exists(PLAYERSDATA / user_id):  # 用户文件夹不存在
                     os.makedirs(PLAYERSDATA / user_id)
                 im.save(USER_HEAD_PATH, "PNG")
-            except:
+            except Exception:
                 logger.error("获取失败")
                 return
     im2 = Image.open(DEFAULT_HEAD).resize((450, 450)).convert("RGBA")
@@ -107,7 +107,7 @@ async def get_head_by_user_id_and_save(user_id):
 #             try:
 #                 logger.info("正在下载头像")
 #                 image_bytes = await web_player(urls)
-#                 im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")
+#                 im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")  # noqa: E501
 #                 if not os.path.exists(PLAYERSDATA / user_id):#用户文件夹不存在
 #                     os.makedirs(PLAYERSDATA / user_id)
 #                 im.save(USER_HEAD_PATH, "PNG")

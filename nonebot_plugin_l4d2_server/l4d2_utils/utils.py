@@ -2,7 +2,7 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
@@ -13,8 +13,9 @@ from ..l4d2_anne import anne_message, del_player, write_player
 from ..l4d2_image.steam import url_to_byte
 from ..l4d2_server.rcon import rcon_server, read_server_cfg_rcon
 from ..l4d2_server.workshop import workshop_to_dict
-from .config import *
-from .rule import *
+from .config import l4_config, systems
+
+# from .rule import
 from .txt_to_img import mode_txt_to_img
 
 
@@ -125,9 +126,9 @@ async def command_server(msg: str):
 async def workshop_msg(msg: str):
     """url变成id，拼接post请求"""
     if msg.startswith("https://steamcommunity.com/sharedfiles/filedetails/?id"):
-        try:
+        if "&" in msg:
             msg = msg.split("&")[0]
-        except:
+        else:
             pass
         msg = msg.replace("https://steamcommunity.com/sharedfiles/filedetails/?id=", "")
     if msg.isdigit():

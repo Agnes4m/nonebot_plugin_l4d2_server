@@ -1,12 +1,11 @@
-import re
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Dict, Optional, Union
 
 import a2s
 
 try:
     import ujson as json
-except:
+except ImportError:
     import json
 
 from nonebot import get_bot, get_driver, on_command, require
@@ -17,13 +16,13 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 
-require("nonebot_plugin_apscheduler")
-from nonebot_plugin_apscheduler import scheduler
-
-from ..l4d2_queries.utils import json_server_to_tag_dict, queries_dict
+from ..l4d2_queries.utils import json_server_to_tag_dict
 from ..l4d2_utils.command import get_ip_to_mes
 from ..l4d2_utils.config import l4_config
 from ..l4d2_utils.utils import extract_last_digit, split_maohao
+
+require("nonebot_plugin_apscheduler")
+# from nonebot_plugin_apscheduler import scheduler
 
 driver = get_driver()
 sch_json = Path("data/L4D2/scheduler.json")
@@ -92,7 +91,7 @@ async def add_or_update_data(group_i: int, some_str: str = "", ad_mode: str = "a
                 scheduler_data = json.load(f)
             try:
                 msg_dict = scheduler_data[group_id]
-                times = msg_dict["times"]
+                # times = msg_dict["times"]
                 old_msg = msg_dict["msg"]
                 scheduler_data[group_id] = {
                     "times": l4_config.l4_push_times,
@@ -102,7 +101,7 @@ async def add_or_update_data(group_i: int, some_str: str = "", ad_mode: str = "a
                     mode = "update"
                 else:
                     mode = "change"
-            except:
+            except Exception:
                 scheduler_data[group_id] = {
                     "times": l4_config.l4_push_times,
                     "msg": some_str,
@@ -124,10 +123,10 @@ async def add_or_update_data(group_i: int, some_str: str = "", ad_mode: str = "a
                 scheduler_data: Dict[str, Dict[str, Union[str, int]]] = json.load(f)
             try:
                 msg_dict = scheduler_data[group_id]
-                times = msg_dict["times"]
+                # times = msg_dict["times"]
                 old_msg = msg_dict["msg"]
                 scheduler_data[group_id] = {"times": 0, "msg": old_msg}
-            except:
+            except Exception:
                 scheduler_data[group_id] = {"times": 0, "msg": some_str}
         else:
             scheduler_data = {group_id: {"times": 0, "msg": some_str}}

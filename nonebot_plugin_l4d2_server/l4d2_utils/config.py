@@ -8,7 +8,6 @@ from nonebot.adapters.onebot.v11.permission import (
     GROUP_OWNER,
     PRIVATE_FRIEND,
 )
-from nonebot.log import logger
 from nonebot.permission import SUPERUSER
 from pydantic import BaseModel, Field
 from ruamel import yaml
@@ -20,7 +19,7 @@ driver = get_driver()
 COMMAND_START = list(driver.config.command_start)
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"  # noqa: E501
 }
 
 try:

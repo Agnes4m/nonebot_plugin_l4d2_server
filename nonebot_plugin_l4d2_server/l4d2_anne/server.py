@@ -1,21 +1,12 @@
-import asyncio
 import json
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Union
+from typing import Dict, List
 
 import httpx
 from bs4 import BeautifulSoup
-from nonebot.log import logger
 
 from ..l4d2_queries.localIP import ALL_HOST, Group_All_HOST
 from ..l4d2_utils.config import ANNE_IP, CONFIG_PATH, anne_url, headers
-
-# 储存anne服务器ip
-anne_url = "https://sb.trygek.com/"
-# ANNE_IP = {}
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
-}
 
 
 async def updata_anne_server():

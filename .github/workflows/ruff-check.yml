@@ -1,0 +1,24 @@
+name: Ruff Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ruff-check:
+    name: Ruff Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Install Ruff
+        run: npm install -g @ruff/cli
+      
+      - name: Run Ruff check
+        run: ruff check

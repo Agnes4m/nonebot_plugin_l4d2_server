@@ -61,7 +61,7 @@ class L4D2DataSqlite:
                         )
                     elif column in L4d2_INTEGER:
                         c.execute(
-                            f"ALTER TABLE {table} ADD COLUMN {column} INTEGER DEFAULT NULL"
+                            f"ALTER TABLE {table} ADD COLUMN {column} INTEGER DEFAULT NULL"  # noqa: E501
                         )
                     else:
                         c.execute(
@@ -87,15 +87,15 @@ class L4D2DataSqlite:
         for column in columns:
             if column in L4d2_INTEGER:
                 c.execute(
-                    f"UPDATE {table} SET {column} = NULL WHERE typeof({column}) != 'integer'"
+                    f"UPDATE {table} SET {column} = NULL WHERE typeof({column}) != 'integer'"  # noqa: E501
                 )
             elif column in L4d2_TEXT:
                 c.execute(
-                    f"UPDATE {table} SET {column} = NULL WHERE typeof({column}) != 'text'"
+                    f"UPDATE {table} SET {column} = NULL WHERE typeof({column}) != 'text'"  # noqa: E501
                 )
             elif column in L4d2_BOOLEAN:
                 c.execute(
-                    f"UPDATE {table} SET {column} = 'False' WHERE typeof({column}) != 'boolean'"
+                    f"UPDATE {table} SET {column} = 'False' WHERE typeof({column}) != 'boolean'"  # noqa: E501
                 )
         self.conn.commit()
 

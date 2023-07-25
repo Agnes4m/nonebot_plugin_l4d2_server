@@ -1,28 +1,12 @@
 from amis import (
-    Action,
     ActionType,
     Alert,
-    AmisAPI,
     App,
-    DisplayModeEnum,
-    Flex,
-    Form,
-    Horizontal,
-    Html,
-    InputNumber,
-    InputPassword,
-    InputTag,
-    InputText,
     LevelEnum,
     Page,
     PageSchema,
-    Remark,
-    Select,
-    Switch,
     TableColumn,
     TableCRUD,
-    Tpl,
-    Wrapper,
 )
 
 from ..l4d2_utils.config import NICKNAME
@@ -106,5 +90,5 @@ user_app = App(
     logo="https://ghproxy.com/https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png",
     header=header,
     pages=[{"children": [database_page]}],
-    footer='<div class="p-2 text-center bg-blue-100">Copyright © 2022 - 2023 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" class="link-secondary">AGNES_DIGIAL</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>',
+    footer='<div class="p-2 text-center bg-blue-100">Copyright © 2022 - 2023 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" class="link-secondary">AGNES_DIGIAL</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>',  # noqa: E501
 )
