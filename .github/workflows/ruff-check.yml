@@ -15,10 +15,10 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
       
-      - name: Install Ruff
-        run: npm install -g @ruff/cli
+      - name: Install Ruff CLI
+        run: npm install @ruff/cli
       
       - name: Run Ruff check
-        run: ruff check
+        run: npx ruff check
