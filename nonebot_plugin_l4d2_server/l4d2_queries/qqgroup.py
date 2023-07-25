@@ -1,25 +1,26 @@
 import asyncio
 import random
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple
 
+import a2s
 from nonebot.log import logger
 
-from ..l4d2_data.serverip import L4D2Server
-from ..l4d2_image import server_ip_pic
-from ..l4d2_utils.message import KAILAO, PRISON, QUEREN
-from ..l4d2_utils.utils import split_maohao
-from .localIP import ALL_HOST
-from .utils import (
+from nonebot_plugin_l4d2_server.l4d2_data.serverip import L4D2Server
+from nonebot_plugin_l4d2_server.l4d2_image import server_ip_pic
+from nonebot_plugin_l4d2_server.l4d2_queries.localIP import ALL_HOST
+from nonebot_plugin_l4d2_server.l4d2_queries.utils import (
     msg_ip_to_list,
     player_queries,
     player_queries_anne_dict,
     queries,
     queries_dict,
 )
+from nonebot_plugin_l4d2_server.l4d2_utils.message import KAILAO, PRISON, QUEREN
+from nonebot_plugin_l4d2_server.l4d2_utils.utils import split_maohao
 
 try:
     import ujson as json
-except:
+except ImportError:
     import json
 si = L4D2Server()
 errors = (
@@ -66,7 +67,7 @@ async def qq_ip_queries(msg: List[tuple]):
         number, qqgroup, host, port = i
         msg2 = await player_queries(host, port)
         msg1 = await queries(host, port)
-        messsage += "序号、" + str(number) + "\n" + msg1 + msg2 + "--------------------\n"
+        messsage += f"序号、{str(number)} \n{msg1}{msg2}--------------------\n"
     return messsage
 
 
@@ -158,7 +159,7 @@ async def process_message(
                     "ping",
                 ]
             }
-            null_dict.update({"number": number, "ip": f"{host}:{port}", "Players": []})  # type: ignore
+            null_dict.update({"number": number, "ip": f"{host}:{port}", "Players": []})  # type: ignore  # noqa: E501
             msg_list.append(null_dict)
 
 
@@ -291,13 +292,13 @@ async def write_json(data_str: str):
                     add_server.update({"id": data_num})
                 elif len(data_list) == 5:
                     if not data_list[4].isdigit():
-                        return "序号应该为大于0的正整数，请输入【求生更新 添加 腐竹 ip 模式 序号】"
+                        return "请输入【求生更新 添加 腐竹 ip 模式 序号】"
                     data_num = int(data_list[4])
                     if data_num in ids:
-                        return "该序号已存在，请尝试删除原序号【求生更新 删除 腐竹 序号】"
+                        return "该序号已存在，请删除原序号【求生更新 删除 腐竹 序号】"
                     add_server.update({"id": data_num})
                 else:
-                    return "输入参数错误，请输入【求生更新 添加 腐竹 ip 模式 序号】或【求生更新 添加 腐竹 ip 模式】"
+                    return "请输入【求生更新 添加 腐竹 ip 模式 序号】"
                 # 模式，ip
                 try:
                     host, port = split_maohao(data_list[2])
@@ -366,6 +367,6 @@ async def server_rule_dict(ip: str, port: int):
     try:
         msg: dict = await a2s.arules((ip, port))  # type: ignore
         msg_dict["tick"] = msg["l4d2_tickrate_enabler"] + "tick"
-    except:
+    except Exception:
         msg_dict["tick"] = ""
     return msg_dict

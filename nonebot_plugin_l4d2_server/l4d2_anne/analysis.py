@@ -49,6 +49,6 @@ async def df_to_guoguanlv(df: pd.DataFrame):
         result = {"救援关": "错误"}
     except ZeroDivisionError:
         result = {"救援关": "0.00%"}
-    except:
+    except Exception:
         result = {"救援关": "错误"}
     return result

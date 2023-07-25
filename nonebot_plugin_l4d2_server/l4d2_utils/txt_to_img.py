@@ -1,5 +1,4 @@
 import base64
-import io
 from typing import Optional
 
 from nonebot.adapters.onebot.v11 import Message, MessageSegment

@@ -37,11 +37,14 @@
 #             data_list.append(data_dict)
 #             n += 1
 #         # 获取头像
-#         element:str = data_fom.find_all(attrs={"style": "cursor:pointer"})[0].get("onclick")
+#         element:str = data_fom.find_all(attrs={"style": "cursor:pointer"})[0].
+# get("onclick")
 #         player_url = element.split("'")[1]
 #         data_list[0].update({"个人资料":player_url})
 #         # 获取一言
-#         message = data_fom.select("html body div.content.text-center.text-md-left div.container.text-left div.col-md-12.h-100 div.card-body.worldmap.d-flex.flex-column.justify-content-center.text-center span")
+#         message = data_fom.select("html body div.content.text-center.text-md-left div.
+# container.text-left div.col-md-12.h-100 div.card-body.worldmap.d-flex.flex-column.
+# justify-content-center.text-center span")
 #         msg_list = []
 #         for i in message:
 #             msg_list.append(i.text)

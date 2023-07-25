@@ -37,7 +37,7 @@ class L4D2Player:
         """用新数据覆盖旧数据"""
         # try:
         self.c.execute(
-            "INSERT OR REPLACE INTO L4d2_players (qq, nickname, steamid) VALUES (?,?,?)",
+            "INSERT OR REPLACE INTO L4d2_players (qq, nickname, steamid) VALUES (?,?,?)",  # noqa: E501
             (qq, nickname, steamid),
         )
         self.conn.commit()

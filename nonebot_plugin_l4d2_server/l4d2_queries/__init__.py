@@ -20,6 +20,7 @@ async def get_group_ip_to_msg(command: str, text: str = ""):
                     ip_tuple_list.append((number, host, int(port)))
                 msg_group_server = await qq_ip_querie(ip_tuple_list)
                 send_dict = await check_group_msg(msg_group_server)
+                return send_dict
             else:
                 continue
             # 还没写完

@@ -1,17 +1,25 @@
 from typing import List
 
+import httpx
 import pandas as pd
+from bs4 import BeautifulSoup
 from nonebot.log import logger
 
 from ..l4d2_data.players import L4D2Player
 from ..l4d2_image import out_png
-from ..l4d2_utils.seach import *
+from ..l4d2_utils.seach import anne_search
 from .analysis import df_to_guoguanlv
 
 # from .anne_telecom import ANNE_API
 
 
 s = L4D2Player()
+headers = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) "
+        "Gecko/20100101 Firefox/107.0"
+    )
+}
 
 
 async def anne_html(name: str):
@@ -27,19 +35,21 @@ async def anne_html(name: str):
     logger.info(data)
     for i in data:
         i: BeautifulSoup
-        try:
-            Rank = i.find("td", {"data-title": "Rank:"}).text.strip()  # type: ignore
-            player = i.find("td", {"data-title": "Player:"}).text.strip()  # type: ignore
-            points = i.find("td", {"data-title": "Points:"}).text.strip()  # type: ignore
-            # country = i.find('img')['alt']
-            playtime = i.find("td", {"data-title": "Playtime:"}).text.strip()  # type: ignore
-            last_online = i.find("td", {"data-title": "Last Online:"}).text.strip()  # type: ignore
-        except AttributeError:
-            Rank = i.find("td", {"data-title": "排名:"}).text.strip()  # type: ignore
-            player = i.find("td", {"data-title": "玩家:"}).text.strip()  # type: ignore
-            points = i.find("td", {"data-title": "分数:"}).text.strip()  # type: ignore
-            playtime = i.find("td", {"data-title": "游玩时间:"}).text.strip()  # type: ignore
-            last_online = i.find("td", {"data-title": "最后上线时间:"}).text.strip()  # type: ignore
+
+        def find_text(soup, attr_en, attr_alt):
+            try:
+                element = soup.find("td", {"data-title": attr_en})
+                if element is None:
+                    element = soup.find("td", {"data-title": attr_alt})
+                return element.text.strip() if element else ""
+            except AttributeError:
+                return ""
+
+        Rank = find_text(i, "Rank:", "排名:")
+        player = find_text(i, "Player:", "玩家:")
+        points = find_text(i, "Points:", "分数:")
+        playtime = find_text(i, "Playtime:", "游玩时间:")
+        last_online = find_text(i, "Last Online:", "最后上线时间:")
         onclick = i["onclick"]
         steamid = onclick.split("=")[2].strip("'")  # type: ignore
         play_json = {
@@ -81,7 +91,7 @@ async def write_player(id, msg: str, nickname: str):
     if msg.startswith("STEAM"):
         # try:
         data_tuple = s._query_player_qq(id)
-        if data_tuple != None:
+        if data_tuple is not None:
             qq, nicknam, steamid = data_tuple
         else:
             nicknam = None
@@ -93,7 +103,7 @@ async def write_player(id, msg: str, nickname: str):
     else:
         # try:
         data_tuple = s._query_player_qq(id)
-        if data_tuple != None:
+        if data_tuple is not None:
             id, nicknam, steamid = data_tuple
         else:
             steamid = None
@@ -125,9 +135,7 @@ def anne_rank_dict(name: str):
     """用steamid,查详情,输出字典"""
     data_dict = {}
     url = f"https://sb.trygek.com/l4d_stats/ranking/player.php?steamid={name}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
-    }
+
     data = httpx.get(url=url, headers=headers, timeout=5)
     if data.status_code != 200:
         return [f"查询错误，状态码{data.status_code}"]
@@ -152,7 +160,12 @@ def anne_rank_dict(name: str):
     data_list[0].update({"个人资料": player_url})
     # 获取一言
     message = data.select(
-        "html body div.content.text-center.text-md-left div.container.text-left div.col-md-12.h-100 div.card-body.worldmap.d-flex.flex-column.justify-content-center.text-center span"
+        (
+            "html body div.content.text-center.text-md-left "
+            "div.container.text-left div.col-md-12.h-100 "
+            "div.card-body.worldmap.d-flex.flex-column.justify-content-center."
+            "text-center span"
+        )
     )
     msg_list = []
     for i in message:
@@ -210,7 +223,7 @@ async def anne_message(name: str, usr_id: str):
         data_tuple = s._query_player_qq(usr_id)
         logger.info(data_tuple)
         if not data_tuple:
-            return f"没有绑定信息...请使用【求生绑定 xxx】\n"
+            return "没有绑定信息...请使用【求生绑定 xxx】\n"
         # 只有名字，先查询数据在判断
         elif data_tuple[2]:
             name = data_tuple[2]
@@ -240,9 +253,7 @@ async def anne_message(name: str, usr_id: str):
 async def anne_map_msg(steamid: str):
     """steamid->地图信息"""
     url = f"https://sb.trygek.com/l4d_stats/ranking/timedmaps.php?steamid={steamid}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
-    }
+
     data = httpx.get(url, headers=headers, timeout=5).content.decode("utf-8")
     soup = BeautifulSoup(data, "html.parser")
     data_list = []
@@ -256,6 +267,16 @@ async def anne_map_msg(steamid: str):
                 data_list.append(row)
     df = pd.DataFrame(
         data_list,
-        columns=["游戏模式", "地图", "难度", "完成时间", "特感数量", "刷新间隔", "B数使用", "刷特模式", "Anne版本"],
+        columns=[
+            "游戏模式",
+            "地图",
+            "难度",
+            "完成时间",
+            "特感数量",
+            "刷新间隔",
+            "B数使用",
+            "刷特模式",
+            "Anne版本",
+        ],
     )
     return df

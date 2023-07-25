@@ -6,7 +6,6 @@ from nonebot.adapters.onebot.v11 import Adapter as ONEBOT_V11Adapter
 @pytest.mark.asyncio
 async def test_init():
     nonebot.init()
-    app = nonebot.get_asgi()
 
     driver = nonebot.get_driver()
     driver.register_adapter(ONEBOT_V11Adapter)

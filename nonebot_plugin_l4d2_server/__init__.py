@@ -14,37 +14,80 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from nonebot import require
-
-require("nonebot_plugin_apscheduler")
-require("nonebot_plugin_htmlrender")
-require("nonebot_plugin_txt2img")
-import time
+from pathlib import Path
 from time import sleep
 from typing import List, Tuple, Union
 
 from nonebot import get_driver, require
+from nonebot.adapters.onebot.v11 import (
+    Bot,
+    GroupMessageEvent,
+    Message,
+    MessageEvent,
+    MessageSegment,
+    NoticeEvent,
+)
+from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import Arg, ArgPlainText, CommandArg, Keyword, RegexGroup
+from nonebot.plugin import PluginMetadata
 from nonebot.typing import T_State
 
 from .l4d2_anne.server import updata_anne_server
 from .l4d2_data import sq_L4D2
 from .l4d2_file import all_zip_to_one, updown_l4d2_vpk
-from .l4d2_file.input_json import *
+
+# from .l4d2_file.input_json import *
 from .l4d2_image.steam import url_to_byte, url_to_byte_name
 from .l4d2_image.vtfs import img_to_vtf
-from .l4d2_push import *
 from .l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
 from .l4d2_queries.utils import queries_server
-from .l4d2_utils.command import *
-from .l4d2_utils.config import *
+from .l4d2_utils.command import (
+    add_queries,
+    anne_bind,
+    anne_player,
+    check_path,
+    del_bind,
+    del_queries,
+    del_vpk,
+    find_vpk,
+    help_,
+    join_server,
+    queries_comm,
+    rcon_to_server,
+    rename_vpk,
+    search_api,
+    show_queries,
+    smx_file,
+    up,
+    up_workshop,
+    updata,
+    vtf_make,
+)
+from .l4d2_utils.config import config_manager, file_format, l4_config, vpk_path
 from .l4d2_utils.txt_to_img import mode_txt_to_img
-from .l4d2_utils.utils import *
-from .l4d2_web import web, webUI
+from .l4d2_utils.utils import (
+    at_to_usrid,
+    bind_steam,
+    command_server,
+    del_map,
+    get_message_at,
+    get_vpk,
+    mes_list,
+    name_exist,
+    rename_map,
+    search_anne,
+    split_maohao,
+    str_to_picstr,
+    upload_file,
+    workshop_msg,
+)
+from .l4d2_web import web, webUI  # noqa: F401
 
+require("nonebot_plugin_apscheduler")
+require("nonebot_plugin_htmlrender")
+require("nonebot_plugin_txt2img")
 scheduler = require("nonebot_plugin_apscheduler").scheduler
-from nonebot.plugin import PluginMetadata
 
 driver = get_driver()
 
@@ -189,7 +232,7 @@ async def _(
         if map_name:
             await matcher.finish("改名成功\n原名:" + map_name + "\n新名称:" + rename)
     except ValueError:
-        await matcher.finish("参数错误,请输入格式如【求生地图 5 改名 map.vpk】,或者输入【求生地图】获取全部名称")
+        await matcher.finish("参数错误,输入【求生地图】获取全部名称")
 
 
 @anne_player.handle()
@@ -241,8 +284,8 @@ async def _(matcher: Matcher, tag: str = ArgPlainText("command")):
     msg = await command_server(tag)
     try:
         await matcher.finish(mode_txt_to_img("服务器返回", msg))
-    except:
-        await matcher.finish(msg, reply_message=True)
+    except Exception as E:
+        await matcher.finish(str(E), reply_message=True)
 
 
 @check_path.handle()
@@ -255,7 +298,7 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
         else:
             l4_config.l4_number = msg_number - 1
             now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
-            await matcher.send(f"已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}")
+            await matcher.send(f"已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}")  # noqa: E501
             config_manager.save()
     else:
         now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
@@ -441,7 +484,7 @@ async def _(
 
 
 # @search_api.handle()
-# async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message = CommandArg()):
+# async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message = CommandArg()):  # noqa: E501
 #     msg:str = args.extract_plain_text()
 #     # if msg.startswith('代码'):
 #         # 建图代码返回三方图信息

@@ -1,3 +1,4 @@
+# noqa: E501
 from amis import (
     Action,
     ActionType,
@@ -89,13 +90,15 @@ global_config_form = Form(
             value="${total_enable}",
             onText="开启",
             offText="关闭",
-            labelRemark=Remark(shape="circle", content="关闭后，禁用网页控制台，请参考文档启动方法"),
+            labelRemark=Remark(
+                shape="circle", content="关闭后，禁用网页控制台，请参考文档启动方法"
+            ),  # noqa: E501
         ),
         InputText(
             label="后台管理用户名",
             name="web_username",
             value="${web_username}",
-            labelRemark=Remark(shape="circle", content="登录本后台管理所需要的用户名。"),
+            labelRemark=Remark(shape="circle", content="登录本后台管理所需要的用户名。"),  # noqa: E501
         ),
         InputPassword(
             label="后台管理密码",
@@ -107,13 +110,15 @@ global_config_form = Form(
             label="后台管理token密钥",
             name="web_secret_key",
             value="${web_secret_key}",
-            labelRemark=Remark(shape="circle", content="用于本后台管理加密验证token的密钥。"),
+            labelRemark=Remark(
+                shape="circle", content="用于本后台管理加密验证token的密钥。"
+            ),  # noqa: E501
         ),
         InputText(
             label="字体",
             name="l4_font",
             value="${l4_font}",
-            labelRemark=Remark(shape="circle", content="机器人返回图片中文字的字体。"),
+            labelRemark=Remark(shape="circle", content="机器人返回图片中文字的字体。"),  # noqa: E501
         ),
         Switch(
             label="是否图片发送单服务器查询",
@@ -121,7 +126,9 @@ global_config_form = Form(
             value="${l4_image}",
             onText="开启",
             offText="关闭",
-            labelRemark=Remark(shape="circle", content="开启时，会查询单服务器会使用图片，避免长信息风控"),
+            labelRemark=Remark(
+                shape="circle", content="开启时，会查询单服务器会使用图片，避免长信息风控"  # noqa: E501
+            ),  # noqa: E501
         ),
         Select(
             label="图片风格",
@@ -136,7 +143,9 @@ global_config_form = Form(
             value="${l4_only}",
             onText="开启",
             offText="关闭",
-            labelRemark=Remark(shape="circle", content="开启时，上传地图会保证优先级，从而阻碍其他指令"),
+            labelRemark=Remark(
+                shape="circle", content="开启时，上传地图会保证优先级，从而阻碍其他指令"
+            ),  # noqa: E501
         ),
         Switch(
             label="是否显示connect",
@@ -144,25 +153,33 @@ global_config_form = Form(
             value="${l4_connect}",
             onText="开启",
             offText="关闭",
-            labelRemark=Remark(shape="circle", content="关闭后，查询服务器将不再显示connect和ip地址"),
+            labelRemark=Remark(
+                shape="circle", content="关闭后，查询服务器将不再显示connect和ip地址"
+            ),  # noqa: E501
         ),
         InputNumber(
             label="定时推送间隔（min）",
             name="l4_push_interval",
             value="${l4_push_interval}",
-            labelRemark=Remark(shape="circle", content="设置好后，使用推送服务器定时指令，将以x分钟为间隔推送一次"),
+            labelRemark=Remark(
+                shape="circle", content="设置好后，使用推送服务器定时指令，将以x分钟为间隔推送一次"  # noqa: E501
+            ),
         ),
         InputNumber(
             label="定时推次数",
             name="l4_push_times",
             value="${l4_push_times}",
-            labelRemark=Remark(shape="circle", content="设置好后，将按照推送间隔时间推送x此"),
+            labelRemark=Remark(
+                shape="circle", content="设置好后，将按照推送间隔时间推送x此"
+            ),  # noqa: E501
         ),
         InputNumber(
             label="当前路径序号",
             name="l4_number",
             value="${l4_number}",
-            labelRemark=Remark(shape="circle", content="如果选定了路径，则上传地图优先传这个路径"),
+            labelRemark=Remark(
+                shape="circle", content="如果选定了路径，则上传地图优先传这个路径"
+            ),  # noqa: E501
         ),
         InputTag(
             label="求生上传地图用户",
@@ -173,7 +190,7 @@ global_config_form = Form(
             visibleOn="${total_enable}",
             joinValues=False,
             extractValue=True,
-            labelRemark=Remark(shape="circle", content="在这里加入的用户，才能上传地图"),
+            labelRemark=Remark(shape="circle", content="在这里加入的用户，才能上传地图"),  # noqa: E501
         ),
         InputTag(
             label="坐牢三指令tag",
@@ -184,7 +201,9 @@ global_config_form = Form(
             visibleOn="${total_enable}",
             joinValues=False,
             extractValue=True,
-            labelRemark=Remark(shape="circle", content="在这里的指令，可以响应坐牢三指令"),
+            labelRemark=Remark(
+                shape="circle", content="在这里的指令，可以响应坐牢三指令"  # noqa: E501
+            ),
         ),
     ],
     actions=[
@@ -214,7 +233,9 @@ upload_map_form = Form(
             label="后台管理token密钥",
             name="web_secret_key",
             value="${web_secret_key}",
-            labelRemark=Remark(shape="circle", content="用于本后台管理加密验证token的密钥。"),
+            labelRemark=Remark(
+                shape="circle", content="用于本后台管理加密验证token的密钥。"
+            ),  # noqa: E501
         ),
         InputText(
             label="查询key",
@@ -231,7 +252,10 @@ upload_map_form = Form(
 
 
 group_select = Select(
-    label="分群配置（暂未完成）", name="group_id", source="${group_list}", placeholder="选择群"
+    label="分群配置（暂未完成）",
+    name="group_id",
+    source="${group_list}",
+    placeholder="选择群",  # noqa: E501
 )
 group_config_form = Form(
     title="分群配置（暂未完成）",
@@ -245,7 +269,7 @@ group_config_form = Form(
             value="${enable}",
             onText="开启",
             offText="关闭",
-            labelRemark=Remark(shape="circle", content="针对该群的群聊学习开关，关闭后，仅该群不会学习和回复。"),
+            labelRemark=Remark(shape="circle", content=""),
         ),
         InputNumber(
             label="占位符",
@@ -280,7 +304,10 @@ group_config_form = Form(
 )
 
 server_control = Select(
-    label="服务器设置", name="id_rank", source="${server_list}", placeholder="选择服务器"
+    label="服务器设置",
+    name="id_rank",
+    source="${server_list}",
+    placeholder="选择服务器",  # noqa: E501
 )
 
 server_ditail = Form(
@@ -325,7 +352,9 @@ server_ditail = Form(
             label="服务器本地文件位置",
             name="location",
             value="${location}",
-            labelRemark=Remark(shape="circle", content="求生服务器所在路径,该路径下有文件srcds_run"),
+            labelRemark=Remark(
+                shape="circle", content="求生服务器所在路径,该路径下有文件srcds_run"
+            ),  # noqa: E501
         ),
         InputText(
             label="远程账户",
@@ -387,7 +416,7 @@ server_page = PageSchema(
             Alert(
                 level=LevelEnum.info,
                 className="white-space-pre-wrap",
-                body=(f"此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n" f"· 功能暂未完善"),
+                body=(f"此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n" f"· 功能暂未完善"),  # noqa: E501
             ),
             server_control,
             server_ditail,
@@ -437,7 +466,7 @@ l4d2_page = PageSchema(
 
 github_logo = Tpl(
     className="w-full",
-    tpl='<div class="flex justify-between"><div></div><div><a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" title="Copyright"><i class="fa fa-github fa-2x"></i></a></div></div>',
+    tpl='<div class="flex justify-between"><div></div><div><a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" title="Copyright"><i class="fa fa-github fa-2x"></i></a></div></div>',  # noqa: E501
 )
 header = Flex(
     className="w-full", justify="flex-end", alignItems="flex-end", items=[github_logo]
@@ -448,5 +477,5 @@ admin_app = App(
     logo="https://ghproxy.com/https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png",
     header=header,
     pages=[{"children": [config_page, database_page]}],
-    footer='<div class="p-2 text-center bg-blue-100">Copyright © 2022 - 2023 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" class="link-secondary">AGNES_DIGIAL</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>',
+    footer='<div class="p-2 text-center bg-blue-100">Copyright © 2022 - 2023 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" class="link-secondary">AGNES_DIGIAL</a> X<a target="_blank" href="https://github.com/baidu/amis" class="link-secondary" rel="noopener"> amis v2.2.0</a></div>',  # noqa: E501
 )
