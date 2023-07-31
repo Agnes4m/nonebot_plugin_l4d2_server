@@ -4,17 +4,17 @@ from time import sleep
 from typing import Dict, List, Tuple, Type
 
 from nonebot import on_command, on_keyword, on_notice, on_regex
-from nonebot.adapters.onebot.v11 import Message, MessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import Message, MessageSegment
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 
 from ..l4d2_anne.server import group_key, server_key
 from ..l4d2_queries import get_group_ip_to_msg
-from ..l4d2_queries.localIP import ALL_HOST
+from ..l4d2_queries.local_ip import ALL_HOST
 from ..l4d2_queries.qqgroup import get_tan_jian, qq_ip_queries_pic, split_maohao
 from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
-from .config import Master, driver, l4_config
+from .config import MASTER, driver, l4_config
 from .rule import wenjian
 from .utils import str_to_picstr
 
@@ -29,64 +29,107 @@ rename_vpk = on_regex(
     flags=re.S,
     block=True,
     priority=20,
-    permission=Master,
+    permission=MASTER,
 )
 
 find_vpk = on_command("l4_map", aliases={"求生地图"}, priority=25, block=True)
 del_vpk = on_command(
-    "l4_del_map", aliases={"求生地图删除", "地图删除"}, priority=20, permission=Master
+    "l4_del_map",
+    aliases={"求生地图删除", "地图删除"},
+    priority=20,
+    permission=MASTER,
 )
 rcon_to_server = on_command(
-    "rcon", aliases={"求生服务器指令", "服务器指令"}, permission=Master
+    "rcon",
+    aliases={"求生服务器指令", "服务器指令"},
+    permission=MASTER,
 )  # noqa: E501
 check_path = on_command(
-    "l4_check", aliases={"求生路径"}, priority=20, block=True, permission=Master
+    "l4_check",
+    aliases={"求生路径"},
+    priority=20,
+    block=True,
+    permission=MASTER,
 )
 smx_file = on_command(
-    "l4_smx", aliases={"求生插件"}, priority=20, block=True, permission=Master
+    "l4_smx",
+    aliases={"求生插件"},
+    priority=20,
+    block=True,
+    permission=MASTER,
 )
 
 # anne
 anne_player = on_command("Ranne", aliases={"求生anne"}, priority=25, block=True)
 anne_bind = on_command(
-    "Rbind", aliases={"steam绑定", "求生绑定", "anne绑定"}, priority=20, block=True
+    "Rbind",
+    aliases={"steam绑定", "求生绑定", "anne绑定"},
+    priority=20,
+    block=True,
 )
 del_bind = on_command(
-    "del_bind", aliases={"steam解绑", "求生解绑", "anne解绑"}, priority=20, block=True
+    "del_bind",
+    aliases={"steam解绑", "求生解绑", "anne解绑"},
+    priority=20,
+    block=True,
 )
 prison = on_command("zl", aliases={"坐牢"}, priority=20, block=True)
 open_prison = on_command("kl", aliases={"开牢"}, priority=20, block=True)
 
 updata = on_command(
-    "updata_anne", aliases={"求生更新anne"}, priority=20, block=True, permission=Master
+    "updata_anne",
+    aliases={"求生更新anne"},
+    priority=20,
+    block=True,
+    permission=MASTER,
 )
 tan_jian = on_command("tj", aliases={"探监"}, priority=20, block=True)
 
 # 查询
 queries_comm = on_keyword(
-    keywords={"queries", "求生ip", "求生IP", "connect"}, priority=20, block=True
+    keywords={"queries", "求生ip", "求生IP", "connect"},
+    priority=20,
+    block=True,
 )
 add_queries = on_command(
-    "addq", aliases={"求生添加订阅"}, priority=20, block=True, permission=Master
+    "addq",
+    aliases={"求生添加订阅"},
+    priority=20,
+    block=True,
+    permission=MASTER,
 )
 del_queries = on_command(
-    "delq", aliases={"求生取消订阅"}, priority=20, block=True, permission=Master
+    "delq",
+    aliases={"求生取消订阅"},
+    priority=20,
+    block=True,
+    permission=MASTER,
 )
 show_queries = on_command("showq", aliases={"求生订阅"}, priority=20, block=True)
 join_server = on_command("ld_jr", aliases={"求生加入"}, priority=20, block=True)
 connect_rcon = on_command(
-    "Rrcon", aliases={"求生连接", "求生链接", "求生rcon"}, priority=50, block=False
+    "Rrcon",
+    aliases={"求生连接", "求生链接", "求生rcon"},
+    priority=50,
+    block=False,
 )
 end_connect = ["stop", "结束", "连接结束", "结束连接"]
 search_api = on_command(
-    "search", aliases={"求生三方"}, priority=20, block=True, permission=Master
+    "search",
+    aliases={"求生三方"},
+    priority=20,
+    block=True,
+    permission=MASTER,
 )
 # which_map = on_keyword("是什么图"), priority=20, block=False)
-reload_ip = on_command("l4_reload", aliases={"重载ip"}, priority=30, permission=Master)
+reload_ip = on_command("l4_reload", aliases={"重载ip"}, priority=30, permission=MASTER)
 
 # 下载内容
 up_workshop = on_command(
-    "workshop", aliases={"创意工坊下载", "求生创意工坊"}, priority=20, block=True
+    "workshop",
+    aliases={"创意工坊下载", "求生创意工坊"},
+    priority=20,
+    block=True,
 )
 vtf_make = on_command("vtf_make", aliases={"求生喷漆"}, priority=20, block=True)
 
@@ -128,28 +171,29 @@ async def get_des_ip():
     await get_read_ip(ip_anne_list)
 
     @tan_jian.handle()
-    async def _(matcher: Matcher, event: MessageEvent):
+    async def _(matcher: Matcher):
         msg = await get_tan_jian(ip_anne_list, 1)
         await str_to_picstr(push_msg=msg, matcher=matcher)
 
     @prison.handle()
-    async def _(matcher: Matcher, event: MessageEvent):
+    async def _(matcher: Matcher):
         msg = await get_tan_jian(ip_anne_list, 2)
         await str_to_picstr(push_msg=msg, matcher=matcher)
 
     @open_prison.handle()
-    async def _(matcher: Matcher, event: MessageEvent):
+    async def _(matcher: Matcher):
         msg = await get_tan_jian(ip_anne_list, 3)
         await str_to_picstr(push_msg=msg, matcher=matcher)
 
 
 async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
     get_ip = on_command("云", aliases=server_key(), priority=50, block=True)
+    if not ip_anne_list:
+        ...
 
     @get_ip.handle()
     async def _(
         matcher: Matcher,
-        event: MessageEvent,
         start: str = CommandStart(),
         command: str = RawCommand(),
         args: Message = CommandArg(),
@@ -203,28 +247,25 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             msg_tuple = (one_ip["id"], host, port)
             ip_list.append(msg_tuple)
         img = await qq_ip_queries_pic(ip_list, igr)
-        if img:
-            return img
-        else:
-            return "服务器无响应"
-    else:
-        if not msg[0].isdigit():
-            # if any(mode in msg for mode in gamemode_list):
-            #     pass
-            # else:
-            return
-        message = await json_server_to_tag_dict(command, msg)
-        if len(message) == 0:
-            # 关键词不匹配，忽略
-            return
-        ip = str(message["ip"])
-        logger.info(ip)
 
-        try:
-            msgs = await get_anne_server_ip(ip)
-            return msgs
-        except (OSError, asyncio.exceptions.TimeoutError):
-            return "服务器无响应"
+        return img if img else "服务器无响应"
+
+    if not msg[0].isdigit():
+        # if any(mode in msg for mode in gamemode_list):
+        #     pass
+        # else:
+        return None
+    message = await json_server_to_tag_dict(command, msg)
+    if len(message) == 0:
+        # 关键词不匹配，忽略
+        return None
+    ip = str(message["ip"])
+    logger.info(ip)
+
+    try:
+        return await get_anne_server_ip(ip)
+    except (OSError, asyncio.exceptions.TimeoutError):
+        return "服务器无响应"
 
 
 async def get_read_group_ip():

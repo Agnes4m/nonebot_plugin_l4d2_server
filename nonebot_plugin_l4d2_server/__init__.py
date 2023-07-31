@@ -15,7 +15,6 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from pathlib import Path
-from time import sleep
 from typing import List, Tuple, Union
 
 from nonebot import get_driver, require
@@ -126,7 +125,6 @@ async def _(matcher: Matcher, event: NoticeEvent):
     name: str = args["file"]["name"]
     # 如果不符合格式则忽略
     await up.send("已收到文件，开始下载")
-    sleep(1)  # 等待一秒防止因为文件名获取出现BUG
     vpk_files = await updown_l4d2_vpk(map_path, name, url)
     if vpk_files:
         mes = "解压成功，新增以下几个vpk文件"
@@ -140,7 +138,7 @@ times = 0
 for one_path in l4_config.l4_ipall:
     times += 1
     path_msg = one_path["location"]
-    path_list += f"\n {str(times)} | {path_msg}"
+    path_list += f"\n {times!s} | {path_msg}"
 
 
 @up.got("is_sure", prompt=path_list)
@@ -176,7 +174,6 @@ async def _(matcher: Matcher):
         return
 
     await matcher.send("已收到文件，开始下载")
-    sleep(1)  # 等待一秒防止因为文件名获取出现BUG
     vpk_files = await updown_l4d2_vpk(map_path, name, url)  # type: ignore
 
     if vpk_files:
@@ -191,7 +188,7 @@ async def _(matcher: Matcher):
 
 
 @find_vpk.handle()
-async def _(bot: Bot, event: MessageEvent, matcher: Matcher):
+async def _(matcher: Matcher):
     map_path = Path(l4_config.l4_ipall[l4_config.l4_number]["location"], vpk_path)
     name_vpk = get_vpk(map_path)
     logger.info("获取文件列表成功")
@@ -299,12 +296,12 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
             l4_config.l4_number = msg_number - 1
             now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
             await matcher.send(
-                f"已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}"
+                f"已经切换路径为\n{l4_config.l4_number+1!s}、{now_path}",
             )  # noqa: E501
             config_manager.save()
     else:
         now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
-        await matcher.send(f"当前的路径为\n{str(l4_config.l4_number+1)}、{now_path}")
+        await matcher.send(f"当前的路径为\n{l4_config.l4_number+1!s}、{now_path}")
 
 
 @queries_comm.handle()
@@ -434,6 +431,9 @@ async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State
 @updata.handle()
 async def _(matcher: Matcher, args: Message = CommandArg()):
     """更新"""
+    if args:
+        # 占位先，除了电信服还有再加
+        ...
     anne_ip_dict = await updata_anne_server()
     if not anne_ip_dict:
         await matcher.finish("网络开小差了捏")
@@ -503,7 +503,7 @@ async def _(matcher: Matcher):
         "=====求生机器人帮助=====",
         "1、电信服战绩查询【求生anne[id/steamid/@]】",
         "2、电信服绑定【求生绑定[id/steamid]】",
-        "3、电信服状态查询【云xx】" "4、创意工坊下载【创意工坊下载[物品id/链接]】",
+        "3、电信服状态查询【云xx】4、创意工坊下载【创意工坊下载[物品id/链接]】",
         "5、指定ip查询【求生ip[ip]】(可以是域名)",
         "6、求生喷漆制作【求生喷漆】",
         "6、本地服务器操作(略，详情看项目地址)",
@@ -561,4 +561,4 @@ async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State
 @driver.on_shutdown
 async def close_db():
     """关闭数据库"""
-    sq_L4D2._close()
+    sq_L4D2._close()  # noqa: SLF001

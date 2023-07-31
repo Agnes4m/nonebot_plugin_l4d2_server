@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple
 
 from ..l4d2_utils.utils import split_maohao
-from .localIP import ALL_HOST, Group_All_HOST
+from .local_ip import ALL_HOST, Group_All_HOST
 from .qqgroup import qq_ip_querie
 
 
@@ -19,16 +19,16 @@ async def get_group_ip_to_msg(command: str, text: str = ""):
                     host, port = split_maohao(one_server["ip"])
                     ip_tuple_list.append((number, host, int(port)))
                 msg_group_server = await qq_ip_querie(ip_tuple_list)
-                send_dict = await check_group_msg(msg_group_server)
-                return send_dict
-            else:
-                continue
-            # 还没写完
-        #     host, port = split_maohao(one_ip["ip"])
-        #     msg_tuple = (one_ip["id"], host, port)
-        #     ip_list.append(msg_tuple)
-        # img = await qq_ip_queries_pic(ip_list, igr)
+                return await check_group_msg(msg_group_server)
+    return None
+    # 还没写完
+    #     host, port = split_maohao(one_ip["ip"])
+    #     msg_tuple = (one_ip["id"], host, port)
+    #     ip_list.append(msg_tuple)
+    # img = await qq_ip_queries_pic(ip_list, igr)
 
 
 async def check_group_msg(msg: Dict[str, List[Dict[str, str]]]):
+    if msg:
+        ...
     ...

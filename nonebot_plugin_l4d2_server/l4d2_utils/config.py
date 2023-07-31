@@ -19,18 +19,18 @@ driver = get_driver()
 COMMAND_START = list(driver.config.command_start)
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"  # noqa: E501
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",  # noqa: E501
 }
 
 try:
-    NICKNAME: str = list(driver.config.nickname)[0]
+    NICKNAME: str = next(iter(driver.config.nickname))
 except Exception:
     NICKNAME = "bot"
 CHECK_FILE: int = 0
 
 
-reMaster = SUPERUSER | GROUP_OWNER
-Master = SUPERUSER | GROUP_ADMIN | GROUP_OWNER
+re_master = SUPERUSER | GROUP_OWNER
+MASTER = SUPERUSER | GROUP_ADMIN | GROUP_OWNER
 ADMINISTRATOR = SUPERUSER | GROUP_ADMIN | GROUP_OWNER | PRIVATE_FRIEND
 # file 填写求生服务器所在路径
 
@@ -107,8 +107,9 @@ class L4d2ConfigManager:
         if self.file_path.exists():
             self.config = L4d2Config.parse_obj(
                 yaml.load(
-                    self.file_path.read_text(encoding="utf-8"), Loader=yaml.Loader
-                )
+                    self.file_path.read_text(encoding="utf-8"),
+                    Loader=yaml.Loader,
+                ),
             )
         else:
             self.config = L4d2Config()  # type: ignore

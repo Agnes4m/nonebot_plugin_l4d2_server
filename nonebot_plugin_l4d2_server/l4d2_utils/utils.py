@@ -1,9 +1,9 @@
 import json
-import os
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+import aiofiles
 import httpx
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
@@ -27,11 +27,11 @@ async def get_file(url: str, down_file: Path):
         if l4_config.l4_only:
             maps = await url_to_byte(url)
         else:
-            maps = httpx.get(url).content
+            maps = httpx.get(url).content  # noqa: ASYNC100
         logger.info("已获取文件，尝试新建文件并写入")
         if maps:
-            with open(down_file, "wb") as mfile:
-                mfile.write(maps)
+            async with aiofiles.open(down_file, "wb") as mfile:
+                await mfile.write(maps)
             logger.info("下载成功")
             return "文件已下载，正在解压"
     except Exception as e:
@@ -58,10 +58,10 @@ def del_map(num: int, map_path: Path) -> str:
     """
     删除指定的地图
     """
-    map = get_vpk(map_path)
-    map_name = map[num - 1]
+    map_ = get_vpk(map_path)
+    map_name = map_[num - 1]
     del_file = map_path / map_name
-    os.remove(del_file)
+    del_file.unlink()
     return map_name
 
 
@@ -69,11 +69,11 @@ def rename_map(num: int, rename: str, map_path: Path) -> str:
     """
     改名指定的地图
     """
-    map = get_vpk(map_path)
-    map_name = map[num - 1]
+    map_ = get_vpk(map_path)
+    map_name = map_[num - 1]
     old_file = map_path / map_name
     new_file = map_path / rename
-    os.rename(old_file, new_file)
+    old_file.rename(new_file)
     logger.info("改名成功")
     return map_name
 
@@ -90,14 +90,14 @@ async def search_anne(name: str, usr_id: str):
     return await anne_message(name, usr_id)
 
 
-async def bind_steam(id: str, msg: str, nickname: str):
+async def bind_steam(id_: str, msg: str, nickname: str):
     """绑定qq-steam"""
-    return await write_player(id, msg, nickname)
+    return await write_player(id_, msg, nickname)
 
 
-def name_exist(id: str):
+def name_exist(id_: str):
     """删除绑定信息"""
-    return del_player(id)
+    return del_player(id_)
 
 
 async def get_message_at(datas: str) -> List[int]:
@@ -134,22 +134,21 @@ async def workshop_msg(msg: str):
     if msg.isdigit():
         data: Union[dict, List[dict]] = await workshop_to_dict(msg)
         return data
-    else:
-        return None
+    return None
 
 
 async def save_file(file: bytes, path_name):
     """保存文件"""
-    with open(path_name, "wb") as files:
-        files.write(file)
+    async with aiofiles.open(path_name, "wb") as files:
+        await files.write(file)
 
 
 async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
     """上传临时文件"""
-    if systems == "win" or "other":
+    if systems in ["win", "other"]:
         with tempfile.TemporaryDirectory() as temp_dir:
-            with open(Path(temp_dir) / filename, "wb") as f:
-                f.write(file_data)
+            async with aiofiles.open(Path(temp_dir) / filename, "wb") as f:
+                await f.write(file_data)
             if isinstance(event, GroupMessageEvent):
                 await bot.call_api(
                     "upload_group_file",
@@ -164,7 +163,7 @@ async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename:
                     file=f.name,
                     name=filename,
                 )
-        os.remove(Path().joinpath(filename))
+        (Path().joinpath(filename)).unlink()
     elif systems == "linux":
         with tempfile.NamedTemporaryFile("wb+") as f:
             f.write(file_data)
@@ -201,7 +200,7 @@ def register_menu_func(
             "trigger_condition": trigger_condition,
             "brief_des": brief_des,
             "detail_des": detail_des or brief_des,
-        }
+        },
     )
 
 
@@ -251,5 +250,4 @@ def split_maohao(msg: str) -> List[str]:
         msgs: List[str] = [msg, "20715"]
     else:
         msgs = []
-    mse = [msgs[0], msgs[-1]]
-    return mse
+    return [msgs[0], msgs[-1]]
