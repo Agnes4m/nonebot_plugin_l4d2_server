@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD026 MD031 MD033 MD036 MD041 MD046 -->
 <div align="center">
   <img src="https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png" width="180" height="180"  alt="AgnesDigitalLogo">
   <br>

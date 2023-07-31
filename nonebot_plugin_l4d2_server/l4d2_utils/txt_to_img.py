@@ -1,7 +1,7 @@
 import base64
 from typing import Optional
 
-from nonebot.adapters.onebot.v11 import Message, MessageSegment
+from nonebot_plugin_saa import Image, MessageFactory, Text
 from nonebot_plugin_txt2img import Txt2Img
 
 from .config import l4_config
@@ -10,7 +10,7 @@ l4_font = l4_config.l4_font
 """直接超的智障回复"""
 
 
-def mode_txt_to_img(
+async def mode_txt_to_img(
     title: str,
     text: str,
     ex_text: Optional[str] = None,
@@ -23,10 +23,9 @@ def mode_txt_to_img(
     pic = txt2img.draw(title, text)
     pic = base64.b64decode(pic)
     if ex_text:
-        ...
+        ex_msg = ex_text
     if not ex_msg:
-        msg = MessageSegment.image(pic)
+        msg = MessageFactory([Image(pic)])
     else:
-        msg = Message(MessageSegment.image(pic) + MessageSegment.text(ex_msg))
-
-    return msg
+        msg = MessageFactory([Image(pic), Text(ex_msg)])
+    await msg.finish()

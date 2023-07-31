@@ -1,7 +1,7 @@
 import json
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import aiofiles
 import httpx
@@ -212,7 +212,7 @@ def register_menu(*args, **kwargs):
     return decorator
 
 
-async def extract_last_digit(msg: str) -> tuple[str, str]:
+async def extract_last_digit(msg: str) -> Tuple[str, str]:
     "分离str和数字"
     for i in range(len(msg) - 1, -1, -1):
         if msg[i].isdigit():
@@ -230,9 +230,9 @@ async def str_to_picstr(push_msg: str, matcher: Matcher, keyword: Optional[str] 
         last_str = lines[-1]
         push_msg = "\n".join(lines[1:-1])
         if l4_config.l4_connect:
-            await matcher.finish(mode_txt_to_img(first_str, push_msg, last_str))
+            await mode_txt_to_img(first_str, push_msg, last_str)
         else:
-            await matcher.finish(mode_txt_to_img(first_str, push_msg))
+            await mode_txt_to_img(first_str, push_msg)
     else:
         if l4_config.l4_connect or keyword == "connect":
             await matcher.send(push_msg)

@@ -31,6 +31,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import Arg, ArgPlainText, CommandArg, Keyword, RegexGroup
 from nonebot.plugin import PluginMetadata
 from nonebot.typing import T_State
+from nonebot_plugin_saa import Image, MessageFactory, Text
 
 from .l4d2_anne.server import updata_anne_server
 from .l4d2_data import sq_L4D2
@@ -188,15 +189,14 @@ async def _(matcher: Matcher):
 
 
 @find_vpk.handle()
-async def _(matcher: Matcher):
+async def _():
     map_path = Path(l4_config.l4_ipall[l4_config.l4_number]["location"], vpk_path)
     name_vpk = get_vpk(map_path)
     logger.info("获取文件列表成功")
     mes = "当前服务器下有以下vpk文件"
-    msg = ""
-    msg = mes_list(msg, name_vpk).replace(" ", "")
+    msg = mes_list("", name_vpk).replace(" ", "")
 
-    await matcher.finish(mode_txt_to_img(mes, msg))
+    await mode_txt_to_img(mes, msg)
 
 
 @del_vpk.handle()
@@ -245,7 +245,7 @@ async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg())
     if isinstance(msg, str):
         await matcher.finish(msg)
     elif isinstance(msg, bytes):
-        await matcher.finish(MessageSegment.image(msg))
+        await MessageFactory([Image(msg)]).finish()
 
 
 @anne_bind.handle()
@@ -265,7 +265,10 @@ async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg())
 @del_bind.handle()
 async def _(matcher: Matcher, event: MessageEvent):
     usr_id = event.user_id
-    await matcher.finish(name_exist(str(usr_id)))
+    msg = name_exist(str(usr_id))
+    if not msg:
+        return
+    await matcher.finish(msg)
 
 
 @rcon_to_server.handle()
@@ -280,7 +283,7 @@ async def _(matcher: Matcher, tag: str = ArgPlainText("command")):
     tag = tag.strip()
     msg = await command_server(tag)
     try:
-        await matcher.finish(mode_txt_to_img("服务器返回", msg))
+        await mode_txt_to_img("服务器返回", msg)
     except Exception as E:
         await matcher.finish(str(E), reply_message=True)
 
@@ -353,7 +356,7 @@ async def _(matcher: Matcher, event: GroupMessageEvent):
     if isinstance(msg, str):
         await matcher.finish(msg)
     else:
-        await matcher.finish(MessageSegment.image(msg))
+        await MessageFactory([Image(msg)]).finish()
 
 
 @join_server.handle()
@@ -386,7 +389,7 @@ async def _(matcher: Matcher, state: T_State, tag: str = ArgPlainText("ip")):
                 continue
             message += item + ":" + value + "\n"
         state["dic"] = msg
-        await matcher.finish(MessageSegment.image(pic) + (message))
+        await MessageFactory([Image(pic), Text(message)]).finish()
     elif isinstance(msg, list):
         lenge = len(msg)
         pic = await url_to_byte(msg[0]["图片地址"])  # type: ignore
@@ -470,9 +473,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State, tag=Arg("image")):
 
 
 @smx_file.handle()
-async def _(
-    matcher: Matcher,
-):
+async def _():
     smx_path = Path(
         l4_config.l4_ipall[l4_config.l4_number]["location"],
         "left4dead2/addons/sourcemod/plugins",
@@ -482,7 +483,7 @@ async def _(
     mes = "当前服务器下有以下smx文件"
     msg = ""
     msg = mes_list(msg, name_smx).replace(" ", "")
-    await matcher.finish(mode_txt_to_img(mes, msg))
+    await mode_txt_to_img(mes, msg)
 
 
 # @search_api.handle()
