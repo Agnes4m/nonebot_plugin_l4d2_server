@@ -46,21 +46,26 @@ def authentication():
         try:
             if not token:
                 raise HTTPException(
-                    status_code=400, detail="登录验证失败或已失效，请重新登录"
+                    status_code=400,
+                    detail="登录验证失败或已失效，请重新登录",
                 )  # noqa: E501
             payload = jwt.decode(
-                token, config_manager.config.web_secret_key, algorithms="HS256"
+                token,
+                config_manager.config.web_secret_key,
+                algorithms="HS256",
             )
             if (
                 not (username := payload.get("username"))
                 or username != config_manager.config.web_username
             ):
                 raise HTTPException(
-                    status_code=400, detail="登录验证失败或已失效，请重新登录"
+                    status_code=400,
+                    detail="登录验证失败或已失效，请重新登录",
                 )  # noqa: E501
         except (JWTError, ExpiredSignatureError, AttributeError):
             raise HTTPException(
-                status_code=400, detail="登录验证失败或已失效，请重新登录"
+                status_code=400,
+                detail="登录验证失败或已失效，请重新登录",
             )  # noqa: E501
 
     return Depends(inner)
@@ -106,7 +111,7 @@ async def init_web():
             bots = get_adapter(Adapter).bots
             if len(bots) == 0:
                 return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
-            bot = list(bots.values())[0]
+            bot = next(iter(bots.values()))
             group_list = await bot.get_group_list()
             group_list = [
                 {
@@ -139,7 +144,7 @@ async def init_web():
             bots = get_adapter(Adapter).bots
             if len(bots) == 0:
                 return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
-            bot = list(bots.values())[0]
+            bot = next(iter(bots.values()))
             groups = await bot.get_group_list()
             member_list = []
             for group in groups:
@@ -151,7 +156,7 @@ async def init_web():
                             "value": member["user_id"],
                         }
                         for member in members
-                    ]
+                    ],
                 )
             config = config_manager.config.dict(exclude={"group_config"})
             config["member_list"] = member_list

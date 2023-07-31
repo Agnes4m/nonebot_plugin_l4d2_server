@@ -23,10 +23,9 @@ class L4D2Server:
     async def query_server_ip(self, qqgroup):
         """输入群号，返回数据库里订阅ip元组列表"""
         self.c.execute(
-            f"SELECT  number, qqgroup ,host ,port FROM L4D2_server WHERE qqgroup = {qqgroup}"  # noqa: E501
+            f"SELECT  number, qqgroup ,host ,port FROM L4D2_server WHERE qqgroup = {qqgroup}",  # noqa: E501
         )
-        msg_list = self.c.fetchall()
-        return msg_list
+        return self.c.fetchall()
 
     async def del_server_ip(self, id: int):
         """删除指定id的ip"""
@@ -36,7 +35,6 @@ class L4D2Server:
     async def query_number(self, number: int):
         """通过序号找服务器"""
         self.c.execute(
-            f"SELECT qqgroup , host ,port FROM L4D2_server WHERE number = {number}"
+            f"SELECT qqgroup , host ,port FROM L4D2_server WHERE number = {number}",
         )
-        msg_list = self.c.fetchone()
-        return msg_list
+        return self.c.fetchone()

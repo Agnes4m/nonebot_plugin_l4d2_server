@@ -2,9 +2,9 @@ try:
     import ujson as json
 except:
     import json
+import os
 from pathlib import Path
 from typing import Dict, List
-import os
 
 BOT_DIR = os.path.dirname(os.path.abspath(__file__))
 filename = "data/L4D2/l4d2.json"
@@ -30,7 +30,7 @@ def load_ip_json():
 def load_group_json():
     try:
         GROUP_HOST: Dict[str, List[str]] = json.load(
-            open(filename, "r", encoding="utf8")
+            open(filename, "r", encoding="utf8"),
         )
     except IOError or FileNotFoundError:
         os.makedirs(os.path.dirname(filename), exist_ok=True)

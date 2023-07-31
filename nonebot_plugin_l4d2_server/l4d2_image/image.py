@@ -47,10 +47,7 @@ mask_pic = Image.open(TEXT_PATH / "mask.png")
 NM_BG_PATH = BG_PATH / "nm_bg"
 SP_BG_PATH = BG_PATH / "sp_bg"
 
-if list(CU_BG_PATH.iterdir()) != []:
-    bg_path = CU_BG_PATH
-else:
-    bg_path = NM_BG_PATH
+bg_path = CU_BG_PATH if list(CU_BG_PATH.iterdir()) != [] else NM_BG_PATH
 
 
 @overload
@@ -74,7 +71,8 @@ async def convert_img(img: Path, is_base64: bool = False) -> str:
 
 
 async def convert_img(
-    img: Union[Image.Image, str, Path, bytes], is_base64: bool = False
+    img: Union[Image.Image, str, Path, bytes],
+    is_base64: bool = False,
 ):
     """
     :说明:
@@ -102,7 +100,9 @@ async def convert_img(
 
 
 async def get_color_bg(
-    based_w: int, based_h: int, bg: Optional[str] = None
+    based_w: int,
+    based_h: int,
+    bg: Optional[str] = None,
 ) -> Image.Image:
     image = ""
     if bg:
@@ -120,7 +120,10 @@ async def get_color_bg(
 
 class CustomizeImage:
     def __init__(
-        self, image: Union[str, Image.Image], based_w: int, based_h: int
+        self,
+        image: Union[str, Image.Image],
+        based_w: int,
+        based_h: int,
     ) -> None:
         self.bg_img = self.get_image(image, based_w, based_h)
         self.bg_color = self.get_bg_color(self.bg_img, is_light=True)
@@ -132,7 +135,9 @@ class CustomizeImage:
 
     @staticmethod
     def get_image(
-        image: Union[str, Image.Image], based_w: int, based_h: int
+        image: Union[str, Image.Image],
+        based_w: int,
+        based_h: int,
     ) -> Image.Image:
         # 获取背景图片
         if isinstance(image, Image.Image):
@@ -144,35 +149,31 @@ class CustomizeImage:
             edit_bg = Image.open(path).convert("RGBA")
 
         # 确定图片的长宽
-        bg_img = crop_center_img(edit_bg, based_w, based_h)
-        return bg_img
+        return crop_center_img(edit_bg, based_w, based_h)
 
     @staticmethod
     def get_dominant_color(pil_img: Image.Image) -> Tuple[int, int, int]:
         img = pil_img.copy()
         img = img.convert("RGBA")
         img = img.resize((1, 1), resample=0)
-        dominant_color = img.getpixel((0, 0))
-        return dominant_color
+        return img.getpixel((0, 0))
 
     @staticmethod
     def get_bg_color(
-        edit_bg: Image.Image, is_light: Optional[bool] = False
+        edit_bg: Image.Image,
+        is_light: Optional[bool] = False,
     ) -> Tuple[int, int, int]:
         # 获取背景主色
         color = 8
         q = edit_bg.quantize(colors=color, method=2)
         bg_color = (0, 0, 0)
-        if is_light:
-            based_light = 195
-        else:
-            based_light = 120
+        based_light = 195 if is_light else 120
         temp = 9999
         for i in range(color):
             bg = tuple(
                 q.getpalette()[  # type:ignore
                     i * 3 : (i * 3) + 3  # noqa:E203
-                ]
+                ],
             )
             light_value = bg[0] * 0.3 + bg[1] * 0.6 + bg[2] * 0.1
             if abs(light_value - based_light) < temp:
@@ -186,24 +187,22 @@ class CustomizeImage:
         r = 125
         if max(*bg_color) > 255 - r:
             r *= -1
-        text_color = (
+        return (
             math.floor(bg_color[0] + r if bg_color[0] + r <= 255 else 255),
             math.floor(bg_color[1] + r if bg_color[1] + r <= 255 else 255),
             math.floor(bg_color[2] + r if bg_color[2] + r <= 255 else 255),
         )
-        return text_color
 
     @staticmethod
     def get_char_color(bg_color: Tuple[int, int, int]) -> Tuple[int, int, int]:
         r = 140
         if max(*bg_color) > 255 - r:
             r *= -1
-        char_color = (
+        return (
             math.floor(bg_color[0] + 5 if bg_color[0] + r <= 255 else 255),
             math.floor(bg_color[1] + 5 if bg_color[1] + r <= 255 else 255),
             math.floor(bg_color[2] + 5 if bg_color[2] + r <= 255 else 255),
         )
-        return char_color
 
     @staticmethod
     def get_char_high_color(bg_color: Tuple[int, int, int]) -> Tuple[int, int, int]:
@@ -211,24 +210,22 @@ class CustomizeImage:
         d = 20
         if max(*bg_color) > 255 - r:
             r *= -1
-        char_color = (
+        return (
             math.floor(bg_color[0] + d if bg_color[0] + r <= 255 else 255),
             math.floor(bg_color[1] + d if bg_color[1] + r <= 255 else 255),
             math.floor(bg_color[2] + d if bg_color[2] + r <= 255 else 255),
         )
-        return char_color
 
     @staticmethod
     def get_bg_detail_color(bg_color: Tuple[int, int, int]) -> Tuple[int, int, int]:
         r = 140
         if max(*bg_color) > 255 - r:
             r *= -1
-        bg_detail_color = (
+        return (
             math.floor(bg_color[0] - 20 if bg_color[0] + r <= 255 else 255),
             math.floor(bg_color[1] - 20 if bg_color[1] + r <= 255 else 255),
             math.floor(bg_color[2] - 20 if bg_color[2] + r <= 255 else 255),
         )
-        return bg_detail_color
 
     @staticmethod
     def get_highlight_color(color: Tuple[int, int, int]) -> Tuple[int, int, int]:
@@ -278,5 +275,4 @@ def crop_center_img(img: Image.Image, based_w: int, based_h: int) -> Image.Image
         y1 = int(new_h / 2 - based_h / 2)
         x2 = based_w
         y2 = int(new_h / 2 + based_h / 2)
-    crop_img = resize_img.crop((x1, y1, x2, y2))
-    return crop_img
+    return resize_img.crop((x1, y1, x2, y2))

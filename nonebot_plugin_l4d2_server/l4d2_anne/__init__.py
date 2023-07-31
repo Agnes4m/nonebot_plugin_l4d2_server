@@ -18,7 +18,7 @@ headers = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) "
         "Gecko/20100101 Firefox/107.0"
-    )
+    ),
 }
 
 
@@ -26,7 +26,7 @@ async def anne_html(name: str):
     """搜索里提取玩家信息，返回列表字典"""
     data_title = anne_search(name)
     if not data_title:
-        return
+        return None
     data = data_title[0]
     title = data_title[1]
     if len(data) == 0 or data[0] == "No Player found.":
@@ -98,8 +98,7 @@ async def write_player(id, msg: str, nickname: str):
         await s._add_player_all(id, nicknam, msg)
         # except TypeError:
         # await s._add_player_steamid(id , msg)
-        mes = "绑定成功喵~\nQQ:" + nickname + "\n" + "steamid:" + msg
-        return mes
+        return "绑定成功喵~\nQQ:" + nickname + "\n" + "steamid:" + msg
     else:
         # try:
         data_tuple = s._query_player_qq(id)
@@ -110,8 +109,7 @@ async def write_player(id, msg: str, nickname: str):
         await s._add_player_all(id, msg, steamid)
         # except TypeError:
         #     await s._add_player_nickname(id , msg )
-        mes = "绑定成功喵~\nQQ:" + nickname + "\n" + "steam昵称:" + msg
-        return mes
+        return "绑定成功喵~\nQQ:" + nickname + "\n" + "steam昵称:" + msg
 
 
 def del_player(id: str):
@@ -120,14 +118,14 @@ def del_player(id: str):
         return "你还没有绑定过，请使用[求生绑定+昵称/steamid]"
     if s._delete_player:
         return "删除成功喵~"
+    return None
 
 
 async def id_to_mes(name: str):
     """根据name从数据库,返回steamid、或者空白"""
     data_tuple = await s.search_data(None, name, None)
     if data_tuple:
-        steamid = data_tuple[2]
-        return steamid
+        return data_tuple[2]
     return None
 
 
@@ -165,7 +163,7 @@ def anne_rank_dict(name: str):
             "div.container.text-left div.col-md-12.h-100 "
             "div.card-body.worldmap.d-flex.flex-column.justify-content-center."
             "text-center span"
-        )
+        ),
     )
     msg_list = []
     for i in message:
@@ -196,7 +194,7 @@ async def anne_message(name: str, usr_id: str):
                 logger.info("没有找到qq，使用默认头像")
                 message = await anne_html(name)
                 if not message:
-                    return
+                    return None
                 usr_id = "1145149191810"
                 if len(message) == 0:
                     return "没有叫这个名字的...\n"
@@ -233,7 +231,7 @@ async def anne_message(name: str, usr_id: str):
             if not name:
                 message = await anne_html(data_tuple[1])
                 if not message:
-                    return
+                    return None
                 usr_id = "1145149191810"
                 if len(message) == 0:
                     return "没有叫这个名字的...\n"
@@ -265,7 +263,7 @@ async def anne_map_msg(steamid: str):
             for i in range(0, len(rows), 9):
                 row = rows[i : i + 9]
                 data_list.append(row)
-    df = pd.DataFrame(
+    return pd.DataFrame(
         data_list,
         columns=[
             "游戏模式",
@@ -279,4 +277,3 @@ async def anne_map_msg(steamid: str):
             "Anne版本",
         ],
     )
-    return df

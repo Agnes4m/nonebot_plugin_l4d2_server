@@ -53,7 +53,8 @@ async def get_anne_server_ip(ip, ismsg: bool = False):
 
     if l4_config.l4_image:
         data = mode_txt_to_img(
-            data.split("\n")[0], data.replace(data.split("\n")[0], f"\nconnect {ip}")
+            data.split("\n")[0],
+            data.replace(data.split("\n")[0], f"\nconnect {ip}"),
         )
     else:
         data += f"\nconnect {ip}"
@@ -99,7 +100,7 @@ async def player_queries_anne_dict(ip: str, port: int):
                     "name": i.name,
                     "Score": i.score,
                     "Duration": await convert_duration(i.duration),
-                }
+                },
             )
     return msg_list
 

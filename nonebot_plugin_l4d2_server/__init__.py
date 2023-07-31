@@ -140,7 +140,7 @@ times = 0
 for one_path in l4_config.l4_ipall:
     times += 1
     path_msg = one_path["location"]
-    path_list += f"\n {str(times)} | {path_msg}"
+    path_list += f"\n {times!s} | {path_msg}"
 
 
 @up.got("is_sure", prompt=path_list)
@@ -299,12 +299,12 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
             l4_config.l4_number = msg_number - 1
             now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
             await matcher.send(
-                f"已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}"
+                f"已经切换路径为\n{l4_config.l4_number+1!s}、{now_path}",
             )  # noqa: E501
             config_manager.save()
     else:
         now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
-        await matcher.send(f"当前的路径为\n{str(l4_config.l4_number+1)}、{now_path}")
+        await matcher.send(f"当前的路径为\n{l4_config.l4_number+1!s}、{now_path}")
 
 
 @queries_comm.handle()
@@ -503,7 +503,7 @@ async def _(matcher: Matcher):
         "=====求生机器人帮助=====",
         "1、电信服战绩查询【求生anne[id/steamid/@]】",
         "2、电信服绑定【求生绑定[id/steamid]】",
-        "3、电信服状态查询【云xx】" "4、创意工坊下载【创意工坊下载[物品id/链接]】",
+        "3、电信服状态查询【云xx】4、创意工坊下载【创意工坊下载[物品id/链接]】",
         "5、指定ip查询【求生ip[ip]】(可以是域名)",
         "6、求生喷漆制作【求生喷漆】",
         "6、本地服务器操作(略，详情看项目地址)",

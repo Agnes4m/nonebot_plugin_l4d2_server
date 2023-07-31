@@ -24,10 +24,10 @@ async def api_get_json(msg: str):
     url_serach = "https://db.steamworkshopdownloader.io/prod/api/details/file"
     data: Dict[str, str] = {msg: ""}
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",
     }
     data_msg = httpx.post(url=url_serach, headers=headers, data=data).content.decode(
-        "utf-8"
+        "utf-8",
     )
     logger.info(data_msg)
     data_msg = data_msg[1:-1]

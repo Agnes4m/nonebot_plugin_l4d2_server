@@ -34,8 +34,7 @@ errors = (
 
 async def get_qqgroup_ip_msg(qqgroup):
     """首先，获取qq群订阅数据，再依次queries返回ip原标"""
-    ip_list = await si.query_server_ip(qqgroup)
-    return ip_list
+    return await si.query_server_ip(qqgroup)
 
 
 async def bind_group_ip(group: int, host: str, port: int):
@@ -67,7 +66,7 @@ async def qq_ip_queries(msg: List[tuple]):
         number, qqgroup, host, port = i
         msg2 = await player_queries(host, port)
         msg1 = await queries(host, port)
-        messsage += f"序号、{str(number)} \n{msg1}{msg2}--------------------\n"
+        messsage += f"序号、{number!s} \n{msg1}{msg2}--------------------\n"
     return messsage
 
 
@@ -95,8 +94,8 @@ async def qq_ip_querie(msg: List[Tuple[str, str, int]], igr: bool = True):
                             msg_list,
                             igr,
                             qqgroup,
-                        )
-                    )
+                        ),
+                    ),
                 )
             except ValueError:
                 continue  # 处理异常情况
@@ -137,7 +136,7 @@ async def process_message(
             {
                 "Players": msg2,
                 "number": number,
-            }
+            },
         )
         msg1.update(msg3)
         if qqgroup:
@@ -189,7 +188,7 @@ async def get_tan_jian(msg: List[tuple], mode: int):
                     continue
                 msg1.update({"Players": msg2})
                 msg1.update({"ranks": point})
-                ips = f"{host}:{str(port)}"
+                ips = f"{host}:{port!s}"
                 msg1.update({"ips": ips})
                 # msg1是一行数据完整的字典
                 msg_list.append(msg1)
@@ -201,7 +200,7 @@ async def get_tan_jian(msg: List[tuple], mode: int):
                     if "缺人" in msg1["name"]:
                         msg2 = await player_queries_anne_dict(host, port)
                         msg1.update({"Players": msg2})
-                        ips = f"{host}:{str(port)}"
+                        ips = f"{host}:{port!s}"
                         msg1.update({"ips": ips})
                         # msg1是一行数据完整的字典
                     else:
@@ -215,7 +214,7 @@ async def get_tan_jian(msg: List[tuple], mode: int):
                 if "[" not in msg1["name"]:
                     msg2 = await player_queries_anne_dict(host, port)
                     msg1.update({"Players": msg2})
-                    ips = f"{host}:{str(port)}"
+                    ips = f"{host}:{port!s}"
                     msg1.update({"ips": ips})
                     # msg1是一行数据完整的字典
                     msg_list.append(msg1)
@@ -311,6 +310,7 @@ async def write_json(data_str: str):
                 with open("data/L4D2/l4d2.json", "w", encoding="utf8") as f_new:
                     json.dump(ALL_HOST, f_new, ensure_ascii=False, indent=4)
                 return f"添加成功，指令为{key}{data_num}"
+        return None
 
     elif data_list[0] == "删除":
         for key, value in ALL_HOST.items():
@@ -329,6 +329,7 @@ async def write_json(data_str: str):
                         return "删除成功喵"
                 return "序号不正确，请输入【求生更新 删除 腐竹 序号】"
         return "腐竹名不存在，请输入【求生更新 删除 腐竹 序号】"
+    return None
 
 
 async def add_ip(group_id, host, port):
@@ -347,16 +348,14 @@ async def show_ip(group_id):
     logger.info(data_list)
     if len(data_list) == 0:
         return "本群没有订阅"
-    msg = await qq_ip_queries_pic(data_list)
-    return msg
+    return await qq_ip_queries_pic(data_list)
 
 
 async def get_number_url(number):
     ip = await get_server_ip(number)
     if not ip:
         return "该序号不存在"
-    url = f"connect {ip}"
-    return url
+    return f"connect {ip}"
 
 
 async def server_rule_dict(ip: str, port: int):

@@ -64,11 +64,13 @@ class L4D2Player:
     async def _query_player_steamid(self, steamid: str):
         """通过steamid获取数据"""
         self.c.execute(f"SELECT * FROM L4d2_players WHERE steamid = '{steamid}'")
-        data_tuple = self.c.fetchone()
-        return data_tuple
+        return self.c.fetchone()
 
     async def search_data(
-        self, qq: Optional[str], nickname: Optional[str], steamid: Optional[str]
+        self,
+        qq: Optional[str],
+        nickname: Optional[str],
+        steamid: Optional[str],
     ) -> Union[tuple, None]:
         """
         输入元组查询，优先qq其次steamid最后nickname，不需要值可以为None

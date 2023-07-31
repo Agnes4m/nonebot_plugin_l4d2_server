@@ -34,59 +34,102 @@ rename_vpk = on_regex(
 
 find_vpk = on_command("l4_map", aliases={"求生地图"}, priority=25, block=True)
 del_vpk = on_command(
-    "l4_del_map", aliases={"求生地图删除", "地图删除"}, priority=20, permission=Master
+    "l4_del_map",
+    aliases={"求生地图删除", "地图删除"},
+    priority=20,
+    permission=Master,
 )
 rcon_to_server = on_command(
-    "rcon", aliases={"求生服务器指令", "服务器指令"}, permission=Master
+    "rcon",
+    aliases={"求生服务器指令", "服务器指令"},
+    permission=Master,
 )  # noqa: E501
 check_path = on_command(
-    "l4_check", aliases={"求生路径"}, priority=20, block=True, permission=Master
+    "l4_check",
+    aliases={"求生路径"},
+    priority=20,
+    block=True,
+    permission=Master,
 )
 smx_file = on_command(
-    "l4_smx", aliases={"求生插件"}, priority=20, block=True, permission=Master
+    "l4_smx",
+    aliases={"求生插件"},
+    priority=20,
+    block=True,
+    permission=Master,
 )
 
 # anne
 anne_player = on_command("Ranne", aliases={"求生anne"}, priority=25, block=True)
 anne_bind = on_command(
-    "Rbind", aliases={"steam绑定", "求生绑定", "anne绑定"}, priority=20, block=True
+    "Rbind",
+    aliases={"steam绑定", "求生绑定", "anne绑定"},
+    priority=20,
+    block=True,
 )
 del_bind = on_command(
-    "del_bind", aliases={"steam解绑", "求生解绑", "anne解绑"}, priority=20, block=True
+    "del_bind",
+    aliases={"steam解绑", "求生解绑", "anne解绑"},
+    priority=20,
+    block=True,
 )
 prison = on_command("zl", aliases={"坐牢"}, priority=20, block=True)
 open_prison = on_command("kl", aliases={"开牢"}, priority=20, block=True)
 
 updata = on_command(
-    "updata_anne", aliases={"求生更新anne"}, priority=20, block=True, permission=Master
+    "updata_anne",
+    aliases={"求生更新anne"},
+    priority=20,
+    block=True,
+    permission=Master,
 )
 tan_jian = on_command("tj", aliases={"探监"}, priority=20, block=True)
 
 # 查询
 queries_comm = on_keyword(
-    keywords={"queries", "求生ip", "求生IP", "connect"}, priority=20, block=True
+    keywords={"queries", "求生ip", "求生IP", "connect"},
+    priority=20,
+    block=True,
 )
 add_queries = on_command(
-    "addq", aliases={"求生添加订阅"}, priority=20, block=True, permission=Master
+    "addq",
+    aliases={"求生添加订阅"},
+    priority=20,
+    block=True,
+    permission=Master,
 )
 del_queries = on_command(
-    "delq", aliases={"求生取消订阅"}, priority=20, block=True, permission=Master
+    "delq",
+    aliases={"求生取消订阅"},
+    priority=20,
+    block=True,
+    permission=Master,
 )
 show_queries = on_command("showq", aliases={"求生订阅"}, priority=20, block=True)
 join_server = on_command("ld_jr", aliases={"求生加入"}, priority=20, block=True)
 connect_rcon = on_command(
-    "Rrcon", aliases={"求生连接", "求生链接", "求生rcon"}, priority=50, block=False
+    "Rrcon",
+    aliases={"求生连接", "求生链接", "求生rcon"},
+    priority=50,
+    block=False,
 )
 end_connect = ["stop", "结束", "连接结束", "结束连接"]
 search_api = on_command(
-    "search", aliases={"求生三方"}, priority=20, block=True, permission=Master
+    "search",
+    aliases={"求生三方"},
+    priority=20,
+    block=True,
+    permission=Master,
 )
 # which_map = on_keyword("是什么图"), priority=20, block=False)
 reload_ip = on_command("l4_reload", aliases={"重载ip"}, priority=30, permission=Master)
 
 # 下载内容
 up_workshop = on_command(
-    "workshop", aliases={"创意工坊下载", "求生创意工坊"}, priority=20, block=True
+    "workshop",
+    aliases={"创意工坊下载", "求生创意工坊"},
+    priority=20,
+    block=True,
 )
 vtf_make = on_command("vtf_make", aliases={"求生喷漆"}, priority=20, block=True)
 
@@ -212,17 +255,16 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             # if any(mode in msg for mode in gamemode_list):
             #     pass
             # else:
-            return
+            return None
         message = await json_server_to_tag_dict(command, msg)
         if len(message) == 0:
             # 关键词不匹配，忽略
-            return
+            return None
         ip = str(message["ip"])
         logger.info(ip)
 
         try:
-            msgs = await get_anne_server_ip(ip)
-            return msgs
+            return await get_anne_server_ip(ip)
         except (OSError, asyncio.exceptions.TimeoutError):
             return "服务器无响应"
 

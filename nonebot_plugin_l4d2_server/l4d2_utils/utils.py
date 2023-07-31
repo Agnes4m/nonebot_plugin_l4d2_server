@@ -146,7 +146,7 @@ async def save_file(file: bytes, path_name):
 
 async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
     """上传临时文件"""
-    if systems == "win" or "other":
+    if True:
         with tempfile.TemporaryDirectory() as temp_dir:
             with open(Path(temp_dir) / filename, "wb") as f:
                 f.write(file_data)
@@ -201,7 +201,7 @@ def register_menu_func(
             "trigger_condition": trigger_condition,
             "brief_des": brief_des,
             "detail_des": detail_des or brief_des,
-        }
+        },
     )
 
 
@@ -251,5 +251,4 @@ def split_maohao(msg: str) -> List[str]:
         msgs: List[str] = [msg, "20715"]
     else:
         msgs = []
-    mse = [msgs[0], msgs[-1]]
-    return mse
+    return [msgs[0], msgs[-1]]

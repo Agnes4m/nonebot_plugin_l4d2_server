@@ -15,7 +15,7 @@ async def updata_anne_server():
     soup = BeautifulSoup(data, "html.parser")
     tbody = soup.find("tbody")
     if not tbody:
-        return
+        return None
     n = 0
     ip_list = []
     while n < 50:
@@ -48,7 +48,7 @@ async def updata_anne_server():
 def server_key():
     """响应的服务器开头"""
     a = set()
-    for tag1, value in ALL_HOST.items():
+    for tag1, _value in ALL_HOST.items():
         try:
             a.add(tag1)
         except AttributeError:
@@ -59,7 +59,7 @@ def server_key():
 def group_key():
     """响应群组服务器开头"""
     a = set()
-    for tag1, value in Group_All_HOST.items():
+    for tag1, _value in Group_All_HOST.items():
         try:
             a.add(tag1)
         except AttributeError:
