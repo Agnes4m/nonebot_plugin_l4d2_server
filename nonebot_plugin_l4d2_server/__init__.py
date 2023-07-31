@@ -298,7 +298,9 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
         else:
             l4_config.l4_number = msg_number - 1
             now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
-            await matcher.send(f"已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}")  # noqa: E501
+            await matcher.send(
+                f"已经切换路径为\n{str(l4_config.l4_number+1)}、{now_path}"
+            )  # noqa: E501
             config_manager.save()
     else:
         now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]

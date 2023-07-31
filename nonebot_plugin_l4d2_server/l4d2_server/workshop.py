@@ -30,7 +30,6 @@ async def api_get_json(msg: str):
         "utf-8"
     )
     logger.info(data_msg)
-    out = {}
     data_msg = data_msg[1:-1]
     datas: Dict[str, str] = json.loads(data_msg)
     return datas
