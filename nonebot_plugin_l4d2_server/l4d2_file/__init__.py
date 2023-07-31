@@ -1,8 +1,6 @@
 import io
-import os
 import zipfile
 from pathlib import Path
-from time import sleep
 from typing import Callable, Dict, List
 from zipfile import ZipFile
 
@@ -20,11 +18,9 @@ async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
     down_file = Path(map_paths, name)
     if await get_file(url, down_file) is None:
         return None
-    sleep(1)
     msg = open_packet(name, down_file)
     logger.info(msg)
 
-    sleep(1)
     extracted_vpk_files = get_vpk(map_paths)
     # 获取新增vpk文件的list
     return list(set(extracted_vpk_files) - set(original_vpk_files))
@@ -37,20 +33,20 @@ def unzip_zipfile(down_file: Path, down_path: Path):
     """解压zip文件"""
     with support_gbk(zipfile.ZipFile(down_file, "r")) as z:
         z.extractall(down_path)
-    os.remove(down_file)
+    down_file.unlink()
 
 
 def unpack_7zfile(down_file: Path, down_path: Path):
     """解压7z文件"""
     Archive(str(down_file)).extractall(str(down_path))
-    os.remove(down_file)
+    down_file.unlink()
 
 
 def unpack_rarfile(down_file: Path, down_path: Path):
     """解压rar文件"""
     with rarfile.RarFile(down_file, "r") as z:
         z.extractall(down_path)
-    os.remove(down_file)
+    down_file.unlink()
 
 
 def open_packet(name: str, down_file: Path) -> str:

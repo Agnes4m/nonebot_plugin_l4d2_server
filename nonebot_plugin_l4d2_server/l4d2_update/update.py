@@ -5,14 +5,18 @@ import git
 from git.exc import GitCommandError
 from nonebot.log import logger
 
+log_config = (
+    {
+        "key": "✨🐛🎨⚡🍱♻️",
+        "num": 7,
+    },
+)
+
 
 async def update_from_git(
     level: int = 0,
     repo_path: Union[str, Path, None] = None,
-    log_config: dict = {
-        "key": "✨🐛🎨⚡🍱♻️",
-        "num": 7,
-    },
+    log_config=log_config,
     is_update: bool = True,
 ) -> List[str]:
     if repo_path is None:
@@ -44,6 +48,6 @@ async def update_from_git(
             for key in log_config["key"]:
                 if key in commit.message:
                     log_list.append(commit.message.replace("\n", ""))
-                    if len(log_list) >= log_config["num"]:
+                    if len(log_list) >= int(log_config["num"]):
                         break
     return log_list

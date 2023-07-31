@@ -27,7 +27,6 @@ async def convert_img(
         if is_base64:
             res = b64encode(res).decode()
         return res
-    elif isinstance(img, bytes):
+    if isinstance(img, bytes):
         return b64encode(img).decode()
-    else:
-        return f"[CQ:image,file=file:///{img!s}]"
+    return f"[CQ:image,file=file:///{img!s}]"

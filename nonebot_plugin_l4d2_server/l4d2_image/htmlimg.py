@@ -1,4 +1,4 @@
-class DATA_PANDS:
+class DATAPANDS:
     def __init__(self, data_dict: dict) -> None:
         self.new_data = {}
         self.data_dict = data_dict

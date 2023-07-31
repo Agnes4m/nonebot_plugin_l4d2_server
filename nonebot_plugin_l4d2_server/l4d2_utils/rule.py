@@ -1,11 +1,20 @@
 from nonebot.adapters.onebot.v11 import Message, NoticeEvent
-from nonebot.params import CommandArg
+from nonebot.params import CommandArg, Depends
+from nonebot.rule import Rule
 
 from .config import file_format, l4_config
 
 
 async def full_command(arg: Message = CommandArg()) -> bool:
     return not bool(str(arg))
+
+
+def FullCommand() -> Rule:  # noqa: N802
+    return Rule(full_command)
+
+
+def FullCommandDepend():  # noqa: N802
+    return Depends(full_command)
 
 
 def wenjian(event: NoticeEvent):

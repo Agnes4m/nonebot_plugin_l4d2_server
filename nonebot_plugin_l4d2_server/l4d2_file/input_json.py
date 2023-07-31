@@ -1,9 +1,11 @@
 import json
 from pathlib import Path
 
-import httpx
+import aiofiles
 from nonebot import on_notice
 from nonebot.adapters.onebot.v11 import NoticeEvent
+
+from ..l4d2_image.steam import url_to_msg
 
 upload = on_notice(priority=1)
 
@@ -16,7 +18,10 @@ async def _(event: NoticeEvent):
         name: str = files["name"]
         if arg["notice_type"] == "offline_file" and name.endswith(".json"):
             try:
-                jsons = json.loads(httpx.get(files["url"]).content.decode("utf-8"))
+                msg = await url_to_msg(files["url"])
+                if not msg:
+                    return
+                jsons = json.loads(msg)
             except json.decoder:
                 await upload.finish("求生json格式不正确")
             if not validate_json(jsons):
@@ -45,8 +50,8 @@ async def validate_json(json_data):
                     return False
                 if not all(key in item for key in ["id", "version", "ip"]):
                     return False
-
-        return True
+        if True:
+            return True
 
     except json.JSONDecodeError:
         return False
@@ -57,7 +62,7 @@ async def up_date(data, name):
     directory.mkdir(parents=True, exist_ok=True)
 
     file_path = directory / name
-    with open(file_path, "w") as json_file:
+    async with aiofiles.open(file_path, "w") as json_file:
         json.dump(data, json_file, ensure_ascii=False)
 
     return True

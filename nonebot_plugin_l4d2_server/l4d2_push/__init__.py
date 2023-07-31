@@ -60,7 +60,7 @@ async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandA
         return_msg = await add_or_update_data(group_id, msg)
         if isinstance(push_msg, bytes):
             await matcher.finish(MessageSegment.image(push_msg))
-        elif isinstance(push_msg, Message | MessageSegment):
+        elif isinstance(push_msg, Union[Message, MessageSegment]):
             await matcher.finish(push_msg)
         else:
             await matcher.send(push_msg)
@@ -178,7 +178,7 @@ async def send_message(
             message=MessageSegment.image(push_msg),
         )
         return None
-    elif msg and isinstance(push_msg, str):
+    if msg and isinstance(push_msg, str):
         # 单服务器
         message = await json_server_to_tag_dict(msg, command)
         if len(message) == 0 or not value:

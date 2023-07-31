@@ -1,10 +1,7 @@
 from io import BytesIO
 
 from nonebot.log import logger
-from PIL import Image
-
-# import sys
-# sys.modules["srctools._cy_vtf_readwrite"] = None
+from PIL import Image as Image
 from srctools.vtf import VTF, ImageFormats
 
 
