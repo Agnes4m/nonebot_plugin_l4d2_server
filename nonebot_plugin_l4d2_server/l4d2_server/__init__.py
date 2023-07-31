@@ -30,7 +30,6 @@ async def main(host):
 
     if response.id == -1:
         await close(writer)
-        raise WrongPassword
 
     # 循环接收用户输入并发送指令
     while True:
@@ -55,11 +54,3 @@ async def main(host):
 
     # 断开连接
     await close(writer)
-
-
-class WrongPassword(Exception):
-    """Indicates a wrong password."""
-
-
-class SessionTimeout(Exception):
-    """Indicates that the session timed out."""
