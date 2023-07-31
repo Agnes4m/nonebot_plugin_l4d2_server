@@ -7,7 +7,8 @@ from PIL import Image
 
 
 async def convert_img(
-    img: Union[Image.Image, str, Path, bytes], is_base64: bool = False
+    img: Union[Image.Image, str, Path, bytes],
+    is_base64: bool = False,
 ):
     """
     :说明:
@@ -26,7 +27,6 @@ async def convert_img(
         if is_base64:
             res = b64encode(res).decode()
         return res
-    elif isinstance(img, bytes):
+    if isinstance(img, bytes):
         return b64encode(img).decode()
-    else:
-        return f"[CQ:image,file=file:///{str(img)}]"
+    return f"[CQ:image,file=file:///{img!s}]"

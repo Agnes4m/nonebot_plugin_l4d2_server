@@ -23,18 +23,22 @@ async def adjust_image_size(text_list):
     num_players = len(text_list.get("Player", []))
     final_height = initial_height + num_players * height_increment
 
-    image = Image.new("RGBA", (initial_width, final_height), "white")
-    return image
+    return Image.new("RGBA", (initial_width, final_height), "white")
 
 
 async def adjust_server_name(image: Image.Image, name: str):
     """写标题"""
-    pass
+    if image and name:
+        ...
 
 
 async def adjust_ping(image: Image.Image, ping: str):
     """写ping"""
+    if image and ping:
+        ...
 
 
-async def adjust_player(image: Image.Image, Player: List[dict]):
+async def adjust_player(image: Image.Image, player: List[dict]):
     """写玩家"""
+    if image and player:
+        ...

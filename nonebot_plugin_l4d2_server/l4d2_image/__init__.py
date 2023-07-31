@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 import jinja2
-from bs4 import BeautifulSoup
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
@@ -14,57 +13,53 @@ from .send_image_tool import convert_img
 template_path = TEXT_PATH / "template"
 
 env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(template_path), enable_async=True
+    loader=jinja2.FileSystemLoader(template_path),
+    enable_async=True,
 )
 
 
 async def out_png(usr_id, data_dict: dict):
     """使用html来生成图片"""
-
-    with open((template_path / "anne.html"), "r", encoding="utf-8") as file:
-        data_html = file.read()
     # content = template.render_async()
-    soup = BeautifulSoup(data_html, "html.parser")
-    msg_dict = await dict_to_html(usr_id, data_dict, soup)
+    msg_dict = await dict_to_html(usr_id, data_dict)
     template = env.get_template("anne.html")
     html = await template.render_async(data=msg_dict)
-    pic = await html_to_pic(
+    return await html_to_pic(
         html,
         wait=0,
         viewport={"width": 1100, "height": 800},
         template_path=f"file://{template_path.absolute()}",
     )
-    return pic
 
 
-async def dict_to_html(usr_id, DETAIL_MAP: dict, soup: BeautifulSoup):
+async def dict_to_html(usr_id, detail_map: dict):
     """输入qq、字典，获取新的msg替换html"""
-    DETAIL_right = {}
-    DETAIL_right["name"] = DETAIL_MAP["Steam 名字:"]
-    DETAIL_right["Steam_ID"] = DETAIL_MAP["Steam ID:"]
-    DETAIL_right["play_time"] = DETAIL_MAP["游玩时间:"]
-    DETAIL_right["last_online"] = DETAIL_MAP["最后上线:"]
-    DETAIL_right["rank"] = DETAIL_MAP["排行:"]
-    DETAIL_right["points"] = DETAIL_MAP["分数:"]
-    DETAIL_right["point_min"] = DETAIL_MAP["每分钟获取分数:"]
-    DETAIL_right["killed"] = DETAIL_MAP["感染者消灭:"]
-    DETAIL_right["shut"] = DETAIL_MAP["爆头:"]
-    DETAIL_right["out"] = DETAIL_MAP["爆头率:"]
-    DETAIL_right["playtimes"] = DETAIL_MAP["游玩地图数量:"]
-    DETAIL_right["url"] = DETAIL_MAP["个人资料"]
-    DETAIL_right["one_msg"] = DETAIL_MAP["一言"]
-    DETAIL_right["last_one"] = DETAIL_MAP["救援关"]
+    detail_right = {}
+    detail_right["name"] = detail_map["Steam 名字:"]
+    detail_right["Steam_ID"] = detail_map["Steam ID:"]
+    detail_right["play_time"] = detail_map["游玩时间:"]
+    detail_right["last_online"] = detail_map["最后上线:"]
+    detail_right["rank"] = detail_map["排行:"]
+    detail_right["points"] = detail_map["分数:"]
+    detail_right["point_min"] = detail_map["每分钟获取分数:"]
+    detail_right["killed"] = detail_map["感染者消灭:"]
+    detail_right["shut"] = detail_map["爆头:"]
+    detail_right["out"] = detail_map["爆头率:"]
+    detail_right["playtimes"] = detail_map["游玩地图数量:"]
+    detail_right["url"] = detail_map["个人资料"]
+    detail_right["one_msg"] = detail_map["一言"]
+    detail_right["last_one"] = detail_map["救援关"]
     # html_text = soup.prettify()
-    # for key, value in DETAIL_right.items():
+    # for key, value in detail_right.items():
     #     html_text = html_text.replace(key,value)
     # 头像
     temp = await get_head_by_user_id_and_save(usr_id)
-    # temp = await get_head_steam_and_save(usr_id,DETAIL_right['url'])
+    # temp = await get_head_steam_and_save(usr_id,detail_right['url'])
     if not temp:
-        return
+        return None
     res = await convert_img(temp, is_base64=True)
-    DETAIL_right["header"] = f"data:image/png;base64,{res}"
-    data_list: List[dict] = [DETAIL_right]
+    detail_right["header"] = f"data:image/png;base64,{res}"
+    data_list: List[dict] = [detail_right]
     return data_list
 
 
@@ -80,7 +75,9 @@ async def server_ip_pic(msg_list: List[dict]):
         players_list = []
         if "Players" in server_info:
             sorted_players = sorted(
-                server_info["Players"], key=lambda x: x.get("Score", 0), reverse=True
+                server_info["Players"],
+                key=lambda x: x.get("Score", 0),
+                reverse=True,
             )[:4]
             for player_info in sorted_players:
                 player_str = f"{player_info['name']} | {player_info['Duration']}"

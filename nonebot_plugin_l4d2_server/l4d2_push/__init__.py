@@ -60,7 +60,7 @@ async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandA
         return_msg = await add_or_update_data(group_id, msg)
         if isinstance(push_msg, bytes):
             await matcher.finish(MessageSegment.image(push_msg))
-        elif isinstance(push_msg, Message | MessageSegment):
+        elif isinstance(push_msg, Union[Message, MessageSegment]):
             await matcher.finish(push_msg)
         else:
             await matcher.send(push_msg)
@@ -97,10 +97,7 @@ async def add_or_update_data(group_i: int, some_str: str = "", ad_mode: str = "a
                     "times": l4_config.l4_push_times,
                     "msg": some_str,
                 }
-                if old_msg == some_str:
-                    mode = "update"
-                else:
-                    mode = "change"
+                mode = "update" if old_msg == some_str else "change"
             except Exception:
                 scheduler_data[group_id] = {
                     "times": l4_config.l4_push_times,
@@ -110,7 +107,7 @@ async def add_or_update_data(group_i: int, some_str: str = "", ad_mode: str = "a
 
         else:
             scheduler_data = {
-                group_id: {"times": l4_config.l4_push_times, "msg": some_str}
+                group_id: {"times": l4_config.l4_push_times, "msg": some_str},
             }
             mode = "new"
 
@@ -168,25 +165,29 @@ async def rss_ip():
 
 
 async def send_message(
-    recipient_id: int, msg: str, value: Optional[Dict[str, Union[int, str]]] = None
+    recipient_id: int,
+    msg: str,
+    value: Optional[Dict[str, Union[int, str]]] = None,
 ):
     # 执行发送消息的操作，参数可以根据需要进行传递和使用
     command, message = await extract_last_digit(msg)
     push_msg = await get_ip_to_mes(msg=message, command=command)
     if isinstance(push_msg, bytes):
         await get_bot().send_group_msg(
-            group_id=recipient_id, message=MessageSegment.image(push_msg)
+            group_id=recipient_id,
+            message=MessageSegment.image(push_msg),
         )
-    elif msg and isinstance(push_msg, str):
+        return None
+    if msg and isinstance(push_msg, str):
         # 单服务器
         message = await json_server_to_tag_dict(msg, command)
         if len(message) == 0 or not value:
             # 关键词不匹配，忽略
-            return
+            return None
         try:
             old_msg = value.get("ip_detail", {})
             if not isinstance(old_msg, dict):
-                return
+                return None
             ip = str(message["ip"])
             host, port = split_maohao(ip)
             msg_: a2s.SourceInfo = await a2s.ainfo((host, port))
@@ -203,6 +204,7 @@ async def send_message(
             logger.warning(e)
 
         return value
+    return None
 
 
 async def server_is_change():

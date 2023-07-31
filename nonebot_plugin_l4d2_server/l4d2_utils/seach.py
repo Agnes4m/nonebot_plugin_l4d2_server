@@ -8,14 +8,14 @@ def anne_search(name: str):
     data = {"search": name}
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     data = httpx.post(url, data=data, headers=headers, timeout=60).content.decode(
-        "utf-8"
+        "utf-8",
     )
     soup = BeautifulSoup(data, "html.parser")
     # 获取标题
     title = []
     thead = soup.find("thead")
     if not thead:
-        return
+        return None
     for i in thead.find_all("td"):  # type: ignore
         tag = i.text.strip()
         title.append(tag)
@@ -23,10 +23,10 @@ def anne_search(name: str):
     # 角色信息
     datas_table = soup.find("table")
     if not datas_table:
-        return
+        return None
     datas_tbody = datas_table.find("tbody")
     if not datas_tbody:
-        return
+        return None
     datas = datas_tbody.find_all("tr")  # type: ignore
     return [datas, title]
 
@@ -35,9 +35,9 @@ def name_steamid_html(name):
     """您称通过网页来返回求生steamid"""
     data_title = anne_search(name)
     if not data_title:
-        return
+        return None
     data = data_title[0]
     for i in data:
         onclick: str = i["onclick"]
-        steamid = onclick.split("=")[2].strip("'")
-        return steamid
+        return onclick.split("=")[2].strip("'")
+    return None

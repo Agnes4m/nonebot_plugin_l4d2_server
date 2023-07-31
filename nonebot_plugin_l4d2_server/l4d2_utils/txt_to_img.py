@@ -22,7 +22,8 @@ def mode_txt_to_img(
     txt2img.set_font_size(font_size)
     pic = txt2img.draw(title, text)
     pic = base64.b64decode(pic)
-
+    if ex_text:
+        ...
     if not ex_msg:
         msg = MessageSegment.image(pic)
     else:

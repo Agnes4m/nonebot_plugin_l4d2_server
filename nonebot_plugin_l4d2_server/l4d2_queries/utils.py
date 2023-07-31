@@ -10,10 +10,10 @@ from pydantic import BaseModel
 from ..l4d2_utils.config import l4_config
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao
-from .localIP import ALL_HOST
+from .local_ip import ALL_HOST
 
 
-class GROUP_MSG(BaseModel):
+class GROUPMSG(BaseModel):
     tag: str
     online_server: int
     empty_server: int
@@ -48,12 +48,15 @@ async def queries_server(msg: list) -> str:
 
 async def get_anne_server_ip(ip, ismsg: bool = False):
     """输出查询ip和ping"""
+    if ismsg:
+        ...
     host, port = split_maohao(ip)
     data = await queries_server([host, port])
 
     if l4_config.l4_image:
         data = mode_txt_to_img(
-            data.split("\n")[0], data.replace(data.split("\n")[0], f"\nconnect {ip}")
+            data.split("\n")[0],
+            data.replace(data.split("\n")[0], f"\nconnect {ip}"),
         )
     else:
         data += f"\nconnect {ip}"
@@ -99,7 +102,7 @@ async def player_queries_anne_dict(ip: str, port: int):
                     "name": i.name,
                     "Score": i.score,
                     "Duration": await convert_duration(i.duration),
-                }
+                },
             )
     return msg_list
 
@@ -121,12 +124,12 @@ async def msg_ip_to_list(message_list: list):
         for i in message_list:
             n += 1
             name = i["name"]
-            Score = i["Score"]
-            if Score == "0":
-                Score = "摸"
-            Duration = i["Duration"]
-            soc = "[{:>{}}]".format(Score, max_score_len)
-            dur = "{:^{}}".format(Duration, max_duration_len)
+            score = i["Score"]
+            if score == "0":
+                score = "摸"
+            duration = i["Duration"]
+            soc = "[{:>{}}]".format(score, max_score_len)
+            dur = "{:^{}}".format(duration, max_duration_len)
             message += f"{soc} | {dur} | {name} \n"
     return message
 

@@ -33,7 +33,7 @@ class L4D2Player:
         )
         self.conn.commit()
 
-    async def _add_player_all(self, qq, nickname, steamid):
+    async def add_player_all(self, qq, nickname, steamid):
         """用新数据覆盖旧数据"""
         # try:
         self.c.execute(
@@ -45,13 +45,13 @@ class L4D2Player:
         # except sqlite3.IntegrityError:
         #     return False
 
-    def _delete_player(self, qq):
+    def delete_player(self, qq):
         """解除绑定"""
         self.c.execute(f"DELETE FROM L4d2_players WHERE qq = {qq}")
         self.conn.commit()
         return True
 
-    def _query_player_qq(self, qq) -> Union[tuple, None]:
+    def query_player_qq(self, qq) -> Union[tuple, None]:
         """通过qq获取数据"""
         self.c.execute(f"SELECT * FROM L4d2_players WHERE qq = '{qq}'")
         return self.c.fetchone()
@@ -64,11 +64,13 @@ class L4D2Player:
     async def _query_player_steamid(self, steamid: str):
         """通过steamid获取数据"""
         self.c.execute(f"SELECT * FROM L4d2_players WHERE steamid = '{steamid}'")
-        data_tuple = self.c.fetchone()
-        return data_tuple
+        return self.c.fetchone()
 
     async def search_data(
-        self, qq: Optional[str], nickname: Optional[str], steamid: Optional[str]
+        self,
+        qq: Optional[str],
+        nickname: Optional[str],
+        steamid: Optional[str],
     ) -> Union[tuple, None]:
         """
         输入元组查询，优先qq其次steamid最后nickname，不需要值可以为None

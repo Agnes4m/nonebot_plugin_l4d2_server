@@ -37,7 +37,7 @@ class L4D2DataSqlite:
         c = self.conn.cursor()
         for table in table_data:
             c.execute(
-                f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'"
+                f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'",
             )
             if c.fetchone() is None:
                 if table == "L4d2_players":
@@ -57,15 +57,15 @@ class L4D2DataSqlite:
                 if not any(col[1] == column for col in c.fetchall()):
                     if column in L4d2_BOOLEAN:
                         c.execute(
-                            f"ALTER TABLE {table} ADD COLUMN {column} BOOLEAN DEFAULT 0"
+                            f"ALTER TABLE {table} ADD COLUMN {column} BOOLEAN DEFAULT 0",
                         )
                     elif column in L4d2_INTEGER:
                         c.execute(
-                            f"ALTER TABLE {table} ADD COLUMN {column} INTEGER DEFAULT NULL"  # noqa: E501
+                            f"ALTER TABLE {table} ADD COLUMN {column} INTEGER DEFAULT NULL",
                         )
                     else:
                         c.execute(
-                            f"ALTER TABLE {table} ADD COLUMN {column} TEXT DEFAULT NULL"
+                            f"ALTER TABLE {table} ADD COLUMN {column} TEXT DEFAULT NULL",
                         )
         self.conn.commit()
 
@@ -78,24 +78,21 @@ class L4D2DataSqlite:
         columns = None
         table = None
         for table in table_data:
-            if table == "L4d2_players":
-                columns = L4d2_players_tag
-            else:
-                columns = L4d2_server_tag
+            columns = L4d2_players_tag if table == "L4d2_players" else L4d2_server_tag
         if not columns:
             return
         for column in columns:
             if column in L4d2_INTEGER:
                 c.execute(
-                    f"UPDATE {table} SET {column} = NULL WHERE typeof({column}) != 'integer'"  # noqa: E501
+                    f"UPDATE {table} SET {column} = NULL WHERE typeof({column}) != 'integer'",
                 )
             elif column in L4d2_TEXT:
                 c.execute(
-                    f"UPDATE {table} SET {column} = NULL WHERE typeof({column}) != 'text'"  # noqa: E501
+                    f"UPDATE {table} SET {column} = NULL WHERE typeof({column}) != 'text'",
                 )
             elif column in L4d2_BOOLEAN:
                 c.execute(
-                    f"UPDATE {table} SET {column} = 'False' WHERE typeof({column}) != 'boolean'"  # noqa: E501
+                    f"UPDATE {table} SET {column} = 'False' WHERE typeof({column}) != 'boolean'",
                 )
         self.conn.commit()
 
@@ -105,4 +102,4 @@ class L4D2DataSqlite:
         logger.info("已断开求生数据库")
 
 
-sq_L4D2 = L4D2DataSqlite()
+sq_L4D2 = L4D2DataSqlite()  # noqa: N816

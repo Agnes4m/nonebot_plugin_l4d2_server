@@ -20,10 +20,12 @@ async def download_url(url: str) -> bytes:
             try:
                 resp = await client.get(url, timeout=20)
                 resp.raise_for_status()
-                return resp.content
+                if True:
+                    return resp.content
             except Exception as e:
                 logger.warning(f"Error downloading {url}, retry {i}/3: {e}")
                 await asyncio.sleep(3)
+
     raise Exception(f"{url} 下载失败！")
 
 
@@ -41,7 +43,7 @@ def square_to_circle(im: ImageS):
     size = im.size
     mask = Image.new("L", size, 0)
     draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0) + size, fill=255)
+    draw.ellipse((0, 0, *size), fill=255)
     # 将遮罩层应用到图像上
     im.putalpha(mask)
     return im
@@ -51,21 +53,21 @@ async def get_head_by_user_id_and_save(user_id):
     """qq转头像"""
     user_id = str(user_id)
 
-    USER_HEAD_PATH = PLAYERSDATA / user_id / "HEAD.png"
-    DEFAULT_HEADER_PATH = TEXT_PATH / "header"
-    DEFAULT_HEAD_PATH = TEXT_PATH / "head"
-    DEFAULT_HEADER = DEFAULT_HEADER_PATH / random.choice(
-        os.listdir(DEFAULT_HEADER_PATH)
+    user_head_path = PLAYERSDATA / user_id / "HEAD.png"
+    default_header_path = TEXT_PATH / "header"
+    default_head_path = TEXT_PATH / "head"
+    default_header = default_header_path / random.choice(
+        os.listdir(default_header_path),
     )
-    DEFAULT_HEAD = DEFAULT_HEAD_PATH / random.choice(os.listdir(DEFAULT_HEAD_PATH))
+    default_head = default_head_path / random.choice(os.listdir(default_head_path))
     ## im头像 im2头像框 im3合成
-    if os.path.exists(USER_HEAD_PATH):
+    if user_head_path.exists():
         logger.info("使用本地头像")
-        im = Image.open(USER_HEAD_PATH).resize((280, 280)).convert("RGBA")
+        im = Image.open(user_head_path).resize((280, 280)).convert("RGBA")
     else:
         if user_id == "1145149191810":
             logger.info("使用默认头像")
-            im = Image.open(DEFAULT_HEADER).resize((280, 280)).convert("RGBA")
+            im = Image.open(default_header).resize((280, 280)).convert("RGBA")
         else:
             try:
                 logger.info("正在下载头像")
@@ -75,13 +77,13 @@ async def get_head_by_user_id_and_save(user_id):
                     .resize((280, 280))
                     .convert("RGBA")
                 )
-                if not os.path.exists(PLAYERSDATA / user_id):  # 用户文件夹不存在
-                    os.makedirs(PLAYERSDATA / user_id)
-                im.save(USER_HEAD_PATH, "PNG")
+                if not (PLAYERSDATA / user_id).exists():  # 用户文件夹不存在
+                    (PLAYERSDATA / user_id).mkdir(parents=True, exist_ok=True)
+                im.save(user_head_path, "PNG")
             except Exception:
                 logger.error("获取失败")
-                return
-    im2 = Image.open(DEFAULT_HEAD).resize((450, 450)).convert("RGBA")
+                return None
+    im2 = Image.open(default_head).resize((450, 450)).convert("RGBA")
     im3 = Image.new("RGBA", im2.size, (255, 255, 255, 0))
     r, g, b, a1 = im.split()
     r, g, b, a2 = im2.split()
@@ -93,16 +95,16 @@ async def get_head_by_user_id_and_save(user_id):
 
 # async def get_head_steam_and_save(user_id:str,urls):
 #     """保存steam头像"""
-#     USER_HEAD_PATH = PLAYERSDATA / str(user_id) / 'HEAD.png'
-#     # DEFAULT_HEAD_PATH = TEXT_PATH / "template/player.jpg"
+#     user_head_path = PLAYERSDATA / str(user_id) / 'HEAD.png'
+#     # default_head_path = TEXT_PATH / "template/player.jpg"
 #     ## im头像 im2头像框 im3合成
-#     if os.path.exists(USER_HEAD_PATH):
+#     if os.path.exists(user_head_path):
 #         logger.info("使用本地头像")
-#         im = Image.open(USER_HEAD_PATH).resize((280, 280)).convert("RGBA")
+#         im = Image.open(user_head_path).resize((280, 280)).convert("RGBA")
 #     else:
 #         # if user_id == "1145149191810":
 #         #     logger.info("使用默认头像")
-#         #     im = Image.open(DEFAULT_HEAD_PATH).resize((300, 300)).convert("RGBA")
+#         #     im = Image.open(default_head_path).resize((300, 300)).convert("RGBA")
 #         # else:
 #             try:
 #                 logger.info("正在下载头像")
@@ -110,7 +112,7 @@ async def get_head_by_user_id_and_save(user_id):
 #                 im = Image.open(io.BytesIO(image_bytes)).resize((280, 280)).convert("RGBA")  # noqa: E501
 #                 if not os.path.exists(PLAYERSDATA / user_id):#用户文件夹不存在
 #                     os.makedirs(PLAYERSDATA / user_id)
-#                 im.save(USER_HEAD_PATH, "PNG")
+#                 im.save(user_head_path, "PNG")
 #             except TimeoutError:
 #                 logger.error("获取失败")
 #     return im

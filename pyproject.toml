@@ -1,12 +1,11 @@
-[tool.poetry]
+[project]
 name = "nonebot-plugin-l4d2-server"
-version = "0.6.0.1"
+version = "0.6.0.2"
 description = "L4D2 server related operations plugin for NoneBot2"
-authors = ["Agnes_Digital <Z735803792@163.com>"]
-license = "GPLv3"
-readme = "README.md"
-homepage = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
-repository = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
+authors = [
+    { name = "Agnes_Digital", email = "Z735803792@163.com" }
+]
+requires-python = ">=3.9,<4.0"
 keywords = ["steam", "game", "l4d2", "nonebot2", "plugin"]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -15,14 +14,12 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Operating System :: OS Independent",
+    "Operating System :: OS Independent"
 ]
-include = [
-    "LICENSE","README.md"
-]
+readme = "README.md"
+license = { text = "GPLv3" }
 
-[tool.poetry.dependencies]
-python = "^3.8"
+[tool.pdm.dependencies]
 nonebot2 = "^2.0.0"
 nonebot-plugin-htmlrender = "^0.2.0.3"
 nonebot_plugin_txt2img = ">=0.3.0"
@@ -47,16 +44,72 @@ python-jose = ">=3.3.0"
 gitpython = ">=3.1.27"
 attrs = "^23.1.0"
 
-[tool.poetry.group.dev.dependencies]
-black = "^23.1.0"
-pycln = "^2.1.2"
 
-[[tool.poetry.source]]
-name = "aliyun"
-url = "https://mirrors.aliyun.com/pypi/simple/"
-priority = "default"
+[project.urls]
+homepage = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
+
+[tool.pdm.build]
+includes = []
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
+[tool.pyright]
+pythonVersion = "3.9"
+
+[tool.black]
+line-length = 89
+target-version = ["py39", "py310", "py311"]
+include = '\.pyi?$'
+# skip-string-normalization = true
+
+[tool.ruff.isort]
+extra-standard-library = ["typing_extensions"]
+
+[tool.ruff]
+ignore = [
+    "B008",
+    "B905",
+    "E501",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+    "PGH003",
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    "RUF006",
+    "RUF100",
+    "SIM117",
+    "TRY002",
+    "TRY003",
+
+]
+select = [
+    "A",
+    "ARG",
+    "ASYNC",
+    "B",
+    "C4",
+    "COM",
+    "E",
+    "F",
+    "FBT",
+    "FLY",
+    "I",
+    "ISC",
+    "N",
+    "PIE",
+    "PGH",
+    "PTH",
+    "PYI",
+    "Q",
+    "RET",
+    "RSE",
+    "RUF",
+    "SIM",
+    "SLF",
+    "SLOT",
+    "TRY",
+]
