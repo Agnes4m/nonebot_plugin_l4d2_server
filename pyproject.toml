@@ -51,12 +51,14 @@ homepage = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
 [tool.pdm.build]
 includes = []
 
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
+
 [tool.pyright]
-pythonVersion = "3.9"
+pythonVersion = "3.8"
 
 [tool.black]
 line-length = 89
