@@ -8,6 +8,7 @@ from nonebot.adapters.onebot.v11 import Message, MessageSegment
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
+from nonebot_plugin_saa import Image, MessageFactory
 
 from ..l4d2_anne.server import group_key, server_key
 from ..l4d2_queries import get_group_ip_to_msg
@@ -247,8 +248,10 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             msg_tuple = (one_ip["id"], host, port)
             ip_list.append(msg_tuple)
         img = await qq_ip_queries_pic(ip_list, igr)
-
-        return img if img else "服务器无响应"
+        try:
+            await MessageFactory([Image(img)]).finish() if img else "服务器无响应"
+        except Exception:
+            return img if img else "服务器无响应"
 
     if not msg[0].isdigit():
         # if any(mode in msg for mode in gamemode_list):
