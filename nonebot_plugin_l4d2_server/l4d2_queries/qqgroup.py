@@ -314,7 +314,7 @@ async def write_json(data_str: str):
                 return f"添加成功，指令为{key}{data_num}"
         return None
 
-    elif data_list[0] == "删除":
+    if data_list[0] == "删除":
         for key, value in ALL_HOST.items():
             if data_list[1] == key:
                 try:
@@ -331,7 +331,10 @@ async def write_json(data_str: str):
                             "w",
                             encoding="utf8",
                         ) as f_new:
-                            json.dump(ALL_HOST, f_new, ensure_ascii=False, indent=4)
+                            await f_new.write(
+                                json.dumps(ALL_HOST, ensure_ascii=False, indent=4),
+                            )
+                            await f_new.flush()
                         return "删除成功喵"
                 return "序号不正确，请输入【求生更新 删除 腐竹 序号】"
         return "腐竹名不存在，请输入【求生更新 删除 腐竹 序号】"

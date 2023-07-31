@@ -22,8 +22,8 @@ query_table = TableCRUD(
         ActionType.Url(
             tooltip="加入游戏",
             icon="fa fa-gamepad",
-            confirmText="加入steam://connect/" + "${ip}",
-            url="steam://connect/" + "${ip}",
+            confirmText="加入steam://connect/" + "${ip}",  # noqa: ISC003
+            url="steam://connect/" + "${ip}",  # noqa: ISC003
             # url= "http://"+'${ip}',
             blank=True,
         ),
@@ -37,7 +37,7 @@ query_table = TableCRUD(
         TableColumn(label="延迟", name="ping", sortable=True, searchable=True),
         TableColumn(label="IP 地址", name="ip", sortable=True, searchable=True),
     ],
-)
+)  # type: ignore
 
 
 query_page = PageSchema(

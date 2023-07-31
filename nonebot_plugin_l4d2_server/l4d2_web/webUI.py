@@ -1,4 +1,3 @@
-# noqa: E501
 from amis import (
     Action,
     ActionType,
@@ -398,8 +397,8 @@ query_table = TableCRUD(
         ActionType.Url(
             tooltip="加入游戏",
             icon="fa fa-gamepad",
-            confirmText="加入steam://connect/" + "${ip}",
-            url="steam://connect/" + "${ip}",
+            confirmText="加入steam://connect/" + "${ip}",  # noqa: ISC003
+            url="steam://connect/" + "${ip}",  # noqa: ISC003
             # url= "http://"+'${ip}',
             blank=True,
         ),

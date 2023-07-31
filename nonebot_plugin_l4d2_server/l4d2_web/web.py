@@ -27,7 +27,7 @@ requestAdaptor(api) {
     api.headers["token"] = localStorage.getItem("token");
     return api;
 },
-"""
+"""  # noqa: N816
 responseAdaptor = """
 responseAdaptor(api, payload, query, request, response) {
     if (response.data.detail == '登录验证失败或已失效，请重新登录') {
@@ -38,7 +38,7 @@ responseAdaptor(api, payload, query, request, response) {
     }
     return payload
 },
-"""
+"""  # noqa: N816
 
 
 def authentication():
@@ -63,10 +63,10 @@ def authentication():
                     detail="登录验证失败或已失效，请重新登录",
                 )  # noqa: E501
         except (JWTError, ExpiredSignatureError, AttributeError):
-            raise HTTPException(
+            raise HTTPException(  # noqa: B904, TRY200
                 status_code=400,
                 detail="登录验证失败或已失效，请重新登录",
-            )  # noqa: B904, TRY200
+            )
 
     return Depends(inner)
 
@@ -120,7 +120,8 @@ async def init_web():
                 }
                 for group in group_list
             ]
-            return {"status": 0, "msg": "ok", "data": {"group_list": group_list}}
+            if True:
+                return {"status": 0, "msg": "ok", "data": {"group_list": group_list}}
         except ValueError:
             return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
 
@@ -161,8 +162,8 @@ async def init_web():
             config = config_manager.config.dict(exclude={"group_config"})
             config["member_list"] = member_list
             config["l4_styles"] = ["standard", "black"]
-
-            return config
+            if True:
+                return config
         except ValueError:
             return {"status": -100, "msg": "获取群和好友列表失败，请确认已连接GOCQ"}
 
@@ -206,11 +207,17 @@ async def init_web():
     async def get_l4d2_messages():
         try:
             l4_ipall = config_manager.config.l4_ipall
-            config = [
-                {"label": item["server_id"], "value": item["id_rank"]}
-                for item in l4_ipall
-            ]
-            return {"status": 0, "msg": "ok", "data": {"server_list": config}}
+
+            return {
+                "status": 0,
+                "msg": "ok",
+                "data": {
+                    "server_list": [
+                        {"label": item["server_id"], "value": item["id_rank"]}
+                        for item in l4_ipall
+                    ],
+                },
+            }
         except ValueError:
             return {"status": -100, "msg": "返回失败，请确保网络连接正常"}
 
@@ -228,7 +235,8 @@ async def init_web():
                     item["place"] = item["place"] is True or item["place"] is True
                     config = item
                     break
-            return {"status": 0, "msg": "ok", "data": config}
+            if True:
+                return {"status": 0, "msg": "ok", "data": config}
         except ValueError:
             return {"status": -100, "msg": "返回失败，请确保网络连接正常"}
 
