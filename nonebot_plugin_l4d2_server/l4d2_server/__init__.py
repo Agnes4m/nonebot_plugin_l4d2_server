@@ -30,7 +30,7 @@ async def main(host):
 
     if response.id == -1:
         await close(writer)
-        raise WrongPassword()
+        raise WrongPassword
 
     # 循环接收用户输入并发送指令
     while True:

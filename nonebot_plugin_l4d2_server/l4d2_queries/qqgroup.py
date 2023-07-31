@@ -312,6 +312,7 @@ async def write_json(data_str: str):
                 with Path("data/L4D2/l4d2.json").open("w", encoding="utf8") as f_new:
                     json.dump(ALL_HOST, f_new, ensure_ascii=False, indent=4)
                 return f"添加成功，指令为{key}{data_num}"
+        return None
 
     elif data_list[0] == "删除":
         for key, value in ALL_HOST.items():

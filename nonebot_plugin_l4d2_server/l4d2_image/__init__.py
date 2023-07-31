@@ -14,7 +14,8 @@ from .send_image_tool import convert_img
 template_path = TEXT_PATH / "template"
 
 env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(template_path), enable_async=True
+    loader=jinja2.FileSystemLoader(template_path),
+    enable_async=True,
 )
 
 
@@ -28,13 +29,12 @@ async def out_png(usr_id, data_dict: dict):
     msg_dict = await dict_to_html(usr_id, data_dict, soup)
     template = env.get_template("anne.html")
     html = await template.render_async(data=msg_dict)
-    pic = await html_to_pic(
+    return await html_to_pic(
         html,
         wait=0,
         viewport={"width": 1100, "height": 800},
         template_path=f"file://{template_path.absolute()}",
     )
-    return pic
 
 
 async def dict_to_html(usr_id, DETAIL_MAP: dict, soup: BeautifulSoup):
@@ -61,7 +61,7 @@ async def dict_to_html(usr_id, DETAIL_MAP: dict, soup: BeautifulSoup):
     temp = await get_head_by_user_id_and_save(usr_id)
     # temp = await get_head_steam_and_save(usr_id,DETAIL_right['url'])
     if not temp:
-        return
+        return None
     res = await convert_img(temp, is_base64=True)
     DETAIL_right["header"] = f"data:image/png;base64,{res}"
     data_list: List[dict] = [DETAIL_right]
@@ -80,7 +80,9 @@ async def server_ip_pic(msg_list: List[dict]):
         players_list = []
         if "Players" in server_info:
             sorted_players = sorted(
-                server_info["Players"], key=lambda x: x.get("Score", 0), reverse=True
+                server_info["Players"],
+                key=lambda x: x.get("Score", 0),
+                reverse=True,
             )[:4]
             for player_info in sorted_players:
                 player_str = f"{player_info['name']} | {player_info['Duration']}"

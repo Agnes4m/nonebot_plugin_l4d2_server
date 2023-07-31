@@ -61,7 +61,7 @@ class L4D2DataSqlite:
                         )
                     elif column in L4d2_INTEGER:
                         c.execute(
-                            f"ALTER TABLE {table} ADD COLUMN {column} INTEGER DEFAULT NULL",  # noqa: E501
+                            f"ALTER TABLE {table} ADD COLUMN {column} INTEGER DEFAULT NULL",
                         )
                     else:
                         c.execute(

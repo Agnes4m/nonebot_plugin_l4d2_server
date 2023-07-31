@@ -27,8 +27,7 @@ async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
     sleep(1)
     extracted_vpk_files = get_vpk(map_paths)
     # 获取新增vpk文件的list
-    vpk_files = list(set(extracted_vpk_files) - set(original_vpk_files))
-    return vpk_files
+    return list(set(extracted_vpk_files) - set(original_vpk_files))
 
 
 SUPPORTED_EXTENSIONS = (".zip", ".7z", ".rar")

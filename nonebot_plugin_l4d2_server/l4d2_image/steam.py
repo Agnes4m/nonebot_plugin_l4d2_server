@@ -6,7 +6,7 @@ import aiohttp
 import httpx
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0"  # noqa: E501
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",  # noqa: E501
 }
 
 
@@ -36,12 +36,13 @@ async def url_to_byte_name(url: str, filename: str = ""):
         file_name = unquote(file_name)
         if response.content and file_name:
             return [response.content, file_name]
+        return None
     else:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers, timeout=600) as response:
                 content_disposition = response.headers.get("Content-Disposition")
                 if not content_disposition:
-                    return
+                    return None
                 if "''" in content_disposition:
                     file_name = content_disposition.split("''")[-1]
                 else:

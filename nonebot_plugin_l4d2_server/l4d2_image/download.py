@@ -41,7 +41,7 @@ def square_to_circle(im: ImageS):
     size = im.size
     mask = Image.new("L", size, 0)
     draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0) + size, fill=255)
+    draw.ellipse((0, 0, *size), fill=255)
     # 将遮罩层应用到图像上
     im.putalpha(mask)
     return im
@@ -55,7 +55,7 @@ async def get_head_by_user_id_and_save(user_id):
     DEFAULT_HEADER_PATH = TEXT_PATH / "header"
     DEFAULT_HEAD_PATH = TEXT_PATH / "head"
     DEFAULT_HEADER = DEFAULT_HEADER_PATH / random.choice(
-        os.listdir(DEFAULT_HEADER_PATH)
+        os.listdir(DEFAULT_HEADER_PATH),
     )
     DEFAULT_HEAD = DEFAULT_HEAD_PATH / random.choice(os.listdir(DEFAULT_HEAD_PATH))
     ## im头像 im2头像框 im3合成
@@ -80,7 +80,7 @@ async def get_head_by_user_id_and_save(user_id):
                 im.save(USER_HEAD_PATH, "PNG")
             except Exception:
                 logger.error("获取失败")
-                return
+                return None
     im2 = Image.open(DEFAULT_HEAD).resize((450, 450)).convert("RGBA")
     im3 = Image.new("RGBA", im2.size, (255, 255, 255, 0))
     r, g, b, a1 = im.split()

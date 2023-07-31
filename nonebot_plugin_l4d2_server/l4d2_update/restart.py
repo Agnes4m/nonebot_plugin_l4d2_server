@@ -18,7 +18,7 @@ kill -9 {}
 
 
 async def get_restart_sh(extra: str) -> str:
-    args = f"{extra} {str(bot_start.absolute())}"
+    args = f"{extra} {bot_start.absolute()!s}"
     return _restart_sh.format(str(bot_start.absolute()), args)
 
 
@@ -32,8 +32,8 @@ async def restart_genshinuid(send_type: str, send_id: str) -> None:
         with open(restart_sh_path, "w", encoding="utf8") as f:
             f.write(restart_sh)
         if platform.system() == "Linux":
-            os.system(f"chmod +x {str(restart_sh_path)}")
-            os.system(f"chmod +x {str(bot_start)}")
+            os.system(f"chmod +x {restart_sh_path!s}")
+            os.system(f"chmod +x {bot_start!s}")
     now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
     update_log = {
         "type": "restart",

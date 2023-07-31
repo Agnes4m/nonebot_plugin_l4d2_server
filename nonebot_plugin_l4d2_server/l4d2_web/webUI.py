@@ -43,7 +43,7 @@ logo = Html(
 </div>
 <br>
 <br>
-"""
+""",
 )
 login_api = AmisAPI(
     url="/l4d2/api/login",
@@ -91,7 +91,8 @@ global_config_form = Form(
             onText="开启",
             offText="关闭",
             labelRemark=Remark(
-                shape="circle", content="关闭后，禁用网页控制台，请参考文档启动方法"
+                shape="circle",
+                content="关闭后，禁用网页控制台，请参考文档启动方法",
             ),  # noqa: E501
         ),
         InputText(
@@ -111,7 +112,8 @@ global_config_form = Form(
             name="web_secret_key",
             value="${web_secret_key}",
             labelRemark=Remark(
-                shape="circle", content="用于本后台管理加密验证token的密钥。"
+                shape="circle",
+                content="用于本后台管理加密验证token的密钥。",
             ),  # noqa: E501
         ),
         InputText(
@@ -127,7 +129,8 @@ global_config_form = Form(
             onText="开启",
             offText="关闭",
             labelRemark=Remark(
-                shape="circle", content="开启时，会查询单服务器会使用图片，避免长信息风控"  # noqa: E501
+                shape="circle",
+                content="开启时，会查询单服务器会使用图片，避免长信息风控",  # noqa: E501
             ),  # noqa: E501
         ),
         Select(
@@ -144,7 +147,8 @@ global_config_form = Form(
             onText="开启",
             offText="关闭",
             labelRemark=Remark(
-                shape="circle", content="开启时，上传地图会保证优先级，从而阻碍其他指令"
+                shape="circle",
+                content="开启时，上传地图会保证优先级，从而阻碍其他指令",
             ),  # noqa: E501
         ),
         Switch(
@@ -154,7 +158,8 @@ global_config_form = Form(
             onText="开启",
             offText="关闭",
             labelRemark=Remark(
-                shape="circle", content="关闭后，查询服务器将不再显示connect和ip地址"
+                shape="circle",
+                content="关闭后，查询服务器将不再显示connect和ip地址",
             ),  # noqa: E501
         ),
         InputNumber(
@@ -162,7 +167,8 @@ global_config_form = Form(
             name="l4_push_interval",
             value="${l4_push_interval}",
             labelRemark=Remark(
-                shape="circle", content="设置好后，使用推送服务器定时指令，将以x分钟为间隔推送一次"  # noqa: E501
+                shape="circle",
+                content="设置好后，使用推送服务器定时指令，将以x分钟为间隔推送一次",  # noqa: E501
             ),
         ),
         InputNumber(
@@ -170,7 +176,8 @@ global_config_form = Form(
             name="l4_push_times",
             value="${l4_push_times}",
             labelRemark=Remark(
-                shape="circle", content="设置好后，将按照推送间隔时间推送x此"
+                shape="circle",
+                content="设置好后，将按照推送间隔时间推送x此",
             ),  # noqa: E501
         ),
         InputNumber(
@@ -178,7 +185,8 @@ global_config_form = Form(
             name="l4_number",
             value="${l4_number}",
             labelRemark=Remark(
-                shape="circle", content="如果选定了路径，则上传地图优先传这个路径"
+                shape="circle",
+                content="如果选定了路径，则上传地图优先传这个路径",
             ),  # noqa: E501
         ),
         InputTag(
@@ -202,7 +210,8 @@ global_config_form = Form(
             joinValues=False,
             extractValue=True,
             labelRemark=Remark(
-                shape="circle", content="在这里的指令，可以响应坐牢三指令"  # noqa: E501
+                shape="circle",
+                content="在这里的指令，可以响应坐牢三指令",  # noqa: E501
             ),
         ),
     ],
@@ -234,7 +243,8 @@ upload_map_form = Form(
             name="web_secret_key",
             value="${web_secret_key}",
             labelRemark=Remark(
-                shape="circle", content="用于本后台管理加密验证token的密钥。"
+                shape="circle",
+                content="用于本后台管理加密验证token的密钥。",
             ),  # noqa: E501
         ),
         InputText(
@@ -353,7 +363,8 @@ server_ditail = Form(
             name="location",
             value="${location}",
             labelRemark=Remark(
-                shape="circle", content="求生服务器所在路径,该路径下有文件srcds_run"
+                shape="circle",
+                content="求生服务器所在路径,该路径下有文件srcds_run",
             ),  # noqa: E501
         ),
         InputText(
@@ -416,7 +427,7 @@ server_page = PageSchema(
             Alert(
                 level=LevelEnum.info,
                 className="white-space-pre-wrap",
-                body=(f"此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n" f"· 功能暂未完善"),  # noqa: E501
+                body=(f"此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n· 功能暂未完善"),  # noqa: E501
             ),
             server_control,
             server_ditail,
@@ -446,7 +457,9 @@ query_page = PageSchema(
 )
 
 database_page = PageSchema(
-    label="数据库", icon="fa fa-database", children=[server_page, query_page]
+    label="数据库",
+    icon="fa fa-database",
+    children=[server_page, query_page],
 )  # type: ignore
 
 config_page = PageSchema(
@@ -461,7 +474,9 @@ config_page = PageSchema(
     ),
 )
 l4d2_page = PageSchema(
-    label="求生之路", icon="fa fa-wechat (alias)", children=[config_page, database_page]
+    label="求生之路",
+    icon="fa fa-wechat (alias)",
+    children=[config_page, database_page],
 )  # type: ignore
 
 github_logo = Tpl(
@@ -469,7 +484,10 @@ github_logo = Tpl(
     tpl='<div class="flex justify-between"><div></div><div><a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server" target="_blank" title="Copyright"><i class="fa fa-github fa-2x"></i></a></div></div>',  # noqa: E501
 )
 header = Flex(
-    className="w-full", justify="flex-end", alignItems="flex-end", items=[github_logo]
+    className="w-full",
+    justify="flex-end",
+    alignItems="flex-end",
+    items=[github_logo],
 )
 
 admin_app = App(
