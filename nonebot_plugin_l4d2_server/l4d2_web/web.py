@@ -64,7 +64,8 @@ def authentication():
                 )  # noqa: E501
         except (JWTError, ExpiredSignatureError, AttributeError):
             raise HTTPException(
-                status_code=400, detail="登录验证失败或已失效，请重新登录"
+                status_code=400,
+                detail="登录验证失败或已失效，请重新登录",
             )  # noqa: B904, TRY200
 
     return Depends(inner)
