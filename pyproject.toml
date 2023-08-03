@@ -21,7 +21,7 @@ dependencies = [
     "bs4==0.0.1",
     "httpx>=0.22.0",
     "rcon==2.1.0",
-    "pillow>=10.0.0",
+    "pillow>=9.4.0",
     "pyunpack>=0.3.0",
     "ruamel.yaml>=0.17.21",
     "rarfile>=4.0",
