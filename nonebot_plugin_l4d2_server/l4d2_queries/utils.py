@@ -46,20 +46,19 @@ async def queries_server(msg: list) -> str:
     return msgs
 
 
-async def get_anne_server_ip(ip, ismsg: bool = False):
+async def get_anne_server_ip(ip: str, ismsg: bool = False):
     """输出查询ip和ping"""
     if ismsg:
         ...
     host, port = split_maohao(ip)
     data = await queries_server([host, port])
-
     if l4_config.l4_image:
-        data = mode_txt_to_img(
+        await mode_txt_to_img(
             data.split("\n")[0],
             data.replace(data.split("\n")[0], f"\nconnect {ip}"),
         )
-    else:
-        data += f"\nconnect {ip}"
+        return None
+    data += f"\nconnect {ip}"
     return data
 
 
