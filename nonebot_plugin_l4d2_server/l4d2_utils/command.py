@@ -4,11 +4,11 @@ from time import sleep
 from typing import Dict, List, Tuple, Type
 
 from nonebot import on_command, on_keyword, on_notice, on_regex
-from nonebot.adapters.onebot.v11 import Message, MessageSegment
+from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
-from nonebot_plugin_saa import Image, MessageFactory
+from nonebot_plugin_saa import Image, MessageFactory, Text
 
 from ..l4d2_anne.server import group_key, server_key
 from ..l4d2_queries import get_group_ip_to_msg
@@ -205,21 +205,15 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
             command = "云"
         msg: str = args.extract_plain_text()
         push_msg = await get_ip_to_mes(msg, command)
-        if not push_msg:
+        if push_msg is None:
             return
-        if isinstance(push_msg, Message):
-            logger.info("构造")
-            try:
-                await matcher.finish(push_msg)
-            except Exception as E:
-                logger.warning(E)
-                return
-        elif isinstance(push_msg, bytes):
+
+        if isinstance(push_msg, bytes):
             logger.info("直接发送图片")
-            send_msg = MessageSegment.image(push_msg)
+            await MessageFactory([Image(push_msg)]).finish()
         elif msg and type(push_msg) == list:
             logger.info("更加构造函数")
-            send_msg = Message(MessageSegment.image(push_msg[0]) + push_msg[-1])
+            await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
         elif msg and isinstance(push_msg, str):
             send_msg = push_msg
         else:
@@ -248,10 +242,7 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             msg_tuple = (one_ip["id"], host, port)
             ip_list.append(msg_tuple)
         img = await qq_ip_queries_pic(ip_list, igr)
-        try:
-            await MessageFactory([Image(img)]).finish() if img else "服务器无响应"
-        except Exception:
-            return img if img else "服务器无响应"
+        return img if img else None
 
     if not msg[0].isdigit():
         # if any(mode in msg for mode in gamemode_list):
@@ -266,7 +257,10 @@ async def get_ip_to_mes(msg: str, command: str = ""):
     logger.info(ip)
 
     try:
-        return await get_anne_server_ip(ip)
+        msg_send = await get_anne_server_ip(ip)
+        if msg_send:
+            return msg_send
+
     except (OSError, asyncio.exceptions.TimeoutError):
         return "服务器无响应"
 
@@ -287,15 +281,12 @@ async def get_read_group_ip():
         msg: str = args.extract_plain_text()
         push_msg = await get_group_ip_to_msg(msg, command)
         if isinstance(push_msg, bytes):
-            send_msg = MessageSegment.image(push_msg)
+            await MessageFactory([Image(push_msg)]).finish()
         elif msg and type(push_msg) == list:
-            send_msg = Message(MessageSegment.image(push_msg[0]) + push_msg[-1])
+            await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
         elif msg and isinstance(push_msg, str):
             await str_to_picstr(push_msg, matcher)
-            return
-        else:
-            return
-        await matcher.finish(send_msg)
+        await matcher.finish()
 
 
 # tests = on_command("测试1")
