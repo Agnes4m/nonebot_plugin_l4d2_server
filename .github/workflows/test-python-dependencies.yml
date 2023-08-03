@@ -20,6 +20,7 @@ jobs:
       run: |
         pip install pdm
         pdm update
+        pdm add pytest
     - name: Test with pytest
       run: |
         pdm run pytest
