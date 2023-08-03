@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install pdm
-        pdm sync
+        pdm update
     - name: Test with pytest
       run: |
         pytest
