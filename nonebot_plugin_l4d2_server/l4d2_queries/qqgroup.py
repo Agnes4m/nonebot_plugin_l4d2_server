@@ -7,18 +7,18 @@ import a2s
 import aiofiles
 from nonebot.log import logger
 
-from nonebot_plugin_l4d2_server.l4d2_data.serverip import L4D2Server
-from nonebot_plugin_l4d2_server.l4d2_image import server_ip_pic
-from nonebot_plugin_l4d2_server.l4d2_queries.local_ip import ALL_HOST
-from nonebot_plugin_l4d2_server.l4d2_queries.utils import (
+from ..l4d2_data.serverip import L4D2Server
+from ..l4d2_image import server_ip_pic
+from ..l4d2_utils.message import KAILAO, PRISON, QUEREN
+from ..l4d2_utils.utils import split_maohao
+from .local_ip import ALL_HOST
+from .utils import (
     msg_ip_to_list,
     player_queries,
     player_queries_anne_dict,
     queries,
     queries_dict,
 )
-from nonebot_plugin_l4d2_server.l4d2_utils.message import KAILAO, PRISON, QUEREN
-from nonebot_plugin_l4d2_server.l4d2_utils.utils import split_maohao
 
 try:
     import ujson as json
