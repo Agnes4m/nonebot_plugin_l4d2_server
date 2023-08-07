@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from ..l4d2_utils.config import l4_config
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao
-from .local_ip import ALL_HOST
+from .local_ip import ALL_HOST, Group_All_HOST
 
 
 class GROUPMSG(BaseModel):
@@ -175,3 +175,26 @@ async def queries_dict(ip: str, port: int) -> dict:
     else:
         msg_dict["enabled"] = False
     return msg_dict
+
+
+def server_key():
+    """响应的服务器开头"""
+    a = set()
+    for tag1, _value in ALL_HOST.items():
+        try:
+            a.add(tag1)
+        except AttributeError:
+            a.add("希腊那我从来没有想过这个事情")
+    return a
+
+
+def group_key():
+    """响应群组服务器开头"""
+    a = set()
+    for tag1, _value in Group_All_HOST.items():
+        try:
+            a.add(tag1)
+        except AttributeError:
+            a.add("希腊那我从来没有想过这个事情")
+    return a
+    return a

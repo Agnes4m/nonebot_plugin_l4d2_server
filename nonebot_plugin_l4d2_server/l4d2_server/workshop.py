@@ -1,6 +1,7 @@
 from typing import Dict, List, Union
 
 import httpx
+from nonebot.log import logger
 
 try:
     import ujson as json
@@ -20,13 +21,14 @@ async def workshop_to_dict(msg: str):
 
 async def api_get_json(msg: str) -> Dict[str, str]:
     url_serach = "https://db.steamworkshopdownloader.io/prod/api/details/file"
-    data: Dict[str, str] = {msg: ""}
+    data: List[int] = [int(msg)]
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",
     }
     async with httpx.AsyncClient() as client:
         response = await client.post(url_serach, headers=headers, data=data)
         data_msg = response.content.decode("utf-8")
+        logger.info(f"{type(data_msg)} \n {data_msg}")
         datas: Dict[str, str] = json.loads(data_msg[1:-1])
         return datas
 
@@ -49,3 +51,18 @@ async def primary_map(i: Dict[str, List[Dict[str, str]]]):
     for one in i["children"]:
         map_list.append(await api_get_json(one["publishedfileid"]))
     return map_list
+
+
+async def workshop_msg(msg: str):
+    """url变成id，拼接post请求"""
+    if msg.startswith("https://steamcommunity.com/sharedfiles/filedetails/?id"):
+        if "&" in msg:
+            msg = msg.split("&")[0]
+        else:
+            pass
+        msg = msg.replace("https://steamcommunity.com/sharedfiles/filedetails/?id=", "")
+    if msg.isdigit():
+        data: Union[dict, List[dict]] = await workshop_to_dict(msg)
+        return data
+    return None
+    return None

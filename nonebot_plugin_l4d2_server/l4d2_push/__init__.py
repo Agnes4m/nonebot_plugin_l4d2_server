@@ -16,8 +16,8 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
 
+from ..l4d2_queries import get_ip_to_mes
 from ..l4d2_queries.utils import json_server_to_tag_dict
-from ..l4d2_utils.command import get_ip_to_mes
 from ..l4d2_utils.config import l4_config
 from ..l4d2_utils.utils import extract_last_digit, split_maohao
 

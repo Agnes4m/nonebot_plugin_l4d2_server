@@ -1,7 +1,7 @@
 import json
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import aiofiles
 import httpx
@@ -9,10 +9,7 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 
-from ..l4d2_anne import anne_message, del_player, write_player
 from ..l4d2_image.steam import url_to_byte
-from ..l4d2_server.rcon import rcon_server, read_server_cfg_rcon
-from ..l4d2_server.workshop import workshop_to_dict
 from .config import l4_config, systems
 
 # from .rule import
@@ -85,21 +82,6 @@ def solve(msg: str):
     return "\n".join(lines)
 
 
-async def search_anne(name: str, usr_id: str):
-    """获取anne成绩"""
-    return await anne_message(name, usr_id)
-
-
-async def bind_steam(id_: str, msg: str, nickname: str):
-    """绑定qq-steam"""
-    return await write_player(id_, msg, nickname)
-
-
-def name_exist(id_: str):
-    """删除绑定信息"""
-    return del_player(id_)
-
-
 async def get_message_at(datas: str) -> List[int]:
     data: Dict[str, Any] = json.loads(datas)
     return [int(msg["data"]["qq"]) for msg in data["message"] if msg["type"] == "at"]
@@ -107,34 +89,6 @@ async def get_message_at(datas: str) -> List[int]:
 
 def at_to_usrid(at: List[int]):
     return at[0] if at else None
-
-
-async def rcon_command(rcon, cmd):
-    return await rcon_server(rcon, cmd.strip())
-
-
-async def command_server(msg: str):
-    rcon = await read_server_cfg_rcon()
-    msg = await rcon_command(rcon, msg)
-    if not msg:
-        msg = "你可能发送了一个无用指令，或者换图导致服务器无响应"
-    elif msg.startswith("Unknown command"):
-        msg = "无效指令：" + msg.replace("Unknown command", "").strip()
-    return msg.strip().replace("\n", "")
-
-
-async def workshop_msg(msg: str):
-    """url变成id，拼接post请求"""
-    if msg.startswith("https://steamcommunity.com/sharedfiles/filedetails/?id"):
-        if "&" in msg:
-            msg = msg.split("&")[0]
-        else:
-            pass
-        msg = msg.replace("https://steamcommunity.com/sharedfiles/filedetails/?id=", "")
-    if msg.isdigit():
-        data: Union[dict, List[dict]] = await workshop_to_dict(msg)
-        return data
-    return None
 
 
 async def save_file(file: bytes, path_name):

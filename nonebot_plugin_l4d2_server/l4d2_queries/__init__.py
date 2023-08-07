@@ -2,24 +2,56 @@ import asyncio
 from time import sleep
 from typing import Dict, List, Tuple
 
-from nonebot import on_command
-from nonebot.adapters import Message
+from nonebot import on_command, on_keyword
+from nonebot.adapters import Event, Message
+from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-from nonebot.params import CommandArg, CommandStart, RawCommand
+from nonebot.params import ArgPlainText, CommandArg, CommandStart, Keyword, RawCommand
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
-from ..l4d2_anne.server import group_key, server_key
-from ..l4d2_queries.local_ip import ALL_HOST
-from ..l4d2_queries.qqgroup import get_tan_jian, qq_ip_queries_pic, split_maohao
-from ..l4d2_queries.send_msg import get_group_ip_to_msg
-from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
-from ..l4d2_utils.config import driver, l4_config
-from ..l4d2_utils.utils import str_to_picstr
+from ..l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
+from ..l4d2_queries.utils import queries_server
+from ..l4d2_server.rcon import command_server
+from ..l4d2_utils.config import MASTER, driver, l4_config
+from ..l4d2_utils.txt_to_img import mode_txt_to_img
+from ..l4d2_utils.utils import split_maohao, str_to_picstr
+from .local_ip import ALL_HOST
+from .qqgroup import get_tan_jian, qq_ip_queries_pic
+from .send_msg import get_group_ip_to_msg
+from .utils import get_anne_server_ip, group_key, json_server_to_tag_dict, server_key
 
 tan_jian = on_command("tj", aliases={"探监"}, priority=20, block=True)
 prison = on_command("zl", aliases={"坐牢"}, priority=20, block=True)
 open_prison = on_command("kl", aliases={"开牢"}, priority=20, block=True)
+rcon_to_server = on_command(
+    "rcon",
+    aliases={"求生服务器指令", "服务器指令"},
+    permission=MASTER,
+)
+
+# 查询
+queries_comm = on_keyword(
+    keywords={"queries", "求生ip", "求生IP", "connect"},
+    priority=20,
+    block=True,
+)
+add_queries = on_command(
+    "addq",
+    aliases={"求生添加订阅"},
+    priority=20,
+    block=True,
+    permission=MASTER,
+)
+del_queries = on_command(
+    "delq",
+    aliases={"求生取消订阅"},
+    priority=20,
+    block=True,
+    permission=MASTER,
+)
+show_queries = on_command("showq", aliases={"求生订阅"}, priority=20, block=True)
+join_server = on_command("ld_jr", aliases={"求生加入"}, priority=20, block=True)
 
 
 async def get_des_ip():
@@ -179,6 +211,82 @@ async def get_read_group_ip():
 # async def _(event: Event,arg:Message=CommandArg()):
 #     logger.info(event)
 #     logger.info(arg.extract_plain_text())
+
+
+@add_queries.handle()
+async def _(matcher: Matcher, event: GroupMessageEvent, args: Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if len(msg) == 0:
+        await matcher.finish("请在该指令后加入参数，例如【114.51.49.19:1810】")
+    [host, port] = split_maohao(msg)
+    group_id = event.group_id
+    msg = await add_ip(group_id, host, port)
+    await matcher.finish(msg)
+
+
+@del_queries.handle()
+async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if not msg.isdigit():
+        await matcher.finish("请输入正确的序号数字")
+    group_id = event.group_id
+    msg = await del_ip(group_id, msg)
+    await matcher.finish(msg)
+
+
+@show_queries.handle()
+async def _(matcher: Matcher, event: GroupMessageEvent):
+    group_id = event.group_id
+    msg = await show_ip(group_id)
+    if not msg:
+        await matcher.finish("当前没有启动的服务器捏")
+    if isinstance(msg, str):
+        await matcher.finish(msg)
+    else:
+        await MessageFactory([Image(msg)]).finish()
+
+
+@queries_comm.handle()
+async def _(matcher: Matcher, event: Event, keyword: str = Keyword()):
+    msg = event.get_plaintext()
+
+    if not msg:
+        await matcher.finish("ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】")
+    ip = msg.split(keyword)[-1].split("\r")[0].split("\n")[0].split(" ")
+    one_msg = None
+    for one in ip:
+        if one and one[-1].isdigit():
+            one_msg = one
+            break
+    if not one_msg:
+        await matcher.finish()
+    ip_list = split_maohao(one_msg)
+    msg = await queries_server(ip_list)
+    await str_to_picstr(msg, matcher, keyword)
+
+
+@join_server.handle()
+async def _(args: Message = CommandArg()):
+    msg = args.extract_plain_text()
+    url = await get_number_url(msg)
+    await join_server.finish(url)
+
+
+@rcon_to_server.handle()
+async def _(matcher: Matcher, args: Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if msg:
+        matcher.set_arg("command", args)
+
+
+@rcon_to_server.got("command", prompt="请输入向服务器发送的指令")
+async def _(matcher: Matcher, tag: str = ArgPlainText("command")):
+    tag = tag.strip()
+    msg = await command_server(tag)
+    try:
+        await mode_txt_to_img("服务器返回", msg)
+    except Exception as E:
+        await matcher.finish(str(E), reply_message=True)
 
 
 async def init():
