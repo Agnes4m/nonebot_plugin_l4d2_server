@@ -8,8 +8,6 @@ from ..l4d2_utils.config import CHECK_FILE, l4_config
 
 
 async def rcon_server(password: str, msg: str):
-    # response = await rcon(command=msg, host=l4_host, port=l4_port, passwd=password,encoding='utf-8')
-    # return response
     try:
         return await asyncio.wait_for(
             rcon(
@@ -39,3 +37,17 @@ async def read_server_cfg_rcon():
                     password = line.split(" ")[-1]
                     return password.strip('"')
     return l4_config.l4_ipall[CHECK_FILE]["rcon"]
+
+
+async def rcon_command(rcon, cmd):
+    return await rcon_server(rcon, cmd.strip())
+
+
+async def command_server(msg: str):
+    rcon = await read_server_cfg_rcon()
+    msg = await rcon_command(rcon, msg)
+    if not msg:
+        msg = "你可能发送了一个无用指令，或者换图导致服务器无响应"
+    elif msg.startswith("Unknown command"):
+        msg = "无效指令：" + msg.replace("Unknown command", "").strip()
+    return msg.strip().replace("\n", "")

@@ -45,10 +45,10 @@ def authentication():
     def inner(token: Optional[str] = Header(...)):
         try:
             if not token:
-                raise HTTPException(
+                raise HTTPException(  # noqa: TRY301
                     status_code=400,
                     detail="登录验证失败或已失效，请重新登录",
-                )  # noqa: E501
+                )
             payload = jwt.decode(
                 token,
                 config_manager.config.web_secret_key,
@@ -58,7 +58,7 @@ def authentication():
                 not (username := payload.get("username"))
                 or username != config_manager.config.web_username
             ):
-                raise HTTPException(
+                raise HTTPException(  # noqa: TRY301
                     status_code=400,
                     detail="登录验证失败或已失效，请重新登录",
                 )  # noqa: E501
@@ -175,7 +175,7 @@ async def init_web():
     )
     async def get_query_context():
         try:
-            from ..l4d2_utils.command import ALL_HOST
+            from ..l4d2_queries.local_ip import ALL_HOST
 
             this_ips = ALL_HOST
             ip_lists = []

@@ -1,104 +1,206 @@
-import io
-import zipfile
+import re
 from pathlib import Path
-from typing import Callable, Dict, List
-from zipfile import ZipFile
+from typing import Tuple
 
-import rarfile
+from nonebot import on_command, on_notice, on_regex
+from nonebot.adapters.onebot.v11 import Message, NoticeEvent
 from nonebot.log import logger
-from pyunpack import Archive
+from nonebot.matcher import Matcher
+from nonebot.params import ArgPlainText, CommandArg, RegexGroup
 
-from ..l4d2_utils.config import systems
-from ..l4d2_utils.utils import get_file, get_vpk
+from ..l4d2_utils.config import MASTER, config_manager, file_format, l4_config, vpk_path
+from ..l4d2_utils.rule import wenjian
+from ..l4d2_utils.txt_to_img import mode_txt_to_img
+from ..l4d2_utils.utils import del_map, get_vpk, mes_list, rename_map
+from .utils import updown_l4d2_vpk
 
-
-async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
-    """从url下载压缩包并解压到位置"""
-    original_vpk_files = get_vpk(map_paths)
-    down_file = Path(map_paths, name)
-    if await get_file(url, down_file) is None:
-        return None
-    msg = open_packet(name, down_file)
-    logger.info(msg)
-
-    extracted_vpk_files = get_vpk(map_paths)
-    # 获取新增vpk文件的list
-    return list(set(extracted_vpk_files) - set(original_vpk_files))
+up = on_notice(rule=wenjian)
 
 
-SUPPORTED_EXTENSIONS = (".zip", ".7z", ".rar")
+rename_vpk = on_regex(
+    r"^求生地图\s*(\S+.*?)\s*(改|改名)?\s*(\S+.*?)\s*$",
+    flags=re.S,
+    block=True,
+    priority=20,
+    permission=MASTER,
+)
+
+find_vpk = on_command("l4_map", aliases={"求生地图"}, priority=25, block=True)
+del_vpk = on_command(
+    "l4_del_map",
+    aliases={"求生地图删除", "地图删除"},
+    priority=20,
+    permission=MASTER,
+)
 
 
-def unzip_zipfile(down_file: Path, down_path: Path):
-    """解压zip文件"""
-    with support_gbk(zipfile.ZipFile(down_file, "r")) as z:
-        z.extractall(down_path)
-    down_file.unlink()
+check_path = on_command(
+    "l4_check",
+    aliases={"求生路径"},
+    priority=20,
+    block=True,
+    permission=MASTER,
+)
+smx_file = on_command(
+    "l4_smx",
+    aliases={"求生插件"},
+    priority=20,
+    block=True,
+    permission=MASTER,
+)
 
 
-def unpack_7zfile(down_file: Path, down_path: Path):
-    """解压7z文件"""
-    Archive(str(down_file)).extractall(str(down_path))
-    down_file.unlink()
+@up.handle()
+async def _(matcher: Matcher, event: NoticeEvent):
+    args = event.dict()
+    if args["notice_type"] != "offline_file":
+        matcher.set_arg("txt", args)  # type: ignore
+        return
+    l4_file_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
+    map_path = Path(l4_file_path, vpk_path)  # type: ignore
+    # 检查下载路径是否存在
+    if not Path(l4_file_path).exists():  # type: ignore
+        await matcher.finish("你填写的路径不存在辣")
+    if not Path(map_path).exists():
+        await matcher.finish("这个路径并不是求生服务器的路径，请再看看罢")
+    url: str = args["file"]["url"]
+    name: str = args["file"]["name"]
+    # 如果不符合格式则忽略
+    await up.send("已收到文件，开始下载")
+    vpk_files = await updown_l4d2_vpk(map_path, name, url)
+    if vpk_files:
+        mes = "解压成功，新增以下几个vpk文件"
+        await matcher.finish(mes_list(mes, vpk_files))
+    else:
+        await matcher.finish("你可能上传了相同的文件，或者解压失败了捏")
 
 
-def unpack_rarfile(down_file: Path, down_path: Path):
-    """解压rar文件"""
-    with rarfile.RarFile(down_file, "r") as z:
-        z.extractall(down_path)
-    down_file.unlink()
+path_list: str = "请选择上传位置（输入阿拉伯数字)"
+times = 0
+for one_path in l4_config.l4_ipall:
+    times += 1
+    path_msg = one_path["location"]
+    path_list += f"\n {times!s} | {path_msg}"
 
 
-def open_packet(name: str, down_file: Path) -> str:
-    """解压压缩包"""
-    down_path = down_file.parent
-    logger.info("文件名为：" + name)
-    logger.info(f"系统为{systems}")
+@up.got("is_sure", prompt=path_list)
+async def _(matcher: Matcher):
+    args = matcher.get_arg("txt")
+    l4_file = l4_config.l4_ipall
+    if not args:
+        await matcher.finish("获取文件出错辣，再试一次吧")
 
-    if name.endswith(".vpk"):
-        return "vpk文件已下载"
+    is_sure = str(matcher.get_arg("is_sure")).strip()
+    if not is_sure.isdigit():
+        await matcher.finish("已取消上传")
 
-    for ext in SUPPORTED_EXTENSIONS:
-        if name.endswith(ext):
-            mes = f"{ext[1:]}文件已下载,正在解压"
-            unpack_funcs: Dict[str, Callable] = {
-                ".zip": unzip_zipfile,
-                ".7z": unpack_7zfile,
-                ".rar": unpack_rarfile,
-            }
-            unpack_func = unpack_funcs.get(ext, None)
-            if not unpack_func:
-                raise ValueError(f"不支持的拓展名: {ext}")
-            unpack_func(down_file, down_path)
-            return mes
+    file_path: str = ""
+    for one_server in l4_file:
+        if one_server["id_rank"] == is_sure:
+            file_path = one_server["location"]
+    if not file_path:
+        await matcher.finish("没有这个序号拉baka")
 
-    raise ValueError(f"不支持的文件: {name}")
+    map_path = Path(file_path, vpk_path)
+
+    # 检查下载路径是否存在
+    if not Path(file_path).exists():
+        await matcher.finish("你填写的路径不存在辣")
+    if not map_path.exists():
+        await matcher.finish("这个路径并不是求生服务器的路径，请再看看罢")
+
+    url = args["file"]["url"]
+    name = args["file"]["name"]
+    # 如果不符合格式则忽略
+    if not name.endswith(file_format):  # type: ignore
+        return
+
+    await matcher.send("已收到文件，开始下载")
+    vpk_files = await updown_l4d2_vpk(map_path, name, url)  # type: ignore
+
+    if vpk_files:
+        logger.info("检查到新增文件")
+        mes = "解压成功，新增以下几个vpk文件"
+    elif vpk_files is None:
+        await matcher.finish("文件错误")
+    else:
+        mes = "你可能上传了相同的文件，或者解压失败了捏"
+
+    await matcher.finish(mes_list(mes, vpk_files))
 
 
-def support_gbk(zip_file: ZipFile):
-    """
-    压缩包中文恢复
-    """
-    if type(zip_file) == ZipFile:
-        name_to_info = zip_file.NameToInfo
-        # copy map first
-        for name, info in name_to_info.copy().items():
-            real_name = name.encode("cp437").decode("gbk")
-            if real_name != name:
-                info.filename = real_name
-                del name_to_info[name]
-                name_to_info[real_name] = info
-    return zip_file
+@find_vpk.handle()
+async def _():
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]["location"], vpk_path)
+    name_vpk = get_vpk(map_path)
+    logger.info("获取文件列表成功")
+    mes = "当前服务器下有以下vpk文件"
+    msg = mes_list("", name_vpk).replace(" ", "")
+
+    await mode_txt_to_img(mes, msg)
 
 
-async def all_zip_to_one(data_list: List[bytes]):
-    """多压缩包文件合并"""
-    file_list = [io.BytesIO(data).getbuffer() for data in data_list]
-    data_file = io.BytesIO()
+@del_vpk.handle()
+async def _(matcher: Matcher, args: Message = CommandArg()):
+    num1 = args.extract_plain_text()
+    if num1:
+        matcher.set_arg("num", args)
 
-    with ZipFile(data_file, mode="w") as zf:
-        for i, file in enumerate(file_list):
-            filename = f"file{i}.zip"
-            zf.writestr(filename, file)
 
-    return data_file.getbuffer()
+@del_vpk.got("num", prompt="你要删除第几个序号的地图(阿拉伯数字)")
+async def _(matcher: Matcher, tag: str = ArgPlainText("num")):
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]["location"], vpk_path)
+    vpk_name = del_map(int(tag), map_path)
+    await matcher.finish("已删除地图：" + vpk_name)
+
+
+@rename_vpk.handle()
+async def _(
+    matcher: Matcher,
+    matched: Tuple[int, str, str] = RegexGroup(),
+):
+    num, useless, rename = matched
+    map_path = Path(l4_config.l4_ipall[l4_config.l4_number]["location"], vpk_path)
+    logger.info("检查是否名字是.vpk后缀")
+    if not rename.endswith(".vpk"):
+        rename = rename + ".vpk"
+    logger.info("尝试改名")
+    try:
+        map_name = rename_map(num, rename, map_path)
+        if map_name:
+            await matcher.finish("改名成功\n原名:" + map_name + "\n新名称:" + rename)
+    except ValueError:
+        await matcher.finish("参数错误,输入【求生地图】获取全部名称")
+
+
+@check_path.handle()
+async def _(matcher: Matcher, args: Message = CommandArg()):
+    msg = args.extract_plain_text()
+    if msg.startswith("切换"):
+        msg_number = int("".join(msg.replace("切换", " ").split()))
+        if msg_number > len(l4_config.l4_ipall) or msg_number < 0:
+            await matcher.send("没有这个序号的路径呐")
+        else:
+            l4_config.l4_number = msg_number - 1
+            now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
+            await matcher.send(
+                f"已经切换路径为\n{l4_config.l4_number+1!s}、{now_path}",
+            )  # noqa: E501
+            config_manager.save()
+    else:
+        now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
+        await matcher.send(f"当前的路径为\n{l4_config.l4_number+1!s}、{now_path}")
+
+
+@smx_file.handle()
+async def _():
+    smx_path = Path(
+        l4_config.l4_ipall[l4_config.l4_number]["location"],
+        "left4dead2/addons/sourcemod/plugins",
+    )
+    name_smx = get_vpk(smx_path, file_=".smx")
+    logger.info("获取文件列表成功")
+    mes = "当前服务器下有以下smx文件"
+    msg = ""
+    msg = mes_list(msg, name_smx).replace(" ", "")
+    await mode_txt_to_img(mes, msg)
