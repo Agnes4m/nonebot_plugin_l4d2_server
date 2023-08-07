@@ -1,6 +1,6 @@
 import re
 
-from nonebot import on_command, on_keyword, on_notice, on_regex
+from nonebot import on_command, on_notice, on_regex
 
 from .config import MASTER
 from .rule import wenjian
@@ -47,34 +47,8 @@ smx_file = on_command(
 )
 
 # anne
-anne_player = on_command("Ranne", aliases={"求生anne"}, priority=25, block=True)
-anne_bind = on_command(
-    "Rbind",
-    aliases={"steam绑定", "求生绑定", "anne绑定"},
-    priority=20,
-    block=True,
-)
-del_bind = on_command(
-    "del_bind",
-    aliases={"steam解绑", "求生解绑", "anne解绑"},
-    priority=20,
-    block=True,
-)
 
-updata = on_command(
-    "updata_anne",
-    aliases={"求生更新anne"},
-    priority=20,
-    block=True,
-    permission=MASTER,
-)
 
-# 查询
-queries_comm = on_keyword(
-    keywords={"queries", "求生ip", "求生IP", "connect"},
-    priority=20,
-    block=True,
-)
 add_queries = on_command(
     "addq",
     aliases={"求生添加订阅"},

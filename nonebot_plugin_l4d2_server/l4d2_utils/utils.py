@@ -9,7 +9,6 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 
-from ..l4d2_anne import anne_message, del_player, write_player
 from ..l4d2_image.steam import url_to_byte
 from ..l4d2_server.rcon import rcon_server, read_server_cfg_rcon
 from ..l4d2_server.workshop import workshop_to_dict
@@ -83,21 +82,6 @@ def solve(msg: str):
     lines = msg.splitlines()
     lines.pop()
     return "\n".join(lines)
-
-
-async def search_anne(name: str, usr_id: str):
-    """获取anne成绩"""
-    return await anne_message(name, usr_id)
-
-
-async def bind_steam(id_: str, msg: str, nickname: str):
-    """绑定qq-steam"""
-    return await write_player(id_, msg, nickname)
-
-
-def name_exist(id_: str):
-    """删除绑定信息"""
-    return del_player(id_)
 
 
 async def get_message_at(datas: str) -> List[int]:

@@ -18,22 +18,25 @@ from pathlib import Path
 from typing import List, Tuple, Union
 
 from nonebot import get_driver, require
-from nonebot.adapters.onebot.v11 import (
-    Bot,
-    GroupMessageEvent,
-    Message,
-    MessageEvent,
-    MessageSegment,
-    NoticeEvent,
-)
+from nonebot.adapters import Message, MessageSegment
+from nonebot.adapters.onebot.v11 import Bot as V11Bot
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageEvent, NoticeEvent
+
+# from nonebot.adapters.onebot.v11 import (
+#     Bot,
+#     GroupMessageEvent,
+#     Message,
+#     MessageEvent,
+#     MessageSegment,
+#     NoticeEvent,
+# )
 from nonebot.log import logger
 from nonebot.matcher import Matcher
-from nonebot.params import Arg, ArgPlainText, CommandArg, Keyword, RegexGroup
+from nonebot.params import Arg, ArgPlainText, CommandArg, RegexGroup
 from nonebot.plugin import PluginMetadata
 from nonebot.typing import T_State
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
-from .l4d2_anne.server import updata_anne_server
 from .l4d2_data import sq_L4D2
 from .l4d2_file import all_zip_to_one, updown_l4d2_vpk
 
@@ -41,19 +44,14 @@ from .l4d2_file import all_zip_to_one, updown_l4d2_vpk
 from .l4d2_image.steam import url_to_byte, url_to_byte_name
 from .l4d2_image.vtfs import img_to_vtf
 from .l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
-from .l4d2_queries.utils import queries_server
 from .l4d2_utils.command import (
     add_queries,
-    anne_bind,
-    anne_player,
     check_path,
-    del_bind,
     del_queries,
     del_vpk,
     find_vpk,
     help_,
     join_server,
-    queries_comm,
     rcon_to_server,
     rename_vpk,
     search_api,
@@ -61,24 +59,17 @@ from .l4d2_utils.command import (
     smx_file,
     up,
     up_workshop,
-    updata,
     vtf_make,
 )
 from .l4d2_utils.config import config_manager, file_format, l4_config, vpk_path
 from .l4d2_utils.txt_to_img import mode_txt_to_img
 from .l4d2_utils.utils import (
-    at_to_usrid,
-    bind_steam,
     command_server,
     del_map,
-    get_message_at,
     get_vpk,
     mes_list,
-    name_exist,
     rename_map,
-    search_anne,
     split_maohao,
-    str_to_picstr,
     upload_file,
     workshop_msg,
 )
@@ -232,45 +223,6 @@ async def _(
         await matcher.finish("参数错误,输入【求生地图】获取全部名称")
 
 
-@anne_player.handle()
-async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg()):
-    name = args.extract_plain_text()
-    name = name.strip()
-    at = await get_message_at(event.json())
-    usr_id = at_to_usrid(at)
-    if not usr_id:
-        usr_id = event.user_id
-    # 没有参数则从db里找数据
-    msg = await search_anne(name, str(usr_id))
-    if isinstance(msg, str):
-        await matcher.finish(msg)
-    elif isinstance(msg, bytes):
-        await MessageFactory([Image(msg)]).finish()
-
-
-@anne_bind.handle()
-async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg()):
-    tag = args.extract_plain_text()
-    tag = tag.strip()
-    if tag == "" or tag.isspace():
-        await matcher.finish("虚空绑定?")
-    usr_id = str(event.user_id)
-    nickname = event.sender.card or event.sender.nickname
-    if not nickname:
-        nickname = "宁宁"
-    msg = await bind_steam(usr_id, tag, nickname)
-    await matcher.finish(msg)
-
-
-@del_bind.handle()
-async def _(matcher: Matcher, event: MessageEvent):
-    usr_id = event.user_id
-    msg = name_exist(str(usr_id))
-    if not msg:
-        return
-    await matcher.finish(msg)
-
-
 @rcon_to_server.handle()
 async def _(matcher: Matcher, args: Message = CommandArg()):
     msg = args.extract_plain_text()
@@ -305,25 +257,6 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
     else:
         now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
         await matcher.send(f"当前的路径为\n{l4_config.l4_number+1!s}、{now_path}")
-
-
-@queries_comm.handle()
-async def _(matcher: Matcher, event: MessageEvent, keyword: str = Keyword()):
-    msg = event.get_plaintext()
-
-    if not msg:
-        await matcher.finish("ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】")
-    ip = msg.split(keyword)[-1].split("\r")[0].split("\n")[0].split(" ")
-    one_msg = None
-    for one in ip:
-        if one and one[-1].isdigit():
-            one_msg = one
-            break
-    if not one_msg:
-        await matcher.finish()
-    ip_list = split_maohao(one_msg)
-    msg = await queries_server(ip_list)
-    await str_to_picstr(msg, matcher, keyword)
 
 
 @add_queries.handle()
@@ -405,7 +338,7 @@ async def _(matcher: Matcher, state: T_State, tag: str = ArgPlainText("ip")):
 
 
 @up_workshop.got("is_sure", prompt='如果需要上传，请发送 "yes"')
-async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(matcher: Matcher, bot: V11Bot, event: GroupMessageEvent, state: T_State):
     is_sure = str(state["is_sure"])
     if is_sure == "yes":
         data_dict: Union[dict, List[dict]] = state["dic"]
@@ -431,19 +364,6 @@ async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State
         await matcher.finish("已取消上传")
 
 
-@updata.handle()
-async def _(matcher: Matcher, args: Message = CommandArg()):
-    """更新"""
-    if args:
-        # 占位先，除了电信服还有再加
-        ...
-    anne_ip_dict = await updata_anne_server()
-    if not anne_ip_dict:
-        await matcher.finish("网络开小差了捏")
-    server_number = len(anne_ip_dict["云"])
-    await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")
-
-
 @vtf_make.handle()
 async def _(matcher: Matcher, state: T_State, args: Message = CommandArg()):
     msg: str = args.extract_plain_text()
@@ -456,7 +376,7 @@ async def _(matcher: Matcher, state: T_State, args: Message = CommandArg()):
 
 
 @vtf_make.got("image", prompt="请发送喷漆图片")
-async def _(bot: Bot, event: MessageEvent, state: T_State, tag=Arg("image")):
+async def _(bot: V11Bot, event: MessageEvent, state: T_State, tag=Arg("image")):
     pic_msg: MessageSegment = state["image"][0]
     pic_url = pic_msg.data["url"]
     logger.info(pic_url)
@@ -467,7 +387,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State, tag=Arg("image")):
         return
     img_io = await img_to_vtf(pic_bytes, tag)
     img_bytes = img_io.getbuffer()
-    usr_id = event.user_id
+    usr_id = event.get_user_id()
     file_name: str = str(usr_id) + ".vtf"
     await upload_file(bot, event, img_bytes, file_name)
 
@@ -516,7 +436,7 @@ async def _(matcher: Matcher):
 
 
 @search_api.got("is_sure", prompt='如果需要上传，请发送 "yes"')
-async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(matcher: Matcher, bot: V11Bot, event: GroupMessageEvent, state: T_State):
     is_sure = str(state["is_sure"])
     if is_sure == "yes":
         data_dict: dict = state["maps"][0]
