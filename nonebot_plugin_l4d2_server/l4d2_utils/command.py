@@ -21,4 +21,3 @@ search_api = on_command(
 )
 # which_map = on_keyword("是什么图"), priority=20, block=False)
 reload_ip = on_command("l4_reload", aliases={"重载ip"}, priority=30, permission=MASTER)
-reload_ip = on_command("l4_reload", aliases={"重载ip"}, priority=30, permission=MASTER)

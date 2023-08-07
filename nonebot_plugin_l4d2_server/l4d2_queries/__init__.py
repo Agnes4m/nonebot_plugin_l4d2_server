@@ -9,6 +9,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg, CommandStart, Keyword, RawCommand
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
+from ..l4d2_anne.server import updata_anne_server
 from ..l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
 from ..l4d2_queries.utils import queries_server
 from ..l4d2_server.rcon import command_server
@@ -16,9 +17,9 @@ from ..l4d2_utils.config import MASTER, driver, l4_config
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao, str_to_picstr
 from .local_ip import ALL_HOST
-from .qqgroup import get_tan_jian, qq_ip_queries_pic
-from .send_msg import get_group_ip_to_msg
-from .utils import get_anne_server_ip, group_key, json_server_to_tag_dict, server_key
+from .qqgroup import get_tan_jian
+from .send_msg import get_ip_to_mes
+from .utils import server_key
 
 tan_jian = on_command("tj", aliases={"探监"}, priority=20, block=True)
 prison = on_command("zl", aliases={"坐牢"}, priority=20, block=True)
@@ -281,4 +282,5 @@ async def _(matcher: Matcher, event: Event, keyword: str = Keyword()):
         await matcher.finish()
     ip_list = split_maohao(one_msg)
     msg = await queries_server(ip_list)
+    await str_to_picstr(msg, matcher, keyword)
     await str_to_picstr(msg, matcher, keyword)

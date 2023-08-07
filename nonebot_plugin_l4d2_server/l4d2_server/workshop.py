@@ -19,18 +19,31 @@ async def workshop_to_dict(msg: str):
     return await only_map(i)
 
 
-async def api_get_json(msg: str) -> Dict[str, str]:
-    url_serach = "https://db.steamworkshopdownloader.io/prod/api/details/file"
-    data: List[int] = [int(msg)]
+async def api_get_json(msg: str):
+    url_search = "https://db.steamworkshopdownloader.io/prod/api/details/file"
+    # data = {msg: ""}
+    data = [int(msg)]
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "Origin": "https://steamworkshopdownloader.io",
+        "Referer": "https://steamworkshopdownloader.io/",
+        "Sec-Ch-Ua": '"Not/A)Brand";v="99", "Microsoft Edge";v="115", "Chromium";v="115"',
+        "Sec-Ch-Ua-Mobile": "?0",
+        "Sec-Ch-Ua-Platform": '"Windows"',
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-site",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188",
     }
     async with httpx.AsyncClient() as client:
-        response = await client.post(url_serach, headers=headers, data=data)
-        data_msg = response.content.decode("utf-8")
-        logger.info(f"{type(data_msg)} \n {data_msg}")
-        datas: Dict[str, str] = json.loads(data_msg[1:-1])
-        return datas
+        response = await client.post(url_search, headers=headers, json=data)
+        data_msg = response.content.decode("utf-8", errors="ignore")
+        logger.info(response.status_code)
+        logger.info(data_msg)
+        return json.loads(data_msg[1:-1])
 
 
 async def only_map(i: Dict[str, str]):
@@ -64,5 +77,6 @@ async def workshop_msg(msg: str):
     if msg.isdigit():
         data: Union[dict, List[dict]] = await workshop_to_dict(msg)
         return data
+    return None
     return None
     return None

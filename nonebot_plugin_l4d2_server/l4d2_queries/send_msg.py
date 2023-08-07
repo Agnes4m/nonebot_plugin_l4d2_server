@@ -8,13 +8,13 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
-from ..l4d2_anne.server import group_key
 from ..l4d2_queries.local_ip import ALL_HOST
 from ..l4d2_queries.qqgroup import qq_ip_queries_pic
 from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
 from ..l4d2_utils.utils import split_maohao, str_to_picstr
 from .local_ip import Group_All_HOST
 from .qqgroup import qq_ip_querie
+from .utils import group_key
 
 
 async def get_ip_to_mes(msg: str, command: str = ""):
