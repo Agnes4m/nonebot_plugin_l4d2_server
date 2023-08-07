@@ -1,4 +1,3 @@
-import asyncio
 from time import sleep
 from typing import Dict, List, Tuple
 
@@ -56,7 +55,6 @@ join_server = on_command("ld_jr", aliases={"求生加入"}, priority=20, block=T
 
 async def get_des_ip():
     """初始化"""
-    global ALL_HOST
     global ANNE_IP
     global matchers
     global Group_All_HOST
@@ -139,70 +137,6 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
         if not send_msg:
             logger.warning("没有")
         await matcher.finish(send_msg)
-
-
-async def get_ip_to_mes(msg: str, command: str = ""):
-    if not msg:
-        # 以图片输出全部当前
-        igr = False
-        # if command in gamemode_list:
-        #     this_ips = [
-        #         d for l in ALL_HOST.values() for d in l if d.get("version") == command
-        #     ]
-        #     igr = True
-        # else:
-        this_ips = ALL_HOST[command]
-        ip_list: List[Tuple[str, str, str]] = []
-        for one_ip in this_ips:
-            host, port = split_maohao(one_ip["ip"])
-            msg_tuple = (one_ip["id"], host, port)
-            ip_list.append(msg_tuple)
-        img = await qq_ip_queries_pic(ip_list, igr)
-        return img if img else None
-
-    if not msg[0].isdigit():
-        # if any(mode in msg for mode in gamemode_list):
-        #     pass
-        # else:
-        return None
-    message = await json_server_to_tag_dict(command, msg)
-    if len(message) == 0:
-        # 关键词不匹配，忽略
-        return None
-    ip = str(message["ip"])
-    logger.info(ip)
-
-    try:
-        msg_send = await get_anne_server_ip(ip)
-        if msg_send:
-            return msg_send
-
-    except (OSError, asyncio.exceptions.TimeoutError):
-        return "服务器无响应"
-
-
-async def get_read_group_ip():
-    """输出群组服务器"""
-    get_grou_ip = on_command("anne", aliases=group_key(), priority=80, block=True)
-
-    @get_grou_ip.handle()
-    async def _(
-        matcher: Matcher,
-        start: str = CommandStart(),
-        command: str = RawCommand(),
-        args: Message = CommandArg(),
-    ):
-        if start:
-            command = command.replace(start, "")
-        msg: str = args.extract_plain_text()
-        push_msg = await get_group_ip_to_msg(msg, command)
-        if isinstance(push_msg, bytes):
-            await MessageFactory([Image(push_msg)]).finish()
-        elif msg and type(push_msg) == list:
-            await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
-        elif msg and isinstance(push_msg, str):
-            await str_to_picstr(push_msg, matcher)
-        await matcher.finish()
 
 
 # tests = on_command("测试1")
@@ -299,3 +233,52 @@ async def init():
 @driver.on_startup
 async def _():
     await init()
+
+
+updata = on_command(
+    "updata_anne",
+    aliases={"求生更新anne"},
+    priority=20,
+    block=True,
+    permission=MASTER,
+)
+
+
+@updata.handle()
+async def _(matcher: Matcher, args: Message = CommandArg()):
+    """更新"""
+    if args:
+        # 占位先，除了电信服还有再加
+        ...
+    anne_ip_dict = await updata_anne_server()
+    if not anne_ip_dict:
+        await matcher.finish("网络开小差了捏")
+    server_number = len(anne_ip_dict["云"])
+    await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")
+
+
+# 查询
+queries_comm = on_keyword(
+    keywords={"queries", "求生ip", "求生IP", "connect"},
+    priority=20,
+    block=True,
+)
+
+
+@queries_comm.handle()
+async def _(matcher: Matcher, event: Event, keyword: str = Keyword()):
+    msg = event.get_plaintext()
+
+    if not msg:
+        await matcher.finish("ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】")
+    ip = msg.split(keyword)[-1].split("\r")[0].split("\n")[0].split(" ")
+    one_msg = None
+    for one in ip:
+        if one and one[-1].isdigit():
+            one_msg = one
+            break
+    if not one_msg:
+        await matcher.finish()
+    ip_list = split_maohao(one_msg)
+    msg = await queries_server(ip_list)
+    await str_to_picstr(msg, matcher, keyword)

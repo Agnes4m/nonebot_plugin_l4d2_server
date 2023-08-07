@@ -1,13 +1,10 @@
-from nonebot import on_command
-from nonebot.adapters.onebot.v11 import Message, MessageEvent
+import httpx
+import pandas as pd
+from bs4 import BeautifulSoup
+from nonebot.adapters.onebot.v11 import MessageEvent
+from nonebot.log import logger
 from nonebot.matcher import Matcher
-from nonebot.params import CommandArg
 from nonebot_plugin_saa import Image, MessageFactory
-
-from ..l4d2_utils.config import MASTER
-from ..l4d2_utils.utils import at_to_usrid, get_message_at
-from .server import updata_anne_server
-from .utils import bind_steam, name_exist, search_anne
 
 # anne
 anne_player = on_command("Ranne", aliases={"求生anne"}, priority=25, block=True)
@@ -59,6 +56,15 @@ async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg())
     if not nickname:
         nickname = "宁宁"
     msg = await bind_steam(usr_id, tag, nickname)
+    await matcher.finish(msg)
+
+
+@del_bind.handle()
+async def _(matcher: Matcher, event: MessageEvent):
+    usr_id = event.user_id
+    msg = name_exist(str(usr_id))
+    if not msg:
+        return
     await matcher.finish(msg)
 
 

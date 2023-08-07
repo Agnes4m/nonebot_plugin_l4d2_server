@@ -17,7 +17,7 @@
 
 
 from nonebot import get_driver, require
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
+from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.plugin import PluginMetadata
@@ -87,7 +87,7 @@ async def _(matcher: Matcher):
 
 
 @search_api.got("is_sure", prompt='如果需要上传，请发送 "yes"')
-async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State):
+async def _(matcher: Matcher, bot: V11Bot, event: GroupMessageEvent, state: T_State):
     is_sure = str(state["is_sure"])
     if is_sure == "yes":
         data_dict: dict = state["maps"][0]
