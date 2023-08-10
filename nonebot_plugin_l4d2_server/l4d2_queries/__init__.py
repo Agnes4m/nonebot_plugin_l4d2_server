@@ -1,3 +1,4 @@
+import json
 from time import sleep
 from typing import Dict, List, Tuple
 
@@ -13,7 +14,7 @@ from ..l4d2_anne.server import updata_anne_server
 from ..l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
 from ..l4d2_queries.utils import queries_server
 from ..l4d2_server.rcon import command_server
-from ..l4d2_utils.config import MASTER, driver, l4_config
+from ..l4d2_utils.config import DATA_PATH, MASTER, driver, l4_config
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao, str_to_picstr
 from .local_ip import ALL_HOST
@@ -46,6 +47,20 @@ add_queries = on_command(
 del_queries = on_command(
     "delq",
     aliases={"求生取消订阅"},
+    priority=20,
+    block=True,
+    permission=MASTER,
+)
+add2_queries = on_command(
+    "l4add",
+    aliases={"l4添加查询","l4增加查询"},
+    priority=20,
+    block=True,
+    permission=MASTER,
+)
+del2_queries = on_command(
+    "l4del",
+    aliases={"l4删除查询","l4取消查询"},
     priority=20,
     block=True,
     permission=MASTER,
@@ -284,3 +299,55 @@ async def _(matcher: Matcher, event: Event, keyword: str = Keyword()):
     msg = await queries_server(ip_list)
     await str_to_picstr(msg, matcher, keyword)
     await str_to_picstr(msg, matcher, keyword)
+
+@add2_queries.handle()
+async def _(matcher:Matcher,arg:Message=CommandArg()):
+    arg_list = arg.extract_plain_text().split(" ")
+    if len(arg_list) == 2:
+        tag,ip = arg_list
+        file_name = f"{tag}.json"
+        file_path = DATA_PATH.resolve() /"l4d2" /file_name
+        with file_path.open(mode="r",encoding="utf-8") as f:
+            tag_data:Dict[str,List[Dict[str,str]]] = json.load(f)
+        num_list:List[str] = []
+        for one_number in tag_data[tag]:
+            num_list.append(str(one_number["id"]))
+        add_num = 0
+        for i in range(1,100):
+            if str(i) not in num_list:
+                add_num = i
+                break
+            continue
+    elif len(arg_list) == 3:        
+        tag,add_num,ip = arg_list
+        file_name = f"{tag}.json"
+        file_path = DATA_PATH.resolve() /"l4d2" /file_name
+        with file_path.open(mode="r",encoding="utf-8") as f:
+            tag_data:Dict[str,List[Dict[str,str]]] = json.load(f)
+    else:
+        await matcher.finish("参数不正确")
+    if add_num != 0:
+        tag_data[tag].append({"id":str(id),"ip":ip})
+        with file_path.open(mode="w",encoding="utf-8") as f:
+            json.dump(tag_data,f,ensure_ascii=False)
+        await matcher.finish(f"""成功添加
+                             指令: {tag}{add_num}
+                             ip: {ip}""")
+    await matcher.finish("参数不正确")
+
+@del2_queries.handle()
+async def _(matcher:Matcher,arg:Message=CommandArg()):
+    arg_list = arg.extract_plain_text().split(" ")
+    if len(arg_list) == 2:
+        tag,num = arg_list
+        file_name = f"{tag}.json"
+        file_path = DATA_PATH.resolve() /"l4d2" /file_name
+        with file_path.open(mode="r",encoding="utf-8") as f:
+            tag_data:Dict[str,List[Dict[str,str]]] = json.load(f)
+        for one_number in tag_data[tag]:
+            if str(one_number["id"]) == num:
+                tag_data[tag].remove({"id":str(id),"ip":ip})
+                with file_path.open(mode="w",encoding="utf-8") as f:
+                    json.dump(tag_data,f,ensure_ascii=False)
+                await matcher.finish(f"成功删除指令指令: {tag}")      
+    await matcher.finish("参数不正确")

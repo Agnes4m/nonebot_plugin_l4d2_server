@@ -34,8 +34,8 @@ MASTER = SUPERUSER | GROUP_ADMIN | GROUP_OWNER
 ADMINISTRATOR = SUPERUSER | GROUP_ADMIN | GROUP_OWNER | PRIVATE_FRIEND
 # file 填写求生服务器所在路径
 
-
-CONFIG_PATH = Path() / "data" / "L4D2" / "l4d2.yml"
+DATA_PATH = Path() / "data" / "L4D2"
+CONFIG_PATH = DATA_PATH / "l4d2.yml"
 CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
