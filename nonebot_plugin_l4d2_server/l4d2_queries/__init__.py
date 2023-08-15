@@ -1,6 +1,6 @@
 import json
 from time import sleep
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from nonebot import on_command, on_keyword
 from nonebot.adapters import Event, Message
@@ -53,14 +53,14 @@ del_queries = on_command(
 )
 add2_queries = on_command(
     "l4add",
-    aliases={"l4添加查询","l4增加查询"},
+    aliases={"l4添加查询", "l4增加查询"},
     priority=20,
     block=True,
     permission=MASTER,
 )
 del2_queries = on_command(
     "l4del",
-    aliases={"l4删除查询","l4取消查询"},
+    aliases={"l4删除查询", "l4取消查询"},
     priority=20,
     block=True,
     permission=MASTER,
@@ -273,81 +273,58 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
     await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")
 
 
-# 查询
-queries_comm = on_keyword(
-    keywords={"queries", "求生ip", "求生IP", "connect"},
-    priority=20,
-    block=True,
-)
-
-
-@queries_comm.handle()
-async def _(matcher: Matcher, event: Event, keyword: str = Keyword()):
-    msg = event.get_plaintext()
-
-    if not msg:
-        await matcher.finish("ip格式如中括号内【127.0.0.1】【114.51.49.19:1810】")
-    ip = msg.split(keyword)[-1].split("\r")[0].split("\n")[0].split(" ")
-    one_msg = None
-    for one in ip:
-        if one and one[-1].isdigit():
-            one_msg = one
-            break
-    if not one_msg:
-        await matcher.finish()
-    ip_list = split_maohao(one_msg)
-    msg = await queries_server(ip_list)
-    await str_to_picstr(msg, matcher, keyword)
-    await str_to_picstr(msg, matcher, keyword)
-
 @add2_queries.handle()
-async def _(matcher:Matcher,arg:Message=CommandArg()):
+async def _(matcher: Matcher, arg: Message = CommandArg()):
     arg_list = arg.extract_plain_text().split(" ")
     if len(arg_list) == 2:
-        tag,ip = arg_list
+        tag, ip = arg_list
         file_name = f"{tag}.json"
-        file_path = DATA_PATH.resolve() /"l4d2" /file_name
-        with file_path.open(mode="r",encoding="utf-8") as f:
-            tag_data:Dict[str,List[Dict[str,str]]] = json.load(f)
-        num_list:List[str] = []
+        file_path = DATA_PATH.resolve() / "l4d2" / file_name
+        with file_path.open(mode="r", encoding="utf-8") as f:
+            tag_data: Dict[str, List[Dict[str, Union[int, str]]]] = json.load(f)
+        num_list: List[str] = []
         for one_number in tag_data[tag]:
             num_list.append(str(one_number["id"]))
         add_num = 0
-        for i in range(1,100):
+        for i in range(1, 100):
             if str(i) not in num_list:
                 add_num = i
                 break
             continue
-    elif len(arg_list) == 3:        
-        tag,add_num,ip = arg_list
+    elif len(arg_list) == 3:
+        tag, add_num, ip = arg_list
         file_name = f"{tag}.json"
-        file_path = DATA_PATH.resolve() /"l4d2" /file_name
-        with file_path.open(mode="r",encoding="utf-8") as f:
-            tag_data:Dict[str,List[Dict[str,str]]] = json.load(f)
+        file_path = DATA_PATH.resolve() / "l4d2" / file_name
+        with file_path.open(mode="r", encoding="utf-8") as f:
+            tag_data: Dict[str, List[Dict[str, Union[int, str]]]] = json.load(f)
     else:
         await matcher.finish("参数不正确")
     if add_num != 0:
-        tag_data[tag].append({"id":str(id),"ip":ip})
-        with file_path.open(mode="w",encoding="utf-8") as f:
-            json.dump(tag_data,f,ensure_ascii=False)
-        await matcher.finish(f"""成功添加
-                             指令: {tag}{add_num}
-                             ip: {ip}""")
+        tag_data[tag].append({"id": int(add_num), "ip": ip})
+        with file_path.open(mode="w", encoding="utf-8") as f:
+            json.dump(tag_data, f, ensure_ascii=False)
+        await matcher.finish(
+            f"""成功添加
+            指令: {tag}{add_num}
+            ip: {ip}
+            """,
+        )
     await matcher.finish("参数不正确")
 
+
 @del2_queries.handle()
-async def _(matcher:Matcher,arg:Message=CommandArg()):
+async def _(matcher: Matcher, arg: Message = CommandArg()):
     arg_list = arg.extract_plain_text().split(" ")
     if len(arg_list) == 2:
-        tag,num = arg_list
+        tag, num = arg_list
         file_name = f"{tag}.json"
-        file_path = DATA_PATH.resolve() /"l4d2" /file_name
-        with file_path.open(mode="r",encoding="utf-8") as f:
-            tag_data:Dict[str,List[Dict[str,str]]] = json.load(f)
+        file_path = DATA_PATH.resolve() / "l4d2" / file_name
+        with file_path.open(mode="r", encoding="utf-8") as f:
+            tag_data: Dict[str, List[Dict[str, Union[int, str]]]] = json.load(f)
         for one_number in tag_data[tag]:
             if str(one_number["id"]) == num:
-                tag_data[tag].remove({"id":str(id),"ip":ip})
-                with file_path.open(mode="w",encoding="utf-8") as f:
-                    json.dump(tag_data,f,ensure_ascii=False)
-                await matcher.finish(f"成功删除指令指令: {tag}")      
+                tag_data[tag].remove(one_number)
+                with file_path.open(mode="w", encoding="utf-8") as f:
+                    json.dump(tag_data, f, ensure_ascii=False)
+                await matcher.finish(f"成功删除指令指令: {tag}")
     await matcher.finish("参数不正确")
