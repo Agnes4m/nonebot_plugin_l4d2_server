@@ -12,7 +12,6 @@ from ..l4d2_utils.config import MASTER, config_manager, file_format, l4_config, 
 from ..l4d2_utils.rule import wenjian
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import del_map, get_vpk, mes_list, rename_map
-from .input_json import upload
 from .utils import updown_l4d2_vpk
 
 up = on_notice(rule=wenjian)
