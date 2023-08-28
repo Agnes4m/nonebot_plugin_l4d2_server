@@ -197,4 +197,10 @@ def group_key():
         except AttributeError:
             a.add("希腊那我从来没有想过这个事情")
     return a
-    return a
+
+
+async def auto_id(msg_list: List[int]):
+    for one in range(1, 100):
+        if one not in msg_list:
+            return one
+    return 0
