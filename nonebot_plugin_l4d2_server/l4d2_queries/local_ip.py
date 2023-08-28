@@ -15,8 +15,11 @@ def load_ip_json():
 
         # 将所有json文件中的字典对象合并为一个字典
         for file_path in json_files:
-            with file_path.open("r", encoding="utf-8") as f:
-                local_host.update(json.load(f))
+            try:
+                with file_path.open("r", encoding="utf-8") as f:
+                    local_host.update(json.load(f))
+            except Exception:
+                print("导入错误", file_path)
     except Exception:
         pass
     return local_host

@@ -17,6 +17,7 @@ from ..l4d2_server.rcon import command_server
 from ..l4d2_utils.config import DATA_PATH, MASTER, driver, l4_config
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao, str_to_picstr
+from .himi import get_himi_ip
 from .local_ip import ALL_HOST
 from .qqgroup import get_tan_jian
 from .send_msg import get_ip_to_mes
@@ -68,12 +69,16 @@ del2_queries = on_command(
 show_queries = on_command("showq", aliases={"求生订阅"}, priority=20, block=True)
 join_server = on_command("ld_jr", aliases={"求生加入"}, priority=20, block=True)
 
+updata_himi = on_command(
+    "update_hime",
+    aliases={"公益服更新,l4公益服更新"},
+    priority=10,
+    block=True,
+)
+
 
 async def get_des_ip():
     """初始化"""
-    global ANNE_IP
-    global matchers
-    global Group_All_HOST
 
     def count_ips(ip_dict: Dict[str, List[Dict[str, str]]]):
         """输出加载ip"""
@@ -141,10 +146,12 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
         if isinstance(push_msg, bytes):
             logger.info("直接发送图片")
             await MessageFactory([Image(push_msg)]).finish()
-        elif msg and type(push_msg) == list:
+            return
+        if msg and type(push_msg) == list:
             logger.info("更加构造函数")
             await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
-        elif msg and isinstance(push_msg, str):
+            return
+        if msg and isinstance(push_msg, str):
             send_msg = push_msg
         else:
             logger.info("出错了")
@@ -267,8 +274,9 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
         # 占位先，除了电信服还有再加
         ...
     anne_ip_dict = await updata_anne_server()
-    if not anne_ip_dict:
+    if anne_ip_dict is None:
         await matcher.finish("网络开小差了捏")
+        return
     server_number = len(anne_ip_dict["云"])
     await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")
 
@@ -299,6 +307,7 @@ async def _(matcher: Matcher, arg: Message = CommandArg()):
             tag_data: Dict[str, List[Dict[str, Union[int, str]]]] = json.load(f)
     else:
         await matcher.finish("参数不正确")
+        return
     if add_num != 0:
         tag_data[tag].append({"id": int(add_num), "ip": ip})
         with file_path.open(mode="w", encoding="utf-8") as f:
@@ -328,3 +337,9 @@ async def _(matcher: Matcher, arg: Message = CommandArg()):
                     json.dump(tag_data, f, ensure_ascii=False)
                 await matcher.finish(f"成功删除指令指令: {tag}")
     await matcher.finish("参数不正确")
+
+
+@updata_himi.handle()
+async def _(matcher: Matcher):
+    send_msg = await get_himi_ip()
+    await matcher.finish(send_msg)

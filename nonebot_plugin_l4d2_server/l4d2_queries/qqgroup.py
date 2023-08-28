@@ -252,7 +252,7 @@ async def get_tan_jian(msg: List[tuple], mode: int):
     if mode == 3:
         message = random.choice(KAILAO)
     message += f"\n名称：{mse['name']}\n"
-    message += "地图：" + mse["map_"] + "\n"
+    message += f"地图：{mse['map_']} \n"
     message += f"玩家：{mse['players']} / {mse['max_players']}\n"
     try:
         message += await msg_ip_to_list(mse["Players"])

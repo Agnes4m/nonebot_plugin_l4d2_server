@@ -1,8 +1,10 @@
 import asyncio
 import json
+from pathlib import Path
 from typing import Dict, List
 
 import aiohttp
+from nonebot.log import logger
 
 
 # from ..l4d2_image.steam import url_to_msg
@@ -22,7 +24,7 @@ async def get_himi_ip():
     if msg:
         msg_json: Dict[str, List[Dict[str, str]]] = json.loads(msg)
     else:
-        return
+        return "api错误，这不是程序的原因，，"
     msg_list = msg_json["list"]
     new_json: Dict[str, List[Dict[str, str]]] = {}
     for one_server in msg_list:
@@ -34,20 +36,32 @@ async def get_himi_ip():
             new_json,
         )
         new_server["ip"] = one_server["url"]
-        print(tag, "|", new_server["id"])
+        logger.info(tag, "|", one_server["name"], "|", new_server["id"])
         if tag in new_json:
             new_json[tag].append(new_server)
         else:
             new_json[tag] = [new_server]
+    send_msg: str = "更新成功："
+    for key, value in new_json.items():
+        new_dict = {key: value}  # 创建只有一个键值对的新字典
+        send_msg += f"【{key}】: {len(value)}个"
+        # 保存新字典为 JSON 文件
+        with Path("data/L4d2/l4d2", f"{key}.json").open("w") as file:
+            json.dump(new_dict, file, indent=4)
+    return send_msg
 
 
 async def name_to_tag(name: str):
     """获取tag"""
     while name and ord(name[0]) == 65279:
         name = name[1::]
-    if name.startswith("["):
+    if name.startswith("橘"):
+        tag = "橘"
+    elif name.startswith("["):
         tag = name[1::].split("]")[0].split(" ")[0]
         # print(tag, "|", name)
+    elif name.startswith("『"):
+        tag = name[1::].split("‖")[0].split(" ")[0]
     elif name.startswith("【"):
         tag = name[1::].split("】")[0].split(" ")[0]
     elif "电信云服" in name:
@@ -55,7 +69,7 @@ async def name_to_tag(name: str):
     elif "Neko" in name:
         tag = "Neko"
     else:
-        tag = name[0]
+        tag = name[0] + name[1]
 
     return tag
 

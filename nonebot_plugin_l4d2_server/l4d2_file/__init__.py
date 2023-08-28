@@ -12,7 +12,7 @@ from ..l4d2_utils.config import MASTER, config_manager, file_format, l4_config, 
 from ..l4d2_utils.rule import wenjian
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import del_map, get_vpk, mes_list, rename_map
-from .input_json import upload
+from .input_json import upload  # noqa: F401
 from .utils import updown_l4d2_vpk
 
 up = on_notice(rule=wenjian)
@@ -88,8 +88,9 @@ for one_path in l4_config.l4_ipall:
 async def _(matcher: Matcher):
     args = matcher.get_arg("txt")
     l4_file = l4_config.l4_ipall
-    if not args:
+    if args is None:
         await matcher.finish("获取文件出错辣，再试一次吧")
+        return
 
     is_sure = str(matcher.get_arg("is_sure")).strip()
     if not is_sure.isdigit():
@@ -124,6 +125,7 @@ async def _(matcher: Matcher):
         mes = "解压成功，新增以下几个vpk文件"
     elif vpk_files is None:
         await matcher.finish("文件错误")
+        return
     else:
         mes = "你可能上传了相同的文件，或者解压失败了捏"
 
