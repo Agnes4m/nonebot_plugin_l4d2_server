@@ -1,9 +1,12 @@
 import json
 from pathlib import Path
+from typing import Dict, List
 
 import aiofiles
 from nonebot import on_notice
 from nonebot.adapters.onebot.v11 import NoticeEvent
+from nonebot.log import logger
+from nonebot.matcher import Matcher
 
 from ..l4d2_image.steam import url_to_msg
 
@@ -11,7 +14,7 @@ upload = on_notice(priority=1)
 
 
 @upload.handle()
-async def _(event: NoticeEvent):
+async def _(matcher: Matcher, event: NoticeEvent):
     try:
         arg = event.dict()
         files: dict = arg["file"]
@@ -21,17 +24,22 @@ async def _(event: NoticeEvent):
                 msg = await url_to_msg(files["url"])
                 if not msg:
                     return
-                jsons = json.loads(msg)
+                jsons: Dict[str, List[Dict[str, str]]] = json.loads(msg)
             except json.decoder:
-                await upload.finish("求生json格式不正确")
+                logger.info("求生json格式不正确")
+                await matcher.finish("求生json格式不正确")
+                return
             if not validate_json(jsons):
-                await upload.finish("求生json格式不正确")
+                logger.info("求生json格式不正确")
+                await matcher.finish("求生json格式不正确")
             key = await up_date(jsons, name)
             if key:
+                logger.info(jsons)
                 msg = "输入成功\n"
                 for key, value in jsons.items():
-                    msg += f"当前你的{key}指令：{len(value)}个\n"
-                await upload.send(msg)
+                    msg += f"【{key}】指令：{len(value)}个\n"
+                    logger.info(msg)
+                await matcher.send(msg)
     except KeyError:
         pass
 
@@ -48,7 +56,7 @@ async def validate_json(json_data):
             for item in value:
                 if not isinstance(item, dict):
                     return False
-                if not all(key in item for key in ["id", "version", "ip"]):
+                if not all(key in item for key in ["id", "ip"]):
                     return False
         if True:
             return True
