@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-import aiofiles
 from nonebot import on_notice
 from nonebot.adapters.onebot.v11 import NoticeEvent
 from nonebot.log import logger
@@ -32,9 +31,10 @@ async def _(matcher: Matcher, event: NoticeEvent):
             if not validate_json(jsons):
                 logger.info("求生json格式不正确")
                 await matcher.finish("求生json格式不正确")
+            print(name)
             key = await up_date(jsons, name)
             if key:
-                logger.info(jsons)
+                # logger.info(jsons)
                 msg = "输入成功\n"
                 for key, value in jsons.items():
                     msg += f"【{key}】指令：{len(value)}个\n"
@@ -65,12 +65,13 @@ async def validate_json(json_data):
         return False
 
 
-async def up_date(data, name):
+async def up_date(data: Dict[str, List[Dict[str, str]]], name: str):
+    print(data)
     directory = Path("data/L4D2/l4d2")
     directory.mkdir(parents=True, exist_ok=True)
 
     file_path = directory / name
-    async with aiofiles.open(file_path, "w") as json_file:
-        json.dump(data, json_file, ensure_ascii=False)
+    with file_path.open("w") as json_file:
+        json.dump(data, json_file)
 
     return True
