@@ -29,4 +29,4 @@ async def mode_txt_to_img(
     else:
         msg = MessageFactory([Image(pic), Text(ex_msg)])
     await msg.finish()
-    return None
+    return
