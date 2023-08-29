@@ -86,8 +86,9 @@ async def get_group_ip_to_msg(command: str, text: str = ""):
     if not text:
         group_tag_list: List[str] = Group_All_HOST[command]
         group_ip_dict: Dict[str, List[Dict[str, str]]] = {}
+        tag = len(group_tag_list) == 0
         for tag, one_group in ALL_HOST.items():
-            if tag in group_tag_list:
+            if tag in group_tag_list or tag:
                 group_ip_dict.update({tag: one_group})
                 ip_tuple_list: List[Tuple[str, str, int]] = []
                 for one_server in one_group:
