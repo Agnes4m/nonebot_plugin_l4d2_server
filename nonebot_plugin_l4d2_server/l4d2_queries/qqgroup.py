@@ -1,7 +1,7 @@
 import asyncio
 import random
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 import a2s
 import aiofiles
@@ -9,6 +9,7 @@ from nonebot.log import logger
 
 from ..l4d2_data.serverip import L4D2Server
 from ..l4d2_image import server_ip_pic
+from ..l4d2_utils.classcal import PlayerInfo, ServerStatus
 from ..l4d2_utils.message import KAILAO, PRISON, QUEREN
 from ..l4d2_utils.utils import split_maohao
 from .local_ip import ALL_HOST
@@ -73,7 +74,7 @@ async def qq_ip_queries(msg: List[tuple]):
 
 
 async def qq_ip_querie(msg: List[Tuple[str, str, int]], igr: bool = True):
-    msg_list: List[Dict[str, Any]] = []
+    msg_list: List[ServerStatus] = []
     tasks = []  # 用来保存异步任务
     if msg != []:
         for i in msg:
@@ -105,11 +106,11 @@ async def qq_ip_querie(msg: List[Tuple[str, str, int]], igr: bool = True):
         await asyncio.gather(*tasks)
         # 对msg_list按照number顺序排序
         # msg_list.sort(key=lambda x: x["number"])
-        send_list = sorted(msg_list, key=lambda x: int(x["number"]))
+        send_list = sorted(msg_list, key=lambda x: int(x.number))
         result = {"msg_list": send_list}
 
     else:
-        result: Dict[str, List[Dict[str, Any]]] = {}
+        result: Dict[str, List[ServerStatus]] = {}
     return result
 
 
@@ -126,7 +127,7 @@ async def process_message(
     number: str,
     host: str,
     port: int,
-    msg_list: List[Dict[str, Any]],
+    msg_list: List[ServerStatus],
     igr: bool,
     qqgroup: str = "",
 ):
@@ -143,24 +144,13 @@ async def process_message(
         msg1.update(msg3)
         if qqgroup:
             msg1.update({"tag": qqgroup})
-        msg_list.append(msg1)
+        msg_list.append(ServerStatus(**msg1))
     except errors:
         if igr:
             pass
         else:
             # 空白字典
-            null_dict = {
-                key: "null"
-                for key in [
-                    "name",
-                    "map_",
-                    "players",
-                    "max_players",
-                    "rank_players",
-                    "ping",
-                ]
-            }
-            null_dict.update({"number": number, "ip": f"{host}:{port}", "Players": []})  # type: ignore  # noqa: E501
+            null_dict = ServerStatus(number=number)
             msg_list.append(null_dict)
 
 

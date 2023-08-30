@@ -4,6 +4,8 @@ import jinja2
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
+from ..l4d2_utils.classcal import ServerStatus
+
 # from .htmlimg import dict_to_dict_img
 # from ..l4d2_anne.anne_telecom import ANNE_API
 from ..l4d2_utils.config import TEXT_PATH, l4_config
@@ -63,28 +65,22 @@ async def dict_to_html(usr_id, detail_map: dict):
     return data_list
 
 
-async def server_ip_pic(msg_list: List[dict]):
+async def server_ip_pic(msg_list: List[ServerStatus]):
     """
     输入一个字典列表，输出图片
     msg_dict:folder/name/map_/players/max_players/Players/[Name]
     """
     for server_info in msg_list:
-        server_info[
-            "max_players"
-        ] = f"{server_info['players']}/{server_info['max_players']}"
+        server_info.rank_players = f"{server_info.players}/{server_info.max_players}"
         players_list = []
-        if "Players" in server_info:
-            sorted_players = sorted(
-                server_info["Players"],
-                key=lambda x: x.get("Score", 0),
-                reverse=True,
-            )[:4]
+        if server_info.Players:
+            sorted_players = sorted(server_info.Players, key=lambda x: x.Score)[:4]
             for player_info in sorted_players:
-                player_str = f"{player_info['name']} | {player_info['Duration']}"
+                player_str = f"{player_info.name} | {player_info.Duration}"
                 players_list.append(player_str)
             while len(players_list) < 4:
                 players_list.append("")
-            server_info["Players"] = players_list
+            server_info.Players = players_list
     pic = await get_help_img(msg_list)
     if pic:
         logger.success("正在输出图片")
@@ -93,7 +89,7 @@ async def server_ip_pic(msg_list: List[dict]):
     return pic
 
 
-async def get_help_img(plugins: List[dict]) -> Optional[bytes]:
+async def get_help_img(plugins: List[ServerStatus]) -> Optional[bytes]:
     try:
         if l4_config.l4_style == "black":
             template = env.get_template("help_dack.html")
