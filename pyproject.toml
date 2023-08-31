@@ -1,6 +1,6 @@
 [project]
 name = "nonebot-plugin-l4d2-server"
-version = "0.6.3"
+version = "0.6.3-post1"
 description = "L4D2 server related operations plugin for NoneBot2"
 authors = [
     { name = "Agnes_Digital", email = "Z735803792@163.com" }
@@ -73,6 +73,7 @@ extra-standard-library = ["typing_extensions"]
 ignore = [
     "B008",
     "B905",
+    "E402",
     "E501",
     "FBT001",
     "FBT002",

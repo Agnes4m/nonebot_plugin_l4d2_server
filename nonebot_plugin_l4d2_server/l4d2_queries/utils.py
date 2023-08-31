@@ -118,21 +118,21 @@ async def player_queries(ip: str, port: int):
     return await msg_ip_to_list(message_list)
 
 
-async def msg_ip_to_list(message_list: list):
+async def msg_ip_to_list(message_list: List[PlayerInfo]):
     message = ""
     n = 0
     if message_list == []:
         message += "服务器里，是空空的呢\n"
     else:
-        max_duration_len = max([len(str(i["Duration"])) for i in message_list])
-        max_score_len = max([len(str(i["Score"])) for i in message_list])
+        max_duration_len = max([len(str(i.Duration)) for i in message_list])
+        max_score_len = max([len(str(i.Score)) for i in message_list])
         for i in message_list:
             n += 1
-            name = i["name"]
-            score = i["Score"]
+            name = i.name
+            score = i.Score
             if score == "0":
                 score = "摸"
-            duration = i["Duration"]
+            duration = i.Duration
             soc = "[{:>{}}]".format(score, max_score_len)
             dur = "{:^{}}".format(duration, max_duration_len)
             message += f"{soc} | {dur} | {name} \n"
