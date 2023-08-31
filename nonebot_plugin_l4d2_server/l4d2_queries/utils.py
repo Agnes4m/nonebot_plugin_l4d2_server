@@ -102,7 +102,7 @@ async def player_queries_anne_dict(ip: str, port: int):
                     name=i.name,
                     Score=i.score,
                     Duration=await convert_duration(i.duration),
-                )
+                ),
                 # {
                 #     "name": i.name,
                 #     "Score": i.score,

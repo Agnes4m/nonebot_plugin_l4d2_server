@@ -9,7 +9,7 @@ from nonebot.log import logger
 
 from ..l4d2_data.serverip import L4D2Server
 from ..l4d2_image import server_ip_pic
-from ..l4d2_utils.classcal import PlayerInfo, ServerStatus
+from ..l4d2_utils.classcal import ServerStatus
 from ..l4d2_utils.message import KAILAO, PRISON, QUEREN
 from ..l4d2_utils.utils import split_maohao
 from .local_ip import ALL_HOST
