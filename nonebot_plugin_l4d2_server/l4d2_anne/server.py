@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-import aiofiles
 import httpx
 from bs4 import BeautifulSoup
 
@@ -38,8 +37,7 @@ async def updata_anne_server():
         ip_dict["云"].append({"id": str(i), "ip": ip})
 
     # ANNE_IP.update(ip_dict)
-    async with aiofiles.open(
-        Path(CONFIG_PATH.parent / "l4d2/云.json"),
+    with Path(CONFIG_PATH.parent / "l4d2/云.json").open(
         mode="w",
         encoding="utf-8",
     ) as f:

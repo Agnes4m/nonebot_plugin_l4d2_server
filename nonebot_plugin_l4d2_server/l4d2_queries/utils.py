@@ -7,6 +7,7 @@ import a2s
 from nonebot.log import logger
 from pydantic import BaseModel
 
+from ..l4d2_utils.classcal import PlayerInfo
 from ..l4d2_utils.config import l4_config
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao
@@ -93,15 +94,20 @@ async def player_queries_anne_dict(ip: str, port: int):
     port = int(port)
     # message_dic = await l4d2.APlayer(ip,port,times=5)
     message_list: List[a2s.Player] = await a2s.aplayers((ip, port))  # type: ignore
-    msg_list = []
+    msg_list: List[PlayerInfo] = []
     if message_list != []:
         for i in message_list:
             msg_list.append(
-                {
-                    "name": i.name,
-                    "Score": i.score,
-                    "Duration": await convert_duration(i.duration),
-                },
+                PlayerInfo(
+                    name=i.name,
+                    Score=i.score,
+                    Duration=await convert_duration(i.duration),
+                ),
+                # {
+                #     "name": i.name,
+                #     "Score": i.score,
+                #     "Duration": await convert_duration(i.duration),
+                # },
             )
     return msg_list
 

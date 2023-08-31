@@ -11,6 +11,7 @@ from nonebot_plugin_saa import Image, MessageFactory, Text
 from ..l4d2_queries.local_ip import ALL_HOST
 from ..l4d2_queries.qqgroup import qq_ip_queries_pic
 from ..l4d2_queries.utils import get_anne_server_ip, json_server_to_tag_dict
+from ..l4d2_utils.classcal import ServerGroup, ServerStatus
 from ..l4d2_utils.utils import split_maohao, str_to_picstr
 from .local_ip import Group_All_HOST
 from .qqgroup import qq_ip_querie
@@ -82,12 +83,13 @@ async def get_read_group_ip():
 
 
 async def get_group_ip_to_msg(command: str, text: str = ""):
-    """输出群组ip"""
+    """输出群组ip的dict信息"""
     if not text:
         group_tag_list: List[str] = Group_All_HOST[command]
         group_ip_dict: Dict[str, List[Dict[str, str]]] = {}
+        tag = len(group_tag_list) == 0
         for tag, one_group in ALL_HOST.items():
-            if tag in group_tag_list:
+            if tag in group_tag_list or tag:
                 group_ip_dict.update({tag: one_group})
                 ip_tuple_list: List[Tuple[str, str, int]] = []
                 for one_server in one_group:
@@ -104,7 +106,23 @@ async def get_group_ip_to_msg(command: str, text: str = ""):
     # img = await qq_ip_queries_pic(ip_list, igr)
 
 
-async def check_group_msg(msg: Dict[str, List[Dict[str, str]]]):
+async def check_group_msg(
+    msg: Dict[str, List[ServerStatus]],
+):
+    send_msg: Dict[str, ServerGroup] = {}
     if msg:
-        ...
-    ...
+        for tag, server_group in msg.items():
+            # 服务器，服务器玩家数量
+            # 当前/总数
+            server_info = ServerGroup()
+            for one_server in server_group:
+                if one_server.name == "null":
+                    server_info.server_all_number += 1
+                    continue
+                server_info.server_all_number += 1
+                server_info.server_number += 1
+                server_info.server_people += one_server.players
+                server_info.server_all_people += one_server.max_players
+            send_msg[tag] = server_info
+        return send_msg
+    return None

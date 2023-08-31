@@ -197,6 +197,7 @@ async def _(matcher: Matcher, event: GroupMessageEvent):
     msg = await show_ip(group_id)
     if not msg:
         await matcher.finish("当前没有启动的服务器捏")
+        return
     if isinstance(msg, str):
         await matcher.finish(msg)
     else:
@@ -217,6 +218,7 @@ async def _(matcher: Matcher, event: Event, keyword: str = Keyword()):
             break
     if not one_msg:
         await matcher.finish()
+        return
     ip_list = split_maohao(one_msg)
     msg = await queries_server(ip_list)
     await str_to_picstr(msg, matcher, keyword)
