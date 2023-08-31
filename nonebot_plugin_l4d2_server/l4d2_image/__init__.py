@@ -27,7 +27,7 @@ async def out_png(usr_id, data_dict: dict):
     template = env.get_template("anne.html")
     html = await template.render_async(data=msg_dict)
     return await html_to_pic(
-        html,
+        html=html,
         wait=0,
         viewport={"width": 1100, "height": 800},
         template_path=f"file://{template_path.absolute()}",
@@ -73,7 +73,7 @@ async def server_ip_pic(msg_list: List[ServerStatus]):
     for server_info in msg_list:
         server_info.rank_players = f"{server_info.players}/{server_info.max_players}"
         players_list: List[PlayerInfo] = []
-        logger.info(server_info.name)
+        # logger.info(server_info.name)
 
         sorted_players = sorted(server_info.Players, key=lambda x: x.Score)[:4]
         for player_info in sorted_players:
@@ -82,7 +82,7 @@ async def server_ip_pic(msg_list: List[ServerStatus]):
         while len(players_list) < 4:
             players_list.append(PlayerInfo())
         server_info.Players = players_list
-        logger.info(server_info.Players)
+        # logger.info(server_info.Players)
     pic = await get_help_img(msg_list)
     if pic:
         logger.success("正在输出图片")

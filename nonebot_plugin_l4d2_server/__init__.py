@@ -17,6 +17,13 @@
 
 
 from nonebot import get_driver, require
+
+require("nonebot_plugin_apscheduler")  # noqa: F401
+require("nonebot_plugin_saa")  # noqa: F401
+require("nonebot_plugin_htmlrender")  # noqa: F401
+require("nonebot_plugin_txt2img")  # noqa: F401
+scheduler = require("nonebot_plugin_apscheduler").scheduler
+
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
@@ -31,12 +38,6 @@ from .l4d2_utils.command import help_, search_api
 from .l4d2_utils.config import l4_config
 from .l4d2_utils.utils import upload_file
 from .l4d2_web import web, webUI  # noqa: F401
-
-require("nonebot_plugin_apscheduler")
-require("nonebot_plugin_saa")
-require("nonebot_plugin_htmlrender")
-require("nonebot_plugin_txt2img")
-scheduler = require("nonebot_plugin_apscheduler").scheduler
 
 driver = get_driver()
 
@@ -72,19 +73,16 @@ __plugin_meta__ = PluginMetadata(
 #         await matcher.send(await map_dict_to_str(data))
 @help_.handle()
 async def _(matcher: Matcher):
-    msg = [
-        "=====求生机器人帮助=====",
-        "1、电信服战绩查询【求生anne[id/steamid/@]】",
-        "2、电信服绑定【求生绑定[id/steamid]】",
-        "3、电信服状态查询【云xx】4、创意工坊下载【创意工坊下载[物品id/链接]】",
-        "5、指定ip查询【求生ip[ip]】(可以是域名)",
-        "6、求生喷漆制作【求生喷漆】",
-        "6、本地服务器操作(略，详情看项目地址)",
-    ]
-    messgae = ""
-    for i in msg:
-        messgae += i + "\n"
-    await matcher.finish(messgae)
+    msg = """=====求生机器人帮助=====
+    1、电信服战绩查询【求生anne[id/steamid/@]】
+    2、电信服绑定【求生绑定[id/steamid]】",
+    3、电信服状态查询【云xx】
+    4、创意工坊下载【创意工坊下载[物品id/链接]】
+    5、指定ip查询【求生ip[ip]】(可以是域名)
+    6、求生喷漆制作【求生喷漆】
+    7、本地服务器操作(略，详情看项目地址)
+    """
+    await matcher.finish(msg)
 
 
 @search_api.got("is_sure", prompt='如果需要上传，请发送 "yes"')
