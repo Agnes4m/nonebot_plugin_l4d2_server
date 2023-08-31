@@ -6,9 +6,9 @@ from pydantic import BaseModel
 class PlayerInfo(BaseModel):
     """读取玩家信息"""
 
-    name: str
-    Score: int
-    Duration: str
+    name: str = ""
+    Score: int = 0
+    Duration: str = ""
 
 
 class ServerStatus(BaseModel):
@@ -32,6 +32,8 @@ class ServerStatus(BaseModel):
     """服务器序号"""
     ip: str = "null"
     """服务器ip"""
+    system: str = "m.svg"
+    """服务器系统，["l","w","m"]"""
 
 
 class ServerGroup(BaseModel):

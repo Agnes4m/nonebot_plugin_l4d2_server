@@ -4,7 +4,7 @@ import jinja2
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
-from ..l4d2_utils.classcal import ServerStatus
+from ..l4d2_utils.classcal import PlayerInfo, ServerStatus
 
 # from .htmlimg import dict_to_dict_img
 # from ..l4d2_anne.anne_telecom import ANNE_API
@@ -72,15 +72,17 @@ async def server_ip_pic(msg_list: List[ServerStatus]):
     """
     for server_info in msg_list:
         server_info.rank_players = f"{server_info.players}/{server_info.max_players}"
-        players_list = []
-        if server_info.Players:
-            sorted_players = sorted(server_info.Players, key=lambda x: x.Score)[:4]
-            for player_info in sorted_players:
-                player_str = f"{player_info.name} | {player_info.Duration}"
-                players_list.append(player_str)
-            while len(players_list) < 4:
-                players_list.append("")
-            server_info.Players = players_list
+        players_list: List[PlayerInfo] = []
+        logger.info(server_info.name)
+
+        sorted_players = sorted(server_info.Players, key=lambda x: x.Score)[:4]
+        for player_info in sorted_players:
+            # player_str = f"{player_info.name} | {player_info.Duration}"
+            players_list.append(player_info)
+        while len(players_list) < 4:
+            players_list.append(PlayerInfo())
+        server_info.Players = players_list
+        logger.info(server_info.Players)
     pic = await get_help_img(msg_list)
     if pic:
         logger.success("正在输出图片")
