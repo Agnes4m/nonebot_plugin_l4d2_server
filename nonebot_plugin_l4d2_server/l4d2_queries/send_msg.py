@@ -73,6 +73,7 @@ async def get_read_group_ip():
             command = command.replace(start, "")
         msg: str = args.extract_plain_text()
         push_msg = await get_group_ip_to_msg(msg, command)
+        msg_img = await 
         if isinstance(push_msg, bytes):
             await MessageFactory([Image(push_msg)]).finish()
         elif msg and type(push_msg) == list:

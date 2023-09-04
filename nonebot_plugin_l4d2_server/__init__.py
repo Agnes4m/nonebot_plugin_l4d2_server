@@ -74,7 +74,7 @@ __plugin_meta__ = PluginMetadata(
 @help_.handle()
 async def _(matcher: Matcher):
     msg = """=====求生机器人帮助=====
-    1、电信服战绩查询【求生anne[id/steamid/@]】
+    1、电信服战绩查询【求生anne | Ranne[id/steamid/@]】
     2、电信服绑定【求生绑定[id/steamid]】",
     3、电信服状态查询【云xx】
     4、创意工坊下载【创意工坊下载[物品id/链接]】
