@@ -11,6 +11,7 @@ from nonebot.params import ArgPlainText, CommandArg, CommandStart, Keyword, RawC
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
 from ..l4d2_anne.server import updata_anne_server
+from ..l4d2_image import server_group_ip_pic
 from ..l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
 from ..l4d2_queries.utils import queries_server
 from ..l4d2_server.rcon import command_server
@@ -20,7 +21,7 @@ from ..l4d2_utils.utils import split_maohao, str_to_picstr
 from .himi import get_himi_ip
 from .local_ip import ALL_HOST
 from .qqgroup import get_tan_jian
-from .send_msg import get_ip_to_mes
+from .send_msg import get_group_ip_to_msg, get_ip_to_mes
 from .utils import server_key
 
 tan_jian = on_command("tj", aliases={"探监"}, priority=20, block=True)
@@ -134,32 +135,50 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
         command: str = RawCommand(),
         args: Message = CommandArg(),
     ):
+        """例：
+        指令：  /橘5
+        start: /(command开头指令)
+        command: /橘(响应的全部指令)
+        args: 5(响应的指令后的数字)
+        """
+        print(start, command, args)
         if start:
             command = command.replace(start, "")
         if command == "anne":
             command = "云"
         msg: str = args.extract_plain_text()
-        push_msg = await get_ip_to_mes(msg, command)
-        if push_msg is None:
-            return
-
-        if isinstance(push_msg, bytes):
-            logger.info("直接发送图片")
-            await MessageFactory([Image(push_msg)]).finish()
-            return
-        if msg and type(push_msg) == list:
-            logger.info("更加构造函数")
-            await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
-            return
-        if msg and isinstance(push_msg, str):
-            send_msg = push_msg
+        if msg.endswith("组"):
+            logger.info(f"关键词：{command}")
+            # 以群组模式输出
+            push_msg = await get_group_ip_to_msg(command)
+            if push_msg is None or not push_msg:
+                await matcher.finish("当前对象里并没有组")
+                return
+            print(push_msg)
+            msg_img = await server_group_ip_pic(push_msg)
+            await MessageFactory([Image(msg_img)]).send()
         else:
-            logger.info("出错了")
-            return
-        logger.info(type(send_msg))
-        if not send_msg:
-            logger.warning("没有")
-        await matcher.finish(send_msg)
+            push_msg = await get_ip_to_mes(msg, command)
+            if push_msg is None:
+                return
+
+            if isinstance(push_msg, bytes):
+                logger.info("直接发送图片")
+                await MessageFactory([Image(push_msg)]).finish()
+                return
+            if msg and type(push_msg) == list:
+                logger.info("更加构造函数")
+                await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
+                return
+            if msg and isinstance(push_msg, str):
+                send_msg = push_msg
+            else:
+                logger.info("出错了")
+                return
+            logger.info(type(send_msg))
+            if not send_msg:
+                logger.warning("没有")
+            await matcher.finish(send_msg)
 
 
 # tests = on_command("测试1")

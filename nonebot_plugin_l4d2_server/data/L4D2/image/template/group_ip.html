@@ -233,18 +233,18 @@
                         </div>
                     </div>
                     <div class="plugin_meta_line2">
-                        <font color="blue">{{ plugin.map_ }}</font><br>
-                        {% for Player in plugin.Players %}
-                        <font color="green">{{ Player }}</font><br>
-                        {% endfor %}
+                        <font color="blue">{{ plugin.server_number }}</font><br>
+                        <font color="blue">{{ plugin.server_all_number }}</font><br>
+                        <font color="green">{{ plugin.server_people }}</font><br>
+                        <font color="green">{{ plugin.server_all_people }}</font><br>
                     </div>
-                    <div class="plugin_meta_line3">
+                    <!-- <div class="plugin_meta_line3">
                         <svg width="13px" height="13px">
                             <image xlink:href="{{ plugin.system }}" width="13px" height="13px" />
                         </svg>
                         <div class="package_name">&nbsp{{ plugin.max_players }} </div>
                         <div class="package_name">&nbsp{{ plugin.tick }} </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             {% endfor %}

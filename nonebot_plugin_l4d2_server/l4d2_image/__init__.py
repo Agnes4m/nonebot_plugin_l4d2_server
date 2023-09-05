@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import jinja2
 from nonebot.log import logger
@@ -109,9 +109,9 @@ async def get_help_img(plugins: List[ServerStatus]) -> Optional[bytes]:
         return None
 
 
-async def server_group_ip_pic(msg_list: List[ServerGroup]):
+async def server_group_ip_pic(msg_list: List[Dict[str, ServerGroup]]):
     """
-    输入一个字典列表，输出图片
+    输入一个群组字典列表，输出图片
     msg_dict:folder/name/map_/players/max_players/Players/[Name]
     """
     template = env.get_template("group_ip.html")
