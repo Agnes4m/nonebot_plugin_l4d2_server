@@ -41,7 +41,7 @@ from .l4d2_web import web, webUI  # noqa: F401
 
 driver = get_driver()
 
-__version__ = "0.6.3"
+__version__ = "0.6.4"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description="可用于管理求生之路查服和本地管理",
@@ -74,7 +74,7 @@ __plugin_meta__ = PluginMetadata(
 @help_.handle()
 async def _(matcher: Matcher):
     msg = """=====求生机器人帮助=====
-    1、电信服战绩查询【求生anne[id/steamid/@]】
+    1、电信服战绩查询【求生anne | Ranne[id/steamid/@]】
     2、电信服绑定【求生绑定[id/steamid]】",
     3、电信服状态查询【云xx】
     4、创意工坊下载【创意工坊下载[物品id/链接]】
