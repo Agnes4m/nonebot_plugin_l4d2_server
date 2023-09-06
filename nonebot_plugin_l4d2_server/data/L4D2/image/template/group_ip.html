@@ -222,7 +222,7 @@
             <div class="plugin">
                 <div class="plugin_meta">
                     <div class="plugin_meta_line1">
-                        <div class="plugin_name">{{ plugin.number }}:{{ plugin.name }}</div>
+                        <div class="plugin_name">{{ plugin.server_id }}:{{ plugin.server_tag }}</div>
                         <div class="plugin_status">
                             <label class="switch">
                                 <input class="checkbox" type="checkbox" {% if plugin.enabled %} checked {% endif %} />
@@ -233,10 +233,10 @@
                         </div>
                     </div>
                     <div class="plugin_meta_line2">
-                        <font color="blue">{{ plugin.server_number }}</font><br>
-                        <font color="blue">{{ plugin.server_all_number }}</font><br>
-                        <font color="green">{{ plugin.server_people }}</font><br>
-                        <font color="green">{{ plugin.server_all_people }}</font><br>
+                        <font color="blue">服务器在线：{{ plugin.server_number }} / {{ plugin.server_all_number }}</font><br>
+                        <font color="blue"></font><br>
+                        <font color="green">服务器玩家{{ plugin.server_people }} / {{ plugin.server_all_people }}</font><br>
+                        <font color="green"></font><br>
                     </div>
                     <!-- <div class="plugin_meta_line3">
                         <svg width="13px" height="13px">

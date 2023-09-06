@@ -85,13 +85,14 @@ async def get_group_ip_to_msg(command: str):
         group_tag_list = [command]
     else:
         return None
+    logger.info(f"组内关键词{group_tag_list}")
     group_ip_dict: Dict[str, List[Dict[str, str]]] = {}
     tag = len(group_tag_list) == 0
-    return_list: List[Dict[str, ServerGroup]] = []
+    return_list: List[ServerGroup] = []
     id_number = 0
     for tag, one_group in ALL_HOST.items():
         id_number += 1
-        if tag in group_tag_list or tag:
+        if tag in group_tag_list and tag:
             group_ip_dict.update({tag: one_group})
             ip_tuple_list: List[Tuple[str, str, int]] = []
             for one_server in one_group:
@@ -99,7 +100,9 @@ async def get_group_ip_to_msg(command: str):
                 host, port = split_maohao(one_server["ip"])
                 ip_tuple_list.append((number, host, int(port)))
             msg_group_server = await qq_ip_querie(ip_tuple_list)
-            return_list.append(await check_group_msg(msg_group_server, id_number))
+            return_list.append(
+                await check_group_msg(msg_group_server, id_number, command),
+            )
 
     return return_list
     # 还没写完
@@ -109,20 +112,19 @@ async def get_group_ip_to_msg(command: str):
     # img = await qq_ip_queries_pic(ip_list, igr)
 
 
-async def check_group_msg(msg: Dict[str, List[ServerStatus]], number: int):
-    send_msg: Dict[str, ServerGroup] = {}
-    for tag, server_group in msg.items():
+async def check_group_msg(msg: Dict[str, List[ServerStatus]], number: int, command: str):
+    server_info = ServerGroup()
+    server_info.server_id = number
+
+    for server_group in msg["msg_list"]:
         # 服务器，服务器玩家数量
         # 当前/总数
-        server_info = ServerGroup()
-        for one_server in server_group:
-            if one_server.name == "null":
-                server_info.server_all_number += 1
-                continue
+        server_info.server_tag = command
+        if server_group.name == "null":
             server_info.server_all_number += 1
-            server_info.server_number += 1
-            server_info.server_people += one_server.players
-            server_info.server_all_people += one_server.max_players
-            server_info.server_number = number
-        send_msg[tag] = server_info
-    return send_msg
+            continue
+        server_info.server_all_number += 1
+        server_info.server_number += 1
+        server_info.server_people += server_group.players
+        server_info.server_all_people += server_group.max_players
+    return server_info

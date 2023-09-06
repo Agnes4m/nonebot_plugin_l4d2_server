@@ -41,6 +41,8 @@ class ServerGroup(BaseModel):
 
     server_id: int = 0
     """服务器序号"""
+    server_tag: str = "服务器"
+    """服务器组名字"""
     server_number: int = 0
     """群组当期启动服务器数量"""
     server_all_number: int = 0
