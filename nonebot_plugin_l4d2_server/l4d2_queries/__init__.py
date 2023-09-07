@@ -147,7 +147,7 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
         if command == "anne":
             command = "云"
         msg: str = args.extract_plain_text()
-        if msg.endswith("组"):
+        if "组" in msg:
             logger.info(f"关键词：{command}")
             # 以群组模式输出
             push_msg = await get_group_ip_to_msg(command)
@@ -166,7 +166,7 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
                 logger.info("直接发送图片")
                 await MessageFactory([Image(push_msg)]).finish()
                 return
-            if msg and type(push_msg) == list:
+            if msg and isinstance(push_msg, list):
                 logger.info("更加构造函数")
                 await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
                 return

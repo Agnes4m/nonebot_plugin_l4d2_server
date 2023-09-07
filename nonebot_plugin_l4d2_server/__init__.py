@@ -87,6 +87,8 @@ async def _(matcher: Matcher):
 
 @search_api.got("is_sure", prompt='如果需要上传，请发送 "yes"')
 async def _(matcher: Matcher, bot: Bot, event: GroupMessageEvent, state: T_State):
+    if not l4_config.l4_group_upload:
+        return
     is_sure = str(state["is_sure"])
     if is_sure == "yes":
         data_dict: dict = state["maps"][0]

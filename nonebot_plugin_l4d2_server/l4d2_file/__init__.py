@@ -53,6 +53,8 @@ smx_file = on_command(
 
 @up.handle()
 async def _(matcher: Matcher, event: NoticeEvent):
+    if not l4_config.l4_group_upload:
+        return
     args = event.dict()
     if args["notice_type"] != "offline_file":
         matcher.set_arg("txt", args)  # type: ignore

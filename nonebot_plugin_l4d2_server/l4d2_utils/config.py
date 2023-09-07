@@ -93,6 +93,7 @@ class L4d2Config(BaseModel):
     l4_push_interval: int = Field(3, alias="定时任务间隔")
     l4_push_times: int = Field(10, alias="定时任务次数")
     l4_connect: bool = Field(True, alias="是否在查服命令后加入connect ip")
+    l4_group_upload: bool = Field(False, alias="是否在群里传地图的时候，提示上传服务器")
     group_config: Dict[int, L4d2GroupConfig] = Field({}, alias="分群配置")
 
     def update(self, **kwargs):
