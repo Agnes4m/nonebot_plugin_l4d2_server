@@ -166,7 +166,7 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
                 logger.info("直接发送图片")
                 await MessageFactory([Image(push_msg)]).finish()
                 return
-            if msg and type(push_msg) == list:
+            if msg and isinstance(push_msg, list):
                 logger.info("更加构造函数")
                 await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
                 return
