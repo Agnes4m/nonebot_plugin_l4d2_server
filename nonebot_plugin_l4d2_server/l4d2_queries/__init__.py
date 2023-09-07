@@ -147,7 +147,7 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
         if command == "anne":
             command = "云"
         msg: str = args.extract_plain_text()
-        if msg.endswith("组"):
+        if "组" in msg:
             logger.info(f"关键词：{command}")
             # 以群组模式输出
             push_msg = await get_group_ip_to_msg(command)
