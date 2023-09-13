@@ -3,10 +3,11 @@ from pathlib import Path
 from typing import Tuple
 
 from nonebot import on_command, on_notice, on_regex
-from nonebot.adapters.onebot.v11 import Message, NoticeEvent
+from nonebot.adapters.onebot.v11 import Event, Message, NoticeEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg, RegexGroup
+from nonebot.typing import T_State
 
 from ..l4d2_utils.config import MASTER, config_manager, file_format, l4_config, vpk_path
 from ..l4d2_utils.rule import wenjian
@@ -15,21 +16,26 @@ from ..l4d2_utils.utils import del_map, get_vpk, mes_list, rename_map
 from .input_json import upload  # noqa: F401
 from .utils import updown_l4d2_vpk
 
-up = on_notice(rule=wenjian)
+up = on_command(
+    "l4_upload",
+    aliases={"l4地图上传"},
+    priority=20,
+    block=True,
+)
 
 
 rename_vpk = on_regex(
-    r"^求生地图\s*(\S+.*?)\s*(改|改名)?\s*(\S+.*?)\s*$",
+    r"^l4地图\s*(\S+.*?)\s*(改|改名)?\s*(\S+.*?)\s*$",
     flags=re.S,
     block=True,
     priority=20,
     permission=MASTER,
 )
 
-find_vpk = on_command("l4_map", aliases={"求生地图"}, priority=25, block=True)
+find_vpk = on_command("l4_map", aliases={"l4地图"}, priority=25, block=True)
 del_vpk = on_command(
     "l4_del_map",
-    aliases={"求生地图删除", "地图删除"},
+    aliases={"l4地图删除", "地图删除"},
     priority=20,
     permission=MASTER,
 )
@@ -37,14 +43,14 @@ del_vpk = on_command(
 
 check_path = on_command(
     "l4_check",
-    aliases={"求生路径"},
+    aliases={"l4路径"},
     priority=20,
     block=True,
     permission=MASTER,
 )
 smx_file = on_command(
     "l4_smx",
-    aliases={"求生插件"},
+    aliases={"l4插件"},
     priority=20,
     block=True,
     permission=MASTER,
@@ -52,8 +58,14 @@ smx_file = on_command(
 
 
 @up.handle()
-async def _(matcher: Matcher, event: NoticeEvent):
-    if not l4_config.l4_group_upload:
+async def _():
+    ...
+
+
+@up.got("map_url", prompt="图来")
+async def _(matcher: Matcher, event: Event):
+    if not isinstance(event, NoticeEvent) or not wenjian(event):
+        await matcher.finish("未检测到地图")
         return
     args = event.dict()
     if args["notice_type"] != "offline_file":
