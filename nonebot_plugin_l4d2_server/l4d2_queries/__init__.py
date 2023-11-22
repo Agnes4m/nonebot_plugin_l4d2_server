@@ -10,7 +10,6 @@ from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg, CommandStart, Keyword, RawCommand
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
-from ..l4d2_anne.server import updata_anne_server
 from ..l4d2_image import server_group_ip_pic
 from ..l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
 from ..l4d2_queries.utils import queries_server
@@ -277,29 +276,6 @@ async def init():
 @driver.on_startup
 async def _():
     await init()
-
-
-updata = on_command(
-    "updata_anne",
-    aliases={"求生更新anne"},
-    priority=20,
-    block=True,
-    permission=MASTER,
-)
-
-
-@updata.handle()
-async def _(matcher: Matcher, args: Message = CommandArg()):
-    """更新"""
-    if args:
-        # 占位先，除了电信服还有再加
-        ...
-    anne_ip_dict = await updata_anne_server()
-    if anne_ip_dict is None:
-        await matcher.finish("网络开小差了捏")
-        return
-    server_number = len(anne_ip_dict["云"])
-    await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")
 
 
 @add2_queries.handle()
