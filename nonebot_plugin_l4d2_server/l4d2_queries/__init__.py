@@ -8,7 +8,7 @@ from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg, CommandStart, Keyword, RawCommand
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_saa import Image, MessageFactory
 
 from ..l4d2_image import server_group_ip_pic
 from ..l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
@@ -161,23 +161,7 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
             if push_msg is None:
                 return
 
-            if isinstance(push_msg, bytes):
-                logger.info("直接发送图片")
-                await MessageFactory([Image(push_msg)]).finish()
-                return
-            if msg and isinstance(push_msg, list):
-                logger.info("更加构造函数")
-                await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
-                return
-            if msg and isinstance(push_msg, str):
-                send_msg = push_msg
-            else:
-                logger.info("出错了")
-                return
-            logger.info(type(send_msg))
-            if not send_msg:
-                logger.warning("没有")
-            await matcher.finish(send_msg)
+            await MessageFactory(push_msg).send()
 
 
 # tests = on_command("测试1")
