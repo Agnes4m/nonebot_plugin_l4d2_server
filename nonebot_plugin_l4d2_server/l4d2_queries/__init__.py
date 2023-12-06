@@ -8,9 +8,8 @@ from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg, CommandStart, Keyword, RawCommand
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_saa import Image, MessageFactory
 
-from ..l4d2_anne.server import updata_anne_server
 from ..l4d2_image import server_group_ip_pic
 from ..l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
 from ..l4d2_queries.utils import queries_server
@@ -162,23 +161,7 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
             if push_msg is None:
                 return
 
-            if isinstance(push_msg, bytes):
-                logger.info("直接发送图片")
-                await MessageFactory([Image(push_msg)]).finish()
-                return
-            if msg and isinstance(push_msg, list):
-                logger.info("更加构造函数")
-                await MessageFactory([Image(push_msg[0]), Text(push_msg[-1])]).finish()
-                return
-            if msg and isinstance(push_msg, str):
-                send_msg = push_msg
-            else:
-                logger.info("出错了")
-                return
-            logger.info(type(send_msg))
-            if not send_msg:
-                logger.warning("没有")
-            await matcher.finish(send_msg)
+            await MessageFactory(push_msg).send()
 
 
 # tests = on_command("测试1")
@@ -277,29 +260,6 @@ async def init():
 @driver.on_startup
 async def _():
     await init()
-
-
-updata = on_command(
-    "updata_anne",
-    aliases={"求生更新anne"},
-    priority=20,
-    block=True,
-    permission=MASTER,
-)
-
-
-@updata.handle()
-async def _(matcher: Matcher, args: Message = CommandArg()):
-    """更新"""
-    if args:
-        # 占位先，除了电信服还有再加
-        ...
-    anne_ip_dict = await updata_anne_server()
-    if anne_ip_dict is None:
-        await matcher.finish("网络开小差了捏")
-        return
-    server_number = len(anne_ip_dict["云"])
-    await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")
 
 
 @add2_queries.handle()

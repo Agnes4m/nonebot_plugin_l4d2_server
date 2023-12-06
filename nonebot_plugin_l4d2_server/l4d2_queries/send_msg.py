@@ -2,6 +2,7 @@ import asyncio
 from typing import Dict, List, Optional, Tuple
 
 from nonebot.log import logger
+from nonebot_plugin_saa import Image, Text
 
 from ..l4d2_queries.local_ip import ALL_HOST
 from ..l4d2_queries.qqgroup import qq_ip_queries_pic
@@ -29,7 +30,7 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             msg_tuple = (one_ip["id"], host, port)
             ip_list.append(msg_tuple)
         img = await qq_ip_queries_pic(ip_list, igr)
-        return img if img else None
+        return [Image(img)] if img else None
 
     if not msg[0].isdigit():
         # if any(mode in msg for mode in gamemode_list):
@@ -46,10 +47,10 @@ async def get_ip_to_mes(msg: str, command: str = ""):
     try:
         msg_send: Optional[str] = await get_anne_server_ip(ip)
         if msg_send is not None:
-            return msg_send
+            return [Text(msg_send)]
 
     except (OSError, asyncio.exceptions.TimeoutError):
-        return "服务器无响应"
+        return [Text("服务器无响应")]
 
 
 # async def get_read_group_ip():

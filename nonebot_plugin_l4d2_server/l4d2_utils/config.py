@@ -86,15 +86,15 @@ class L4d2Config(BaseModel):
         "49c294d32f69b732ef6447c18379451ce1738922a75cd1d4812ef150318a2ed0",
         alias="后台管理token密钥",
     )
-    l4_master: List[str] = Field(["114514919"], alias="求生地图全局管理员qq")
+    l4_master: List[str] = Field(default=["114514919"], alias="求生地图全局管理员qq")
     # l4_ip:bool = Field(False, alias='查询地图是否显示ip')
-    l4_font: str = Field("simsun.ttc", alias="字体")
-    l4_only: bool = Field(False, alias="下载地图是是否阻碍其他指令")
-    l4_push_interval: int = Field(3, alias="定时任务间隔")
-    l4_push_times: int = Field(10, alias="定时任务次数")
-    l4_connect: bool = Field(True, alias="是否在查服命令后加入connect ip")
-    l4_group_upload: bool = Field(False, alias="是否在群里传地图的时候，提示上传服务器")
-    group_config: Dict[int, L4d2GroupConfig] = Field({}, alias="分群配置")
+    l4_font: str = Field(default="simsun.ttc", alias="字体")
+    l4_only: bool = Field(default=False, alias="下载地图是是否阻碍其他指令")
+    l4_push_interval: int = Field(default=3, alias="定时任务间隔")
+    l4_push_times: int = Field(default=10, alias="定时任务次数")
+    l4_connect: bool = Field(default=True, alias="是否在查服命令后加入connect ip")
+    l4_group_upload: bool = Field(default=False, alias="是否在群里传地图的时候，提示上传服务器")
+    group_config: Dict[int, L4d2GroupConfig] = Field(default_factory=dict, alias="分群配置")
 
     def update(self, **kwargs):
         for key, value in kwargs.items():

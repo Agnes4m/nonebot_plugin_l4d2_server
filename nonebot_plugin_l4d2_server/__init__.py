@@ -34,6 +34,7 @@ from .l4d2_data import sq_L4D2
 
 # from .l4d2_file.input_json import *
 from .l4d2_image.steam import url_to_byte_name
+from .l4d2_push import scheduler  # noqa: F401
 from .l4d2_utils.command import help_, search_api
 from .l4d2_utils.config import l4_config
 from .l4d2_utils.utils import upload_file
@@ -41,7 +42,7 @@ from .l4d2_web import web, webUI  # noqa: F401
 
 driver = get_driver()
 
-__version__ = "0.6.4"
+__version__ = "0.6.5"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description="可用于管理求生之路查服和本地管理",
@@ -59,18 +60,6 @@ __plugin_meta__ = PluginMetadata(
 """相当于启动就检查数据库"""
 
 
-# @search_api.handle()
-# async def _(matcher:Matcher,state:T_State,event:GroupMessageEvent,args:Message = CommandArg()):  # noqa: E501
-#     msg:str = args.extract_plain_text()
-#     # if msg.startswith('代码'):
-#         # 建图代码返回三方图信息
-#     data = await seach_map(msg,l4_config.l4_master[0],l4_config.l4_key)
-#     # else:
-#     if type(data) == str:
-#         await matcher.finish(data)
-#     else:
-#         state['maps'] = data
-#         await matcher.send(await map_dict_to_str(data))
 @help_.handle()
 async def _(matcher: Matcher):
     msg = """=====求生机器人帮助=====
@@ -80,7 +69,10 @@ async def _(matcher: Matcher):
     4、创意工坊下载【创意工坊下载[物品id/链接]】
     5、指定ip查询【求生ip[ip]】(可以是域名)
     6、求生喷漆制作【求生喷漆】
-    7、本地服务器操作(略，详情看项目地址)
+    7、本地服务器相关【l4地图上传】【l4地图改名】【l4地图删除】【l4路径】【l4插件】
+    8、ip导入（私聊发送json文件，格式参考下方链接中readme）
+    9、内置ip更新【l4公益服更新】【求生更新anne】
+    项目地址:https://github.com/Agnes4m/nonebot_plugin_l4d2_server
     """
     await matcher.finish(msg)
 
