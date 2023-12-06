@@ -15,6 +15,7 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot.permission import SUPERUSER
+from nonebot_plugin_saa import MessageFactory
 
 from ..l4d2_queries import get_ip_to_mes
 from ..l4d2_queries.utils import json_server_to_tag_dict
@@ -22,8 +23,10 @@ from ..l4d2_utils.config import l4_config
 from ..l4d2_utils.utils import extract_last_digit, split_maohao
 
 require("nonebot_plugin_apscheduler")
-# from nonebot_plugin_apscheduler import scheduler
-
+try:
+    scheduler = require("nonebot_plugin_apscheduler").scheduler
+except Exception:
+    scheduler = None
 driver = get_driver()
 sch_json = Path("data/L4D2/scheduler.json")
 if not sch_json.exists():
@@ -58,12 +61,13 @@ async def _(event: GroupMessageEvent, matcher: Matcher, args: Message = CommandA
         await matcher.finish("无响应的服务器，请检查")
     else:
         return_msg = await add_or_update_data(group_id, msg)
-        if isinstance(push_msg, bytes):
-            await matcher.finish(MessageSegment.image(push_msg))
-        elif isinstance(push_msg, Union[Message, MessageSegment]):
-            await matcher.finish(push_msg)
-        else:
-            await matcher.send(push_msg)
+        await MessageFactory(push_msg).send()
+        # if isinstance(push_msg, bytes):
+        #     await matcher.finish(MessageSegment.image(push_msg))
+        # elif isinstance(push_msg, Union[Message, MessageSegment]):
+        #     await matcher.finish(push_msg)
+        # else:
+        #     await matcher.send(push_msg)
         if return_msg == "add":
             await matcher.send(f"已添加群定时任务【{msg}】{l4_config.l4_push_times}次")
         elif return_msg in ["update", "change"]:
@@ -209,11 +213,14 @@ async def send_message(
 
 async def server_is_change():
     """检测服务器是否发生变化"""
+    ...
 
 
-# @driver.on_bot_connect
-# async def _():
-#     logger.success("已成功启动求生定时推送")
-#     scheduler.add_job(
-#         rss_ip, "interval", minutes=l4_config.l4_push_interval, id="rss_ip"
-#     )
+if scheduler:
+    logger.success("已成功启动求生定时推送")
+    scheduler.add_job(
+        rss_ip,
+        "interval",
+        minutes=l4_config.l4_push_interval,
+        id="rss_ip",
+    )

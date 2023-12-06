@@ -34,6 +34,7 @@ from .l4d2_data import sq_L4D2
 
 # from .l4d2_file.input_json import *
 from .l4d2_image.steam import url_to_byte_name
+from .l4d2_push import scheduler  # noqa: F401
 from .l4d2_utils.command import help_, search_api
 from .l4d2_utils.config import l4_config
 from .l4d2_utils.utils import upload_file
@@ -41,7 +42,7 @@ from .l4d2_web import web, webUI  # noqa: F401
 
 driver = get_driver()
 
-__version__ = "0.6.4"
+__version__ = "0.6.5"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description="可用于管理求生之路查服和本地管理",

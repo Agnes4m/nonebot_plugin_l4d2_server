@@ -2,13 +2,13 @@ import re
 from pathlib import Path
 from typing import Tuple
 
-from nonebot import on_command, on_notice, on_regex
+from nonebot import on_command, on_regex
 from nonebot.adapters.onebot.v11 import Event, Message, NoticeEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg, RegexGroup
-from nonebot.typing import T_State
 
+# from nonebot.typing import T_State
 from ..l4d2_utils.config import MASTER, config_manager, file_format, l4_config, vpk_path
 from ..l4d2_utils.rule import wenjian
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
