@@ -66,7 +66,7 @@ def open_packet(name: str, down_file: Path) -> str:
                 ".7z": unpack_7zfile,
                 ".rar": unpack_rarfile,
             }
-            unpack_func = unpack_funcs.get(ext, None)
+            unpack_func = unpack_funcs.get(ext)
             if not unpack_func:
                 raise ValueError(f"不支持的拓展名: {ext}")
             unpack_func(down_file, down_path)

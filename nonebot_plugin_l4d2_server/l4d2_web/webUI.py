@@ -98,7 +98,9 @@ global_config_form = Form(
             label="后台管理用户名",
             name="web_username",
             value="${web_username}",
-            labelRemark=Remark(shape="circle", content="登录本后台管理所需要的用户名。"),  # noqa: E501
+            labelRemark=Remark(
+                shape="circle", content="登录本后台管理所需要的用户名。"
+            ),  # noqa: E501
         ),
         InputPassword(
             label="后台管理密码",
@@ -119,7 +121,9 @@ global_config_form = Form(
             label="字体",
             name="l4_font",
             value="${l4_font}",
-            labelRemark=Remark(shape="circle", content="机器人返回图片中文字的字体。"),  # noqa: E501
+            labelRemark=Remark(
+                shape="circle", content="机器人返回图片中文字的字体。"
+            ),  # noqa: E501
         ),
         Switch(
             label="是否图片发送单服务器查询",
@@ -197,7 +201,9 @@ global_config_form = Form(
             visibleOn="${total_enable}",
             joinValues=False,
             extractValue=True,
-            labelRemark=Remark(shape="circle", content="在这里加入的用户，才能上传地图"),  # noqa: E501
+            labelRemark=Remark(
+                shape="circle", content="在这里加入的用户，才能上传地图"
+            ),  # noqa: E501
         ),
         InputTag(
             label="坐牢三指令tag",
@@ -426,7 +432,9 @@ server_page = PageSchema(
             Alert(
                 level=LevelEnum.info,
                 className="white-space-pre-wrap",
-                body=(f"此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n· 功能暂未完善"),  # noqa: E501
+                body=(
+                    f"此数据库记录了{NICKNAME}所在服务器下的求生服务器。\n· 功能暂未完善"
+                ),  # noqa: E501
             ),
             server_control,
             server_ditail,

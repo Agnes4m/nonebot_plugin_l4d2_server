@@ -15,7 +15,6 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 from nonebot import get_driver, require
 
 require("nonebot_plugin_apscheduler")  # noqa: F401

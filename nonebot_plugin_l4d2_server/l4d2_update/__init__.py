@@ -50,7 +50,9 @@ async def _():
     "更新记录",
     "更新记录",
     "查看插件最近的更新记录",
-    detail_des=("介绍：\n查看插件最近的有效Git更新记录\n \n指令：\n- <ft color=(238,120,0)>更新记录</ft>"),
+    detail_des=(
+        "介绍：\n查看插件最近的有效Git更新记录\n \n指令：\n- <ft color=(238,120,0)>更新记录</ft>"
+    ),
 )
 async def send_updatelog_msg(
     matcher: Matcher,
