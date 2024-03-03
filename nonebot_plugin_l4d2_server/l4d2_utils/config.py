@@ -55,6 +55,7 @@ class L4d2Config(BaseModel):
     web_username: str = Field("l4d2", alias="后台管理用户名")
     web_password: str = Field("admin", alias="后台管理密码")
     l4_style: str = Field("standard", alias="图片风格")
+    l4_img_name: int = Field(4, alias="图片显示玩家数量")
     l4_ipall: List[Dict[str, Any]] = Field(
         [
             {
