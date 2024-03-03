@@ -213,7 +213,6 @@ async def send_message(
 
 async def server_is_change():
     """检测服务器是否发生变化"""
-    ...
 
 
 if scheduler:

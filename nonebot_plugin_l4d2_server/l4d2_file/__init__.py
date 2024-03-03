@@ -58,8 +58,7 @@ smx_file = on_command(
 
 
 @up.handle()
-async def _():
-    ...
+async def _(): ...
 
 
 @up.got("map_url", prompt="图来")
