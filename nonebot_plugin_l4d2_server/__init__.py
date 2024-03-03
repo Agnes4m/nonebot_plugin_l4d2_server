@@ -42,7 +42,7 @@ from .l4d2_web import web, webUI  # noqa: F401
 
 driver = get_driver()
 
-__version__ = "0.6.5"
+__version__ = "0.6.6"
 __plugin_meta__ = PluginMetadata(
     name="求生之路小助手",
     description="可用于管理求生之路查服和本地管理",
