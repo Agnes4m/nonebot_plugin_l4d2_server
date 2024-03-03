@@ -51,7 +51,7 @@ async def dict_to_html(usr_id, detail_map: dict):
     detail_right["url"] = detail_map["个人资料"]
     detail_right["one_msg"] = detail_map["一言"]
     detail_right["last_one"] = detail_map["救援关"]
-    
+
     # html_text = soup.prettify()
     # for key, value in detail_right.items():
     #     html_text = html_text.replace(key,value)
@@ -75,7 +75,7 @@ async def server_ip_pic(msg_list: List[ServerStatus]):
         server_info.rank_players = f"{server_info.players}/{server_info.max_players}"
         players_list: List[PlayerInfo] = []
         # logger.info(server_info.name)
-        max_number =l4_config.l4_img_name
+        max_number = l4_config.l4_img_name
         sorted_players = sorted(server_info.Players, key=lambda x: x.Score)[:max_number]
         for player_info in sorted_players:
             # player_str = f"{player_info.name} | {player_info.Duration}"
