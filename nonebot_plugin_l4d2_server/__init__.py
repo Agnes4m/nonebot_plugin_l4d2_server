@@ -18,10 +18,10 @@
 from nonebot import get_driver, require
 
 require("nonebot_plugin_apscheduler")  # noqa: F401
-require("nonebot_plugin_saa")  # noqa: F401
 require("nonebot_plugin_htmlrender")  # noqa: F401
 require("nonebot_plugin_txt2img")  # noqa: F401
 scheduler = require("nonebot_plugin_apscheduler").scheduler
+require("nonebot_plugin_alconna")
 
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent
 from nonebot.log import logger
@@ -30,12 +30,9 @@ from nonebot.plugin import PluginMetadata
 from nonebot.typing import T_State
 
 from .l4d2_data import sq_L4D2
-
-# from .l4d2_file.input_json import *
-from .l4d2_image.steam import url_to_byte_name
-from .l4d2_push import scheduler  # noqa: F401
 from .l4d2_utils.command import help_, search_api
 from .l4d2_utils.config import l4_config
+from .l4d2_utils.steam import url_to_byte_name
 from .l4d2_utils.utils import upload_file
 from .l4d2_web import web, webUI  # noqa: F401
 

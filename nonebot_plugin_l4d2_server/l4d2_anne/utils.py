@@ -69,11 +69,10 @@ async def anne_html(name: str):
 def anne_html_msg(data_list: list):
     """从搜索结果的字典列表中，返回发送信息"""
     mes = "搜索到以下玩家信息"
-    ns = 0
 
-    for one in data_list:
+
+    for ns,one in enumerate(data_list,start=0) :
         one: dict
-        ns += 1
         x = 6
 
         titles = list(one.keys())

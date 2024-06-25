@@ -110,7 +110,7 @@ async def get_help_img(plugins: List[ServerStatus]) -> Optional[bytes]:
         return None
 
 
-async def server_group_ip_pic(msg_list: List[ServerGroup]):
+async def server_group_ip_pic(msg_list: List[ServerGroup]) -> bytes:
     """
     输入一个群组字典列表，输出图片
     msg_dict:folder/name/map_/players/max_players/Players/[Name]

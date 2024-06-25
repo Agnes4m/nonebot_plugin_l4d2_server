@@ -2,7 +2,7 @@ import asyncio
 from typing import Dict, List, Optional, Tuple
 
 from nonebot.log import logger
-from nonebot_plugin_saa import Image, Text
+from nonebot_plugin_alconna.uniseg import UniMessage
 
 from ..l4d2_queries.local_ip import ALL_HOST
 from ..l4d2_queries.qqgroup import qq_ip_queries_pic
@@ -30,7 +30,7 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             msg_tuple = (one_ip["id"], host, port)
             ip_list.append(msg_tuple)
         img = await qq_ip_queries_pic(ip_list, igr)
-        return [Image(img)] if img else None
+        return UniMessage.image(raw=img)if img else None
 
     if not msg[0].isdigit():
         # if any(mode in msg for mode in gamemode_list):
@@ -47,10 +47,10 @@ async def get_ip_to_mes(msg: str, command: str = ""):
     try:
         msg_send: Optional[str] = await get_anne_server_ip(ip)
         if msg_send is not None:
-            return [Text(msg_send)]
+            return msg_send
 
     except (OSError, asyncio.exceptions.TimeoutError):
-        return [Text("服务器无响应")]
+        return "服务器无响应"
 
 
 # async def get_read_group_ip():
@@ -90,9 +90,9 @@ async def get_group_ip_to_msg(command: str):
     group_ip_dict: Dict[str, List[Dict[str, str]]] = {}
     tag = len(group_tag_list) == 0
     return_list: List[ServerGroup] = []
-    id_number = 0
-    for tag, one_group in ALL_HOST.items():
-        id_number += 1
+
+    for id_number, tag in enumerate(ALL_HOST): 
+        one_group = ALL_HOST[tag]
         if tag in group_tag_list and tag:
             group_ip_dict.update({tag: one_group})
             ip_tuple_list: List[Tuple[str, str, int]] = []

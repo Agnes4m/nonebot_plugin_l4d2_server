@@ -7,7 +7,7 @@ from nonebot.adapters.onebot.v11 import NoticeEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 
-from ..l4d2_image.steam import url_to_msg
+from ..l4d2_utils.steam import url_to_msg
 
 upload = on_notice(priority=1)
 

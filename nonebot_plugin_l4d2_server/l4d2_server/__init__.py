@@ -6,11 +6,11 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import Arg, ArgPlainText, CommandArg
 from nonebot.typing import T_State
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_alconna.uniseg import UniMessage
 
 from ..l4d2_file.utils import all_zip_to_one
-from ..l4d2_image.steam import url_to_byte
 from ..l4d2_image.vtfs import img_to_vtf
+from ..l4d2_utils.steam import url_to_byte
 from ..l4d2_utils.utils import upload_file
 from .workshop import workshop_msg
 
@@ -48,7 +48,8 @@ async def _(matcher: Matcher, state: T_State, tag: str = ArgPlainText("ip")):
             message += f"{item} : {value}\n"
             message += "如果需要上传，请发送 'yes'"
         state["dic"] = msg
-        await MessageFactory([Image(pic), Text(message)]).finish()
+        await UniMessage.text(message).image(raw=pic).finish()
+
     elif isinstance(msg, list):
         lenge = len(msg)
         pic = await url_to_byte(msg[0]["图片地址"])  # type: ignore

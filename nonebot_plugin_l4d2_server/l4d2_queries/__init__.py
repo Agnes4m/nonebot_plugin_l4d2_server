@@ -8,7 +8,7 @@ from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg, CommandStart, Keyword, RawCommand
-from nonebot_plugin_saa import Image, MessageFactory
+from nonebot_plugin_alconna.uniseg import UniMessage
 
 from ..l4d2_image import server_group_ip_pic
 from ..l4d2_queries.qqgroup import add_ip, del_ip, get_number_url, show_ip
@@ -17,7 +17,6 @@ from ..l4d2_server.rcon import command_server
 from ..l4d2_utils.config import DATA_PATH, MASTER, driver, l4_config
 from ..l4d2_utils.txt_to_img import mode_txt_to_img
 from ..l4d2_utils.utils import split_maohao, str_to_picstr
-from .himi import get_himi_ip
 from .local_ip import ALL_HOST
 from .qqgroup import get_tan_jian
 from .send_msg import get_group_ip_to_msg, get_ip_to_mes
@@ -152,17 +151,17 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
             push_msg = await get_group_ip_to_msg(command)
             if push_msg is None or not push_msg:
                 await matcher.finish("当前对象里并没有组")
-                return
             print(push_msg)
             msg_img = await server_group_ip_pic(push_msg)
-            await MessageFactory([Image(msg_img)]).send()
+            await UniMessage.image(raw=msg_img).send()
         else:
             push_msg = await get_ip_to_mes(msg, command)
             if push_msg is None:
-                return
-
-            await MessageFactory(push_msg).send()
-
+                push_msg = ""
+            if isinstance(push_msg,str):
+                await matcher.finish(push_msg)
+            # await UniMessage.image(raw=push_msg).send()
+            await push_msg.finish()
 
 # tests = on_command("测试1")
 
@@ -199,11 +198,10 @@ async def _(matcher: Matcher, event: GroupMessageEvent):
     msg = await show_ip(group_id)
     if not msg:
         await matcher.finish("当前没有启动的服务器捏")
-        return
     if isinstance(msg, str):
         await matcher.finish(msg)
     else:
-        await MessageFactory([Image(msg)]).finish()
+        await UniMessage.image(raw=msg).finish()
 
 
 @queries_comm.handle()
@@ -220,7 +218,6 @@ async def _(matcher: Matcher, event: Event, keyword: str = Keyword()):
             break
     if not one_msg:
         await matcher.finish()
-        return
     ip_list = split_maohao(one_msg)
     msg = await queries_server(ip_list)
     await str_to_picstr(msg, matcher, keyword)
@@ -288,7 +285,6 @@ async def _(matcher: Matcher, arg: Message = CommandArg()):
             tag_data: Dict[str, List[Dict[str, Union[int, str]]]] = json.load(f)
     else:
         await matcher.finish("参数不正确")
-        return
     if add_num != 0:
         tag_data[tag].append({"id": int(add_num), "ip": ip})
         with file_path.open(mode="w", encoding="utf-8") as f:
@@ -318,9 +314,3 @@ async def _(matcher: Matcher, arg: Message = CommandArg()):
                     json.dump(tag_data, f, ensure_ascii=False)
                 await matcher.finish(f"成功删除指令指令: {tag}")
     await matcher.finish("参数不正确")
-
-
-@updata_himi.handle()
-async def _(matcher: Matcher):
-    send_msg = await get_himi_ip()
-    await matcher.finish(send_msg)

@@ -154,64 +154,59 @@ async def process_message(
             msg_list.append(null_dict)
 
 
-async def get_tan_jian(msg: List[tuple], mode: int):
-    """获取anne列表抽一个"""
-    msg_list = []
-    random.shuffle(msg)
-    for i in msg:
-        number, host, port = i
-        try:
-            if mode == 1:
-                # 探监
-                msg2 = await player_queries_anne_dict(host, port)
-                point = 0
-                for i in msg2:
-                    point += int(i["Score"])
-                logger.info(point)
-                msg1 = await queries_dict(host, port)
-                sp: str = msg1["name"]
-                if "特" not in sp:
-                    continue
-                sps = int(sp.split("特")[0].split("[")[-1])
-                points = point / 4
-                if points / sps < 10:
-                    continue
-                if "HT" in msg1["name"]:
-                    continue
-                msg1.update({"Players": msg2})
-                msg1.update({"ranks": point})
-                ips = f"{host}:{port!s}"
-                msg1.update({"ips": ips})
-                # msg1是一行数据完整的字典
-                msg_list.append(msg1)
-            if mode == 2:
-                # 坐牢
-                # try:
-                msg1 = await queries_dict(host, port)
-                if "普通药役" in msg1["name"]:
-                    if "缺人" in msg1["name"]:
-                        msg2 = await player_queries_anne_dict(host, port)
-                        msg1.update({"Players": msg2})
-                        ips = f"{host}:{port!s}"
-                        msg1.update({"ips": ips})
-                        # msg1是一行数据完整的字典
-                    else:
-                        continue
-                else:
-                    continue
-                msg_list.append(msg1)
-            if mode == 3:
-                # 开牢
-                msg1 = await queries_dict(host, port)
-                if "[" not in msg1["name"]:
-                    msg2 = await player_queries_anne_dict(host, port)
-                    msg1.update({"Players": msg2})
-                    ips = f"{host}:{port!s}"
-                    msg1.update({"ips": ips})
-                    # msg1是一行数据完整的字典
-                    msg_list.append(msg1)
-        except errors:
-            continue
+async def process_mode_1(host: str, port: int):  
+    """探监逻辑"""  
+    msg2 = await player_queries_anne_dict(host, port)  
+    point = sum(int(i["Score"]) for i in msg2)  
+    logger.info(point)  
+    msg1 = await queries_dict(host, port)  
+    sp = msg1["name"]  
+    if "特" not in sp or "HT" in sp:  
+        return None  
+      
+    sps = int(sp.split("特")[0].split("[")[-1])  
+    points = point / 4  
+    if points / sps < 10:  
+        return None  
+      
+    msg1.update({"Players": msg2, "ranks": point, "ips": f"{host}:{port}"})  
+    return msg1  
+  
+async def process_mode_2(host: str, port: int):  
+    """坐牢逻辑"""  
+    msg1 = await queries_dict(host, port)  
+    if "普通药役" in msg1["name"] and "缺人" in msg1["name"]:  
+        msg2 = await player_queries_anne_dict(host, port)  
+        msg1.update({"Players": msg2, "ips": f"{host}:{port}"})  
+        return msg1  
+    return None  
+  
+async def process_mode_3(host: str, port: int):  
+    """开牢逻辑"""  
+    msg1 = await queries_dict(host, port)  
+    if "[" not in msg1["name"]:  
+        msg2 = await player_queries_anne_dict(host, port)  
+        msg1.update({"Players": msg2, "ips": f"{host}:{port}"})  
+        return msg1  
+    return None  
+  
+async def get_tan_jian(msg: List[Tuple[int, str, int]], mode: int):  
+    """获取anne列表抽一个"""  
+    msg_list = []  
+    random.shuffle(msg)  
+    for _number, host, port in msg:  
+        if mode == 1:  
+            result = await process_mode_1(host, port)  
+            if result:  
+                msg_list.append(result)  
+        elif mode == 2:  
+            result = await process_mode_2(host, port)  
+            if result:  
+                msg_list.append(result)  
+        elif mode == 3:  
+            result = await process_mode_3(host, port)  
+            if result:  
+                msg_list.append(result)  
         if msg_list != []:
             break
     # 随机选一个牢房

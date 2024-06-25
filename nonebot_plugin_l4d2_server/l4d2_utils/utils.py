@@ -9,8 +9,8 @@ from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 
-from ..l4d2_image.steam import url_to_byte
 from .config import l4_config, systems
+from .steam import url_to_byte
 
 # from .rule import
 from .txt_to_img import mode_txt_to_img

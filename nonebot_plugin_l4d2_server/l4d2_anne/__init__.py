@@ -2,7 +2,7 @@ from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Message, MessageEvent
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from nonebot_plugin_saa import Image, MessageFactory
+from nonebot_plugin_alconna.uniseg import UniMessage
 
 # from .l4d2_file.input_json import *
 from ..l4d2_utils.config import MASTER
@@ -46,7 +46,7 @@ async def _(matcher: Matcher, event: MessageEvent, args: Message = CommandArg())
     if isinstance(msg, str):
         await matcher.finish(msg)
     elif isinstance(msg, bytes):
-        await MessageFactory([Image(msg)]).finish()
+        await UniMessage.image(raw=msg).send()
 
 
 @anne_bind.handle()
@@ -90,6 +90,5 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
     anne_ip_dict = await updata_anne_server()
     if not anne_ip_dict:
         await matcher.finish("网络开小差了捏")
-        return
     server_number = len(anne_ip_dict["云"])
     await matcher.finish(f"更新成功\n一共更新了{server_number}个电信anne服ip")

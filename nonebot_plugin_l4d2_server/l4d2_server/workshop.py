@@ -78,5 +78,3 @@ async def workshop_msg(msg: str):
         data: Union[dict, List[dict]] = await workshop_to_dict(msg)
         return data
     return None
-    return None
-    return None
