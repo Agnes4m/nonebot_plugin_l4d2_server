@@ -99,7 +99,8 @@ global_config_form = Form(
             name="web_username",
             value="${web_username}",
             labelRemark=Remark(
-                shape="circle", content="登录本后台管理所需要的用户名。"
+                shape="circle",
+                content="登录本后台管理所需要的用户名。",
             ),  # noqa: E501
         ),
         InputPassword(
@@ -122,7 +123,8 @@ global_config_form = Form(
             name="l4_font",
             value="${l4_font}",
             labelRemark=Remark(
-                shape="circle", content="机器人返回图片中文字的字体。"
+                shape="circle",
+                content="机器人返回图片中文字的字体。",
             ),  # noqa: E501
         ),
         Switch(
@@ -202,7 +204,8 @@ global_config_form = Form(
             joinValues=False,
             extractValue=True,
             labelRemark=Remark(
-                shape="circle", content="在这里加入的用户，才能上传地图"
+                shape="circle",
+                content="在这里加入的用户，才能上传地图",
             ),  # noqa: E501
         ),
         InputTag(
