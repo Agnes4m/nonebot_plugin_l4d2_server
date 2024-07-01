@@ -30,7 +30,7 @@ async def get_ip_to_mes(msg: str, command: str = ""):
             msg_tuple = (one_ip["id"], host, port)
             ip_list.append(msg_tuple)
         img = await qq_ip_queries_pic(ip_list, igr)
-        return UniMessage.image(raw=img)if img else None
+        return UniMessage.image(raw=img) if img else None
 
     if not msg[0].isdigit():
         # if any(mode in msg for mode in gamemode_list):
@@ -91,7 +91,7 @@ async def get_group_ip_to_msg(command: str):
     tag = len(group_tag_list) == 0
     return_list: List[ServerGroup] = []
 
-    for id_number, tag in enumerate(ALL_HOST): 
+    for id_number, tag in enumerate(ALL_HOST):
         one_group = ALL_HOST[tag]
         if tag in group_tag_list and tag:
             group_ip_dict.update({tag: one_group})
