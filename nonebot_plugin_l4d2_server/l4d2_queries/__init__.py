@@ -158,10 +158,11 @@ async def get_read_ip(ip_anne_list: List[Tuple[str, str, str]]):
             push_msg = await get_ip_to_mes(msg, command)
             if push_msg is None:
                 push_msg = ""
-            if isinstance(push_msg,str):
+            if isinstance(push_msg, str):
                 await matcher.finish(push_msg)
             # await UniMessage.image(raw=push_msg).send()
             await push_msg.finish()
+
 
 # tests = on_command("测试1")
 
