@@ -1,10 +1,9 @@
-from pathlib import Path
-from typing import Dict, List, Tuple, cast
+from typing import Dict, List, cast
 
 from nonebot.log import logger
 
 from ..config import server_all_path
-from ..utils.api.models import NserverDetail, NserverOut
+from ..utils.api.models import NserverOut
 from ..utils.utils import split_maohao
 
 try:
@@ -17,12 +16,13 @@ except ImportError:
 ALLHOST: Dict[str, List[NserverOut]] = {}
 COMMAND = set()
 
+
 def reload_ip():
-    for item in server_all_path.iterdir():  
-        if item.is_file():  
+    for item in server_all_path.iterdir():
+        if item.is_file():
             if item.name.endswith("json"):
                 json_data = json.loads(item.read_text(encoding="utf-8"))
-                group_server = cast(Dict[str, List[NserverOut]],json_data)
+                group_server = cast(Dict[str, List[NserverOut]], json_data)
 
                 for group, group_ip in group_server.items():
                     # 处理ip,host,port关系
@@ -33,7 +33,9 @@ def reload_ip():
                             if one_ip.get("host") and not one_ip.get("port"):
                                 one_ip["port"] == 20715
                             if not one_ip.get("host"):
-                                one_ip["host"], one_ip["port"] = split_maohao(one_ip.get("ip"))
+                                one_ip["host"], one_ip["port"] = split_maohao(
+                                    one_ip.get("ip")
+                                )
                         else:
                             if one_ip.get("host") and one_ip.get("port"):
                                 one_ip["ip"] = f'{one_ip["host"]}:{one_ip["port"]}'
@@ -45,11 +47,10 @@ def reload_ip():
                     ALLHOST.update({group: group_ip})
                     COMMAND.add(group)
                 logger.success(f"成功加载 {item.name.split('.')[0]} {len(group_ip)}个")
-                
+
             print(ALLHOST)
             if item.name.endswith("txt"):
                 """to do"""
 
+
 reload_ip()
-            
- 

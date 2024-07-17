@@ -15,6 +15,7 @@ BG_PATH = Path(__file__).parents[1] / "default_bg"
 def get_div():
     return Image.open(TEXT_PATH / "div.png")
 
+
 async def sget(url: str):
     async with httpx.AsyncClient(timeout=None) as client:
         return await client.get(url=url)
@@ -53,9 +54,9 @@ async def shift_image_hue(img: Image.Image, angle: float = 30) -> Image.Image:
 
     for y in range(img.height):
         for x in range(img.width):
-            h, s, v = pixels[x, y] # type: ignore
+            h, s, v = pixels[x, y]  # type: ignore
             h = (h + hue_shift) % 360
-            pixels[x, y] = (h, s, v) # type: ignore
+            pixels[x, y] = (h, s, v)  # type: ignore
 
     img = img.convert("RGBA")
     img.putalpha(alpha)
@@ -189,7 +190,10 @@ def draw_text_by_line(
 
 
 def easy_paste(
-    im: Image.Image, im_paste: Image.Image, pos=(0, 0), direction="lt",
+    im: Image.Image,
+    im_paste: Image.Image,
+    pos=(0, 0),
+    direction="lt",
 ):
     """
     inplace method
@@ -209,7 +213,10 @@ def easy_paste(
 
 
 def easy_alpha_composite(
-    im: Image.Image, im_paste: Image.Image, pos=(0, 0), direction="lt",
+    im: Image.Image,
+    im_paste: Image.Image,
+    pos=(0, 0),
+    direction="lt",
 ) -> Image.Image:
     """
     透明图像快速粘贴
@@ -220,7 +227,8 @@ def easy_alpha_composite(
 
 
 async def get_qq_avatar(
-    qid: Optional[Union[int, str]] = None, avatar_url: Optional[str] = None,
+    qid: Optional[Union[int, str]] = None,
+    avatar_url: Optional[str] = None,
 ) -> Image.Image:
     if qid:
         avatar_url = f"http://q1.qlogo.cn/g?b=qq&nk={qid}&s=640"
@@ -269,7 +277,9 @@ async def draw_pic_with_ring(
 
 
 def crop_center_img(
-    img: Image.Image, based_w: int, based_h: int,
+    img: Image.Image,
+    based_w: int,
+    based_h: int,
 ) -> Image.Image:
     # 确定图片的长宽
     based_scale = "%.3f" % (based_w / based_h)
@@ -301,14 +311,16 @@ async def get_color_bg(
     color: Optional[Tuple[int, int, int]] = None,
     full_opacity: int = 200,
 ) -> Image.Image:
-    ci_img = CustomizeImage(bg_path) # type: ignore
+    ci_img = CustomizeImage(bg_path)  # type: ignore
     img = ci_img.get_image(None, based_w, based_h)
     if color is None:
         color = ci_img.get_bg_color(img)
     if is_full:
         color_img = Image.new("RGBA", (based_w, based_h), color)
         mask = Image.new(
-            "RGBA", (based_w, based_h), (255, 255, 255, full_opacity),
+            "RGBA",
+            (based_w, based_h),
+            (255, 255, 255, full_opacity),
         )
         img.paste(color_img, (0, 0), mask)
     elif not without_mask:
@@ -325,7 +337,10 @@ class CustomizeImage:
         self.bg_path = bg_path
 
     def get_image(
-        self, image: Union[str, Image.Image, None], based_w: int, based_h: int,
+        self,
+        image: Union[str, Image.Image, None],
+        based_w: int,
+        based_h: int,
     ) -> Image.Image:
         # 获取背景图片
         if isinstance(image, Image.Image):
@@ -348,11 +363,12 @@ class CustomizeImage:
         img = pil_img.copy()
         img = img.convert("RGBA")
         img = img.resize((1, 1), resample=0)
-        return img.getpixel((0, 0)) # type: ignore
+        return img.getpixel((0, 0))  # type: ignore
 
     @staticmethod
     def get_bg_color(
-        edit_bg: Image.Image, is_light: Optional[bool] = False,
+        edit_bg: Image.Image,
+        is_light: Optional[bool] = False,
     ) -> Tuple[int, int, int]:
         # 获取背景主色
         color = 8

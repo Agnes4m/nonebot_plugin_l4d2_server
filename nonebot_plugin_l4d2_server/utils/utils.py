@@ -166,17 +166,15 @@ async def extract_last_digit(msg: str) -> Tuple[str, str]:
     return msg, ""
 
 
-
 def split_maohao(msg: str) -> Tuple[str, int]:
     """分割大小写冒号"""
-    if ":" in msg:  
+    if ":" in msg:
         return msg.split(":")[0], int(msg.split(":")[-1])
-    if "：" in msg:  
+    if "：" in msg:
         return msg.split("：")[0], int(msg.split("：")[-1])
-    if msg.replace(".", "").isdigit():  
+    if msg.replace(".", "").isdigit():
         return msg, 20715
-    return "", -1  
-
+    return "", -1
 
 
 import aiohttp

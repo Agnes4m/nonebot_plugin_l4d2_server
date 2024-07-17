@@ -12,37 +12,41 @@ from .image_tools import draw_center_text_by_line
 FONT_PATH = Path(__file__).parent.parent / "data/font/loli.ttf"
 pic_quality: int = 95
 
+
 def core_font(size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(str(FONT_PATH), size=size)
-
 
 
 @overload
 async def convert_img(
     img: Image.Image,
     is_base64: bool = False,
-) -> bytes: ...
+) -> bytes:
+    ...
 
 
 @overload
 async def convert_img(
     img: Image.Image,
     is_base64: bool = True,
-) -> str: ...
+) -> str:
+    ...
 
 
 @overload
 async def convert_img(
     img: bytes,
     is_base64: bool = False,
-) -> str: ...
+) -> str:
+    ...
 
 
 @overload
 async def convert_img(
     img: Path,
     is_base64: bool = False,
-) -> str: ...
+) -> str:
+    ...
 
 
 async def convert_img(
@@ -115,7 +119,9 @@ async def str_lenth(r: str, size: int, limit: int = 540) -> str:
 
 
 def get_str_size(
-    r: str, font: ImageFont.FreeTypeFont, limit: int = 540,
+    r: str,
+    font: ImageFont.FreeTypeFont,
+    limit: int = 540,
 ) -> str:
     result = ""
     line = ""
@@ -151,7 +157,9 @@ async def text2pic(text: str, max_size: int = 800, font_size: int = 24):
         text = text[:-1]
 
     img = Image.new(
-        "RGB", (max_size, len(text) * font_size // 3), (255, 255, 255),
+        "RGB",
+        (max_size, len(text) * font_size // 3),
+        (255, 255, 255),
     )
     img_draw = ImageDraw.ImageDraw(img)
     y = draw_center_text_by_line(

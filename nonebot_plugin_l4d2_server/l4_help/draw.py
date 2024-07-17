@@ -14,6 +14,7 @@ Micon_path = Path(__file__).parent / "icon"
 DEFAULT_ICON = Micon_path / "拼图.png"
 plugin_data = get_plugin_data()
 
+
 def cx(w: int, x: int) -> int:
     return int((w - x) / 2)
 
@@ -72,24 +73,15 @@ async def get_help(
     extra_message: Optional[List[str]] = None,
     enable_cache: bool = True,
 ) -> bytes:
-
     if sub_c is None and is_dark:
-        sub_c = tuple(
-            x - 50 if x > 50 else x for x in text_color
-        )  # type: ignore
+        sub_c = tuple(x - 50 if x > 50 else x for x in text_color)  # type: ignore
     elif sub_c is None and not is_dark:
-        sub_c = tuple(
-            x + 50 if x < 205 else x for x in text_color
-        )  # type: ignore
+        sub_c = tuple(x + 50 if x < 205 else x for x in text_color)  # type: ignore
 
     if op_color is None and is_dark:
-        op_color = tuple(
-            x - 90 if x > 90 else x for x in text_color
-        )  # type: ignore
+        op_color = tuple(x - 90 if x > 90 else x for x in text_color)  # type: ignore
     elif op_color is None and not is_dark:
-        op_color = tuple(
-            x + 90 if x < 160 else x for x in text_color
-        )  # type: ignore
+        op_color = tuple(x + 90 if x < 160 else x for x in text_color)  # type: ignore
 
     _h = 600
 
@@ -119,7 +111,11 @@ async def get_help(
             title_draw.text((_x + 360, 596), message, sub_c, font(26), "mm")
 
     title_draw.text(
-        (cx(w, 0), 440), f"{name} 帮助", title_color, font(36), "mm",
+        (cx(w, 0), 440),
+        f"{name} 帮助",
+        title_color,
+        font(36),
+        "mm",
     )
     title_draw.text((cx(w, 0), 520), sub_text, sub_title_color, font(26), "mm")
 
@@ -197,7 +193,7 @@ async def get_help(
 
     img = img.convert("RGB")
     help_path = plugin_data.data_dir.joinpath("help") / f"{name}.jpg"
-    help_path.parent.mkdir(parents=True,exist_ok=True)
+    help_path.parent.mkdir(parents=True, exist_ok=True)
     if enable_cache:
         img.save(
             help_path,

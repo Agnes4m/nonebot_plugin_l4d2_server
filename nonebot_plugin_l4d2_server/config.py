@@ -9,6 +9,8 @@ server_all_path = DATAOUT / "l4d2"
 server_all_path.mkdir(parents=True, exist_ok=True)
 
 ICONPATH = DATAPATH / "icon"
+
+
 class ConfigModel(BaseModel):
     l4_anne: bool = False
     """是否启用anne电信服相关功能"""
@@ -22,5 +24,6 @@ class ConfigModel(BaseModel):
     """插件数据路径"""
     l4_players: int = 4
     """查询总图的时候展示的用户数量"""
-    
+
+
 config = get_plugin_config(ConfigModel)
