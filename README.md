@@ -31,17 +31,21 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
     <img src="https://img.shields.io/pypi/dm/nonebot_plugin_l4d2_server" alt="pypi download">
 </a>
     <img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="python">
-    <img src="https://img.shields.io/badge/nonebot-2.0.0-red.svg" alt="NoneBot">
+    <img src="https://img.shields.io/badge/nonebot-2.0.0+-red.svg" alt="NoneBot">
 
 </div>
 
 ## 顶置公告（如果以前用0.x.x版本暂时别更新）
 
-- **版本**  自1.x.x版本后，与之前0.x.x版本完全不兼容，由于之前版本是我学习github以来独立写的第一个项目，所以造成了大量我自己也无法修改的屎山，因此我决定封存并重新的版本。
+- **版本**  1.x.x进行了破坏式更新，目前处于测试阶段，使用旧插件的不要更新
 
-- **功能**  由于之前写的非常随性所欲，导致各种功能杂糅，因此这次决定先想好需求哪些功能，再更具需求的功能写对应的模板
+## 更改部分
 
-- **代码部分**  由于之前对其他插件杂糅~~乱抄~~，导致代码结构混乱，风格诡异，包含了很多我自己不理解但是能跑就行的代码，这也是我重写的主要原因。在自己独立写了几个插件后，我也决定以自己的风格去独立写一个项目。
+- 取消了网页控制台(没有卵用)
+- 取消了自动重启(与其他插件功能重复)
+- 取消了git拉取更新(nb规范用pypi)
+- 用pil替代浏览器渲染(不使用浏览器节省性能)
+- 删除无用部分(依赖太多难以维护)
 
 ## 安装
 
@@ -98,11 +102,9 @@ conda install nonebot-plugin-l4d2-server
 
 ## 主要功能
 
-- 求生服务器-本地多路径操作（传地图）
-- 批量查询指定ip服务器状态和玩家
-- 创意工坊下载和喷漆制作
-- web控制台
-- [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
+- [ ] 求生服务器-本地多路径操作（传地图等）
+- [ ] 批量查询指定ip服务器状态和玩家
+- [ ] [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
 
 ## [数据结构](./docs/standand.md)
 
@@ -110,13 +112,6 @@ conda install nonebot-plugin-l4d2-server
 
 适配公益服刷服器适配ip
 
-## To do
-
-- [ ] 电信anne服积分查询
-- [ ] 服务器状态查询
-- [ ] steambans服务器添加
-- [ ] 本地传图
-- [ ] rcon控制台
 
 
 ## 其他
@@ -130,10 +125,11 @@ conda install nonebot-plugin-l4d2-server
 ## 🌐 感谢
 
 - [nonebot2](https://github.com/nonebot/nonebot2)- 聊天机器人的基础框架
+- [饼干](https://github.com/lgc2333) - 指导nonebot2框架的函数使用
+- [wuyi](https://github.com/KimigaiiWuyi/) - 指导pil作图
 
 - 感谢以下服主大力支持
   - Michaela's | 机器人功能测试反馈 
   - 东 | 提供docker部署方法等建议 | [电信服anne游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6i7r5aJ7Jyg0ejby4rt9GWmFRF53nV1K&authKey=ekMsWepBZPL26%2BfJAG%2F95JD0fhvH39%2BIGVyKOvNlXVDbpIclJlly4kXqukL7JhWR&noverify=0&group_code=883237206)
-  - 呆呆 | 提供三方地图的详细数据 | [呆呆组游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=M5Ei0tYBgi3nwkh-8jfvo3gN5BMhPQGr&authKey=tb2Qa7ykUf5RAe3TBvOIA%2FWdlHAx6tqYXhyV95WqbZXoUx7lU2MRbod7nubiFw16&noverify=0&group_code=592944622)
   - 迷茫 | 催命更新byd
   - ArcPav | 积极反馈bug，提供改进思路
