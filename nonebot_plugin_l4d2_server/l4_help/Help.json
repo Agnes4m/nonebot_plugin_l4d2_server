@@ -1,0 +1,65 @@
+{
+  "基础服务": {
+    "desc": "无需任何权限",
+    "data": [
+      {
+        "name": "l4全服",
+        "desc": "返回可以查询的所有服务器组",
+        "eg": "l4全服",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "(组指令)",
+        "desc": "返回一个组的服务器信息",
+        "eg": "云",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "雀魂切换uid",
+        "desc": "切换你的雀魂UID",
+        "eg": "雀魂切换uid123456",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      }
+    ]
+  },
+  "查询服务": {
+    "desc": "查询一些基本信息, 需要在金之间拥有一定场次的对局",
+    "data": [
+      {
+        "name": "雀魂搜索",
+        "desc": "搜索雀魂玩家",
+        "eg": "雀魂搜索Wuyi",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "雀魂查询",
+        "desc": "查询雀魂数据一览",
+        "eg": "雀魂查询1148850",
+        "need_ck": true,
+        "need_sk": false,
+        "need_admin": false
+      }
+    ]
+  },
+  "其他服务": {
+    "desc": "一些杂项服务",
+    "data": [
+      {
+        "name": "雀魂帮助",
+        "desc": "呼出该帮助界面",
+        "eg": "雀魂帮助",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      }
+    ]
+  }
+}

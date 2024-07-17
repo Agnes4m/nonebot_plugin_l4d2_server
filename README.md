@@ -7,7 +7,7 @@
 
 <div align="center">
 
-# nonebot_plugin_l4d2_server 0.6
+# nonebot_plugin_l4d2_server 1.0.0a1
 
 _✨Nonebot & Left 4 Dead 2 server操作✨_
 <div align = "center">
@@ -35,33 +35,21 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 </div>
 
-## 顶置公告
+## 顶置公告（如果以前用0.x.x版本暂时别更新）
 
-- 文档暂时没时间更新ozr
+- **版本**  自1.x.x版本后，与之前0.x.x版本完全不兼容，由于之前版本是我学习github以来独立写的第一个项目，所以造成了大量我自己也无法修改的屎山，因此我决定封存并重新的版本。
 
-- 如果你只是一个游戏玩家，你可以在[这里](#🌐-感谢)找一个游戏群加入游玩
+- **功能**  由于之前写的非常随性所欲，导致各种功能杂糅，因此这次决定先想好需求哪些功能，再更具需求的功能写对应的模板
 
-- 网页端管理端 `https://{ip}:{port}/l4d2`
-
-- 网页用户端 `https://{ip}:{port}/l4d2/user`
+- **代码部分**  由于之前对其他插件杂糅~~乱抄~~，导致代码结构混乱，风格诡异，包含了很多我自己不理解但是能跑就行的代码，这也是我重写的主要原因。在自己独立写了几个插件后，我也决定以自己的风格去独立写一个项目。
 
 ## 安装
 
 以下提到的方法 任选**其一** 即可
 
-<details open>
-<summary>[个人推荐] 使用 nb-cli 安装</summary>
-在 nonebot2 项目插件文件夹中，输入以下指令克隆项目，并安装相关依赖(如果有虚拟环境，pip安装依赖需要进虚拟环境再安装，或者参考下方包管理器安装方法)
-
-```bash
-https://github.com/Agnes4m/nonebot_plugin_l4d2_server
-pip install --no-install nonebot_plugin_l4d2_server 
-```
-
-</details>
 
 <details open>
-<summary>[新手推荐] 使用 nb-cli 安装</summary>
+<summary>[推荐] 使用 nb-cli 安装</summary>
 在 nonebot2 项目的根目录下打开命令行, 输入以下指令即可安装
 
 ```bash
@@ -124,10 +112,12 @@ conda install nonebot-plugin-l4d2-server
 
 ## To do
 
-- [ ] 帮助图片
-- [ ] 网页控制台查看服务器地图
-- [ ] 网页控制台启动和关闭服务器
-- [ ] 网页控制台管理封禁用户
+- [ ] 电信anne服积分查询
+- [ ] 服务器状态查询
+- [ ] steambans服务器添加
+- [ ] 本地传图
+- [ ] rcon控制台
+
 
 ## 其他
 
@@ -140,18 +130,10 @@ conda install nonebot-plugin-l4d2-server
 ## 🌐 感谢
 
 - [nonebot2](https://github.com/nonebot/nonebot2)- 聊天机器人的基础框架
-- [修仙](https://github.com/s52047qwas/nonebot_plugin_xiuxian)- 数据库参考
-- ~~[自己写的求生之路查询库](https://github.com/Agnes4m/VSQ)~~ (已弃用)
-- [@MeetWq](https://github.com/MeetWq)- 非常热心解答nonebot2相关的写法
-  - [可爱小Q](https://github.com/MeetWq/mybot)- 服务器图片参考
-- [群聊学习](https://github.com/CMHopeSunshine/nonebot-plugin-learning-chat)- web控制台参考
-- [日向麻麻](https://github.com/Special-Week)- 配置优化参考
-- [gsuid](https://github.com/KimigaiiWuyi/GenshinUID)- readme和wiki的格式参考，以及3.1版本的更新和重启
-- 公益服刷服器 - 虽然不知道哪里来的，不过已经添加ip了
+
 - 感谢以下服主大力支持
-  - Michaela's | 机器人功能测试反馈 | [橘组多模式游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=pUKFe4sSUMgLn0N84IhBtTzrdVzFxRLd&authKey=v8tdd3yys6VnK2WI%2F76fN85yfmHpdv%2Bfttj37n4DqnZMdyv9N6nUsyNyuk2QKoOR&noverify=0&group_code=578503081)
+  - Michaela's | 机器人功能测试反馈 
   - 东 | 提供docker部署方法等建议 | [电信服anne游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6i7r5aJ7Jyg0ejby4rt9GWmFRF53nV1K&authKey=ekMsWepBZPL26%2BfJAG%2F95JD0fhvH39%2BIGVyKOvNlXVDbpIclJlly4kXqukL7JhWR&noverify=0&group_code=883237206)
   - 呆呆 | 提供三方地图的详细数据 | [呆呆组游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=M5Ei0tYBgi3nwkh-8jfvo3gN5BMhPQGr&authKey=tb2Qa7ykUf5RAe3TBvOIA%2FWdlHAx6tqYXhyV95WqbZXoUx7lU2MRbod7nubiFw16&noverify=0&group_code=592944622)
-  - 柠檬茶 | win端部署测试 | [竹服⭐纯净服游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=G8AkutNEmN9niNCjNJV8YE-vLv4h_EBz&authKey=wG%2BI6Cks4%2FcRGYYLjRNK0Kg4rMUy3BB7H9SKGjU465ktqKcb%2F6m7WxrSTJiX5bvk&noverify=0&group_code=283150432)
   - 迷茫 | 催命更新byd
   - ArcPav | 积极反馈bug，提供改进思路
