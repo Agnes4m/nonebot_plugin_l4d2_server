@@ -1,10 +1,11 @@
-from typing import Dict, List, cast
+from typing import Dict, List, Optional, cast
 
 from nonebot.log import logger
 
 from ..config import server_all_path
 from ..utils.api.models import NserverOut
 from ..utils.utils import split_maohao
+from .draw_msg import draw_one_ip
 
 try:
     import ujson as json
@@ -17,6 +18,27 @@ ALLHOST: Dict[str, List[NserverOut]] = {}
 COMMAND = set()
 
 
+async def get_server_detail(command: str, _id: Optional[str] = None):
+    server_json = ALLHOST.get(command)
+    logger.info(server_json)
+    if _id is None:
+        # 输出组信息
+        ...
+
+    if server_json is None:
+        logger.warning("未找到这个组")
+        return None
+
+    # 返回组
+    # ...
+    # 返回单个
+    for i in server_json:
+        if _id == i["id"]:
+            return await draw_one_ip(i["host"], i["port"])
+    return None
+
+
+# 以下是重载ip
 def reload_ip():
     for item in server_all_path.iterdir():
         if item.is_file():
@@ -31,10 +53,10 @@ def reload_ip():
                             if one_ip.get("host") and one_ip.get("port"):
                                 pass
                             if one_ip.get("host") and not one_ip.get("port"):
-                                one_ip["port"] == 20715
+                                one_ip["port"] = 20715
                             if not one_ip.get("host"):
                                 one_ip["host"], one_ip["port"] = split_maohao(
-                                    one_ip.get("ip")
+                                    one_ip.get("ip"),
                                 )
                         else:
                             if one_ip.get("host") and one_ip.get("port"):
@@ -48,7 +70,6 @@ def reload_ip():
                     COMMAND.add(group)
                 logger.success(f"成功加载 {item.name.split('.')[0]} {len(group_ip)}个")
 
-            print(ALLHOST)
             if item.name.endswith("txt"):
                 """to do"""
 

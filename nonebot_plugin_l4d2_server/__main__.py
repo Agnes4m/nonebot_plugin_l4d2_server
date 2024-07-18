@@ -15,6 +15,7 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from typing import Optional
 
 from nonebot import require
 from nonebot.adapters import Message
@@ -27,7 +28,7 @@ require("nonebot_plugin_alconna")
 from nonebot_plugin_alconna import UniMessage
 
 from .l4_help import get_l4d2_core_help
-from .l4_request import ALLHOST, COMMAND, reload_ip
+from .l4_request import COMMAND, get_server_detail, reload_ip
 
 l4_help = on_command("l4帮助", aliases={"l4help", "l4d2帮助"})
 l4_request = on_command("anne", aliases=COMMAND)
@@ -47,7 +48,6 @@ async def _(matcher: Matcher):
 
 @l4_request.handle()
 async def _(
-    matcher: Matcher,
     start: str = CommandStart(),
     command: str = RawCommand(),
     args: Message = CommandArg(),
@@ -62,18 +62,12 @@ async def _(
         command = command.replace(start, "")
     if command == "anne":
         command = "云"
-    _id: str = args.extract_plain_text()
-    server_json = ALLHOST.get(command)
-    logger.warning("未找到这个组")
-    if server_json is None:
-        await matcher.finish("没找到这个组呢")
-
-    # 返回组
-    # ...
-    # 返回单个
-    for i in server_json:
-        if _id == i["id"]:
-            await matcher.finish(f"得到了ip{i['host']}:{i['port']}")
+    _id: Optional[str] = args.extract_plain_text()
+    msg = await get_server_detail(command, _id)
+    if msg is not None:
+        await UniMessage.text(msg).send()
+    else:
+        await UniMessage.text("没有这个服呢").send()
 
 
 @l4_reload.handle()

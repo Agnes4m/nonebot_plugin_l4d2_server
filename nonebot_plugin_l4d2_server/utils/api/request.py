@@ -1,6 +1,6 @@
 import json as js
 from copy import deepcopy
-from typing import Any, Dict, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import a2s
 from httpx import AsyncClient
@@ -13,27 +13,27 @@ from .models import SourceBansInfo
 
 class L4D2Api:
     ssl_verify = False
-    _HEADER: Dict[str, str] = {
+    _HEADER: Dict[str, str] = {  # noqa: RUF012
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         "(KHTML, like Gecko)"
         "Chrome/126.0.0.0"
         "Safari/537.36 Edg/126.0.0.0",
     }
 
-    async def _a2s_info(
+    async def a2s_info(
         self,
         host: str,
-        port: str,
+        port: int,
     ) -> a2s.SourceInfo:
         msg: a2s.SourceInfo = await a2s.ainfo((host, port))
         return msg
 
-    async def _a2s_players(
+    async def a2s_players(
         self,
         host: str,
-        port: str,
-    ) -> a2s.Player:
-        msg: a2s.Player = await a2s.players((host, port))
+        port: int,
+    ) -> List[a2s.Player]:
+        msg: List[a2s.Player] = await a2s.aplayers((host, port))
         return msg
 
     async def _server_request(
@@ -45,7 +45,7 @@ class L4D2Api:
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
         is_json: bool = True,
-    ) -> Union[etree._Element, Dict, int]:
+    ) -> Union[Dict, int]:
         header = deepcopy(self._HEADER)
 
         if json is not None:
@@ -85,21 +85,19 @@ class L4D2Api:
                 ):
                     return raw_data["result"]["error_code"]
                 return raw_data
-            else:
-                html_content = resp.text
-                tree: etree._Element = etree.HTML(html_content)
-                return tree
+            html_content = resp.text
+            return etree.HTML(html_content)
 
     async def get_sourceban(self, name: str, url: str = anne_ban):
-        tree: etree._Element = await self._server_request(
+        tree = await self._server_request(
             url=url,
             is_json=False,
         )  # type: ignore
-
+        name = name
         # 检查响应状态码
 
         target_element = tree.xpath(
-            "/html/body/main/div[3]/div[5]/div/div/table/tbody/tr"
+            "/html/body/main/div[3]/div[5]/div/div/table/tbody/tr",
         )
         server_list = []
         # for tr in target_element:
@@ -116,3 +114,6 @@ class L4D2Api:
 
         # 通过一次请求，确定服务器的序号
         return server_list
+
+
+L4API = L4D2Api()
