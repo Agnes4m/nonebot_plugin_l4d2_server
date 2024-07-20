@@ -35,6 +35,7 @@ l4_request = on_command("anne", aliases=COMMAND)
 l4_reload = on_command("l4重载", aliases={"l4刷新"})
 l4_connect = on_command("connect", aliases={"l4连接"})
 
+
 @l4_help.handle()
 async def _(matcher: Matcher):
     """帮助"""
@@ -81,6 +82,7 @@ async def _(args: Message = CommandArg()):
     ip: Optional[str] = args.extract_plain_text()
     if ip is not None:
         await UniMessage.text(await get_ip_server(ip)).finish()
+
 
 @l4_reload.handle()
 async def _():

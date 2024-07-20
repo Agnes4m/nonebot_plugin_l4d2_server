@@ -6,9 +6,9 @@ from msgspec import json as msgjson
 from PIL import Image
 
 from ..config import ICONPATH
-from .convert import core_font
+from ..l4_image.convert import core_font
+from ..l4_image.model import PluginHelp
 from .draw import get_help
-from .model import PluginHelp
 
 __version__ = "1.0.0a1"
 TEXT_PATH = Path(__file__).parent / "texture2d"

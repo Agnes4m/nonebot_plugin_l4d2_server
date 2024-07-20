@@ -39,9 +39,11 @@ async def get_server_detail(command: str, _id: Optional[str] = None):
             return await draw_one_ip(i["host"], i["port"])
     return None
 
+
 async def get_ip_server(ip: str):
     host, port = split_maohao(ip)
     return await draw_one_ip(host, port)
+
 
 # 以下是重载ip
 def reload_ip():

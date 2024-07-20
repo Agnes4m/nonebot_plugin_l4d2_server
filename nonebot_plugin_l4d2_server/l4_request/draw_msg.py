@@ -13,7 +13,6 @@ async def draw_one_ip(host: str, port: int):
     try:
         one_server = await L4API.a2s_info(host, port)
         one_player = await L4API.a2s_players(host, port)
-        print(one_player)
     except asyncio.exceptions.TimeoutError:
         return "服务器无响应"
     player_msg = ""
@@ -45,7 +44,6 @@ async def get_much_server(server_json: List[NserverOut], command):
         try:
             one_server = await L4API.a2s_info(i["host"], i["port"])
             one_player = await L4API.a2s_players(i["host"], i["port"])
-            print(one_player)
             out_server.append(
                 {
                     "server": one_server,
@@ -57,7 +55,7 @@ async def get_much_server(server_json: List[NserverOut], command):
                 },
             )
 
-        except asyncio.exceptions.TimeoutError:
+        except (asyncio.exceptions.TimeoutError, ConnectionRefusedError):
             emtry_server = a2s.SourceInfo()
             emtry_server.server_name = "服务器无响应"
             emtry_server.map_name = "无"

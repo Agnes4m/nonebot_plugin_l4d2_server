@@ -107,7 +107,6 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
         template = env.get_template(random.choice(html_files))
     else:
         template = env.get_template("normal.html")
-    print(plugins[0]["server"].platform)
     content = await template.render_async(plugins=plugins, max_count=config.l4_players)
     return await html_to_pic(
         content,
