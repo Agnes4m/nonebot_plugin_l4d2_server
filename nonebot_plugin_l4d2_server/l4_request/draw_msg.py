@@ -1,6 +1,8 @@
 import asyncio
 from typing import List
 
+import a2s
+
 from ..utils.api.models import NserverOut, OutServer
 from ..utils.api.request import L4API
 
@@ -56,8 +58,15 @@ async def get_much_server(server_json: List[NserverOut], command):
             )
 
         except asyncio.exceptions.TimeoutError:
+            emtry_server = a2s.SourceInfo()
+            emtry_server.server_name = "服务器无响应"
+            emtry_server.map_name = "无"
+            emtry_server.player_count = 0
+            emtry_server.max_players = 0
             out_server.append(
                 {
+                    "server": emtry_server,
+                    "player": [],
                     "host": i["host"],
                     "port": i["port"],
                     "command": command,
@@ -75,5 +84,7 @@ async def convert_duration(duration: float) -> str:
         time_str += f"{int(hours)}h "
     if minutes > 0:
         time_str += f"{int(minutes)}m "
+    time_str += f"{int(seconds)}s"
+    return time_str
     time_str += f"{int(seconds)}s"
     return time_str

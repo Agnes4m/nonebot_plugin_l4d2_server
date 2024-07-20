@@ -257,11 +257,11 @@
             </div>
           </div>
           <div class="plugin_meta_line2">
-            <font color="#113DEE">地图:{{ plugin.map_ }}</font><br>
+            <font color="#113DEE">地图:{{ plugin.server.map_name }}</font><br>
             {% set player_count = plugin.player|length %}
             {% for i in range(max_count) %}
             {% set player = plugin.player[i] if i < player_count else None %} {% if player and player.name %} <font
-              color="282d2f">• {{ player.score }} | {{ player.name }}</font><br>
+              color="#282d2f">• {{ player.score }} | {{ player.name }}</font><br>
               {% else %}
               <!-- 如果玩家不存在或没有名字，则显示空行或占位符 -->
               <br>
