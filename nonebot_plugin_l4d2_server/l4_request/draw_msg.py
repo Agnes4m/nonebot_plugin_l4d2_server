@@ -35,7 +35,7 @@ async def draw_one_ip(host: str, port: int):
 地图: {one_server.map_name}
 ping: {one_server.ping*1000:.0f}ms
 {player_msg}
-connect: {host}:{port}
+connect {host}:{port}
 """
 
 

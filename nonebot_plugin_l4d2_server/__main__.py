@@ -28,12 +28,12 @@ require("nonebot_plugin_alconna")
 from nonebot_plugin_alconna import UniMessage
 
 from .l4_help import get_l4d2_core_help
-from .l4_request import COMMAND, get_server_detail, reload_ip
+from .l4_request import COMMAND, get_ip_server, get_server_detail, reload_ip
 
 l4_help = on_command("l4帮助", aliases={"l4help", "l4d2帮助"})
 l4_request = on_command("anne", aliases=COMMAND)
 l4_reload = on_command("l4重载", aliases={"l4刷新"})
-
+l4_connect = on_command("connect", aliases={"l4连接"})
 
 @l4_help.handle()
 async def _(matcher: Matcher):
@@ -75,6 +75,12 @@ async def _(
     else:
         await UniMessage.text("没有这个服呢").send()
 
+
+@l4_connect.handle()
+async def _(args: Message = CommandArg()):
+    ip: Optional[str] = args.extract_plain_text()
+    if ip is not None:
+        await UniMessage.text(await get_ip_server(ip)).finish()
 
 @l4_reload.handle()
 async def _():
