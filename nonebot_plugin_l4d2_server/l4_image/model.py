@@ -1,7 +1,5 @@
 from typing import List, TypedDict
 
-import a2s
-
 
 class PluginSV(TypedDict):
     name: str
@@ -15,4 +13,3 @@ class PluginSV(TypedDict):
 class PluginHelp(TypedDict):
     desc: str
     data: List[PluginSV]
-

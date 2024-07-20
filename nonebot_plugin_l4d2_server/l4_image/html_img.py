@@ -1,13 +1,12 @@
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
-import a2s
 import jinja2
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
 from ..config import config
-from ..utils.api.models import NserverOut, OutServer
+from ..utils.api.models import OutServer
 from .convert import convert_img
 
 # from .htmlimg import dict_to_dict_img
@@ -76,15 +75,15 @@ async def server_ip_pic(server_dict: List[OutServer]):
     for server_info in server_dict:
         max_number = config.l4_players
         if server_info.get("player"):
-            sorted_players = sorted(server_info["player"], key=lambda x: x.score)[:max_number]
+            sorted_players = sorted(server_info["player"], key=lambda x: x.score)[
+                :max_number
+            ]
             server_info["player"] = sorted_players
         else:
-            server_info["player"] = [
-                
-            ]
-        
+            server_info["player"] = []
+
         # server_info["server"].server_type= f"{server_info['server'].server_type}.svg"
-        
+
     pic = await get_server_img(server_dict)
     if pic:
         logger.success("正在输出图片")
@@ -98,24 +97,24 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
 
     if config.l4_style == "暗风格":
         template = env.get_template("help_dack.html")
-    elif config.l4_style == "孤独摇滚":  
-        template = env.get_template("Bocchi_The_Rock.html") 
-    elif config.l4_style == "电玩像素":  
-        template = env.get_template("Pixel.html")  
-    elif config.l4_style == "缤纷彩虹":  
+    elif config.l4_style == "孤独摇滚":
+        template = env.get_template("Bocchi_The_Rock.html")
+    elif config.l4_style == "电玩像素":
+        template = env.get_template("Pixel.html")
+    elif config.l4_style == "缤纷彩虹":
         template = env.get_template("Rainbow.html")
-    elif config.l4_style == "求生之路":  
-        template = env.get_template("L4D2.html")        
+    elif config.l4_style == "求生之路":
+        template = env.get_template("L4D2.html")
     else:
         template = env.get_template("normal.html")
     print(plugins[0]["server"].platform)
-    content = await template.render_async(plugins=plugins, max_count = config.l4_players)
+    content = await template.render_async(plugins=plugins, max_count=config.l4_players)
     return await html_to_pic(
         content,
         wait=0,
         viewport={"width": 100, "height": 100},
         template_path=f"file://{template_path.absolute()}",
-        )
+    )
     # except Exception as e:
     #     logger.warning(f"Error in get_help_img: {e}")
     return None

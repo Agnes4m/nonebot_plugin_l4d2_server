@@ -14,6 +14,7 @@ from ..config import DATAOUT
 
 TEXT_PATH = Path(__file__).parent
 
+
 async def download_url(url: str) -> bytes:
     async with httpx.AsyncClient() as client:
         for i in range(3):
@@ -91,5 +92,3 @@ async def get_head_by_user_id_and_save(user_id):
     im3.paste(im, (75, 75), mask=a1)
     im3.paste(im2, mask=a2)
     return im3
-
-
