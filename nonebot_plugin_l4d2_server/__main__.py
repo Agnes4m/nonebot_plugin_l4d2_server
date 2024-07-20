@@ -58,14 +58,20 @@ async def _(
     command: /橘(响应的全部指令)
     args: 5(响应的指令后的数字)
     """
+
     if start:
         command = command.replace(start, "")
     if command == "anne":
         command = "云"
     _id: Optional[str] = args.extract_plain_text()
+    if not _id:
+        _id = None
+    logger.info(f"组:{command} ;数字:{_id}")
     msg = await get_server_detail(command, _id)
     if msg is not None:
-        await UniMessage.text(msg).send()
+        if isinstance(msg, str):
+            await UniMessage.text(msg).finish()
+        await UniMessage.image(raw=msg).finish()
     else:
         await UniMessage.text("没有这个服呢").send()
 

@@ -3,9 +3,10 @@ from typing import Dict, List, Optional, cast
 from nonebot.log import logger
 
 from ..config import server_all_path
+from ..l4_image import msg_to_image
 from ..utils.api.models import NserverOut
 from ..utils.utils import split_maohao
-from .draw_msg import draw_one_ip
+from .draw_msg import draw_one_ip, get_much_server
 
 try:
     import ujson as json
@@ -21,17 +22,18 @@ COMMAND = set()
 async def get_server_detail(command: str, _id: Optional[str] = None):
     server_json = ALLHOST.get(command)
     logger.info(server_json)
-    if _id is None:
-        # 输出组信息
-        ...
-
     if server_json is None:
         logger.warning("未找到这个组")
         return None
 
-    # 返回组
-    # ...
+    if _id is None:
+        # 输出组信息
+        logger.info("正在请求组服务器信息")
+        server_dict = await get_much_server(server_json, command)
+        return await msg_to_image(server_dict)
+
     # 返回单个
+    logger.info("正在请求单服务器信息")
     for i in server_json:
         if _id == i["id"]:
             return await draw_one_ip(i["host"], i["port"])

@@ -5,9 +5,9 @@ from typing import Callable, Dict, List, Optional, Tuple
 from nonebot_plugin_datastore import get_plugin_data
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from .convert import convert_img, pic_quality
-from .image_tools import crop_center_img
-from .model import PluginHelp
+from ..l4_image.convert import convert_img, pic_quality
+from ..l4_image.image_tools import crop_center_img
+from ..l4_image.model import PluginHelp
 
 cache: Dict[str, int] = {}
 Micon_path = Path(__file__).parent / "icon"

@@ -24,6 +24,7 @@ class ConfigModel(BaseModel):
     """插件数据路径"""
     l4_players: int = 4
     """查询总图的时候展示的用户数量"""
+    l4_style: str = "default"
 
 
 config = get_plugin_config(ConfigModel)

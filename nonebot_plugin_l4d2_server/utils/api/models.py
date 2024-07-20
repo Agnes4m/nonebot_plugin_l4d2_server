@@ -1,5 +1,6 @@
-from typing import Optional, TypedDict
+from typing import List, Optional, TypedDict
 
+import a2s
 from pydantic import BaseModel
 
 
@@ -11,17 +12,18 @@ class SourceBansInfo(BaseModel):
     port: int
 
 
-class NserverDetail(TypedDict):
-    id: int
-    ip: Optional[str]
-    host: Optional[str]
-    port: Optional[int]
-    version: Optional[str]
-
-
 class NserverOut(TypedDict):
     id: int
     ip: str
     host: str
     port: int
     version: Optional[str]
+
+
+class OutServer(TypedDict):
+    server: a2s.SourceInfo
+    player: List[a2s.Player]
+    host: str
+    port: int
+    command: str
+    id_: int
