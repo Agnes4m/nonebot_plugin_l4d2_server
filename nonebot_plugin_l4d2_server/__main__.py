@@ -27,6 +27,7 @@ from nonebot.plugin import on_command
 require("nonebot_plugin_alconna")
 from nonebot_plugin_alconna import UniMessage
 
+from .config import config
 from .l4_help import get_l4d2_core_help
 from .l4_request import COMMAND, get_ip_server, get_server_detail, reload_ip
 
@@ -82,6 +83,12 @@ async def _(args: Message = CommandArg()):
     ip: Optional[str] = args.extract_plain_text()
     if ip is not None:
         await UniMessage.text(await get_ip_server(ip)).finish()
+
+
+# anne部分
+if config.l4_anne:
+    logger.info("加载anne功能")
+    anne_bind = on_command("l4bind", aliases={"l4绑定"})
 
 
 @l4_reload.handle()

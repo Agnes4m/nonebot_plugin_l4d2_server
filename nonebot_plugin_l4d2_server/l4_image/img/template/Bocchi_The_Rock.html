@@ -242,7 +242,7 @@
             </div>
           </div>
           <div class="plugin_meta_line2">
-            <font color="#113DEE">地图:{{ plugin.server.map_name }}</font><br>
+            <font color="#aaffEE">地图:{{ plugin.server.map_name }}</font><br>
             {% set player_count = plugin.player|length %}
             {% for i in range(max_count) %}
             {% set player = plugin.player[i] if i < player_count else None %} {% if player and player.name %} <font

@@ -1,9 +1,9 @@
 name: Test-python-dependencies
 on:
   push:
-    branches: [ main ]
+    branches: [ 1.x.x ]
   pull_request:
-    branches: [ main ]
+    branches: [ 1.x.x ]
 jobs:
   build:
     runs-on: ubuntu-latest

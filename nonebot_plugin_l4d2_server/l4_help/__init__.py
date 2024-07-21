@@ -39,7 +39,7 @@ async def get_l4d2_core_help() -> Union[bytes, str]:
     bg_out.paste(bg_new, None, bg_new)
 
     return await get_help(
-        "CS2UID",
+        "L4插件",
         f"版本号:{__version__}",
         help_data,
         bg_out,
