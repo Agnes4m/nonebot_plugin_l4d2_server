@@ -269,11 +269,16 @@
               {% endfor %}
           </div>
           <div class="plugin_meta_line3">
-            <svg width="13px" height="13px" color="#000000">
-              <image xlink:href="{{ plugin.system }}" width="13px" height="13px" />
+            {% if plugin.server.platform == 'l' %}
+            <image xlink:href="l.svg" width="13" height="13" />
             </svg>
-            <div class="package_name">&nbsp{{ plugin.rank_players }} </div>
-            <div class="package_name">&nbsp{{ plugin.tick }} </div>
+            {% elif plugin.server.platform == 'w' %}
+            <image xlink:href="w.svg" width="13" height="13" />
+            {% else %}
+            <image xlink:href="m.svg" width="13" height="13" />
+            {% endif %}
+            <div class="package_name">&nbsp{{ plugin.server.player_count }}/{{ plugin.server.max_players }} </div>
+            <div class="package_name">&nbsp{{ plugin.server.vac_enabled}} </div>
           </div>
         </div>
       </div>

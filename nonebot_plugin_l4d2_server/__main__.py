@@ -74,8 +74,7 @@ async def _(
         if isinstance(msg, str):
             await UniMessage.text(msg).finish()
         await UniMessage.image(raw=msg).finish()
-    else:
-        await UniMessage.text("没有这个服呢").send()
+
 
 
 @l4_connect.handle()
