@@ -17,7 +17,9 @@ async def draw_one_ip(host: str, port: int):
         return "服务器无响应"
     player_msg = ""
     if len(one_player):
-        max_duration_len = max([len(str(i.duration)) for i in one_player])
+        max_duration_len = max(
+            [len(str(await convert_duration(i.duration))) for i in one_player],
+        )
         max_score_len = max([len(str(i.score)) for i in one_player])
 
         for player in one_player:

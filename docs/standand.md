@@ -8,11 +8,6 @@ bot所在文件夹下
 举例：
 └── data
     └── L4D2
-        ├── l4d2.yml         # 配置文件
-        ├── l4d2.json        # 群服文件
-        ├── scheduler.json   # 定时文件
-        ├── sql              # 数据库
-        │   └── L4D2.db
         ├── image            # 头像缓存
         │   └── players
         │       └── ...

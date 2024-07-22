@@ -19,7 +19,11 @@ ALLHOST: Dict[str, List[NserverOut]] = {}
 COMMAND = set()
 
 
-async def get_server_detail(command: str, _id: Optional[str] = None):
+async def get_server_detail(
+    command: str,
+    _id: Optional[str] = None,
+    is_img: bool = True,
+):
     server_json = ALLHOST.get(command)
     logger.info(server_json)
     if server_json is None:
@@ -30,7 +34,9 @@ async def get_server_detail(command: str, _id: Optional[str] = None):
         # 输出组信息
         logger.info("正在请求组服务器信息")
         server_dict = await get_much_server(server_json, command)
-        return await msg_to_image(server_dict)
+        if is_img:
+            return await msg_to_image(server_dict)
+        return server_dict
 
     # 返回单个
     logger.info("正在请求单服务器信息")

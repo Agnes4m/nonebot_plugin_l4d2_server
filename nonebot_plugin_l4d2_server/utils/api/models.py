@@ -27,3 +27,10 @@ class OutServer(TypedDict):
     port: int
     command: str
     id_: int
+
+
+class AnnePlayer(TypedDict):
+    mode: str
+    name: str
+    source: str
+    playtime: str

@@ -7,7 +7,7 @@ from httpx import AsyncClient
 from lxml import etree
 
 from ..utils import split_maohao
-from .api import anne_ban
+from .api import anne_ban, anne_rank
 from .models import SourceBansInfo
 
 
@@ -88,13 +88,12 @@ class L4D2Api:
             html_content = resp.text
             return etree.HTML(html_content)
 
-    async def get_sourceban(self, name: str, url: str = anne_ban):
+    async def get_sourceban(self, url: str = anne_ban):
+        """从sourceban++获取服务器列表，目前未做名称处理"""
         tree = await self._server_request(
             url=url,
             is_json=False,
         )  # type: ignore
-        name = name
-        # 检查响应状态码
 
         target_element = tree.xpath(
             "/html/body/main/div[3]/div[5]/div/div/table/tbody/tr",
@@ -112,8 +111,16 @@ class L4D2Api:
                 host, port = split_maohao(td.text)
                 server_list.append(SourceBansInfo(index=index, host=host, port=port))
 
-        # 通过一次请求，确定服务器的序号
         return server_list
+
+    async def get_anne_player(self):
+        tree = await self._server_request(
+            url=anne_rank,
+            is_json=False,
+        )  # type: ignore
+
+        theme_msg = tree.xpath("/html/body/div[6]/div/div[4]/div/h5/text()")
+        return [str(tr) for tr in theme_msg]
 
 
 L4API = L4D2Api()

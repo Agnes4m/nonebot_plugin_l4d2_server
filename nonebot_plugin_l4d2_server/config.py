@@ -12,7 +12,7 @@ ICONPATH = DATAPATH / "icon"
 
 
 class ConfigModel(BaseModel):
-    l4_anne: bool = False
+    l4_anne: bool = True
     """是否启用anne电信服相关功能"""
     l4_enable: bool = True
     """是否全局启用求生功能"""
@@ -25,6 +25,9 @@ class ConfigModel(BaseModel):
     l4_players: int = 4
     """查询总图的时候展示的用户数量"""
     l4_style: str = "default"
+    """图片风格"""
+    l4_font: str = str(Path(__file__).parent.joinpath("data/font/loli.ttf"))
+    """字体"""
 
 
 config = get_plugin_config(ConfigModel)

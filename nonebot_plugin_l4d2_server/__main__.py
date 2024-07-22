@@ -15,10 +15,10 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import Optional
+from typing import List, Optional
 
 from nonebot import require
-from nonebot.adapters import Message
+from nonebot.adapters import Event, Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
@@ -28,13 +28,16 @@ require("nonebot_plugin_alconna")
 from nonebot_plugin_alconna import UniMessage
 
 from .config import config
+from .l4_anne import get_anne_player_out
 from .l4_help import get_l4d2_core_help
 from .l4_request import COMMAND, get_ip_server, get_server_detail, reload_ip
+from .utils.api.models import OutServer
 
-l4_help = on_command("l4帮助", aliases={"l4help", "l4d2帮助"})
-l4_request = on_command("anne", aliases=COMMAND)
-l4_reload = on_command("l4重载", aliases={"l4刷新"})
+l4_help = on_command("l4help", aliases={"l4帮助", "l4d2帮助"})
+l4_request = on_command("anne", aliases=COMMAND, priority=10)
+l4_reload = on_command("l4reload", aliases={"l4刷新,l4重载"})
 l4_connect = on_command("connect", aliases={"l4连接"})
+l4_find_player = on_command("l4find", aliases={"l4查找"})
 
 
 @l4_help.handle()
@@ -73,8 +76,27 @@ async def _(
     if msg is not None:
         if isinstance(msg, str):
             await UniMessage.text(msg).finish()
-        await UniMessage.image(raw=msg).finish()
+        if isinstance(msg, bytes):
+            await UniMessage.image(raw=msg).finish()
 
+
+@l4_find_player.handle()
+async def _(
+    args: Message = CommandArg(),
+):
+    msg: str = args.extract_plain_text().strip()
+    tag_list: List[str] = msg.split(" ", maxsplit=1)
+    if len(tag_list) < 2:
+        return await UniMessage.text("格式错误，正确格式：/l4find 组名 玩家名").finish()
+    group, name = tag_list
+    out: List[OutServer] = await get_server_detail(group, is_img=False)  # type: ignore
+    out_msg = "未找到玩家"
+    for one in out:
+        for player in one["player"]:
+            if name in player.name:
+                out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
+
+    return await UniMessage.text(out_msg).finish()
 
 
 @l4_connect.handle()
@@ -88,9 +110,23 @@ async def _(args: Message = CommandArg()):
 if config.l4_anne:
     logger.info("加载anne功能")
     anne_bind = on_command("l4bind", aliases={"l4绑定"})
+    anne_player = on_command("l4player", aliases={"anne在线"}, block=True, priority=1)
+
+    @anne_bind.handle()
+    async def _(ev: Event, args: Message = CommandArg()):
+        user_id = ev.get_user_id()
+        name = args.extract_plain_text().strip()
+        if not name or not user_id:
+            return
+        await UniMessage.text("to do").finish()
+
+    @anne_player.handle()
+    async def _():
+        await UniMessage.text(await get_anne_player_out()).finish()
 
 
 @l4_reload.handle()
 async def _():
     reload_ip()
+    logger.success("重载ip完成")
     logger.success("重载ip完成")

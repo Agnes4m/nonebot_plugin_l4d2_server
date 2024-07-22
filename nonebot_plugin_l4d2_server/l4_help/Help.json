@@ -3,14 +3,6 @@
     "desc": "无需任何权限",
     "data": [
       {
-        "name": "l4全服",
-        "desc": "返回可以查询的所有服务器组(未完成)",
-        "eg": "/l4全服",
-        "need_ck": false,
-        "need_sk": false,
-        "need_admin": false
-      },
-      {
         "name": "(组)",
         "desc": "返回一个组的服务器信息",
         "eg": "/云",
@@ -25,8 +17,28 @@
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
-      }
+      },
+      {
+        "name": "l4查找 (组) (玩家名)",
+        "desc": "查询用户所在服务器状态",
+        "eg": "/l4查找 云 爱丽数码",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4全服",
+        "desc": "返回可以查询的所有服务器组(未完成)",
+        "eg": "/l4全服",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
     ]
+  },
+  "电信服anne服务": {
+    "desc": "电信anne服相关服务",
+    "data": []
   },
   "管理员服务": {
     "desc": "管理可以使用的指令",

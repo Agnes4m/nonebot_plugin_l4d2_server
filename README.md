@@ -108,28 +108,29 @@ conda install nonebot-plugin-l4d2-server
 
 ## [数据结构](./docs/standand.md)
 
+暂未更新
+
 ## env设置
 
 """bash
-    l4_anne: bool = False
+    l4_anne = False
     """是否启用anne电信服相关功能"""
-    l4_enable: bool = True
+    l4_enable = True
     """是否全局启用求生功能"""
-    l4_image: bool = False
+    l4_image = False
     """是否启用图片"""
-    l4_connect: bool = True
+    l4_connect = True
     """是否在查服命令后加入connect ip"""
-    l4_path: str = "data/L4D2"
+    l4_path = "data/L4D2"
     """插件数据路径"""
-    l4_players: int = 4
+    l4_players = 4
     """查询总图的时候展示的用户数量"""
-    l4_style: str = "default"
+    l4_style = "default"
     """图片风格，可选包括以下，默认简洁
     - 暗风格
     - 孤独摇滚        
     - 电玩像素
     - 缤纷彩虹
-    - 求生之路
 """
 
 ## 其他

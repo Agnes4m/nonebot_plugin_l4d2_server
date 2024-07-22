@@ -76,9 +76,11 @@ async def server_ip_pic(server_dict: List[OutServer]):
     for server_info in server_dict:
         max_number = config.l4_players
         if server_info.get("player"):
-            sorted_players = sorted(server_info["player"], key=lambda x: x.score, reverse=True)[
-                :max_number
-            ]
+            sorted_players = sorted(
+                server_info["player"],
+                key=lambda x: x.score,
+                reverse=True,
+            )[:max_number]
             print(sorted_players)
             server_info["player"] = sorted_players
         else:
