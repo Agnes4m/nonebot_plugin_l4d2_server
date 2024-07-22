@@ -1,8 +1,6 @@
 import asyncio
 from typing import List, Tuple
 
-import a2s
-
 from ..utils.api.models import NserverOut, OutServer
 from ..utils.api.request import L4API
 
@@ -50,33 +48,17 @@ async def get_much_server(server_json: List[NserverOut], command):
     all_server = await L4API.a2s_info(search_list, is_player=True)
 
     for index, i in enumerate(all_server):
-        if i is None:
-            out_server.append(
-                {
-                    "server": i[0],
-                    "player": i[1],
-                    "host": server_json[i]["host"],
-                    "port": server_json[i]["port"],
-                    "command": command,
-                    "id_": server_json[i]["id"],
-                },
-            )
-        else:
-            emtry_server = a2s.SourceInfo()
-            emtry_server.server_name = "服务器无响应"
-            emtry_server.map_name = "无"
-            emtry_server.player_count = 0
-            emtry_server.max_players = 0
-            out_server.append(
-                {
-                    "server": emtry_server,
-                    "player": [],
-                    "host": server_json[index]["host"],
-                    "port": server_json[index]["port"],
-                    "command": command,
-                    "id_": server_json[index]["id"],
-                },
-            )  # type: ignore
+        out_server.append(
+            {
+                "server": i[0],
+                "player": i[1],
+                "host": server_json[index]["host"],
+                "port": server_json[index]["port"],
+                "command": command,
+                "id_": server_json[index]["id"],
+            },
+        )
+
     return out_server
 
 

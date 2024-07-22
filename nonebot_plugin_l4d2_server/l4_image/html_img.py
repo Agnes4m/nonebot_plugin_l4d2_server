@@ -74,6 +74,17 @@ async def server_ip_pic(server_dict: List[OutServer]):
     msg_dict:folder/name/map_/players/max_players/Players/[Name]
     """
     for server_info in server_dict:
+        server_info["server"].player_count = (
+            0
+            if server_info["server"].player_count is None
+            else server_info["server"].player_count
+        )
+        server_info["server"].max_players = (
+            0
+            if server_info["server"].max_players is None
+            else server_info["server"].max_players
+        )
+
         max_number = config.l4_players
         if server_info.get("player"):
             sorted_players = sorted(
@@ -87,7 +98,7 @@ async def server_ip_pic(server_dict: List[OutServer]):
             server_info["player"] = []
 
         # server_info["server"].server_type= f"{server_info['server'].server_type}.svg"
-
+    print(server_dict)
     pic = await get_server_img(server_dict)
     if pic:
         logger.success("正在输出图片")
@@ -97,28 +108,32 @@ async def server_ip_pic(server_dict: List[OutServer]):
 
 
 async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
-    # try:
-
-    if config.l4_style == "孤独摇滚":
-        template = env.get_template("Bocchi_The_Rock.html")
-    elif config.l4_style == "电玩像素":
-        template = env.get_template("Pixel.html")
-    elif config.l4_style == "缤纷彩虹":
-        template = env.get_template("Rainbow.html")
-    elif config.l4_style == "随机":
-        html_files = [str(f.name) for f in template_path.rglob("*.html") if f.is_file()]
-        template = env.get_template(random.choice(html_files))
-    else:
-        template = env.get_template("normal.html")
-    content = await template.render_async(plugins=plugins, max_count=config.l4_players)
-    return await html_to_pic(
-        content,
-        wait=0,
-        viewport={"width": 100, "height": 100},
-        template_path=f"file://{template_path.absolute()}",
-    )
-    # except Exception as e:
-    #     logger.warning(f"Error in get_help_img: {e}")
+    try:
+        if config.l4_style == "孤独摇滚":
+            template = env.get_template("Bocchi_The_Rock.html")
+        elif config.l4_style == "电玩像素":
+            template = env.get_template("Pixel.html")
+        elif config.l4_style == "缤纷彩虹":
+            template = env.get_template("Rainbow.html")
+        elif config.l4_style == "随机":
+            html_files = [
+                str(f.name) for f in template_path.rglob("*.html") if f.is_file()
+            ]
+            template = env.get_template(random.choice(html_files))
+        else:
+            template = env.get_template("normal.html")
+        content = await template.render_async(
+            plugins=plugins,
+            max_count=config.l4_players,
+        )
+        return await html_to_pic(
+            content,
+            wait=0,
+            viewport={"width": 100, "height": 100},
+            template_path=f"file://{template_path.absolute()}",
+        )
+    except Exception as e:
+        logger.warning(f"Error in get_help_img: {e}")
     return None
 
 

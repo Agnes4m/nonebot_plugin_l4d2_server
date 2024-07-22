@@ -52,7 +52,6 @@ async def _(matcher: Matcher):
     """帮助"""
     logger.info("开始执行[l4d2帮助]")
     im = await get_l4d2_core_help()
-    print(type(im))
     if isinstance(im, str):
         await matcher.finish(im)
     await UniMessage.image(raw=im).send()
@@ -76,6 +75,8 @@ async def _(
     if command == "anne":
         command = "云"
     _id: Optional[str] = args.extract_plain_text()
+    if _id is not None and not _id.isdigit() and _id:
+        return
     if not _id:
         _id = None
     logger.info(f"组:{command} ;数字:{_id}")
@@ -85,6 +86,8 @@ async def _(
             await UniMessage.text(msg).finish()
         if isinstance(msg, bytes):
             await UniMessage.image(raw=msg).finish()
+    else:
+        await UniMessage.text("服务器无响应").finish()
 
 
 @l4_find_player.handle()

@@ -60,7 +60,6 @@ class L4D2Api:
         is_server: bool,
         is_player: bool,
     ):
-        print(ip)
         server: a2s.SourceInfo = a2s.SourceInfo()
         play: List[a2s.Player] = []
         if is_server:
@@ -68,16 +67,31 @@ class L4D2Api:
                 server = await a2s.ainfo(ip)
                 if server is not None:
                     server.steam_id = index
+                    server.player_count = 0
+                    server.max_players = 0
+                    server.server_name = "服务器无响应"
+                    server.map_name = "无"
+                    server.folder = "m"
+                    server.vac_enabled = False
+
             except (
                 asyncio.exceptions.TimeoutError,
                 ConnectionRefusedError,
                 socket.gaierror,
             ):
                 server.steam_id = index
+                server.player_count = 0
+                server.max_players = 0
+                server.server_name = "服务器无响应"
+                server.map_name = "无"
+                server.folder = "m"
+                server.vac_enabled = False
 
         if is_player:
             with contextlib.suppress(
-                asyncio.exceptions.TimeoutError, ConnectionRefusedError, socket.gaierror
+                asyncio.exceptions.TimeoutError,
+                ConnectionRefusedError,
+                socket.gaierror,
             ):
                 play = await a2s.aplayers(ip)
         return server, play
