@@ -1,8 +1,11 @@
-import json as js
+import asyncio
+import contextlib
+import socket
 from copy import deepcopy
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 import a2s
+import ujson as js
 from httpx import AsyncClient
 from lxml import etree
 
@@ -22,19 +25,62 @@ class L4D2Api:
 
     async def a2s_info(
         self,
-        host: str,
-        port: int,
-    ) -> a2s.SourceInfo:
-        msg: a2s.SourceInfo = await a2s.ainfo((host, port))
-        return msg
+        ip_list: List[Tuple[str, int]],
+        is_server: bool = True,
+        is_player: bool = False,
+    ) -> List[Tuple[a2s.SourceInfo, List[a2s.Player]]]:
+        msg_list: List[Tuple[a2s.SourceInfo, List[a2s.Player]]] = []
 
-    async def a2s_players(
+        tasks = []  # 用来保存异步任务
+        if ip_list != []:
+            for index, i in enumerate(ip_list):
+                try:
+                    tasks.append(
+                        asyncio.create_task(
+                            self.process_message(
+                                i,
+                                index,
+                                is_server,
+                                is_player,
+                            ),
+                        ),
+                    )
+                except ValueError:
+                    continue  # 处理异常情况
+
+            msg_list = await asyncio.gather(*tasks)
+            sorted_msg_list = sorted(msg_list, key=lambda x: x[0].steam_id)
+
+        return sorted_msg_list
+
+    async def process_message(
         self,
-        host: str,
-        port: int,
-    ) -> List[a2s.Player]:
-        msg: List[a2s.Player] = await a2s.aplayers((host, port))
-        return msg
+        ip: Tuple[str, int],
+        index: int,
+        is_server: bool,
+        is_player: bool,
+    ):
+        print(ip)
+        server: a2s.SourceInfo = a2s.SourceInfo()
+        play: List[a2s.Player] = []
+        if is_server:
+            try:
+                server = await a2s.ainfo(ip)
+                if server is not None:
+                    server.steam_id = index
+            except (
+                asyncio.exceptions.TimeoutError,
+                ConnectionRefusedError,
+                socket.gaierror,
+            ):
+                server.steam_id = index
+
+        if is_player:
+            with contextlib.suppress(
+                asyncio.exceptions.TimeoutError, ConnectionRefusedError, socket.gaierror
+            ):
+                play = await a2s.aplayers(ip)
+        return server, play
 
     async def _server_request(
         self,
@@ -123,4 +169,5 @@ class L4D2Api:
         return [str(tr) for tr in theme_msg]
 
 
+L4API = L4D2Api()
 L4API = L4D2Api()

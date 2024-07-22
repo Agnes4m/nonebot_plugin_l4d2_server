@@ -4,7 +4,7 @@ from nonebot.log import logger
 
 from ..config import server_all_path
 from ..l4_image import msg_to_image
-from ..utils.api.models import NserverOut
+from ..utils.api.models import AllServer, NserverOut, OutServer
 from ..utils.utils import split_maohao
 from .draw_msg import draw_one_ip, get_much_server
 
@@ -17,6 +17,38 @@ except ImportError:
 # 获取全部服务器信息
 ALLHOST: Dict[str, List[NserverOut]] = {}
 COMMAND = set()
+
+
+async def get_all_server_detail():
+    out_list: List[AllServer] = []
+    for group, _ in ALLHOST.items():
+        msg_list = await get_group_detail(group)
+        if msg_list is None:
+            continue
+        active_server = 0
+        max_server = 0
+        active_player = 0
+        max_player = 0
+        for index, msg in enumerate(msg_list):
+            max_server = index + 1
+            if msg["server"].max_players != 0:
+                active_server += 1
+                active_player += msg["server"].player_count
+                max_player += msg["server"].max_players
+        data = {
+            "command": group,
+            "active_server": active_server,
+            "max_server": max_server,
+            "active_player": active_player,
+            "max_player": max_player,
+        }
+        out_list.append(cast(AllServer, data))
+
+    # to do作图，先用文字凑合
+    out_msg = ""
+    for one in out_list:
+        out_msg += f"{one['command']} | 服务器{one['active_server']}/{one['max_server']} | 玩家{one['active_player']}/{one['max_player']}\n"
+    return out_msg
 
 
 async def get_server_detail(
@@ -32,18 +64,36 @@ async def get_server_detail(
 
     if _id is None:
         # 输出组信息
-        logger.info("正在请求组服务器信息")
+        logger.info(f"正在请求组服务器信息 {command}")
         server_dict = await get_much_server(server_json, command)
         if is_img:
-            return await msg_to_image(server_dict)
-        return server_dict
+            out_msg = await msg_to_image(server_dict)
+        else:
+            out_msg = server_dict
 
     # 返回单个
     logger.info("正在请求单服务器信息")
     for i in server_json:
         if _id == i["id"]:
-            return await draw_one_ip(i["host"], i["port"])
+            out_msg = await draw_one_ip(i["host"], i["port"])
+    if is_img:
+        return cast(bytes, out_msg)
+    if not is_img:
+        return cast(List[OutServer], out_msg)
     return None
+
+
+async def get_group_detail(
+    command: str,
+):
+    server_json = ALLHOST.get(command)
+    logger.info(server_json)
+    if server_json is None:
+        logger.warning("未找到这个组")
+        return None
+
+    logger.info("正在请求组服务器信息")
+    return await get_much_server(server_json, command)
 
 
 async def get_ip_server(ip: str):

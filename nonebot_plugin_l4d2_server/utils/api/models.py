@@ -34,3 +34,11 @@ class AnnePlayer(TypedDict):
     name: str
     source: str
     playtime: str
+
+
+class AllServer(TypedDict):
+    command: str
+    active_server: int
+    max_server: int
+    active_player: int
+    max_player: int
