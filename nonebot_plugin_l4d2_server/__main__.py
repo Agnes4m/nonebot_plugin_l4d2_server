@@ -124,20 +124,7 @@ async def _(args: Message = CommandArg()):
 # anne部分
 if config.l4_anne:
     logger.info("加载anne功能")
-    anne_bind = on_command("l4bind", aliases={"l4绑定"})
-    anne_player = on_command("l4player", aliases={"anne在线"}, block=True, priority=1)
-
-    @anne_bind.handle()
-    async def _(ev: Event, args: Message = CommandArg()):
-        user_id = ev.get_user_id()
-        name = args.extract_plain_text().strip()
-        if not name or not user_id:
-            return
-        await UniMessage.text("to do").finish()
-
-    @anne_player.handle()
-    async def _():
-        await UniMessage.text(await get_anne_player_out()).finish()
+    from .l4_anne import *  # noqa: F403
 
 
 @l4_reload.handle()
@@ -145,8 +132,3 @@ async def _():
     reload_ip()
     logger.success("重载ip完成")
 
-
-@l4_reload.handle()
-async def _():
-    reload_ip()
-    logger.success("重载ip完成")

@@ -10,7 +10,7 @@ from httpx import AsyncClient
 from lxml import etree
 
 from ..utils import split_maohao
-from .api import anne_ban, anne_rank
+from .api import AnneSearchApi, anne_ban, anne_rank
 from .models import SourceBansInfo
 
 
@@ -67,12 +67,6 @@ class L4D2Api:
                 server = await a2s.ainfo(ip)
                 if server is not None:
                     server.steam_id = index
-                    server.player_count = 0
-                    server.max_players = 0
-                    server.server_name = "服务器无响应"
-                    server.map_name = "无"
-                    server.folder = "m"
-                    server.vac_enabled = False
 
             except (
                 asyncio.exceptions.TimeoutError,
@@ -182,6 +176,32 @@ class L4D2Api:
         theme_msg = tree.xpath("/html/body/div[6]/div/div[4]/div/h5/text()")
         return [str(tr) for tr in theme_msg]
 
+    async def get_anne_steamid(self, name: str):
+        """从电信anne服搜索昵称获取steamid"""
+        tree = await self._server_request(
+            url=AnneSearchApi,
+            json={"search": name},
+            method="POST",
+            is_json=False,
+        )
 
-L4API = L4D2Api()
+        target_element = tree.xpath(
+            "/html/body/main/div[3]/div[5]/div/div/table/tbody/tr",
+        )
+        server_list = []
+        # for tr in target_element:
+        for tr in target_element:
+            if tr.get("class") != "collapse":
+                continue
+            index = 0
+            for td in tr.xpath("./td"):
+                if td.get("id") is not None or td.text == "\n":
+                    continue
+                index += 1
+                host, port = split_maohao(td.text)
+                server_list.append(SourceBansInfo(index=index, host=host, port=port))
+
+        return server_list
+
+
 L4API = L4D2Api()
