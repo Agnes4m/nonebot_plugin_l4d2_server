@@ -7,6 +7,13 @@
       zoom: 150%;
     }
 
+    /* Vac图标样式 */
+    .vac-icon {
+      width: 13px;
+      height: auto;
+      margin-left: 190px;
+    }
+
     .image {
       display: flex;
       flex-direction: column;
@@ -235,7 +242,10 @@
             </svg>
             {% endif %}
             <div class="package_name">&nbsp{{ plugin.server.player_count }}/{{ plugin.server.max_players }} </div>
-            <div class="package_name">&nbsp{{ plugin.server.vac_enabled}} </div>
+            {% if plugin.server.vac_enabled %}
+            <img class="vac-icon" src="vac.png">
+            {% else %}
+            {% endif %}
           </div>
         </div>
       </div>
