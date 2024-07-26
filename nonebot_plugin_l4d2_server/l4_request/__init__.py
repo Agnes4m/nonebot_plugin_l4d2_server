@@ -76,12 +76,13 @@ async def get_server_detail(
     logger.info("正在请求单服务器信息")
     out_msg = ""
     for i in server_json:
-        if _id == i["id"]:
+        if str(_id) == str(i["id"]):
             out_msg = await draw_one_ip(i["host"], i["port"])
             if is_img:
                 return cast(bytes, out_msg)
             if not is_img:
                 return cast(List[OutServer], out_msg)
+    print(out_msg)
     return None
 
 

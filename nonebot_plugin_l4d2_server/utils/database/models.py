@@ -1,20 +1,21 @@
 from pathlib import Path
 
-from nonebot_plugin_datastore import get_plugin_data
-from sqlalchemy.orm import Mapped, mapped_column
+# 导入插件方法
+from nonebot_plugin_tortoise_orm import add_model
+from tortoise import fields
+from tortoise.models import Model
 
-plugin_data = get_plugin_data()
+# Path("data/L4D2/") / "sql")
 
-# 定义模型
-DATA = get_plugin_data()
-DATA.set_migration_dir(Path("data/L4D2/") / "sql")
+add_model(__name__)
 
-
-class SteamUser(DATA.Model):
+class SteamUser(Model):
     """个人资料"""
-    userid: Mapped[str] = mapped_column(primary_key=True)
-    SteamID: Mapped[str]
-    SteamID64: Mapped[str]
-    Name: Mapped[str]
-
-
+    userid = fields.BigIntField(pk=True)
+    SteamID = fields.TextField()
+    SteamID64= fields.TextField()
+    Name= fields.TextField()
+    
+    class Meta:
+        table = "steam_user"
+        table_description = "个人资料"

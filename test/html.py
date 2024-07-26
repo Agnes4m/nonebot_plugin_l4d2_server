@@ -1,7 +1,7 @@
 from typing import List
 
 import requests
-from lxml import etree
+from bs4 import BeautifulSoup
 
 url = "https://sb.trygek.com/l4d_stats/ranking/search.php"
 response = requests.post(
@@ -13,14 +13,14 @@ response = requests.post(
     data={"search": "小可学"},
 )
 response.raise_for_status()  # 如果响应状态码不是 200，将抛出 HTTPError 异常  
-tree = etree.HTML(response.text, parser=etree.HTMLParser(encoding="utf-8"))  
+soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
   
-table_elements: List[etree._Element] = tree.xpath("/html/body/div[6]/div/div[3]/div/table/tbody")
+table_elements: List[BeautifulSoup] = soup.find_all("table")
 
 for table in table_elements: 
     # 遍历<table>下的所有<tr>
     print(type(table))
-    print(table.tag)
+    print(table.text)
     for tr in table.xpath("./tr"):  
         # 遍历<tr>下的所有<td>  
         for td in tr.xpath("./td"):  

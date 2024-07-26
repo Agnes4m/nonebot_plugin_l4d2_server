@@ -2,7 +2,7 @@ import asyncio
 import contextlib
 import socket
 from copy import deepcopy
-from typing import Any, Dict, List, Literal, Optional, Tuple, Union
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
 
 import a2s
 import ujson as js
@@ -11,7 +11,7 @@ from lxml import etree
 
 from ..utils import split_maohao
 from .api import AnneSearchApi, anne_ban, anne_rank
-from .models import SourceBansInfo
+from .models import AnneSearch, SourceBansInfo
 
 
 class L4D2Api:
@@ -21,6 +21,7 @@ class L4D2Api:
         "(KHTML, like Gecko)"
         "Chrome/126.0.0.0"
         "Safari/537.36 Edg/126.0.0.0",
+        "Content-Type": "application/x-www-form-urlencoded",
     }
 
     async def a2s_info(
@@ -186,22 +187,29 @@ class L4D2Api:
         )
 
         target_element = tree.xpath(
-            "/html/body/main/div[3]/div[5]/div/div/table/tbody/tr",
+            "/html/body/div[6]/div/div[3]/div/table/tbody/tr",
         )
         server_list = []
         # for tr in target_element:
         for tr in target_element:
-            if tr.get("class") != "collapse":
-                continue
-            index = 0
-            for td in tr.xpath("./td"):
-                if td.get("id") is not None or td.text == "\n":
-                    continue
-                index += 1
-                host, port = split_maohao(td.text)
-                server_list.append(SourceBansInfo(index=index, host=host, port=port))
-
-        return server_list
+            steamid = tr.get("onclick").split("steamid=")[1].replace("'", "")
+            rank = tr.xpath("./td[0]/text()")[0].strip()
+            name = tr.xpath("./td[1]/text()")[0].strip()
+            score = tr.xpath("./td[2]/text()")[0].strip()
+            play_time = tr.xpath("./td[3]/text()")[0].strip()
+            last_time = tr.xpath("./td[4]/text()")[0].strip()
+            server_list.append(
+                    {
+                        "steamid": steamid,
+                        "rank": rank,
+                        "name": name,
+                        "score": score,
+                        "play_time": play_time,
+                        "last_time": last_time,
+                    },
+                )
+        print(server_list)
+        return cast(List[AnneSearch], server_list)
 
 
 L4API = L4D2Api()

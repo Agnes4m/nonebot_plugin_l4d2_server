@@ -24,6 +24,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 from nonebot.plugin import on_command
 
+require("nonebot_plugin_orm")
 require("nonebot_plugin_alconna")
 from nonebot_plugin_alconna import UniMessage
 
@@ -131,4 +132,5 @@ if config.l4_anne:
 async def _():
     reload_ip()
     logger.success("重载ip完成")
+
 
