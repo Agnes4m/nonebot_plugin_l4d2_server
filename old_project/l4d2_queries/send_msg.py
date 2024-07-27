@@ -113,7 +113,9 @@ async def get_group_ip_to_msg(command: str):
     # img = await qq_ip_queries_pic(ip_list, igr)
 
 
-async def check_group_msg(msg: Dict[str, List[ServerStatus]], number: int, command: str):
+async def check_group_msg(
+    msg: Dict[str, List[ServerStatus]], number: int, command: str
+):
     server_info = ServerGroup()
     server_info.server_id = number
 

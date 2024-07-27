@@ -39,6 +39,7 @@ from .l4_request import (
     reload_ip,
 )
 from .utils.api.models import OutServer
+from .utils.api.request import L4API
 
 l4_help = on_command("l4help", aliases={"l4帮助", "l4d2帮助"})
 l4_request = on_command("anne", aliases=COMMAND, priority=10)
@@ -129,8 +130,12 @@ if config.l4_anne:
 
 
 @l4_reload.handle()
-async def _():
-    reload_ip()
-    logger.success("重载ip完成")
-
-
+async def _(args: Message = CommandArg()):
+    arg = args.extract_plain_text().strip()
+    print(arg)
+    if not arg:
+        reload_ip()
+        logger.success("重载ip完成")
+        await UniMessage.text("重载ip完成").finish()
+    else:
+        print(await L4API.get_sourceban())

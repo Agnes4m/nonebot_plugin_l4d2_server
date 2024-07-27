@@ -1,10 +1,8 @@
 [project]
 name = "nonebot-plugin-l4d2-server"
-version = "1.0.0a1"
+version = "1.0.0a2"
 description = "L4D2 server related operations plugin for NoneBot2"
-authors = [
-    { name = "Agnes_Digital", email = "Z735803792@163.com" }
-]
+authors = [{ name = "Agnes_Digital", email = "Z735803792@163.com" }]
 requires-python = ">=3.9,<4.0"
 keywords = ["steam", "game", "l4d2", "nonebot2", "plugin"]
 dependencies = [
@@ -13,13 +11,18 @@ dependencies = [
     "nonebot-adapter-onebot>=2.4.4",
     "nonebot-plugin-alconna>=0.50.0",
     "nonebot_plugin_datastore>=1.3.0",
+    "nonebot-plugin-tortoise-orm>=0.1.4",
     "aiohttp>=3.8.4",
     "jinja2>=3.0.0",
     "srctools>=2.3.9",
-    "bs4==0.0.1",
-    "httpx>=0.22.0",
+    "httpx>=0.22.0,<0.24.1",
     "msgspec>=0.18.0",
     "python-a2s>=1.3.0",
+    "ujson>=5.10.0",
+    "lxml>=5.2.2",
+    "rcon>=2.1.0",
+    "pillow>9",
+    "beautifulsoup4>=4.12.3",
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -28,7 +31,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Operating System :: OS Independent"
+    "Operating System :: OS Independent",
 ]
 readme = "README.md"
 license = { text = "GPLv3" }
@@ -39,68 +42,6 @@ homepage = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
 [tool.pdm.build]
 includes = []
 
-
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
-
-
-[tool.pyright]
-pythonVersion = "3.8"
-
-[tool.black]
-line-length = 89
-target-version = ["py39", "py310", "py311"]
-include = '\.pyi?$'
-# skip-string-normalization = true
-
-[tool.ruff.isort]
-extra-standard-library = ["typing_extensions"]
-
-[tool.ruff]
-ignore = [
-    "B008",
-    "B905",
-    "E402",
-    "E501",
-    "FBT001",
-    "FBT002",
-    "FBT003",
-    "PGH003",
-    "RUF001",
-    "RUF002",
-    "RUF003",
-    "RUF006",
-    "RUF100",
-    "SIM117",
-    "TRY002",
-    "TRY003",
-
-]
-select = [
-    "A",
-    "ARG",
-    "ASYNC",
-    "B",
-    "C4",
-    "COM",
-    "E",
-    "F",
-    "FBT",
-    "FLY",
-    "I",
-    "ISC",
-    "N",
-    "PIE",
-    "PGH",
-    "PTH",
-    "PYI",
-    "Q",
-    "RET",
-    "RSE",
-    "RUF",
-    "SIM",
-    "SLF",
-    "SLOT",
-    "TRY",
-]

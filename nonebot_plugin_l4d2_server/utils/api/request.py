@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import re
 import socket
 from copy import deepcopy
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
@@ -8,6 +9,7 @@ import a2s
 import ujson as js
 from httpx import AsyncClient
 from lxml import etree
+from bs4 import BeautifulSoup
 
 from ..utils import split_maohao
 from .api import AnneSearchApi, anne_ban, anne_rank
@@ -100,7 +102,7 @@ class L4D2Api:
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
         is_json: bool = True,
-    ) -> Union[Dict, int]:
+    ):
         header = deepcopy(self._HEADER)
 
         if json is not None:
@@ -141,30 +143,31 @@ class L4D2Api:
                     return raw_data["result"]["error_code"]
                 return raw_data
             html_content = resp.text
-            return etree.HTML(html_content)
+            return BeautifulSoup(html_content, "lxml")
 
     async def get_sourceban(self, url: str = anne_ban):
         """从sourceban++获取服务器列表，目前未做名称处理"""
-        tree = await self._server_request(
+        soup = await self._server_request(
             url=url,
             is_json=False,
-        )  # type: ignore
-
-        target_element = tree.xpath(
-            "/html/body/main/div[3]/div[5]/div/div/table/tbody/tr",
         )
+        if not isinstance(soup, BeautifulSoup):
+            return []
         server_list = []
-        # for tr in target_element:
-        for tr in target_element:
-            if tr.get("class") != "collapse":
-                continue
-            index = 0
-            for td in tr.xpath("./td"):
-                if td.get("id") is not None or td.text == "\n":
-                    continue
-                index += 1
-                host, port = split_maohao(td.text)
-                server_list.append(SourceBansInfo(index=index, host=host, port=port))
+
+        tbody = soup.select_one("tbody")
+        if tbody is None:
+            return []
+        tr_tags = tbody.select("tr")
+        for index, tr in enumerate(tr_tags):
+            td_tags = tr.select("td")
+            # print(td_set)
+            for num, td in enumerate(td_tags):
+                if num == 4:
+                    host, port = split_maohao(td.text)
+                    server_list.append(
+                        SourceBansInfo(index=index, host=host, port=port)
+                    )
 
         return server_list
 
@@ -185,10 +188,12 @@ class L4D2Api:
             method="POST",
             is_json=False,
         )
+        # msg = etree.tostringlist(tree)
 
         target_element = tree.xpath(
-            "/html/body/div[6]/div/div[3]/div/table/tbody/tr",
+            "/html/body/div[6]/div/div[3]/div/table",
         )
+        print(etree.tostringlist(target_element[0]))
         server_list = []
         # for tr in target_element:
         for tr in target_element:
@@ -199,15 +204,15 @@ class L4D2Api:
             play_time = tr.xpath("./td[3]/text()")[0].strip()
             last_time = tr.xpath("./td[4]/text()")[0].strip()
             server_list.append(
-                    {
-                        "steamid": steamid,
-                        "rank": rank,
-                        "name": name,
-                        "score": score,
-                        "play_time": play_time,
-                        "last_time": last_time,
-                    },
-                )
+                {
+                    "steamid": steamid,
+                    "rank": rank,
+                    "name": name,
+                    "score": score,
+                    "play_time": play_time,
+                    "last_time": last_time,
+                },
+            )
         print(server_list)
         return cast(List[AnneSearch], server_list)
 

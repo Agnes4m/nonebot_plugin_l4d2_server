@@ -43,6 +43,7 @@ class AllServer(TypedDict):
     active_player: int
     max_player: int
 
+
 class AnneSearch(TypedDict):
     steamid: str
     rank: str
@@ -50,4 +51,3 @@ class AnneSearch(TypedDict):
     score: str
     play_time: str
     last_time: str
-    

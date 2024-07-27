@@ -12,18 +12,18 @@ response = requests.post(
     # },
     data={"search": "小可学"},
 )
-response.raise_for_status()  # 如果响应状态码不是 200，将抛出 HTTPError 异常  
+response.raise_for_status()  # 如果响应状态码不是 200，将抛出 HTTPError 异常
 soup = BeautifulSoup(response.content.decode("utf-8"), "html.parser")
-  
+
 table_elements: List[BeautifulSoup] = soup.find_all("table")
 
-for table in table_elements: 
+for table in table_elements:
     # 遍历<table>下的所有<tr>
     print(type(table))
     print(table.text)
-    for tr in table.xpath("./tr"):  
-        # 遍历<tr>下的所有<td>  
-        for td in tr.xpath("./td"):  
-            # 提取<td>的文本内容  
-            text = td.text.strip() if td.text else ""  
-            print(text)  # 或者做其他处理  
+    for tr in table.xpath("./tr"):
+        # 遍历<tr>下的所有<td>
+        for td in tr.xpath("./td"):
+            # 提取<td>的文本内容
+            text = td.text.strip() if td.text else ""
+            print(text)  # 或者做其他处理

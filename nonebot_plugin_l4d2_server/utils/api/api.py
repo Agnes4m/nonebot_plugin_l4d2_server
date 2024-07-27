@@ -4,4 +4,4 @@ anne_rank = f"{anne_ban}l4d_stats/"
 AnneRankApi = f"{anne_rank}ranking/index.php?type=coop"
 
 # post
-AnneSearchApi = f"{anne_rank}l4d_stats/ranking/search.php"
+AnneSearchApi = f"{anne_rank}ranking/search.php"
