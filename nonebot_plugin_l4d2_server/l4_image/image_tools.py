@@ -395,9 +395,9 @@ class CustomizeImage:
         if max(*bg_color) > 255 - r:
             r *= -1
         return (
-            math.floor(bg_color[0] + r if bg_color[0] + r <= 255 else 255),
-            math.floor(bg_color[1] + r if bg_color[1] + r <= 255 else 255),
-            math.floor(bg_color[2] + r if bg_color[2] + r <= 255 else 255),
+            math.floor(min(bg_color[0] + r, 255)),
+            math.floor(min(bg_color[1] + r, 255)),
+            math.floor(min(bg_color[2] + r, 255)),
         )
 
     @staticmethod

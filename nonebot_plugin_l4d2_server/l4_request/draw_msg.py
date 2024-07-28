@@ -1,4 +1,5 @@
 import asyncio
+from logging import log
 from typing import List, Tuple
 
 from ..utils.api.models import NserverOut, OutServer
@@ -15,11 +16,12 @@ async def draw_one_ip(host: str, port: int):
     player_msg = ""
     one_server = ser_list[0][0]
     one_player = ser_list[0][1]
+
     if len(one_player):
         max_duration_len = max(
             [len(str(await convert_duration(i.duration))) for i in one_player],
         )
-        max_score_len = max([len(str(i.score)) for i in one_player])
+        max_score_len = max(len(str(i.score)) for i in one_player)
 
         for player in one_player:
             soc = "[{:>{}}]".format(player.score, max_score_len)
@@ -29,17 +31,21 @@ async def draw_one_ip(host: str, port: int):
             player_msg += f"{soc} | {dur} | {player.name} \n"
     else:
         player_msg = "服务器感觉很安静啊"
+    print(player_msg)
 
-    return f""" 【{one_server.server_name}】
+    msg = f"""*{one_server.server_name}*
 游戏: {one_server.folder}
 地图: {one_server.map_name}
-人数: {one_server.player_count}/{one_server.max_players}
-ping: {one_server.ping*1000:.0f}ms
+人数: {one_server.player_count}/{one_server.max_players}"""
+    if one_server.ping is not None:
+        msg += f"""
+ping: {one_server.ping * 1000:.0f}ms
 {player_msg}
 connect {host}:{port}"""
+    return msg
 
 
-async def get_much_server(server_json: List[NserverOut], command):
+async def get_much_server(server_json: List[NserverOut], command: str):
     out_server: List[OutServer] = []
     search_list: List[Tuple[str, int]] = []
     for i in server_json:

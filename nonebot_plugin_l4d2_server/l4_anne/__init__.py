@@ -1,44 +1,41 @@
-from nonebot import log as log
-from nonebot import on_command
+from nonebot import log as log, on_command  # noqa: N999
 from nonebot.adapters import Event, Message
 from nonebot.log import logger
 from nonebot.params import CommandArg
 from nonebot_plugin_alconna import UniMessage
 
-from nonebot_plugin_l4d2_server.utils.api.models import AnneSearch
-
 from ..utils.api.request import L4API
 from ..utils.database.models import SteamUser
 from ..utils.utils import get_message_at
+from .ranne import get_anne_rank_out
 
-
-async def get_anne_player_out():
-    return "\n".join(str(item) for item in (await L4API.get_anne_player())[1:]).strip()
-
-
-anne_bind = on_command("l4bind", aliases={"l4绑定", "anne绑定"}, priority=5, block=True)
-anne_player = on_command("l4player", aliases={"anne在线"}, block=True, priority=1)
-anne_search = on_command("l4search", aliases={"anne搜索"})
+anne_bind = on_command("Banne", aliases={"l4绑定", "anne绑定"}, priority=5, block=True)
+anne_search = on_command("Sanne", aliases={"anne搜索"})
 anne_rank = on_command("Ranne", aliases={"anne成绩"}, block=True, priority=1)
 
 anne_del = on_command(
-    "l4del", aliases={"l4删除", "anne删除", "l4解绑", "anne解绑"}, priority=5, block=True
+    "Danne",
+    aliases={"l4删除", "anne删除", "l4解绑", "anne解绑"},
+    priority=5,
+    block=True,
 )
-
-
-@anne_player.handle()
-async def _():
-    await UniMessage.text(await get_anne_player_out()).finish()
 
 
 @anne_search.handle()
 async def _(args: Message = CommandArg()):
     name: str = args.extract_plain_text().strip()
-    user_list: list[AnneSearch] = await L4API.get_anne_steamid(name)
-    msg = ""
+    print(name)
+    user_list = await L4API.get_anne_steamid(name)
+    if user_list is None:
+        await UniMessage.text("未找到玩家").finish()
+    msg = f"---有{len(user_list)}个玩家---"
     for index, user in enumerate(user_list, start=1):
-        msg += f"""{index}. {user["name"]} | {user["rank"]} | [{user["score"]}]
-        {user["steamid"]}"""
+        if index >= 10:
+            break
+        msg += f"""
+        {index}. {user["name"]} | [{user["score"]}] | {user["play_time"]}
+        {user["steamid"]}
+        """
     if msg:
         await UniMessage.text("\n".join(msg.splitlines())).finish()
     else:
@@ -94,10 +91,34 @@ async def _(ev: Event, args: Message = CommandArg()):
         uid = int(int(ev.get_user_id()))
     steamid = ""
     arg: str = args.extract_plain_text().strip()
-    if arg.startswith("STEAM_"):
-        steamid = arg
+    logger.info(f"arg:{arg}")
+    # 优先从数据库查询
+    if not arg:
+        msg = await SteamUser.get_or_none(userid=uid)
+        if msg is not None:
+            steamid = msg.SteamID
+            if not steamid:
+                name = msg.Name
+                if not name:
+                    await UniMessage.text("未绑定名字/steamid").finish()
+                msg_dict = await L4API.get_anne_steamid(name)
+                if not msg_dict:
+                    await UniMessage.text("绑定的昵称找不到呢").finish()
+                steamid = msg_dict[0]["steamid"]
+            logger.info(f"steamid:{steamid}")
+
+    # 再从arg中查找
     else:
-        ...
+        if arg.startswith("STEAM_"):
+            steamid = arg
+        else:
+            arg_dict = await L4API.get_anne_steamid(arg)
+            if not arg_dict:
+                await UniMessage.text("未找到该昵称玩家").finish()
+            steamid = arg_dict[0]["steamid"]
     if not steamid:
         await UniMessage.text("未找到玩家,请使用指令`l4搜索`查找").finish()
-    # await UniMessage.text(await get_anne_rank_out(steamid)).finish()
+    out_msg = await get_anne_rank_out(steamid)
+    if out_msg is None:
+        await UniMessage.text("未找到玩家").finish()
+    await UniMessage.text(out_msg).finish()

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 DATAPATH = Path(__file__).parent.joinpath("data")
 DATAOUT = Path("data/L4D2")
+print(DATAOUT.absolute())
 server_all_path = DATAOUT / "l4d2"
 server_all_path.mkdir(parents=True, exist_ok=True)
 

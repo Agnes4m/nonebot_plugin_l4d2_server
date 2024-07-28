@@ -26,7 +26,7 @@ up = on_command(
 
 rename_vpk = on_regex(
     r"^l4地图\s*(\S+.*?)\s*(改|改名)?\s*(\S+.*?)\s*$",
-    flags=re.S,
+    flags=re.DOTALL,
     block=True,
     priority=20,
     permission=MASTER,
@@ -201,12 +201,12 @@ async def _(matcher: Matcher, args: Message = CommandArg()):
             l4_config.l4_number = msg_number - 1
             now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
             await matcher.send(
-                f"已经切换路径为\n{l4_config.l4_number+1!s}、{now_path}",
+                f"已经切换路径为\n{l4_config.l4_number + 1!s}、{now_path}",
             )  # noqa: E501
             config_manager.save()
     else:
         now_path = l4_config.l4_ipall[l4_config.l4_number]["location"]
-        await matcher.send(f"当前的路径为\n{l4_config.l4_number+1!s}、{now_path}")
+        await matcher.send(f"当前的路径为\n{l4_config.l4_number + 1!s}、{now_path}")
 
 
 @smx_file.handle()

@@ -61,7 +61,7 @@ async def get_head_by_user_id_and_save(user_id):
         os.listdir(default_header_path),
     )
     default_head = default_head_path / random.choice(os.listdir(default_head_path))
-    ## im头像 im2头像框 im3合成
+    # im头像 im2头像框 im3合成
     if user_head_path.exists():
         logger.info("使用本地头像")
         im = Image.open(user_head_path).resize((280, 280)).convert("RGBA")

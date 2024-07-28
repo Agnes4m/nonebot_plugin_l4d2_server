@@ -37,7 +37,7 @@ def get_vpk(map_path: Path, file_: str = ".vpk") -> List[str]:
 def mes_list(mes: str, name_list: List[str]) -> str:
     if name_list:
         for idx, name in enumerate(name_list):
-            mes += f"\n{idx+1}、{name}"
+            mes += f"\n{idx + 1}、{name}"
     return mes
 
 

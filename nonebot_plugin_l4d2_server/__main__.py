@@ -15,21 +15,16 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
-from nonebot import require
-from nonebot.adapters import Event, Message
+from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 from nonebot.plugin import on_command
-
-require("nonebot_plugin_orm")
-require("nonebot_plugin_alconna")
 from nonebot_plugin_alconna import UniMessage
 
 from .config import config
-from .l4_anne import get_anne_player_out
 from .l4_help import get_l4d2_core_help
 from .l4_request import (
     COMMAND,
@@ -38,8 +33,12 @@ from .l4_request import (
     get_server_detail,
     reload_ip,
 )
-from .utils.api.models import OutServer
 from .utils.api.request import L4API
+
+if TYPE_CHECKING:
+    from .utils.api.models import OutServer
+
+reload_ip()
 
 l4_help = on_command("l4help", aliases={"l4帮助", "l4d2帮助"})
 l4_request = on_command("anne", aliases=COMMAND, priority=10)
@@ -47,6 +46,8 @@ l4_reload = on_command("l4reload", aliases={"l4刷新,l4重载"})
 l4_all = on_command("l4all", aliases={"l4全服"})
 l4_connect = on_command("connect", aliases={"l4连接"})
 l4_find_player = on_command("l4find", aliases={"l4查找"})
+
+
 
 
 @l4_help.handle()

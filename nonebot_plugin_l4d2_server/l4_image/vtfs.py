@@ -4,7 +4,7 @@ from nonebot.log import logger
 from PIL import Image as Image
 from srctools.vtf import VTF, ImageFormats
 
-## 以下部分测试喷漆失败，todo
+# 以下部分测试喷漆失败，todo
 
 
 async def img_to_vtf(pic_byte: bytes, tag) -> BytesIO:

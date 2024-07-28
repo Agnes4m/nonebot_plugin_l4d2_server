@@ -28,7 +28,7 @@ def load_ip_json():
 def load_group_json():
     try:
         group_host: Dict[str, List[str]] = json.load(
-            filename.open("r", encoding="utf8")
+            filename.open("r", encoding="utf8"),
         )
     except (IOError, FileNotFoundError):
         filename.parent.mkdir(parents=True, exist_ok=True)

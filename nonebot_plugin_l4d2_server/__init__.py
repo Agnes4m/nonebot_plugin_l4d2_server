@@ -17,7 +17,7 @@
 
 from nonebot import get_driver, require
 
-require("nonebot_plugin_htmlrender")  # noqa: F401
+require("nonebot_plugin_htmlrender")
 require("nonebot_plugin_alconna")
 
 from nonebot import require
@@ -25,7 +25,7 @@ from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
 from . import __main__ as __main__  # noqa: E402
 from .config import ConfigModel  # noqa: E402
-from .l4_help import __version__
+from .l4_help import __version__  # noqa: E402
 
 driver = get_driver()
 

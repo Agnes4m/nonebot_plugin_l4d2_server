@@ -1,9 +1,6 @@
-from pathlib import Path
 
 import a2s
-from nonebot.params import Depends
-from nonebot_plugin_orm import Model, async_scoped_session
-from sqlalchemy import Column, Integer, String
+from nonebot_plugin_orm import Model
 from sqlalchemy.orm import Mapped, mapped_column
 
 print(a2s.info(("gz.trygek.com", 2334)))

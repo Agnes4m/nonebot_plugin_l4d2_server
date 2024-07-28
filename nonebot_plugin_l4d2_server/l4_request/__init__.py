@@ -21,7 +21,7 @@ COMMAND = set()
 
 async def get_all_server_detail():
     out_list: List[AllServer] = []
-    for group, _ in ALLHOST.items():
+    for group in ALLHOST:
         msg_list = await get_group_detail(group)
         if msg_list is None:
             continue
@@ -106,6 +106,9 @@ async def get_ip_server(ip: str):
 
 # 以下是重载ip
 def reload_ip():
+    global COMMAND
+    print("reload ip")
+    group_ip = []
     for item in server_all_path.iterdir():
         if item.is_file():
             if item.name.endswith("json"):
@@ -139,5 +142,3 @@ def reload_ip():
             if item.name.endswith("txt"):
                 """to do"""
 
-
-reload_ip()

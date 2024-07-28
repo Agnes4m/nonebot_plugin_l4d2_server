@@ -1,19 +1,28 @@
 import asyncio
 import contextlib
-import re
 import socket
 from copy import deepcopy
-from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Literal, Optional, Tuple, cast
 
 import a2s
 import ujson as js
-from httpx import AsyncClient
-from lxml import etree
 from bs4 import BeautifulSoup
+from httpx import AsyncClient
 
+# from nonebot.log import logger
 from ..utils import split_maohao
-from .api import AnneSearchApi, anne_ban, anne_rank
-from .models import AnneSearch, SourceBansInfo
+from .api import AnnePlayerApi, AnneSearchApi, anne_ban
+from .models import (
+    AnnePlayer2,
+    AnnePlayerDetail,
+    AnnePlayerError,
+    AnnePlayerInf,
+    AnnePlayerInfAvg,
+    AnnePlayerInfo,
+    AnnePlayerSur,
+    AnneSearch,
+    SourceBansInfo,
+)
 
 
 class L4D2Api:
@@ -33,7 +42,7 @@ class L4D2Api:
         is_player: bool = False,
     ) -> List[Tuple[a2s.SourceInfo, List[a2s.Player]]]:
         msg_list: List[Tuple[a2s.SourceInfo, List[a2s.Player]]] = []
-
+        sorted_msg_list = []
         tasks = []  # 用来保存异步任务
         if ip_list != []:
             for index, i in enumerate(ip_list):
@@ -142,7 +151,7 @@ class L4D2Api:
                 ):
                     return raw_data["result"]["error_code"]
                 return raw_data
-            html_content = resp.text
+            html_content = resp.content
             return BeautifulSoup(html_content, "lxml")
 
     async def get_sourceban(self, url: str = anne_ban):
@@ -151,70 +160,177 @@ class L4D2Api:
             url=url,
             is_json=False,
         )
+
         if not isinstance(soup, BeautifulSoup):
             return []
         server_list = []
-
         tbody = soup.select_one("tbody")
         if tbody is None:
             return []
         tr_tags = tbody.select("tr")
         for index, tr in enumerate(tr_tags):
             td_tags = tr.select("td")
-            # print(td_set)
             for num, td in enumerate(td_tags):
                 if num == 4:
                     host, port = split_maohao(td.text)
                     server_list.append(
-                        SourceBansInfo(index=index, host=host, port=port)
+                        SourceBansInfo(index=index, host=host, port=port),
                     )
 
         return server_list
 
-    async def get_anne_player(self):
-        tree = await self._server_request(
-            url=anne_rank,
-            is_json=False,
-        )  # type: ignore
-
-        theme_msg = tree.xpath("/html/body/div[6]/div/div[4]/div/h5/text()")
-        return [str(tr) for tr in theme_msg]
-
     async def get_anne_steamid(self, name: str):
         """从电信anne服搜索昵称获取steamid"""
-        tree = await self._server_request(
+        soup = await self._server_request(
             url=AnneSearchApi,
-            json={"search": name},
+            data={"search": name},
             method="POST",
             is_json=False,
         )
-        # msg = etree.tostringlist(tree)
-
-        target_element = tree.xpath(
-            "/html/body/div[6]/div/div[3]/div/table",
-        )
-        print(etree.tostringlist(target_element[0]))
+        if not isinstance(soup, BeautifulSoup):
+            return None
         server_list = []
-        # for tr in target_element:
-        for tr in target_element:
-            steamid = tr.get("onclick").split("steamid=")[1].replace("'", "")
-            rank = tr.xpath("./td[0]/text()")[0].strip()
-            name = tr.xpath("./td[1]/text()")[0].strip()
-            score = tr.xpath("./td[2]/text()")[0].strip()
-            play_time = tr.xpath("./td[3]/text()")[0].strip()
-            last_time = tr.xpath("./td[4]/text()")[0].strip()
+        tbody = soup.select_one("tbody")
+        if tbody is None:
+            return None
+        tr_tags = tbody.select("tr")
+        for tr in tr_tags:
+            onclick = tr.get("onclick")
+            if onclick is None or isinstance(onclick, list):
+                continue
+            steamid = onclick.split("steamid=")[1].replace("'", "")
+            td_tags = tr.select("td")
             server_list.append(
                 {
                     "steamid": steamid,
-                    "rank": rank,
-                    "name": name,
-                    "score": score,
-                    "play_time": play_time,
-                    "last_time": last_time,
+                    "rank": td_tags[0].text.strip(),
+                    "name": td_tags[1].text.strip(),
+                    "score": td_tags[2].text.strip(),
+                    "play_time": td_tags[3].text.strip(),
+                    "last_time": td_tags,
                 },
             )
         print(server_list)
         return cast(List[AnneSearch], server_list)
+
+    async def get_anne_playerdetail(self, steamid: str):
+        """从电信anne服通过steamid获取战绩"""
+        soup = await self._server_request(
+            url=AnnePlayerApi,
+            method="GET",
+            params={"steamid": steamid},
+            is_json=False,
+        )
+        if not isinstance(soup, BeautifulSoup):
+            return None
+
+        tbody = soup.find(
+            "div",
+            class_="content text-center text-md-left",
+            style="background-color: #f2f2f2;",
+        )
+        if tbody is None:
+            return None
+        kill_tag = tbody.find(
+            "div",
+            class_="card-body worldmap d-flex flex-column justify-content-center text-center",
+        )
+
+        tbody_tags = tbody.find_all(
+            "table", class_="table content-table-noborder text-left",
+        )
+        print(len(tbody_tags))
+        info_tag = tbody_tags[0]
+        detail_tag = tbody_tags[1]
+        error_tag = tbody_tags[2]
+        inf_avg_tag = tbody_tags[3]
+        sur_tag = tbody_tags[4]
+        inf_tag = tbody_tags[5]
+
+        info_tr = info_tag.select("tr")
+        info_dict = {
+            "name": info_tr[0].select("td")[1].text.strip(),
+            "avatar": info_tr[1].select("td")[1].text.strip(),
+            "steamid": info_tr[2].select("td")[1].text.strip(),
+            "playtime": info_tr[3].select("td")[1].text.strip(),
+            "lasttime": info_tr[4].select("td")[1].text.strip(),
+        }
+        detail_tag = {
+            "rank": detail_tag.select("tr")[0].select("td")[1].text.strip(),
+            "source": detail_tag.select("tr")[1].select("td")[1].text.strip(),
+            "avg_source": detail_tag.select("tr")[2].select("td")[1].text.strip(),
+            "kills": detail_tag.select("tr")[3].select("td")[1].text.strip(),
+            "kills_people": detail_tag.select("tr")[4].select("td")[1].text.strip(),
+            "headshots": detail_tag.select("tr")[5].select("td")[1].text.strip(),
+            "avg_headshots": detail_tag.select("tr")[6].select("td")[1].text.strip(),
+            "map_play": detail_tag.select("tr")[7].select("td")[1].text.strip(),
+        }
+        error_tag = {
+            "mistake_shout": error_tag.select("tr")[0].select("td")[1].text.strip(),
+            "kill_friend": error_tag.select("tr")[1].select("td")[1].text.strip(),
+            "down_friend": error_tag.select("tr")[2].select("td")[1].text.strip(),
+            "abandon_friend": error_tag.select("tr")[3].select("td")[1].text.strip(),
+            "put_into": error_tag.select("tr")[4].select("td")[1].text.strip(),
+            "agitate_witch": error_tag.select("tr")[5].select("td")[1].text.strip(),
+        }
+        inf_avg_dict = {
+            "avg_smoker": inf_avg_tag.select("tr")[0].select("td")[1].text.strip(),
+            "avg_boomer": inf_avg_tag.select("tr")[1].select("td")[1].text.strip(),
+            "avg_hunter": inf_avg_tag.select("tr")[2].select("td")[1].text.strip(),
+            "avg_charger": inf_avg_tag.select("tr")[3].select("td")[1].text.strip(),
+            "avg_spitter": inf_avg_tag.select("tr")[4].select("td")[1].text.strip(),
+            "avg_jockey": inf_avg_tag.select("tr")[5].select("td")[1].text.strip(),
+            "avg_tank": inf_avg_tag.select("tr")[6].select("td")[1].text.strip(),
+        }
+        sur_dict = {
+            "map_clear": sur_tag.select("tr")[0].select("td")[1].text.strip(),
+            "prefect_into": sur_tag.select("tr")[1].select("td")[1].text.strip(),
+            "get_oil": sur_tag.select("tr")[2].select("td")[1].text.strip(),
+            "ammo_arrange": sur_tag.select("tr")[3].select("td")[1].text.strip(),
+            "adrenaline_give": sur_tag.select("tr")[4].select("td")[1].text.strip(),
+            "pills_give": sur_tag.select("tr")[5].select("td")[1].text.strip(),
+            "first_aid_give": sur_tag.select("tr")[6].select("td")[1].text.strip(),
+            "friend_up": sur_tag.select("tr")[7].select("td")[1].text.strip(),
+            "diss_friend": sur_tag.select("tr")[8].select("td")[1].text.strip(),
+            "save_friend": sur_tag.select("tr")[9].select("td")[1].text.strip(),
+            "protect_friend": sur_tag.select("tr")[10].select("td")[1].text.strip(),
+            "pro_from_smoker": sur_tag.select("tr")[11].select("td")[1].text.strip(),
+            "pro_from_hunter": sur_tag.select("tr")[12].select("td")[1].text.strip(),
+            "pro_from_charger": sur_tag.select("tr")[13].select("td")[1].text.strip(),
+            "pro_from_jockey": sur_tag.select("tr")[14].select("td")[1].text.strip(),
+            "melee_charge": sur_tag.select("tr")[15].select("td")[1].text.strip(),
+            "tank_kill": sur_tag.select("tr")[16].select("td")[1].text.strip(),
+            "witch_instantly_kill": sur_tag.select("tr")[17]
+            .select("td")[1]
+            .text.strip(),
+        }
+        inf_dict = {
+            "sur_ace": inf_tag.select("tr")[0].select("td")[1].text.strip(),
+            "sur_down": inf_tag.select("tr")[1].select("td")[1].text.strip(),
+            "boommer_hit": inf_tag.select("tr")[2].select("td")[1].text.strip(),
+            "hunter_prefect": inf_tag.select("tr")[3].select("td")[1].text.strip(),
+            "hunter_success": inf_tag.select("tr")[4].select("td")[1].text.strip(),
+            "tank_damage": inf_tag.select("tr")[5].select("td")[1].text.strip(),
+            "charger_multiple": inf_tag.select("tr")[6].select("td")[1].text.strip(),
+        }
+        info_dict = cast(AnnePlayerInfo, info_dict)
+        detail_dict = cast(AnnePlayerDetail, detail_tag)
+        error_dict = cast(AnnePlayerError, error_tag)
+        inf_avg_dict = cast(AnnePlayerInfAvg, inf_avg_dict)
+        sur_dict = cast(AnnePlayerSur, sur_dict)
+        inf_dict = cast(AnnePlayerInf, inf_dict)
+
+        out_dict = {
+            "kill_msg": kill_tag.text if kill_tag is not None else "",
+            "info": info_dict,
+            "detail": detail_dict,
+            "inf_avg": inf_avg_dict,
+            "sur": sur_dict,
+            "inf": inf_dict,
+            "error": error_dict,
+        }
+
+        return cast(AnnePlayer2, out_dict)
 
 
 L4API = L4D2Api()
