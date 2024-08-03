@@ -1,4 +1,4 @@
-from typing import List  # noqa: 
+from typing import List  # noqa:
 
 from ..utils.api.models import OutServer
 from .html_img import server_ip_pic

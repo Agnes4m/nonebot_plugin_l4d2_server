@@ -21,7 +21,7 @@ async def img_to_vtf(pic_byte: bytes, tag: str) -> BytesIO:
     if tag == "覆盖":
         logger.info(tag)
         img2 = Image.new("RGBA", (1024, 1024), (255, 255, 255, 0))
-        r, g, b, a = pic.split()
+        _, _, _, a = pic.split()
         img2.paste(pic, mask=a)
         pic = pic.resize((1024, 1024))
     elif tag == "填充":

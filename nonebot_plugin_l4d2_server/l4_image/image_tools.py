@@ -17,7 +17,7 @@ def get_div():
 
 
 async def sget(url: str):
-    async with httpx.AsyncClient(timeout=None) as client:
+    async with httpx.AsyncClient(timeout=None) as client:  # noqa: S113
         return await client.get(url=url)
 
 
@@ -63,11 +63,11 @@ async def shift_image_hue(img: Image.Image, angle: float = 30) -> Image.Image:
     return img
 
 
-async def get_pic(url, size: Optional[Tuple[int, int]] = None) -> Image.Image:
+async def get_pic(url: str, size: Optional[Tuple[int, int]] = None) -> Image.Image:
     """
     从网络获取图片, 格式化为RGBA格式的指定尺寸
     """
-    async with httpx.AsyncClient(timeout=None) as client:
+    async with httpx.AsyncClient(timeout=None) as client:  # noqa: S113
         resp = await client.get(url=url)
         if resp.status_code != 200:
             if size is None:
@@ -133,7 +133,7 @@ def draw_text_by_line(
     font: ImageFont.FreeTypeFont,
     fill: Union[Tuple[int, int, int, int], str],
     max_length: float,
-    center=False,
+    center=False,  # noqa: ANN001
     line_space: Optional[float] = None,
 ) -> float:
     """
@@ -192,8 +192,8 @@ def draw_text_by_line(
 def easy_paste(
     im: Image.Image,
     im_paste: Image.Image,
-    pos=(0, 0),
-    direction="lt",
+    pos=(0, 0),  # noqa: ANN001
+    direction="lt",  # noqa: ANN001
 ):
     """
     inplace method
@@ -215,8 +215,8 @@ def easy_paste(
 def easy_alpha_composite(
     im: Image.Image,
     im_paste: Image.Image,
-    pos=(0, 0),
-    direction="lt",
+    pos=(0, 0),  # noqa: ANN001
+    direction="lt",  # noqa: ANN001
 ) -> Image.Image:
     """
     透明图像快速粘贴

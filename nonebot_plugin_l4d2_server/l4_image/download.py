@@ -33,7 +33,7 @@ async def download_url(url: str) -> bytes:
 async def download_head(user_id: str) -> bytes:
     url = f"http://q1.qlogo.cn/g?b=qq&nk={user_id}&s=640"
     data = await download_url(url)
-    if hashlib.md5(data).hexdigest() == "acef72340ac0e914090bd35799f5594e":
+    if hashlib.md5(data).hexdigest() == "acef72340ac0e914090bd35799f5594e":  # noqa: S324
         url = f"http://q1.qlogo.cn/g?b=qq&nk={user_id}&s=100"
         data = await download_url(url)
     return data
@@ -50,7 +50,7 @@ def square_to_circle(im: ImageS):
     return im
 
 
-async def get_head_by_user_id_and_save(user_id):
+async def get_head_by_user_id_and_save(user_id: str):
     """qq转头像"""
     user_id = str(user_id)
 
@@ -86,8 +86,8 @@ async def get_head_by_user_id_and_save(user_id):
                 return None
     im2 = Image.open(default_head).resize((450, 450)).convert("RGBA")
     im3 = Image.new("RGBA", im2.size, (255, 255, 255, 0))
-    r, g, b, a1 = im.split()
-    r, g, b, a2 = im2.split()
+    _, _, _, a1 = im.split()
+    _, _, _, a2 = im2.split()
     im = square_to_circle(im)
     im3.paste(im, (75, 75), mask=a1)
     im3.paste(im2, mask=a2)

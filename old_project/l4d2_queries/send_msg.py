@@ -114,7 +114,9 @@ async def get_group_ip_to_msg(command: str):
 
 
 async def check_group_msg(
-    msg: Dict[str, List[ServerStatus]], number: int, command: str,
+    msg: Dict[str, List[ServerStatus]],
+    number: int,
+    command: str,
 ):
     server_info = ServerGroup()
     server_info.server_id = number

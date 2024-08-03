@@ -1,5 +1,6 @@
 import asyncio
-from logging import log
+
+# from logging import log
 from typing import List, Tuple
 
 from ..config import config
@@ -51,7 +52,7 @@ async def get_much_server(server_json: List[NserverOut], command: str):
     out_server: List[OutServer] = []
     search_list: List[Tuple[str, int]] = []
     for i in server_json:
-        search_list.append((i["host"], i["port"]))
+        search_list.append((i["host"], i["port"]))  # noqa: PERF401
 
     all_server = await L4API.a2s_info(search_list, is_player=True)
 

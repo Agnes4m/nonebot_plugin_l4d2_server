@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiofiles
+import aiohttp
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
 
@@ -72,16 +73,11 @@ def solve(msg: str):
     return "\n".join(lines)
 
 
-async def get_message_at(datas: str) -> List[int]:
-    data: Dict[str, Any] = json.loads(datas)
-    return [int(msg["data"]["qq"]) for msg in data["message"] if msg["type"] == "at"]
-
-
 def at_to_usrid(at: List[int]):
     return at[0] if at else None
 
 
-async def save_file(file: bytes, path_name):
+async def save_file(file: bytes, path_name: str):
     """保存文件"""
     async with aiofiles.open(path_name, "wb") as files:
         await files.write(file)
@@ -149,7 +145,7 @@ def register_menu_func(
 
 
 def register_menu(*args, **kwargs):
-    def decorator(f):
+    def decorator(f):  # noqa: ANN001
         register_menu_func(*args, **kwargs)
         return f
 
@@ -177,8 +173,6 @@ def split_maohao(msg: str) -> Tuple[str, int]:
     return "", -1
 
 
-import aiohttp
-
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",  # noqa: E501
 }
@@ -204,7 +198,7 @@ async def url_to_msg(url: str):
             return None
 
 
-async def get_message_at(datas: str) -> Optional[int]:
+async def get_message_at(datas: str) -> Optional[int]:  # noqa: F811
     data: Dict[str, Any] = json.loads(datas)
     at_list = [int(msg["data"]["qq"]) for msg in data["message"] if msg["type"] == "at"]
     return at_list[0] if at_list else None

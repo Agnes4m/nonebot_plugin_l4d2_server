@@ -8,17 +8,16 @@ from nonebot_plugin_htmlrender import html_to_pic
 
 from ..config import config
 from ..utils.api.models import OutServer
-from .convert import convert_img
 
 # from .htmlimg import dict_to_dict_img
 # from ..l4d2_anne.anne_telecom import ANNE_API
-from .download import get_head_by_user_id_and_save
 
 template_path = Path(__file__).parent / "img/template"
 
 env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_path),
     enable_async=True,
+    autoescape=True,
 )
 
 

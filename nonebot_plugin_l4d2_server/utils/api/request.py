@@ -237,7 +237,8 @@ class L4D2Api:
         )
 
         tbody_tags = tbody.find_all(
-            "table", class_="table content-table-noborder text-left",
+            "table",
+            class_="table content-table-noborder text-left",
         )
         print(len(tbody_tags))
         info_tag = tbody_tags[0]

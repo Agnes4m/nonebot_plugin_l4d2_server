@@ -169,7 +169,7 @@ async def text2pic(text: str, max_size: int = 800, font_size: int = 24):
         core_font(font_size),
         "black",
         max_size - 80,
-        True,
+        True,  # noqa: FBT003
     )
     img = img.crop((0, 0, max_size, int(y + 80)))
     return await convert_img(img)
