@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import List
 
 from nonebot import get_plugin_config
 from pydantic import BaseModel
@@ -13,7 +14,7 @@ ICONPATH = DATAPATH / "icon"
 
 
 class ConfigModel(BaseModel):
-    l4_anne: bool = True
+    l4_anne: bool = False
     """是否启用anne电信服相关功能"""
     l4_enable: bool = True
     """是否全局启用求生功能"""
@@ -30,6 +31,9 @@ class ConfigModel(BaseModel):
     l4_font: str = str(Path(__file__).parent.joinpath("data/font/loli.ttf"))
     """字体"""
     l4_show_ip: bool = True
+    """单服务器查询时候是否展示ip直连地址"""
+    l4_local: list[str] = []
+    """本地服务器路径,填写路径下有`steam_appid.txt`文件"""
 
 
 config = get_plugin_config(ConfigModel)

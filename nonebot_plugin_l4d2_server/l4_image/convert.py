@@ -158,7 +158,7 @@ async def text2pic(text: str, max_size: int = 800, font_size: int = 24):
 
     img = Image.new(
         "RGB",
-        (max_size, len(text) * font_size // 3),
+        (max_size, len(text) * font_size // 10),
         (255, 255, 255),
     )
     img_draw = ImageDraw.ImageDraw(img)

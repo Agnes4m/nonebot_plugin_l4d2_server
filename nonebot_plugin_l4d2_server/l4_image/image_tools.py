@@ -120,7 +120,7 @@ def draw_center_text_by_line(
                 line = line.replace("\n", "")
                 img.text((x, y), line, fill, font, anchor)
                 line, lenth = "", 0
-                y += h * 2.5
+                y += h * 1.5
     else:
         img.text((x, y), line, fill, font, anchor)
     return y
