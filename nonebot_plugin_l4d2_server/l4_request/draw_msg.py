@@ -2,6 +2,7 @@ import asyncio
 from logging import log
 from typing import List, Tuple
 
+from ..config import config
 from ..utils.api.models import NserverOut, OutServer
 from ..utils.api.request import L4API
 
@@ -31,7 +32,6 @@ async def draw_one_ip(host: str, port: int):
             player_msg += f"{soc} | {dur} | {player.name} \n"
     else:
         player_msg = "服务器感觉很安静啊"
-    print(player_msg)
 
     msg = f"""*{one_server.server_name}*
 游戏: {one_server.folder}
@@ -40,7 +40,9 @@ async def draw_one_ip(host: str, port: int):
     if one_server.ping is not None:
         msg += f"""
 ping: {one_server.ping * 1000:.0f}ms
-{player_msg}
+{player_msg}"""
+    if config.l4_show_ip:
+        msg += f"""
 connect {host}:{port}"""
     return msg
 

@@ -82,7 +82,7 @@ async def get_server_detail(
                 return cast(bytes, out_msg)
             if not is_img:
                 return cast(List[OutServer], out_msg)
-    print(out_msg)
+    # print(out_msg)
     return None
 
 
@@ -107,7 +107,7 @@ async def get_ip_server(ip: str):
 # 以下是重载ip
 def reload_ip():
     global COMMAND
-    print("reload ip")
+    # print("正在读取json文件")
     group_ip = []
     for item in server_all_path.iterdir():
         if item.is_file():

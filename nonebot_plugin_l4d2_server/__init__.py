@@ -19,9 +19,9 @@ from nonebot import get_driver, require
 
 require("nonebot_plugin_htmlrender")
 require("nonebot_plugin_alconna")
+require("nonebot_plugin_tortoise_orm")
 
-from nonebot import require
-from nonebot.plugin import PluginMetadata, inherit_supported_adapters
+from nonebot.plugin import PluginMetadata, inherit_supported_adapters  # noqa: E402
 
 from . import __main__ as __main__  # noqa: E402
 from .config import ConfigModel  # noqa: E402

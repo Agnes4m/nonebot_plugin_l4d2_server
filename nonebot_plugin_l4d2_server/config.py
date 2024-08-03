@@ -29,6 +29,7 @@ class ConfigModel(BaseModel):
     """图片风格"""
     l4_font: str = str(Path(__file__).parent.joinpath("data/font/loli.ttf"))
     """字体"""
+    l4_show_ip: bool = True
 
 
 config = get_plugin_config(ConfigModel)
