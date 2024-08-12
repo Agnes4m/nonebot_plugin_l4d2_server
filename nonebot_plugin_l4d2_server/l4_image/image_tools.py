@@ -44,7 +44,10 @@ def get_v4_bg(w: int, h: int, is_dark: bool = False, is_blur: bool = False):
     return img.convert("RGBA")
 
 
-async def shift_image_hue(img: Image.Image, angle: float = 30) -> Image.Image:
+async def shift_image_hue(
+    img: Image.Image,
+    angle: float = 30,
+) -> Image.Image:  # noqa: RUF029
     alpha = img.getchannel("A")
     img = img.convert("HSV")
 
@@ -198,7 +201,7 @@ def easy_paste(
     """
     inplace method
     快速粘贴, 自动获取被粘贴图像的坐标。
-    pos应当是粘贴点坐标，direction指定粘贴点方位，例如lt为左上
+    pos应当是粘贴点坐标,direction指定粘贴点方位,例如lt为左上
     """
     x, y = pos
     size_x, size_y = im_paste.size
@@ -379,11 +382,11 @@ class CustomizeImage:
         for i in range(color):
             bg = tuple(
                 q.getpalette()[  # type:ignore
-                    i * 3 : (i * 3) + 3  # noqa:E203
+                    i * 3 : (i * 3) + 3
                 ],
             )
             light_value = bg[0] * 0.3 + bg[1] * 0.6 + bg[2] * 0.1
-            if abs(light_value - based_light) < temp:  # noqa:E203
+            if abs(light_value - based_light) < temp:
                 bg_color = bg
                 temp = abs(light_value - based_light)
         return bg_color  # type:ignore

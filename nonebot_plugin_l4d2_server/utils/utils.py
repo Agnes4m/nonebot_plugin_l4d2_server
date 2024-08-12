@@ -6,8 +6,10 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import aiofiles
 import aiohttp
+import nonebot
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
+from nonebot_plugin_alconna import UniMessage
 
 
 async def get_file(url: str, down_file: Path):
@@ -174,7 +176,7 @@ def split_maohao(msg: str) -> Tuple[str, int]:
 
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",  # noqa: E501
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0",
 }
 
 
@@ -198,7 +200,16 @@ async def url_to_msg(url: str):
             return None
 
 
-async def get_message_at(datas: str) -> Optional[int]:  # noqa: F811
+async def get_message_at(datas: str) -> Optional[int]:
     data: Dict[str, Any] = json.loads(datas)
     at_list = [int(msg["data"]["qq"]) for msg in data["message"] if msg["type"] == "at"]
     return at_list[0] if at_list else None
+
+
+async def send_ip_msg(msg: str):
+    try:
+        await UniMessage.text(msg).finish()
+    except nonebot.adapters.qq:
+        msg_new = msg.split("\n")[:-2]
+        msg_out = "\n".join(msg_new)
+        await UniMessage.text(msg_out).send()

@@ -26,7 +26,7 @@ from nonebot_plugin_alconna import UniMessage
 
 from .config import config
 from .l4_help import get_l4d2_core_help
-from .l4_local import *  # noqa: F401, F403
+from .l4_local import *  # noqa: F403
 from .l4_request import (
     COMMAND,
     get_all_server_detail,

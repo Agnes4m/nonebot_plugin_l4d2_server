@@ -23,7 +23,7 @@ env = jinja2.Environment(
 
 async def server_ip_pic(server_dict: List[OutServer]):
     """
-    输入一个字典列表，输出图片
+    输入一个字典列表,输出图片
     msg_dict:folder/name/map_/players/max_players/Players/[Name]
     """
     for server_info in server_dict:
@@ -92,7 +92,7 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
 
 # async def server_group_ip_pic(msg_list: List[ServerGroup]) -> bytes:
 #     """
-#     输入一个群组字典列表，输出图片
+#     输入一个群组字典列表,输出图片
 #     msg_dict:folder/name/map_/players/max_players/Players/[Name]
 #     """
 #     template = env.get_template("group_ip.html")

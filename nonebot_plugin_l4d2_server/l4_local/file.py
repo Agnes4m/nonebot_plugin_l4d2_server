@@ -1,4 +1,5 @@
 import io
+import platform
 import zipfile
 from pathlib import Path
 from typing import Callable, Dict, List
@@ -8,8 +9,9 @@ import rarfile
 from nonebot.log import logger
 from pyunpack import Archive
 
-from ..l4d2_utils.config import systems
-from ..l4d2_utils.utils import get_file, get_vpk
+from ..utils.utils import get_file, get_vpk
+
+systems = platform.system()
 
 
 async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
@@ -52,9 +54,8 @@ def unpack_rarfile(down_file: Path, down_path: Path):
 def open_packet(name: str, down_file: Path) -> str:
     """解压压缩包"""
     down_path = down_file.parent
-    logger.info("文件名为：" + name)
+    logger.info("文件名为:" + name)
     logger.info(f"系统为{systems}")
-
     if name.endswith(".vpk"):
         return "vpk文件已下载"
 
@@ -79,7 +80,7 @@ def support_gbk(zip_file: ZipFile):
     """
     压缩包中文恢复
     """
-    if type(zip_file) == ZipFile:
+    if isinstance(zip_file, ZipFile):
         name_to_info = zip_file.NameToInfo
         # copy map first
         for name, info in name_to_info.copy().items():
@@ -91,7 +92,7 @@ def support_gbk(zip_file: ZipFile):
     return zip_file
 
 
-async def all_zip_to_one(data_list: List[bytes]):
+async def all_zip_to_one(data_list: List[bytes]):  # noqa: RUF029
     """多压缩包文件合并"""
     file_list = [io.BytesIO(data).getbuffer() for data in data_list]
     data_file = io.BytesIO()

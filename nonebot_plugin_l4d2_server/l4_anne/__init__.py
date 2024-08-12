@@ -1,4 +1,5 @@
-from nonebot import log as log, on_command  # noqa: N999
+from nonebot import log as log
+from nonebot import on_command
 from nonebot.adapters import Event, Message
 from nonebot.log import logger
 from nonebot.params import CommandArg

@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 
 from nonebot import get_plugin_config
 from pydantic import BaseModel
@@ -11,6 +10,9 @@ server_all_path = DATAOUT / "l4d2"
 server_all_path.mkdir(parents=True, exist_ok=True)
 
 ICONPATH = DATAPATH / "icon"
+
+global map_index
+map_index = 0
 
 
 class ConfigModel(BaseModel):

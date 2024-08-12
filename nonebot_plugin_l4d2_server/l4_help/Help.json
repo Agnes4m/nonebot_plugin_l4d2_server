@@ -83,6 +83,14 @@
         "need_ck": false,
         "need_sk": false,
         "need_admin": true
+      },      
+      {
+        "name": "l4地图上传",
+        "desc": "进入交互上传地图文件",
+        "eg": "l4地图上传",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
       }
     ]
   },

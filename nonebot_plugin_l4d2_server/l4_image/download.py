@@ -27,20 +27,22 @@ async def download_url(url: str) -> bytes:
                 logger.warning(f"Error downloading {url}, retry {i}/3: {e}")
                 await asyncio.sleep(3)
 
-    raise Exception(f"{url} 下载失败！")
+    raise Exception(f"{url} 下载失败!")
 
 
 async def download_head(user_id: str) -> bytes:
     url = f"http://q1.qlogo.cn/g?b=qq&nk={user_id}&s=640"
     data = await download_url(url)
-    if hashlib.md5(data).hexdigest() == "acef72340ac0e914090bd35799f5594e":  # noqa: S324
+    if (
+        hashlib.md5(data).hexdigest() == "acef72340ac0e914090bd35799f5594e"
+    ):  # noqa: S324
         url = f"http://q1.qlogo.cn/g?b=qq&nk={user_id}&s=100"
         data = await download_url(url)
     return data
 
 
 def square_to_circle(im: ImageS):
-    """im是正方形，变圆形"""
+    """im是正方形,变圆形"""
     size = im.size
     mask = Image.new("L", size, 0)
     draw = ImageDraw.Draw(mask)

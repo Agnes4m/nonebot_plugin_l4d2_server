@@ -21,32 +21,28 @@ def core_font(size: int) -> ImageFont.FreeTypeFont:
 async def convert_img(
     img: Image.Image,
     is_base64: bool = False,
-) -> bytes:
-    ...
+) -> bytes: ...
 
 
 @overload
 async def convert_img(
     img: Image.Image,
-    is_base64: bool = True,
-) -> str:
-    ...
+    is_base64: bool = True,  # noqa: FBT001
+) -> str: ...
 
 
 @overload
 async def convert_img(
     img: bytes,
     is_base64: bool = False,
-) -> str:
-    ...
+) -> str: ...
 
 
 @overload
 async def convert_img(
     img: Path,
     is_base64: bool = False,
-) -> str:
-    ...
+) -> str: ...
 
 
 async def convert_img(
@@ -78,7 +74,7 @@ async def convert_img(
         async with aiofiles.open(img, "rb") as fp:
             img = await fp.read()
 
-    logger.success("图片处理完成！")
+    logger.success("图片处理完成!")
 
     return f"base64://{b64encode(img).decode()}"
 
@@ -90,7 +86,7 @@ def convert_img_sync(img_path: Path):
     return f"base64://{b64encode(img).decode()}"
 
 
-async def str_lenth(r: str, size: int, limit: int = 540) -> str:
+async def str_lenth(r: str, size: int, limit: int = 540) -> str:  # noqa: RUF029
     result = ""
     temp = 0
     for i in r:
