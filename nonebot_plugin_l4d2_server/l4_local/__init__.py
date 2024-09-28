@@ -10,7 +10,11 @@ from ..l4_image.convert import text2pic
 from ..utils.utils import mes_list
 from .file import updown_l4d2_vpk
 
-vpk_path = config.l4_local[map_index]
+try:
+    vpk_path = config.l4_local[map_index]
+except IndexError:
+    logger.warning("未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径")
+    vpk_path = ""
 
 local_path_list = config.l4_local
 if not local_path_list:

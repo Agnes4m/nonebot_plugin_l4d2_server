@@ -2,12 +2,16 @@ import asyncio
 import contextlib
 import socket
 from copy import deepcopy
+from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple, cast
 
 import a2s
 import ujson as js
+import ujson as json
 from bs4 import BeautifulSoup
 from httpx import AsyncClient
+
+from ...config import config
 
 # from nonebot.log import logger
 from ..utils import split_maohao
@@ -154,8 +158,10 @@ class L4D2Api:
             html_content = resp.content
             return BeautifulSoup(html_content, "lxml")
 
-    async def get_sourceban(self, url: str = anne_ban):
+    async def get_sourceban(self, tag:str = "云", url: str = anne_ban):
         """从sourceban++获取服务器列表，目前未做名称处理"""
+        if not (url.startswith(("http://", "https://"))):
+            url = "http://" + url  # 默认添加 http://
         soup = await self._server_request(
             url=url,
             is_json=False,
@@ -177,6 +183,24 @@ class L4D2Api:
                         SourceBansInfo(index=index, host=host, port=port),
                     )
 
+        if not Path(Path(config.l4_path) / "config.json").is_file():
+            with Path(Path(config.l4_path) / "config.json").open("w") as f:
+                f.write("{}")
+        with (Path(config.l4_path) / "config.json").open("r", encoding="utf-8") as f:
+            content = f.read().strip()
+            ip_json = json.loads(content)
+        if tag in ip_json:
+            url = ip_json[tag]
+        with (Path(Path(config.l4_path) / f"l4d2/{tag}.json")).open("w") as f:
+            print(Path(Path(config.l4_path) / f"l4d2/{tag}.json"))
+            up_data = {}
+            for server in server_list:
+                new_dict = {}
+                new_dict["id"] = int(server.index )+ 1
+                new_dict["ip"] = server.host + ":" + str(server.port)
+                up_data.update(new_dict)
+            print(up_data)
+            json.dump(up_data, f)
         return server_list
 
     async def get_anne_steamid(self, name: str):
