@@ -51,7 +51,6 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 以下提到的方法 任选**其一** 即可
 
-
 <details open>
 <summary>[推荐] 使用 nb-cli 安装</summary>
 在 nonebot2 项目的根目录下打开命令行, 输入以下指令即可安装
@@ -128,7 +127,7 @@ conda install nonebot-plugin-l4d2-server
     l4_style = "default"
     """图片风格，可选包括以下，默认简洁
     - 暗风格
-    - 孤独摇滚        
+    - 孤独摇滚
     - 电玩像素
     - 缤纷彩虹
 """
@@ -149,7 +148,7 @@ conda install nonebot-plugin-l4d2-server
 - 水果 - html图片优化
 
 - 感谢以下服主大力支持
-  - Michaela's | 机器人功能测试反馈 
+  - Michaela's | 机器人功能测试反馈
   - 东 | 提供docker部署方法等建议 | [电信服anne游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6i7r5aJ7Jyg0ejby4rt9GWmFRF53nV1K&authKey=ekMsWepBZPL26%2BfJAG%2F95JD0fhvH39%2BIGVyKOvNlXVDbpIclJlly4kXqukL7JhWR&noverify=0&group_code=883237206)
   - 迷茫 | 催命更新byd
   - ArcPav | 积极反馈bug，提供改进思路
