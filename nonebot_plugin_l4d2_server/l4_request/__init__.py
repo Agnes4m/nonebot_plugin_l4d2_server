@@ -1,18 +1,18 @@
+import random
 from typing import Dict, List, Optional, cast
 
 from nonebot.log import logger
-
 from ..config import server_all_path
 from ..l4_image import msg_to_image
 from ..utils.api.models import AllServer, NserverOut, OutServer
 from ..utils.utils import split_maohao
-from .draw_msg import draw_one_ip, get_much_server
-
+from .draw_msg import draw_one_ip, get_much_server, convert_duration
+from ..utils.api.request import L4API
 try:
     import ujson as json
 except ImportError:
     import json
-
+from ..config import config
 
 # 获取全部服务器信息
 ALLHOST: Dict[str, List[NserverOut]] = {}
@@ -141,3 +141,69 @@ def reload_ip():
 
             if item.name.endswith("txt"):
                 """to do"""
+
+async def tj_request(command: str = "云",tj ="tj"):
+    server_json = ALLHOST.get(command)
+    logger.info(server_json)
+    if server_json is None:
+        logger.warning("未找到这个组")
+        return None    
+    # 返回单个
+    logger.info("正在anne电信服务器信息")
+    player_msg = ""
+    right_ip = []
+    for i in server_json:
+        ser_list = await L4API.a2s_info([(i["host"], i["port"])], is_player=True)
+        one_server = ser_list[0][0]
+        one_player = ser_list[0][1]
+        
+        # 判断坐牢条件
+        if tj == "tj":
+            if "普通药役" in one_server.map_name:
+                score: int = 0
+                for index, player in enumerate(one_player, 1):
+                    if index > 4:
+                        break
+                    score += player.score
+
+                t = one_server.map_name.split("[")[-1].split("特")[0]
+                if int(t)*50 < score:
+                    right_ip.append(i)
+        if tj == "zl":
+            if "普通药役" in one_server.map_name and len(one_player) <= 4:
+                right_ip.append(i)
+                
+                  
+    if not right_ip:
+        return "没有符合条件的服务器"
+    
+    s = random.choice(right_ip)
+    ser_list = await L4API.a2s_info([(s["host"], s["port"])], is_player=True)
+    one_server = ser_list[0][0]
+    one_player = ser_list[0][1]
+    if len(one_player):
+        max_duration_len = max(
+            [len(str(await convert_duration(i.duration))) for i in one_player],
+        )
+        max_score_len = max(len(str(i.score)) for i in one_player)
+
+        for player in one_player:
+            soc = "[{:>{}}]".format(player.score, max_score_len)
+            chines_dur = await convert_duration(player.duration)
+            dur = "{:^{}}".format(chines_dur, max_duration_len)
+            name = f"{player.name[0]}***{player.name[-1]}"
+            player_msg += f"{soc} | {dur} | {name} \n"
+    else:
+        player_msg = "服务器感觉很安静啊"
+    msg = f"""*{one_server.server_name}*
+游戏: {one_server.folder}
+地图: {one_server.map_name}
+人数: {one_server.player_count}/{one_server.max_players}"""
+    if one_server.ping is not None:
+        msg += f"""
+ping: {one_server.ping * 1000:.0f}ms
+{player_msg}"""
+    if config.l4_show_ip:
+        msg += f"""
+connect {s["host"]}:{s["port"]}"""
+    return msg

@@ -29,8 +29,8 @@ async def draw_one_ip(host: str, port: int):
             soc = "[{:>{}}]".format(player.score, max_score_len)
             chines_dur = await convert_duration(player.duration)
             dur = "{:^{}}".format(chines_dur, max_duration_len)
-
-            player_msg += f"{soc} | {dur} | {player.name} \n"
+            name = f"{player.name[0]}***{player.name[-1]}"
+            player_msg += f"{soc} | {dur} | {name} \n"
     else:
         player_msg = "服务器感觉很安静啊"
 

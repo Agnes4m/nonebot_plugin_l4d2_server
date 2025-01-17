@@ -35,6 +35,7 @@ from .l4_request import (
     get_ip_server,
     get_server_detail,
     reload_ip,
+    tj_request
 )
 from .utils.api.request import L4API
 
@@ -50,6 +51,9 @@ l4_all = on_command("l4all", aliases={"l4全服"})
 l4_connect = on_command("connect", aliases={"l4连接"})
 l4_find_player = on_command("l4find", aliases={"l4查找"})
 
+ld_tj = on_command("tj", aliases={"探监"})
+ld_zl = on_command("zl")
+ld_kl = on_command("kl")
 
 @l4_help.handle()
 async def _(matcher: Matcher):
@@ -213,3 +217,13 @@ async def _(args: Message = CommandArg()):
                     json.dump(config_datas, f,ensure_ascii=False,indent=4)
                 await UniMessage.text(f"修改成功，组名:{arg[0]},网址:{arg[1]}").finish()
                 
+                
+@ld_tj.handle()
+async def _(matcher: Matcher):
+    await matcher.send("正在寻找牢房信息")
+    await matcher.finish(await tj_request("云","tj"))
+    
+@ld_zl.handle()
+async def _(matcher: Matcher):
+    await matcher.send("正在寻找牢房信息")
+    await matcher.finish(await tj_request("云","zl"))
