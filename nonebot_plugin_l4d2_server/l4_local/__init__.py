@@ -5,7 +5,7 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot_plugin_alconna import File, UniMessage, UniMsg, on_alconna
 
-from ..config import confpoiig, map_index
+from ..config import config, map_index
 from ..l4_image.convert import text2pic
 from ..utils.utils import mes_list
 from .file import updown_l4d2_vpk
