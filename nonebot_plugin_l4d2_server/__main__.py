@@ -18,6 +18,7 @@
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional
 
+import aiofiles
 import ujson as json
 from nonebot.adapters import Message
 from nonebot.log import logger
@@ -54,6 +55,7 @@ l4_find_player = on_command("l4find", aliases={"l4查找"})
 ld_tj = on_command("tj", aliases={"探监"})
 ld_zl = on_command("zl")
 ld_kl = on_command("kl")
+config_path = Path(config.l4_path) / "config.json"
 
 
 @l4_help.handle()
@@ -162,8 +164,6 @@ async def _(args: Message = CommandArg()):
     if len(arg) != 2:
         await UniMessage.text("请在命令后增加响应指令名和网址").finish()
 
-    config_path = Path(config.l4_path) / "config.json"
-
     if not config_path.is_file():
         config_data = {}
     else:
@@ -198,7 +198,8 @@ async def _(args: Message = CommandArg()):
             await UniMessage.text("没有添加过组名").finish()
         else:
             with (Path(config.l4_path) / "config.json").open(
-                "r", encoding="utf-8"
+                "r",
+                encoding="utf-8",
             ) as f:
                 content = f.read().strip()
                 config_data = json.loads(content)
@@ -206,15 +207,16 @@ async def _(args: Message = CommandArg()):
                 await UniMessage.text("没有添加过这个组").finish()
             else:
                 del config_data[arg[0]]
-                with Path(Path(config.l4_path) / "config.json").open("w") as f:
-                    json.dump(config_data, f, ensure_ascii=False, indent=4)
-                await UniMessage.text(f"删除成功，组名:{arg[0]}").finish()
+            async with aiofiles.open(config_path, "w", encoding="utf-8") as f:
+                json.dump(config_data, f, ensure_ascii=False, indent=4)
+            await UniMessage.text(f"删除成功，组名:{arg[0]}").finish()
     elif len(arg) == 2:
         if not Path(Path(config.l4_path) / "config.json").is_file():
             await UniMessage.text("没有添加过组名").finish()
         else:
             with (Path(config.l4_path) / "config.json").open(
-                "r", encoding="utf-8"
+                "r",
+                encoding="utf-8",
             ) as f:
                 content = f.read().strip()
                 config_datas = json.loads(content)
@@ -222,7 +224,7 @@ async def _(args: Message = CommandArg()):
                 await UniMessage.text("没有添加过这个组").finish()
             else:
                 config_datas[arg[0]] = arg[1]
-                with Path(Path(config.l4_path) / "config.json").open("w") as f:
+                async with aiofiles.open(config_path, "w", encoding="utf-8") as f:
                     json.dump(config_datas, f, ensure_ascii=False, indent=4)
                 await UniMessage.text(f"修改成功，组名:{arg[0]},网址:{arg[1]}").finish()
 

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple, cast
 
 import a2s
+import aiofiles
 import ujson as js
 import ujson as json
 from bs4 import BeautifulSoup
@@ -27,6 +28,8 @@ from .models import (
     AnneSearch,
     SourceBansInfo,
 )
+
+config_path = Path(config.l4_path) / "config.json"
 
 
 class L4D2Api:
@@ -203,14 +206,16 @@ class L4D2Api:
                     )
 
         if not Path(Path(config.l4_path) / "config.json").is_file():
-            with Path(Path(config.l4_path) / "config.json").open("w") as f:
-                f.write("{}")
+            async with aiofiles.open(config_path, "w", encoding="utf-8") as f:
+                await f.write("{}")
         with (Path(config.l4_path) / "config.json").open("r", encoding="utf-8") as f:
             content = f.read().strip()
             ip_json = json.loads(content)
         if tag in ip_json:
             url = ip_json[tag]
-        with (Path(Path(config.l4_path) / f"l4d2/{tag}.json")).open("w") as f:
+        tag_path = Path(Path(config.l4_path) / f"l4d2/{tag}.json")
+
+        async with aiofiles.open(tag_path, "w", encoding="utf-8") as f:
             print(Path(Path(config.l4_path) / f"l4d2/{tag}.json"))
             up_data = {}
             for server in server_list:
@@ -219,7 +224,7 @@ class L4D2Api:
                 new_dict["ip"] = server.host + ":" + str(server.port)
                 up_data.update(new_dict)
             print(up_data)
-            json.dump(up_data, f)
+            json.dump(up_data, f, ensure_ascii=False, indent=4)
         return server_list
 
     async def get_anne_steamid(self, name: str):

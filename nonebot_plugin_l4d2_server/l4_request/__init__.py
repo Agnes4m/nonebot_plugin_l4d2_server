@@ -175,9 +175,8 @@ async def tj_request(command: str = "云", tj="tj"):
             t = one_server.map_name.split("[")[-1].split("特")[0]
             if int(t) * 50 < score:
                 right_ip.append(i)
-        if tj == "zl":
-            if "普通药役" in one_server.map_name and len(one_player) <= 4:
-                right_ip.append(i)
+        if tj == "zl" and "普通药役" in one_server.map_name and len(one_player) <= 4:
+            right_ip.append(i)
 
     if not right_ip:
         return "没有符合条件的服务器"
