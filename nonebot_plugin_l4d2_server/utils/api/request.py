@@ -76,11 +76,11 @@ class L4D2Api:
         is_server: bool,
         is_player: bool,
     ):
-        server: a2s.SourceInfo = a2s.SourceInfo()
         play: List[a2s.Player] = []
         if is_server:
             try:
-                server = await a2s.ainfo(ip)
+                server: a2s.SourceInfo = await a2s.ainfo(ip, timeout=3, encoding="utf8")
+
                 if server is not None:
                     server.steam_id = index
 
@@ -89,6 +89,25 @@ class L4D2Api:
                 ConnectionRefusedError,
                 socket.gaierror,
             ):
+                server: a2s.SourceInfo = a2s.SourceInfo(
+                    protocol=0,
+                    server_name="服务器无响应",
+                    map_name="无",
+                    folder="m",
+                    game="L4D2",
+                    app_id=114514,
+                    steam_id=index,
+                    player_count=0,
+                    max_players=0,
+                    bot_count=0,
+                    server_type="w",
+                    platform="w",
+                    password_protected=False,
+                    vac_enabled=False,
+                    version="1.0",
+                    edf=0,
+                    ping=0,
+                )
                 server.steam_id = index
                 server.player_count = 0
                 server.max_players = 0
@@ -103,7 +122,7 @@ class L4D2Api:
                 ConnectionRefusedError,
                 socket.gaierror,
             ):
-                play = await a2s.aplayers(ip)
+                play = await a2s.aplayers(ip, timeout=3, encoding="utf8")
         return server, play
 
     async def _server_request(
@@ -158,7 +177,7 @@ class L4D2Api:
             html_content = resp.content
             return BeautifulSoup(html_content, "lxml")
 
-    async def get_sourceban(self, tag:str = "云", url: str = anne_ban):
+    async def get_sourceban(self, tag: str = "云", url: str = anne_ban):
         """从sourceban++获取服务器列表，目前未做名称处理"""
         if not (url.startswith(("http://", "https://"))):
             url = "http://" + url  # 默认添加 http://
@@ -196,7 +215,7 @@ class L4D2Api:
             up_data = {}
             for server in server_list:
                 new_dict = {}
-                new_dict["id"] = int(server.index )+ 1
+                new_dict["id"] = int(server.index) + 1
                 new_dict["ip"] = server.host + ":" + str(server.port)
                 up_data.update(new_dict)
             print(up_data)

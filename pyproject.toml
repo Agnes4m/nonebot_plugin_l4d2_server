@@ -23,6 +23,8 @@ dependencies = [
     "rcon>=2.1.0",
     "pillow>9",
     "beautifulsoup4>=4.12.3",
+    "rarfile>=4.2",
+    "pyunpack>=0.3"
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

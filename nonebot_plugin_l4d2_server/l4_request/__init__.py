@@ -2,16 +2,19 @@ import random
 from typing import Dict, List, Optional, cast
 
 from nonebot.log import logger
+
 from ..config import server_all_path
 from ..l4_image import msg_to_image
 from ..utils.api.models import AllServer, NserverOut, OutServer
-from ..utils.utils import split_maohao
-from .draw_msg import draw_one_ip, get_much_server, convert_duration
 from ..utils.api.request import L4API
+from ..utils.utils import split_maohao
+from .draw_msg import convert_duration, draw_one_ip, get_much_server
+
 try:
     import ujson as json
 except ImportError:
     import json
+
 from ..config import config
 
 # 获取全部服务器信息
@@ -47,7 +50,10 @@ async def get_all_server_detail():
     # to do作图，先用文字凑合
     out_msg = ""
     for one in out_list:
-        out_msg += f"{one['command']} | 服务器{one['active_server']}/{one['max_server']} | 玩家{one['active_player']}/{one['max_player']}\n"
+        if one["max_player"]:
+            out_msg += f"{one['command']} | 服务器{one['active_server']}/{one['max_server']} | 玩家{one['active_player']}/{one['max_player']}\n"
+        else:
+            continue
     return out_msg
 
 
@@ -142,12 +148,13 @@ def reload_ip():
             if item.name.endswith("txt"):
                 """to do"""
 
-async def tj_request(command: str = "云",tj ="tj"):
+
+async def tj_request(command: str = "云", tj="tj"):
     server_json = ALLHOST.get(command)
     logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
-        return None    
+        return None
     # 返回单个
     logger.info("正在anne电信服务器信息")
     player_msg = ""
@@ -156,27 +163,25 @@ async def tj_request(command: str = "云",tj ="tj"):
         ser_list = await L4API.a2s_info([(i["host"], i["port"])], is_player=True)
         one_server = ser_list[0][0]
         one_player = ser_list[0][1]
-        
-        # 判断坐牢条件
-        if tj == "tj":
-            if "普通药役" in one_server.map_name:
-                score: int = 0
-                for index, player in enumerate(one_player, 1):
-                    if index > 4:
-                        break
-                    score += player.score
 
-                t = one_server.map_name.split("[")[-1].split("特")[0]
-                if int(t)*50 < score:
-                    right_ip.append(i)
+        # 判断坐牢条件
+        if tj == "tj" and "普通药役" in one_server.map_name:
+            score: int = 0
+            for index, player in enumerate(one_player, 1):
+                if index > 4:
+                    break
+                score += player.score
+
+            t = one_server.map_name.split("[")[-1].split("特")[0]
+            if int(t) * 50 < score:
+                right_ip.append(i)
         if tj == "zl":
             if "普通药役" in one_server.map_name and len(one_player) <= 4:
                 right_ip.append(i)
-                
-                  
+
     if not right_ip:
         return "没有符合条件的服务器"
-    
+
     s = random.choice(right_ip)
     ser_list = await L4API.a2s_info([(s["host"], s["port"])], is_player=True)
     one_server = ser_list[0][0]

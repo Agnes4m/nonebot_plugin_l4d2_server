@@ -35,7 +35,7 @@ from .l4_request import (
     get_ip_server,
     get_server_detail,
     reload_ip,
-    tj_request
+    tj_request,
 )
 from .utils.api.request import L4API
 
@@ -54,6 +54,7 @@ l4_find_player = on_command("l4find", aliases={"l4查找"})
 ld_tj = on_command("tj", aliases={"探监"})
 ld_zl = on_command("zl")
 ld_kl = on_command("kl")
+
 
 @l4_help.handle()
 async def _(matcher: Matcher):
@@ -149,18 +150,20 @@ async def _(args: Message = CommandArg()):
             logger.info(f"重载{tag}的ip")
             await L4API.get_sourceban(tag, url)
         await UniMessage.text("重载ip完成").finish()
-        
+
 
 l4_add_ban = on_command("l4addban", aliases={"l4添加ban"})
+
+
 @l4_add_ban.handle()
 async def _(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip().split(" ")
-    
+
     if len(arg) != 2:
         await UniMessage.text("请在命令后增加响应指令名和网址").finish()
-    
+
     config_path = Path(config.l4_path) / "config.json"
-    
+
     if not config_path.is_file():
         config_data = {}
     else:
@@ -169,44 +172,50 @@ async def _(args: Message = CommandArg()):
                 config_data = json.load(f)
         except (json.JSONDecodeError, FileNotFoundError):
             config_data = {}
-    
+
     config_data.update({arg[0]: arg[1]})
-    
+
     try:
         with config_path.open("w") as f:
             json.dump(config_data, f, ensure_ascii=False, indent=4)
     except IOError as e:
         await UniMessage.text(f"文件写入失败: {e}").finish()
-    
+
     await L4API.get_sourceban(arg[0], arg[1])
     await UniMessage.text(f"添加成功\n组名: {arg[0]}\n网址: {arg[1]}").finish()
-    
+
 
 l4_del_ban = on_command("l4delban", aliases={"l4删除ban", "l4移除ban"})
+
+
 @l4_del_ban.handle()
-async def _(args: Message = CommandArg()):    
+async def _(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip().split(" ")
-    if  len(arg) not in [1,2]:
+    if len(arg) not in [1, 2]:
         await UniMessage.text("请在命令后增加响应指令名或者带响应网址").finish()
     elif len(arg) == 1:
         if not Path(Path(config.l4_path) / "config.json").is_file():
             await UniMessage.text("没有添加过组名").finish()
         else:
-            with (Path(config.l4_path) / "config.json").open("r", encoding="utf-8") as f:
+            with (Path(config.l4_path) / "config.json").open(
+                "r", encoding="utf-8"
+            ) as f:
                 content = f.read().strip()
-                config_data = json.loads(content)            
+                config_data = json.loads(content)
             if arg[0] not in config_data:
                 await UniMessage.text("没有添加过这个组").finish()
             else:
                 del config_data[arg[0]]
                 with Path(Path(config.l4_path) / "config.json").open("w") as f:
-                    json.dump(config_data, f,ensure_ascii=False,indent=4)
+                    json.dump(config_data, f, ensure_ascii=False, indent=4)
                 await UniMessage.text(f"删除成功，组名:{arg[0]}").finish()
     elif len(arg) == 2:
         if not Path(Path(config.l4_path) / "config.json").is_file():
             await UniMessage.text("没有添加过组名").finish()
         else:
-            with (Path(config.l4_path) / "config.json").open("r", encoding="utf-8") as f:
+            with (Path(config.l4_path) / "config.json").open(
+                "r", encoding="utf-8"
+            ) as f:
                 content = f.read().strip()
                 config_datas = json.loads(content)
             if arg[0] not in config_datas:
@@ -214,16 +223,17 @@ async def _(args: Message = CommandArg()):
             else:
                 config_datas[arg[0]] = arg[1]
                 with Path(Path(config.l4_path) / "config.json").open("w") as f:
-                    json.dump(config_datas, f,ensure_ascii=False,indent=4)
+                    json.dump(config_datas, f, ensure_ascii=False, indent=4)
                 await UniMessage.text(f"修改成功，组名:{arg[0]},网址:{arg[1]}").finish()
-                
-                
+
+
 @ld_tj.handle()
 async def _(matcher: Matcher):
     await matcher.send("正在寻找牢房信息")
-    await matcher.finish(await tj_request("云","tj"))
-    
+    await matcher.finish(await tj_request("云", "tj"))
+
+
 @ld_zl.handle()
 async def _(matcher: Matcher):
     await matcher.send("正在寻找牢房信息")
-    await matcher.finish(await tj_request("云","zl"))
+    await matcher.finish(await tj_request("云", "zl"))
