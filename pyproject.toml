@@ -50,6 +50,8 @@ includes = []
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
+[tool.pdm.dependencies]
+nonebot2 = {version = "*", extras = ["fastapi"]}
 
 [tool.ruff.lint]
 ignore = [

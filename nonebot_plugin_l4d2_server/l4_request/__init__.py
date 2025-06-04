@@ -146,7 +146,7 @@ def reload_ip():
 
 
 async def tj_request(command: str = "云", tj="tj"):
-    MAP_TYPE = "普通药役"
+    map_type = "普通药役"
     server_json = ALLHOST.get(command)
     logger.info(server_json)
     if server_json is None:
@@ -166,7 +166,7 @@ async def tj_request(command: str = "云", tj="tj"):
             one_server = ser_list[0][0]
             one_player = ser_list[0][1]
 
-            if tj == "tj" and MAP_TYPE in one_server.map_name:
+            if tj == "tj" and map_type in one_server.map_name:
                 score = sum(p.score for p in one_player[:4])
                 t = one_server.map_name.split("[")[-1].split("特")[0]
                 if t.isdigit() and int(t) * 50 < score:
@@ -175,7 +175,7 @@ async def tj_request(command: str = "云", tj="tj"):
                     )
                     right_ip.append(i)
             elif (
-                tj == "zl" and MAP_TYPE in one_server.map_name and len(one_player) <= 4
+                tj == "zl" and map_type in one_server.map_name and len(one_player) <= 4
             ):
                 logger.info(
                     f"符合ZL条件的服务器: {i['host']}:{i['port']}, 地图: {one_server.map_name}, 玩家数: {len(one_player)}",
@@ -220,8 +220,8 @@ async def tj_request(command: str = "云", tj="tj"):
             msg += f"\nping: {one_server.ping * 1000:.0f}ms\n{player_msg}"
         if config.l4_show_ip:
             msg += f"\nconnect {s['host']}:{s['port']}"
-
-        return msg
+        else:
+            return msg
 
     except Exception as e:
         logger.error(f"tj_request error: {e}")
