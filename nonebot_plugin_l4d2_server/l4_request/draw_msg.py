@@ -77,6 +77,12 @@ async def get_much_server(server_json: List[NserverOut], command: str):
 
 
 async def convert_duration(duration: float) -> str:
+    """Convert duration in seconds to human-readable string format (e.g. '1h 30m 15s')
+    Args:
+        duration: Duration in seconds
+    Returns:
+        Formatted time string
+    """
     minutes, seconds = divmod(duration, 60)
     hours, minutes = divmod(minutes, 60)
     time_str = ""

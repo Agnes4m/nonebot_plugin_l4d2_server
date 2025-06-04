@@ -146,64 +146,83 @@ def reload_ip():
 
 
 async def tj_request(command: str = "云", tj="tj"):
+    MAP_TYPE = "普通药役"
     server_json = ALLHOST.get(command)
     logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
         return None
-    # 返回单个
-    logger.info("正在anne电信服务器信息")
+
+    logger.info("正在获取电信服务器信息")
     player_msg = ""
     right_ip = []
-    for i in server_json:
-        ser_list = await L4API.a2s_info([(i["host"], i["port"])], is_player=True)
+
+    try:
+        for i in server_json:
+            ser_list = await L4API.a2s_info([(i["host"], i["port"])], is_player=True)
+            if not ser_list:
+                continue
+
+            one_server = ser_list[0][0]
+            one_player = ser_list[0][1]
+
+            if tj == "tj" and MAP_TYPE in one_server.map_name:
+                score = sum(p.score for p in one_player[:4])
+                t = one_server.map_name.split("[")[-1].split("特")[0]
+                if t.isdigit() and int(t) * 50 < score:
+                    logger.info(
+                        f"符合TJ条件的服务器: {i['host']}:{i['port']}, 地图: {one_server.map_name}, 分数: {score}",
+                    )
+                    right_ip.append(i)
+            elif (
+                tj == "zl" and MAP_TYPE in one_server.map_name and len(one_player) <= 4
+            ):
+                logger.info(
+                    f"符合ZL条件的服务器: {i['host']}:{i['port']}, 地图: {one_server.map_name}, 玩家数: {len(one_player)}",
+                )
+                right_ip.append(i)
+
+        if not right_ip:
+            logger.warning("没有找到符合条件的服务器")
+            return "没有符合条件的服务器"
+
+        logger.info(
+            f"符合条件的服务器列表: {[f'{ip['host']}:{ip['port']}' for ip in right_ip]}",
+        )
+        s = random.choice(right_ip)
+        logger.info(f"最终选择的服务器: {s['host']}:{s['port']}")
+        ser_list = await L4API.a2s_info([(s["host"], s["port"])], is_player=True)
+        if not ser_list:
+            return "获取服务器信息失败"
+
         one_server = ser_list[0][0]
         one_player = ser_list[0][1]
 
-        # 判断坐牢条件
-        if tj == "tj" and "普通药役" in one_server.map_name:
-            score: int = 0
-            for index, player in enumerate(one_player, 1):
-                if index > 4:
-                    break
-                score += player.score
+        if one_player:
+            durations = [await convert_duration(p.duration) for p in one_player]
+            max_duration_len = max(len(str(d)) for d in durations)
+            max_score_len = max(len(str(p.score)) for p in one_player)
 
-            t = one_server.map_name.split("[")[-1].split("特")[0]
-            if int(t) * 50 < score:
-                right_ip.append(i)
-        if tj == "zl" and "普通药役" in one_server.map_name and len(one_player) <= 4:
-            right_ip.append(i)
+            durations = [await convert_duration(p.duration) for p in one_player]
+            player_msg = "\n".join(
+                f"[{p.score:>{max_score_len}}] | {durations[i]:^{max_duration_len}} | {p.name[0]}***{p.name[-1]}"
+                for i, p in enumerate(one_player)
+            )
+        else:
+            player_msg = "服务器感觉很安静啊"
 
-    if not right_ip:
-        return "没有符合条件的服务器"
-
-    s = random.choice(right_ip)
-    ser_list = await L4API.a2s_info([(s["host"], s["port"])], is_player=True)
-    one_server = ser_list[0][0]
-    one_player = ser_list[0][1]
-    if len(one_player):
-        max_duration_len = max(
-            [len(str(await convert_duration(i.duration))) for i in one_player],
-        )
-        max_score_len = max(len(str(i.score)) for i in one_player)
-
-        for player in one_player:
-            soc = "[{:>{}}]".format(player.score, max_score_len)
-            chines_dur = await convert_duration(player.duration)
-            dur = "{:^{}}".format(chines_dur, max_duration_len)
-            name = f"{player.name[0]}***{player.name[-1]}"
-            player_msg += f"{soc} | {dur} | {name} \n"
-    else:
-        player_msg = "服务器感觉很安静啊"
-    msg = f"""*{one_server.server_name}*
+        msg = f"""*{one_server.server_name}*
 游戏: {one_server.folder}
 地图: {one_server.map_name}
 人数: {one_server.player_count}/{one_server.max_players}"""
-    if one_server.ping is not None:
-        msg += f"""
-ping: {one_server.ping * 1000:.0f}ms
-{player_msg}"""
-    if config.l4_show_ip:
-        msg += f"""
-connect {s["host"]}:{s["port"]}"""
-    return msg
+
+        if one_server.ping is not None:
+            msg += f"\nping: {one_server.ping * 1000:.0f}ms\n{player_msg}"
+        if config.l4_show_ip:
+            msg += f"\nconnect {s['host']}:{s['port']}"
+
+        return msg
+
+    except Exception as e:
+        logger.error(f"tj_request error: {e}")
+        return "获取服务器信息时出错"
