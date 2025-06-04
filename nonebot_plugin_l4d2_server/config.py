@@ -1,10 +1,14 @@
 from pathlib import Path
 
 from nonebot import get_plugin_config
+from nonebot.log import logger
 from pydantic import BaseModel
 
 DATAPATH = Path(__file__).parent.joinpath("data")
 DATAOUT = Path("data/L4D2")
+if not Path(DATAOUT/"l4d2.json").exists():
+    logger.info("文件 l4d2.json 不存在，已创建并初始化为 {}")
+    Path(DATAOUT/"l4d2.json").write_text("{}", encoding="utf-8")
 print(DATAOUT.absolute())
 server_all_path = DATAOUT / "l4d2"
 server_all_path.mkdir(parents=True, exist_ok=True)

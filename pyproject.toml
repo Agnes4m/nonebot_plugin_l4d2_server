@@ -21,7 +21,7 @@ dependencies = [
     "ujson>=5.10.0",
     "lxml>=5.2.2",
     "rcon>=2.1.0",
-    "pillow>9",
+    "pillow>10",
     "beautifulsoup4>=4.12.3",
     "rarfile>=4.2",
     "pyunpack>=0.3",
@@ -34,6 +34,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
