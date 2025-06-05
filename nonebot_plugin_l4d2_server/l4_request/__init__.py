@@ -23,6 +23,16 @@ COMMAND = set()
 
 
 async def get_all_server_detail():
+    """
+    获取所有服务器的详细信息。
+
+    Args:
+        无
+
+    Returns:
+        str: 包含所有服务器详细信息的字符串。
+
+    """
     out_list: List[AllServer] = []
     for group in ALLHOST:
         msg_list = await get_group_detail(group)
@@ -58,11 +68,30 @@ async def get_all_server_detail():
 
 
 async def get_server_detail(
-    command: str,
+    command: str = "",
     _id: Optional[str] = None,
     is_img: bool = True,
 ):
-    server_json = ALLHOST.get(command)
+    """
+    异步获取服务器详细信息。
+
+    Args:
+        command (str): 服务器组名。
+        _id (Optional[str], optional): 服务器ID。默认为None。
+        is_img (bool, optional): 是否返回图片格式的信息。默认为True。
+
+    Returns:
+        Union[bytes, List[OutServer], None]: 返回服务器详细信息。如果为图片格式，返回bytes类型；
+                                            如果不是图片格式，返回List[OutServer]类型；如果未找到服务器组，返回None。
+
+    """
+    if command:
+        server_json = ALLHOST.get(command)
+    else:
+        server_json = []
+        for servers in ALLHOST.values():
+            server_json.extend(servers)
+
     logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
@@ -157,30 +186,74 @@ async def tj_request(command: str = "云", tj="tj"):
     player_msg = ""
     right_ip = []
 
-    try:
-        for i in server_json:
+    async def _filter_servers(servers: list, tj_mode: str) -> list:
+        """筛选符合条件的服务器
+        Args:
+            servers: 服务器列表
+            tj_mode: 筛选模式（'tj'或'zl'）
+        Returns:
+            符合条件的服务器列表
+        """
+        filtered = []
+        for i in servers:
             ser_list = await L4API.a2s_info([(i["host"], i["port"])], is_player=True)
             if not ser_list:
                 continue
 
-            one_server = ser_list[0][0]
-            one_player = ser_list[0][1]
+            srv = ser_list[0][0]
+            players = ser_list[0][1]
 
-            if tj == "tj" and map_type in one_server.map_name:
-                score = sum(p.score for p in one_player[:4])
-                t = one_server.map_name.split("[")[-1].split("特")[0]
+            if tj_mode == "tj" and map_type in srv.map_name:
+                score = sum(p.score for p in players[:4])
+                t = srv.map_name.split("[")[-1].split("特")[0]
                 if t.isdigit() and int(t) * 50 < score:
                     logger.info(
-                        f"符合TJ条件的服务器: {i['host']}:{i['port']}, 地图: {one_server.map_name}, 分数: {score}",
+                        f"符合TJ条件的服务器: {i['host']}:{i['port']}, 地图: {srv.map_name}, 分数: {score}",
                     )
-                    right_ip.append(i)
-            elif (
-                tj == "zl" and map_type in one_server.map_name and len(one_player) <= 4
-            ):
+                    filtered.append(i)
+            elif tj_mode == "zl" and map_type in srv.map_name and len(players) <= 4:
                 logger.info(
-                    f"符合ZL条件的服务器: {i['host']}:{i['port']}, 地图: {one_server.map_name}, 玩家数: {len(one_player)}",
+                    f"符合ZL条件的服务器: {i['host']}:{i['port']}, 地图: {srv.map_name}, 玩家数: {len(players)}",
                 )
-                right_ip.append(i)
+                filtered.append(i)
+        return filtered
+
+    async def _format_players(player_list: list) -> str:
+        """格式化玩家信息
+        Args:
+            player_list: 玩家对象列表
+        Returns:
+            格式化后的玩家信息字符串
+        """
+        durations = [await convert_duration(p.duration) for p in player_list]
+        max_duration_len = max(len(str(d)) for d in durations)
+        max_score_len = max(len(str(p.score)) for p in player_list)
+        return "\n".join(
+            f"[{p.score:>{max_score_len}}] | {durations[i]:^{max_duration_len}} | {p.name[0]}***{p.name[-1]}"
+            for i, p in enumerate(player_list)
+        )
+
+    def _build_message(srv_info, players_msg: str, selected_srv: dict) -> str:
+        """构建服务器信息消息
+        Args:
+            srv_info: 服务器信息对象
+            players_msg: 格式化后的玩家信息
+            selected_srv: 选中的服务器信息
+        Returns:
+            完整的消息字符串
+        """
+        msg = f"""*{srv_info.server_name}*
+游戏: {srv_info.folder}
+地图: {srv_info.map_name}
+人数: {srv_info.player_count}/{srv_info.max_players}"""
+        if srv_info.ping is not None:
+            msg += f"\nping: {srv_info.ping * 1000:.0f}ms\n{players_msg}"
+        if config.l4_show_ip:
+            msg += f"\nconnect {selected_srv['host']}:{selected_srv['port']}"
+        return msg
+
+    try:
+        right_ip = await _filter_servers(server_json, tj)
 
         if not right_ip:
             logger.warning("没有找到符合条件的服务器")
@@ -199,29 +272,12 @@ async def tj_request(command: str = "云", tj="tj"):
         one_player = ser_list[0][1]
 
         if one_player:
-            durations = [await convert_duration(p.duration) for p in one_player]
-            max_duration_len = max(len(str(d)) for d in durations)
-            max_score_len = max(len(str(p.score)) for p in one_player)
-
-            durations = [await convert_duration(p.duration) for p in one_player]
-            player_msg = "\n".join(
-                f"[{p.score:>{max_score_len}}] | {durations[i]:^{max_duration_len}} | {p.name[0]}***{p.name[-1]}"
-                for i, p in enumerate(one_player)
-            )
+            player_msg = await _format_players(one_player)
         else:
             player_msg = "服务器感觉很安静啊"
 
-        msg = f"""*{one_server.server_name}*
-游戏: {one_server.folder}
-地图: {one_server.map_name}
-人数: {one_server.player_count}/{one_server.max_players}"""
-
-        if one_server.ping is not None:
-            msg += f"\nping: {one_server.ping * 1000:.0f}ms\n{player_msg}"
-        if config.l4_show_ip:
-            msg += f"\nconnect {s['host']}:{s['port']}"
-        else:
-            return msg
+        msg = _build_message(one_server, player_msg, s)
+        return msg
 
     except Exception as e:
         logger.error(f"tj_request error: {e}")

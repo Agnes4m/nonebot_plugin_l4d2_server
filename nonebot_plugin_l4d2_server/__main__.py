@@ -105,17 +105,27 @@ async def _(
 async def _(
     args: Message = CommandArg(),
 ):
+    # 以后有时间补img格式
     msg: str = args.extract_plain_text().strip()
     tag_list: List[str] = msg.split(" ", maxsplit=1)
-    if len(tag_list) < 2:
-        return await UniMessage.text("格式错误，正确格式：/l4find 组名 玩家名").finish()
-    group, name = tag_list
-    out: List[OutServer] = await get_server_detail(group, is_img=False)  # type: ignore
-    out_msg = "未找到玩家"
-    for one in out:
-        for player in one["player"]:
-            if name in player.name:
-                out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
+    if len(tag_list) == 1:
+        await UniMessage.text("未设置组，正在全服查找，时间较长").send()
+        name = tag_list[0]
+        out: List[OutServer] = await get_server_detail(is_img=False)  # type: ignore
+        out_msg = "未找到玩家"
+        for one in out:
+            for player in one["player"]:
+                if name in player.name:
+                    out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
+    if len(tag_list) == 2:
+        group, name = tag_list
+        await UniMessage.text(f"正在查询{group}组").send()
+        out: List[OutServer] = await get_server_detail(group, is_img=False)  # type: ignore
+        out_msg = "未找到玩家"
+        for one in out:
+            for player in one["player"]:
+                if name in player.name:
+                    out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
 
     return await UniMessage.text(out_msg).finish()
 

@@ -31,8 +31,8 @@ async def draw_one_ip(host: str, port: int):
             dur = "{:^{}}".format(chines_dur, max_duration_len)
             name_leg = len(player.name)
             if name_leg > 2:
-                # xing = "*" * (name_leg - 2)
-                name = f"{player.name[0]}xing{player.name[-1]}"
+                xing = "*" * (name_leg - 2)
+                name = f"{player.name[0]}{xing}{player.name[-1]}"
             else:
                 name = player.name
             player_msg += f"{soc} | {dur} | {name} \n"
