@@ -276,8 +276,7 @@ async def tj_request(command: str = "云", tj="tj"):
         else:
             player_msg = "服务器感觉很安静啊"
 
-        msg = _build_message(one_server, player_msg, s)
-        return msg
+        return _build_message(one_server, player_msg, s)
 
     except Exception as e:
         logger.error(f"tj_request error: {e}")
