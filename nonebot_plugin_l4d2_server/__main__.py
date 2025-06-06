@@ -16,7 +16,7 @@
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Union
 
 import aiofiles
 import ujson as json
@@ -24,10 +24,11 @@ from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
+from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
 from nonebot_plugin_alconna import UniMessage
 
-from .config import config
+from .config import config, config_manager
 from .l4_help import get_l4d2_core_help
 from .l4_local import *  # noqa: F403
 from .l4_request import (
@@ -59,13 +60,11 @@ config_path = Path(config.l4_path) / "config.json"
 
 
 @l4_help.handle()
-async def _(matcher: Matcher):
+async def _():
     """帮助"""
     logger.info("开始执行[l4d2帮助]")
     im = await get_l4d2_core_help()
-    if isinstance(im, str):
-        await matcher.finish(im)
-    await UniMessage.image(raw=im).send()
+    await out_msg_out(im)
 
 
 @l4_request.handle()
@@ -113,58 +112,50 @@ async def _(
     logger.info(f"组:{command} ;数字:{_id}")
     msg = await get_server_detail(command, _id)
     if msg is not None:
-        if isinstance(msg, str):
-            await UniMessage.text(msg).finish()
-        if isinstance(msg, bytes):
-            await UniMessage.image(raw=msg).finish()
+        await out_msg_out(msg, is_connect=config.l4_image)
     else:
-        await UniMessage.text("服务器无响应").finish()
+        await out_msg_out("服务器无响应")
 
 
-async def _(args: Message = CommandArg()) -> None:
+@l4_find_player.handle()
+async def _(
+    args: Message = CommandArg(),
+):
+    # 以后有时间补img格式
     msg: str = args.extract_plain_text().strip()
     tag_list: List[str] = msg.split(" ", maxsplit=1)
-    out_msg: str = "未找到玩家"
-
-    try:
-        if len(tag_list) == 1:
-            await UniMessage.text("未设置组，正在全服查找，时间较长").send()
-            name = tag_list[0]
-            out: List["OutServer"] = await get_server_detail(is_img=False)
-        else:
-            group, name = tag_list
-            await UniMessage.text(f"正在查询{group}组").send()
-            out = await get_server_detail(group, is_img=False)
-
+    if len(tag_list) == 1:
+        await UniMessage.text("未设置组，正在全服查找，时间较长").send()
+        name = tag_list[0]
+        out: List[OutServer] = await get_server_detail(is_img=False)  # type: ignore
+        out_msg = "未找到玩家"
         for one in out:
             for player in one["player"]:
                 if name in player.name:
                     out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
-                    break
+    if len(tag_list) == 2:
+        group, name = tag_list
+        await UniMessage.text(f"正在查询{group}组").send()
+        out: List[OutServer] = await get_server_detail(group=group, is_img=False)  # type: ignore
+        out_msg = "未找到玩家"
+        for one in out:
+            for player in one["player"]:
+                if name in player.name:
+                    out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
 
-    except Exception as e:
-        logger.error(f"查找玩家失败: {e}")
-        out_msg = "查询失败，请稍后再试"
-
-    await UniMessage.text(out_msg).finish()
+    return await out_msg_out(out_msg)
 
 
 @l4_all.handle()
 async def _():
-    await UniMessage.text(await get_all_server_detail()).finish()
+    await out_msg_out(await get_all_server_detail())
 
 
 @l4_connect.handle()
 async def _(args: Message = CommandArg()):
     ip: Optional[str] = args.extract_plain_text()
     if ip is not None:
-        await UniMessage.text(await get_ip_server(ip)).finish()
-
-
-# anne部分
-if config.l4_anne:
-    logger.info("加载anne功能")
-    from .l4_anne import *  # noqa: F403
+        await out_msg_out(await get_ip_server(ip), is_connect=config.l4_image)
 
 
 @l4_reload.handle()
@@ -180,7 +171,7 @@ async def _(args: Message = CommandArg()):
         for tag, url in ip_json.items():
             logger.info(f"重载{tag}的ip")
             await L4API.get_sourceban(tag, url)
-        await UniMessage.text("重载ip完成").finish()
+        await out_msg_out("重载ip完成")
 
 
 l4_add_ban = on_command("l4addban", aliases={"l4添加ban"})
@@ -211,7 +202,7 @@ async def _(args: Message = CommandArg()):
         await UniMessage.text(f"文件写入失败: {e}").finish()
 
     await L4API.get_sourceban(arg[0], arg[1])
-    await UniMessage.text(f"添加成功\n组名: {arg[0]}\n网址: {arg[1]}").finish()
+    await out_msg_out(f"添加成功\n组名: {arg[0]}\n网址: {arg[1]}")
 
 
 l4_del_ban = on_command("l4delban", aliases={"l4删除ban", "l4移除ban"})
@@ -238,7 +229,7 @@ async def _(args: Message = CommandArg()):
                 del config_data[arg[0]]
             async with aiofiles.open(config_path, "w", encoding="utf-8") as f:
                 json.dump(config_data, f, ensure_ascii=False, indent=4)
-            await UniMessage.text(f"删除成功，组名:{arg[0]}").finish()
+            await out_msg_out(f"删除成功，组名:{arg[0]}")
     elif len(arg) == 2:
         if not Path(Path(config.l4_path) / "config.json").is_file():
             await UniMessage.text("没有添加过组名").finish()
@@ -255,7 +246,7 @@ async def _(args: Message = CommandArg()):
                 config_datas[arg[0]] = arg[1]
                 async with aiofiles.open(config_path, "w", encoding="utf-8") as f:
                     json.dump(config_datas, f, ensure_ascii=False, indent=4)
-                await UniMessage.text(f"修改成功，组名:{arg[0]},网址:{arg[1]}").finish()
+                await out_msg_out(f"修改成功，组名:{arg[0]},网址:{arg[1]}")
 
 
 @ld_tj.handle()
@@ -268,3 +259,39 @@ async def _(matcher: Matcher):
 async def _(matcher: Matcher):
     await matcher.send("正在寻找牢房信息")
     await matcher.finish(await tj_request("云", "zl"))
+
+
+async def out_msg_out(
+    msg: Union[str, bytes, UniMessage],
+    is_connect: bool = False,
+    host: str = "",
+    port: str = "",
+):
+    if isinstance(msg, UniMessage):
+        return await msg.finish()
+    if isinstance(msg, str):
+        await UniMessage.text(msg).finish()
+    if is_connect:
+        out = UniMessage.image(raw=msg) + UniMessage.text(
+            f"连接到服务器: {host}:{port}",
+        )
+        return await out.finish()
+    return await UniMessage.image(raw=msg).finish()
+
+
+## 以下为配置修改
+
+img_trung = on_command("l4img", aliases={"l4图片"}, permission=SUPERUSER)
+
+
+@img_trung.handle()
+async def _(args: Message = CommandArg()):
+    arg = args.extract_plain_text().strip().lower()
+    if arg == "开启":
+        config_manager.update_image_config(enabled=True)
+        await out_msg_out("[l4]已开启图片模式")
+    elif arg == "关闭":
+        config_manager.update_image_config(enabled=False)
+        await out_msg_out("[l4]已关闭图片模式")
+    else:
+        await UniMessage.text("请在参数后加上开启或关闭").finish()

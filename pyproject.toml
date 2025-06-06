@@ -23,7 +23,7 @@ dependencies = [
     "lxml>=5.2.2",
     "rcon>=2.1.0",
     "pillow>10",
-    "beautifulsoup4>=4.12.3",
+    "bs4>=0.0.2",
     "rarfile>=4.2",
     "pyunpack>=0.3",
     "aiofiles>=24.1.0"

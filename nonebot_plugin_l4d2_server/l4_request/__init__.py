@@ -1,7 +1,8 @@
 import random
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 from nonebot.log import logger
+from nonebot_plugin_alconna import UniMessage
 
 from ..config import server_all_path
 from ..l4_image import msg_to_image
@@ -79,11 +80,13 @@ async def get_server_detail(
         command (str): 服务器组名。
         _id (Optional[str], optional): 服务器ID。默认为None。
         is_img (bool, optional): 是否返回图片格式的信息。默认为True。
+        return_host_port (bool, optional): 是否返回host和port值。默认为False。
 
     Returns:
-        Union[bytes, str, None]: 返回服务器详细信息。如果为图片格式，返回bytes类型；
-                                            如果不是图片格式，返回List[OutServer]类型；如果未找到服务器组，返回None。
-
+        Union[bytes, str, None, Tuple[str, int]]:
+            如果return_host_port为True且_id不为None，返回(host, port)元组；
+            否则返回服务器详细信息(图片格式返回bytes，文本格式返回str)；
+            未找到服务器组返回None。
     """
     server_json = _get_server_json(command)
     logger.info(server_json)
@@ -94,7 +97,19 @@ async def get_server_detail(
     if _id is None:
         return await _handle_group_info(server_json, command, is_img)
 
-    return await _handle_single_server(server_json, _id, is_img)
+    _ip = await get_single_server_info(server_json, _id)
+    if _ip is None:
+        logger.warning("未找到这个服务器")
+        return None
+
+    out_msg = await _handle_single_server(server_json, _id, is_img)
+    if isinstance(out_msg, bytes):
+        return UniMessage.image(raw=out_msg) + UniMessage.text(
+            f"connect {_ip[0]}:{_ip[1]}",
+        )
+    if isinstance(out_msg, str):
+        return UniMessage.text(out_msg)
+    return None
 
 
 def _get_server_json(command: str) -> Optional[list]:
@@ -138,6 +153,27 @@ async def _handle_group_info(
     return str(server_dict)
 
 
+async def get_single_server_info(
+    server_json: list,
+    _id: str,
+) -> Optional[Tuple[str, int]]:
+    """
+    获取单个服务器的host和port信息
+
+    Args:
+        server_json (list): 服务器JSON列表
+        _id (str): 服务器ID
+
+    Returns:
+        Optional[Tuple[str, int]]: 返回(host, port)元组，未找到返回None
+    """
+    logger.info("正在获取单服务器信息")
+    for i in server_json:
+        if str(_id) == str(i["id"]):
+            return i["host"], i["port"]
+    return None
+
+
 async def _handle_single_server(
     server_json: list,
     _id: str,
@@ -154,14 +190,15 @@ async def _handle_single_server(
     Returns:
         Union[bytes, str, None]: 找到服务器时返回信息，否则返回None
     """
-    logger.info("正在请求单服务器信息")
-    for i in server_json:
-        if str(_id) == str(i["id"]):
-            out_msg = await draw_one_ip(i["host"], i["port"])
-            if is_img:
-                return cast(bytes, out_msg)
-            return out_msg
-    return None
+    server_info = await get_single_server_info(server_json, _id)
+    if server_info is None:
+        return None
+
+    host, port = server_info
+    out_msg = await draw_one_ip(host, port)
+    if is_img:
+        return cast(bytes, out_msg)
+    return out_msg
 
 
 async def get_group_detail(

@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import aiofiles
 import aiohttp
 import nonebot
+from aiohttp import ClientTimeout
 from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
 from nonebot_plugin_alconna import UniMessage
@@ -184,7 +185,11 @@ async def url_to_byte(url: str):
     """获取URL数据的字节流"""
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers, timeout=600) as response:
+        async with session.get(
+            url,
+            headers=headers,
+            timeout=ClientTimeout(total=600),
+        ) as response:
             if response.status == 200:
                 return await response.read()
             return None
@@ -194,7 +199,11 @@ async def url_to_msg(url: str):
     """获取URL数据的字节流"""
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers, timeout=600) as response:
+        async with session.get(
+            url,
+            headers=headers,
+            timeout=ClientTimeout(total=600),
+        ) as response:
             if response.status == 200:
                 return await response.text()
             return None

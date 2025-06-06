@@ -22,7 +22,7 @@ class NserverOut(TypedDict):
 
 
 class OutServer(TypedDict):
-    server: a2s.SourceInfo
+    server: a2s.SourceInfo[str]
     player: List[a2s.Player]
     host: str
     port: int

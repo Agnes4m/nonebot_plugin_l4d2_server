@@ -3,7 +3,7 @@ import contextlib
 import socket
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Tuple, cast
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
 
 import a2s
 import aiofiles
@@ -47,8 +47,12 @@ class L4D2Api:
         ip_list: List[Tuple[str, int]],
         is_server: bool = True,
         is_player: bool = False,
-    ) -> List[Tuple[a2s.SourceInfo, List[a2s.Player]]]:
-        msg_list: List[Tuple[a2s.SourceInfo, List[a2s.Player]]] = []
+    ) -> List[
+        Tuple[Union[a2s.SourceInfo[str], a2s.GoldSrcInfo[str]], List[a2s.Player]]
+    ]:
+        msg_list: List[
+            Tuple[Union[a2s.SourceInfo[str], a2s.GoldSrcInfo[str]], List[a2s.Player]]
+        ] = []
         sorted_msg_list = []
         tasks = []  # 用来保存异步任务
         if ip_list != []:
@@ -80,19 +84,24 @@ class L4D2Api:
         is_player: bool,
     ):
         play: List[a2s.Player] = []
+        server: Union[a2s.SourceInfo, a2s.GoldSrcInfo]
         if is_server:
             try:
-                server: a2s.SourceInfo = await a2s.ainfo(ip, timeout=3, encoding="utf8")
+                server = await a2s.ainfo(
+                    ip,
+                    timeout=3,
+                    encoding="utf8",
+                )
 
                 if server is not None:
-                    server.steam_id = index
+                    server.steam_id = index  # type: ignore
 
             except (
                 asyncio.exceptions.TimeoutError,
                 ConnectionRefusedError,
                 socket.gaierror,
             ):
-                server: a2s.SourceInfo = a2s.SourceInfo(
+                server = a2s.SourceInfo(
                     protocol=0,
                     server_name="服务器无响应",
                     map_name="无",
@@ -137,7 +146,7 @@ class L4D2Api:
         json: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
         is_json: bool = True,
-    ):
+    ) -> Union[Dict[str, Any], BeautifulSoup]:  # type: ignore
         header = deepcopy(self._HEADER)
 
         if json is not None:
@@ -282,14 +291,14 @@ class L4D2Api:
         if not isinstance(soup, BeautifulSoup):
             return None
 
-        tbody = soup.find(
+        tbody = cast(BeautifulSoup, soup).find(
             "div",
             class_="content text-center text-md-left",
             style="background-color: #f2f2f2;",
         )
         if tbody is None:
             return None
-        kill_tag = tbody.find(
+        kill_tag = cast(BeautifulSoup, tbody).find(
             "div",
             class_="card-body worldmap d-flex flex-column justify-content-center text-center",
         )
