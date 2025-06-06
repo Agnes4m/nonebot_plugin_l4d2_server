@@ -7,7 +7,7 @@
 
 <div align="center">
 
-# nonebot_plugin_l4d2_server 1.0.0a1
+# nonebot_plugin_l4d2_server 1.0.4
 
 _✨Nonebot & Left 4 Dead 2 server操作✨_
 <div align = "center">
@@ -37,15 +37,12 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 ## 顶置公告（如果以前用0.x.x版本暂时别更新）
 
-- **版本**  1.x.x进行了破坏式更新，目前处于测试阶段，使用旧插件的不要更新
+- **版本**  1.x.x进行了破坏式更新，使用旧插件的不要更新
 
-## 更改部分
+## 指令
 
-- 取消了网页控制台(没有卵用)
-- 取消了自动重启(与其他插件功能重复)
-- 取消了git拉取更新(nb规范用pypi)
-- 增加pil和浏览器渲染做选择(可以选择pil以节省性能性能)
-- 删除无用部分(依赖太多难以维护)
+- 在json文件设置的前缀指令，例如设置"云"，则指令 云 输出组服务器，云1 输出1号服务器
+- l4图片开启/关闭 超管指令 可以修改输出单图是否为图片输出
 
 ## 安装
 
@@ -102,8 +99,7 @@ conda install nonebot-plugin-l4d2-server
 ## 主要功能
 
 - [ ] 求生服务器-本地多路径操作（传地图等）
-- [ ] 批量查询指定ip服务器状态和玩家
-- [ ] [求生电信服anne](https://github.com/fantasylidong/CompetitiveWithAnne)[查询~](https://sb.trygek.com/l4d_stats/ranking/index.php)
+- [x] 批量查询指定ip服务器状态和玩家
 
 ## [数据结构](./docs/standand.md)
 
@@ -112,8 +108,6 @@ conda install nonebot-plugin-l4d2-server
 ## env设置
 
 """bash
-    l4_anne = False
-    """是否启用anne电信服相关功能"""
     l4_enable = True
     """是否全局启用求生功能"""
     l4_image = False
@@ -131,6 +125,15 @@ conda install nonebot-plugin-l4d2-server
     - 电玩像素
     - 缤纷彩虹
 """
+
+## 和0.x.x更改部分
+
+- 取消了网页控制台(没有卵用)
+- 取消了自动重启(与其他插件功能重复)
+- 取消了git拉取更新(nb规范用pypi)
+- 增加pil和浏览器渲染做选择(可以选择pil以节省性能性能)
+- 删除无用部分(依赖太多难以维护)
+- 删除了anne部分，已移植到[这里](https://github.com/Agnes4m/L4D2UID),通过core插件调用
 
 ## 其他
 
