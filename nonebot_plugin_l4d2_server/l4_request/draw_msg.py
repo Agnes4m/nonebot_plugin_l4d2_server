@@ -31,7 +31,7 @@ async def draw_one_ip(host: str, port: int):
             dur = "{:^{}}".format(chines_dur, max_duration_len)
             name_leg = len(player.name)
             if name_leg > 2:
-                xing = "*" * (name_leg - 2)
+                xing = ":)" * (name_leg - 2)
                 name = f"{player.name[0]}{xing}{player.name[-1]}"
             else:
                 name = player.name
@@ -39,7 +39,7 @@ async def draw_one_ip(host: str, port: int):
     else:
         player_msg = "服务器感觉很安静啊"
 
-    msg = f"""*{one_server.server_name}*
+    msg = f"""-{one_server.server_name}-
 游戏: {one_server.folder}
 地图: {one_server.map_name}
 人数: {one_server.player_count}/{one_server.max_players}"""

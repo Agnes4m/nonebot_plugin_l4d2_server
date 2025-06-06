@@ -181,7 +181,17 @@ class L4D2Api:
             return BeautifulSoup(html_content, "lxml")
 
     async def get_sourceban(self, tag: str = "云", url: str = anne_ban):
-        """从sourceban++获取服务器列表，目前未做名称处理"""
+        """
+        异步函数，从sourceban++获取服务器列表，目前未做名称处理。
+
+        Args:
+            tag (str): 用于标识不同来源的标签，默认为"云"。
+            url (str): SourceBan的URL，默认为anne_ban。
+
+        Returns:
+            list: 包含服务器信息的列表。
+
+        """
         if not (url.startswith(("http://", "https://"))):
             url = "http://" + url  # 默认添加 http://
         soup = await self._server_request(

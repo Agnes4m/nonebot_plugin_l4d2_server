@@ -45,7 +45,7 @@ if TYPE_CHECKING:
 
 reload_ip()
 
-l4_help = on_command("l4help", aliases={"l4帮助", "l4d2帮助"})
+l4_help = on_command("l4help", aliases={"l4d2帮助"})
 l4_request = on_command("anne", aliases=COMMAND, priority=10)
 l4_reload = on_command("l4reload", aliases={"l4刷新,l4重载"})
 l4_all = on_command("l4all", aliases={"l4全服"})
@@ -74,11 +74,31 @@ async def _(
     command: str = RawCommand(),
     args: Message = CommandArg(),
 ):
-    """例：
-    指令：  /橘5
-    start: /(command开头指令)
-    command: /橘(响应的全部指令)
-    args: 5(响应的指令后的数字)
+    """
+    异步函数，用于处理特定的指令。
+
+    Args:
+        start (str, optional): 指令的开头部分，默认为 CommandStart() 返回的值。
+        command (str, optional): 完整的指令字符串，默认为 RawCommand() 返回的值。
+        args (Message, optional): 指令后的参数，默认为 CommandArg() 返回的值。
+
+    Returns:
+        None
+
+    Examples:
+        示例指令："/橘5"
+        - start: "/" (指令的开头部分)
+        - command: "/橘" (完整的指令字符串)
+        - args: "5" (指令后的参数)
+
+    Notes:
+        1. 如果 start 存在，会将 command 中的 start 部分替换为空字符串。
+        2. 如果 command 等于 "anne"，则将其替换为 "云"。
+        3. 提取 args 中的纯文本内容，如果内容非空且不是数字，则返回。
+        4. 如果 args 为空，则将其设置为 None。
+        5. 使用 logger 记录处理过程中的信息。
+        6. 调用 get_server_detail 函数获取服务器详情，并根据返回结果发送相应的消息。
+        7. 如果 get_server_detail 返回 None，则发送 "服务器无响应" 的文本消息。
     """
 
     if start:
@@ -101,33 +121,32 @@ async def _(
         await UniMessage.text("服务器无响应").finish()
 
 
-@l4_find_player.handle()
-async def _(
-    args: Message = CommandArg(),
-):
-    # 以后有时间补img格式
+async def _(args: Message = CommandArg()) -> None:
     msg: str = args.extract_plain_text().strip()
     tag_list: List[str] = msg.split(" ", maxsplit=1)
-    if len(tag_list) == 1:
-        await UniMessage.text("未设置组，正在全服查找，时间较长").send()
-        name = tag_list[0]
-        out: List[OutServer] = await get_server_detail(is_img=False)  # type: ignore
-        out_msg = "未找到玩家"
-        for one in out:
-            for player in one["player"]:
-                if name in player.name:
-                    out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
-    if len(tag_list) == 2:
-        group, name = tag_list
-        await UniMessage.text(f"正在查询{group}组").send()
-        out: List[OutServer] = await get_server_detail(group, is_img=False)  # type: ignore
-        out_msg = "未找到玩家"
-        for one in out:
-            for player in one["player"]:
-                if name in player.name:
-                    out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
+    out_msg: str = "未找到玩家"
 
-    return await UniMessage.text(out_msg).finish()
+    try:
+        if len(tag_list) == 1:
+            await UniMessage.text("未设置组，正在全服查找，时间较长").send()
+            name = tag_list[0]
+            out: List["OutServer"] = await get_server_detail(is_img=False)
+        else:
+            group, name = tag_list
+            await UniMessage.text(f"正在查询{group}组").send()
+            out = await get_server_detail(group, is_img=False)
+
+        for one in out:
+            for player in one["player"]:
+                if name in player.name:
+                    out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
+                    break
+
+    except Exception as e:
+        logger.error(f"查找玩家失败: {e}")
+        out_msg = "查询失败，请稍后再试"
+
+    await UniMessage.text(out_msg).finish()
 
 
 @l4_all.handle()

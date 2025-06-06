@@ -1,11 +1,11 @@
 import random
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, Union, cast
 
 from nonebot.log import logger
 
 from ..config import server_all_path
 from ..l4_image import msg_to_image
-from ..utils.api.models import AllServer, NserverOut, OutServer
+from ..utils.api.models import AllServer, NserverOut
 from ..utils.api.request import L4API
 from ..utils.utils import split_maohao
 from .draw_msg import convert_duration, draw_one_ip, get_much_server
@@ -81,43 +81,86 @@ async def get_server_detail(
         is_img (bool, optional): 是否返回图片格式的信息。默认为True。
 
     Returns:
-        Union[bytes, List[OutServer], None]: 返回服务器详细信息。如果为图片格式，返回bytes类型；
+        Union[bytes, str, None]: 返回服务器详细信息。如果为图片格式，返回bytes类型；
                                             如果不是图片格式，返回List[OutServer]类型；如果未找到服务器组，返回None。
 
     """
-    if command:
-        server_json = ALLHOST.get(command)
-    else:
-        server_json = []
-        for servers in ALLHOST.values():
-            server_json.extend(servers)
-
+    server_json = _get_server_json(command)
     logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
         return None
 
     if _id is None:
-        # 输出组信息
-        logger.info(f"正在请求组服务器信息 {command}")
-        server_dict = await get_much_server(server_json, command)
-        if is_img:
-            out_msg = await msg_to_image(server_dict)
-        else:
-            out_msg = server_dict
-        return out_msg
+        return await _handle_group_info(server_json, command, is_img)
 
-    # 返回单个
+    return await _handle_single_server(server_json, _id, is_img)
+
+
+def _get_server_json(command: str) -> Optional[list]:
+    """
+    根据命令获取服务器JSON列表
+
+    Args:
+        command (str): 服务器组名
+
+    Returns:
+        Optional[list]: 服务器JSON列表，未找到组时返回None
+    """
+    if command:
+        return ALLHOST.get(command)
+    server_json = []
+    for servers in ALLHOST.values():
+        server_json.extend(servers)
+    return server_json
+
+
+async def _handle_group_info(
+    server_json: list,
+    command: str,
+    is_img: bool,
+) -> Union[bytes, str, None]:
+    """
+    处理服务器组信息请求
+
+    Args:
+        server_json (list): 服务器JSON列表
+        command (str): 服务器组名
+        is_img (bool): 是否返回图片格式
+
+    Returns:
+        Union[bytes, list, None]: 图片格式返回bytes，否则返回服务器列表
+    """
+    logger.info(f"正在请求组服务器信息 {command}")
+    server_dict = await get_much_server(server_json, command)
+    if is_img:
+        return await msg_to_image(server_dict)
+    return str(server_dict)
+
+
+async def _handle_single_server(
+    server_json: list,
+    _id: str,
+    is_img: bool,
+) -> Union[bytes, str, None]:
+    """
+    处理单个服务器信息请求
+
+    Args:
+        server_json (list): 服务器JSON列表
+        _id (str): 服务器ID
+        is_img (bool): 是否返回图片格式
+
+    Returns:
+        Union[bytes, str, None]: 找到服务器时返回信息，否则返回None
+    """
     logger.info("正在请求单服务器信息")
-    out_msg = ""
     for i in server_json:
         if str(_id) == str(i["id"]):
             out_msg = await draw_one_ip(i["host"], i["port"])
             if is_img:
                 return cast(bytes, out_msg)
-            if not is_img:
-                return cast(List[OutServer], out_msg)
-    # print(out_msg)
+            return out_msg
     return None
 
 
