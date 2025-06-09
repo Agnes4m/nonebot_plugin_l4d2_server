@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 DATAPATH = Path(__file__).parent.joinpath("data")
 DATAOUT = Path("data/L4D2")
+DATAOUT.mkdir(parents=True, exist_ok=True)
 if not Path(DATAOUT / "l4d2.json").exists():
     logger.info("文件 l4d2.json 不存在，已创建并初始化为 {}")
     Path(DATAOUT / "l4d2.json").write_text("{}", encoding="utf-8")
