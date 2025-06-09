@@ -1,6 +1,6 @@
 [project]
 name = "nonebot-plugin-l4d2-server"
-version = "1.0.5"
+dynamic = ["version"]
 description = "L4D2 server related operations plugin for NoneBot2"
 authors = [{ name = "Agnes_Digital", email = "Z735803792@163.com" }]
 requires-python = ">=3.9,<4.0"
@@ -46,6 +46,10 @@ homepage = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
 
 [tool.pdm.build]
 includes = []
+
+[tool.pdm.version]
+source = "file"
+path = "nonebot_plugin_l4d2_server/__init__.py"
 
 [build-system]
 requires = ["pdm-backend"]

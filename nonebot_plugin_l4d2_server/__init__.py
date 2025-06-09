@@ -20,6 +20,7 @@ from nonebot import get_driver, require
 require("nonebot_plugin_htmlrender")
 require("nonebot_plugin_alconna")
 require("nonebot_plugin_tortoise_orm")
+require("nonebot_plugin_datastore")
 
 from nonebot.plugin import PluginMetadata, inherit_supported_adapters  # noqa: E402
 
