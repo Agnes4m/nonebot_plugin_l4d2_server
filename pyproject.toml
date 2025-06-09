@@ -1,6 +1,6 @@
 [project]
 name = "nonebot-plugin-l4d2-server"
-version = "1.0.4"
+version = "1.0.5"
 description = "L4D2 server related operations plugin for NoneBot2"
 authors = [{ name = "Agnes_Digital", email = "Z735803792@163.com" }]
 requires-python = ">=3.9,<4.0"
@@ -16,13 +16,13 @@ dependencies = [
     "aiohttp>=3.8.4",
     "jinja2>=3.0.0",
     "srctools>=2.3.9",
-    "httpx>=0.22.0,<0.24.1",
+    "httpx>=0.22.0",
     "msgspec>=0.18.0",
     "python-a2s>=1.4.1",
     "ujson>=5.10.0",
     "lxml>=5.2.2",
     "rcon>=2.1.0",
-    "pillow>10",
+    "pillow>10.0.0",
     "bs4>=0.0.2",
     "rarfile>=4.2",
     "pyunpack>=0.3",

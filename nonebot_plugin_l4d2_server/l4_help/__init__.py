@@ -1,8 +1,8 @@
+import json
 from pathlib import Path
 from typing import Dict, Union
 
 import aiofiles
-from msgspec import json as msgjson
 from PIL import Image
 
 from ..config import ICONPATH
@@ -10,18 +10,16 @@ from ..l4_image.convert import core_font
 from ..l4_image.model import PluginHelp
 from .draw import get_help
 
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 TEXT_PATH = Path(__file__).parent / "texture2d"
 HELP_DATA = Path(__file__).parent / "Help.json"
 
 
 async def get_help_data() -> Union[Dict[str, PluginHelp], None]:
     if HELP_DATA.exists():
-        async with aiofiles.open(HELP_DATA, "rb") as file:
-            return msgjson.decode(
-                await file.read(),
-                type=Dict[str, PluginHelp],
-            )
+        async with aiofiles.open(HELP_DATA, "r", encoding="utf-8") as file:
+            content = await file.read()
+            return json.loads(content)
     return None
 
 

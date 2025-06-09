@@ -170,7 +170,7 @@ async def _(args: Message = CommandArg()):
     if not arg:
         reload_ip()
         logger.success("重载ip完成")
-        with (Path(config.l4_path) / "config.json").open("r", encoding="utf-8") as f:
+        with (Path(config.l4_path) / "l4d2.json").open("r", encoding="utf-8") as f:
             content = f.read().strip()
             ip_json = json.loads(content)
         for tag, url in ip_json.items():

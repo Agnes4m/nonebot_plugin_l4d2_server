@@ -28,45 +28,8 @@
       },
       {
         "name": "l4全服",
-        "desc": "返回可以查询的所有服务器组(未完成)",
+        "desc": "返回可以查询的所有服务器组",
         "eg": "/l4全服",
-        "need_ck": false,
-        "need_sk": false,
-        "need_admin": false
-      }
-    ]
-  },
-  "电信服anne服务": {
-    "desc": "电信anne服相关服务",
-    "data": [
-      {
-        "name": "Banne xx",
-        "desc": "绑定昵称/steamid",
-        "eg": "/Banne 爱丽数码",
-        "need_ck": false,
-        "need_sk": false,
-        "need_admin": false
-      },
-      {
-        "name": "Ranne(玩家)",
-        "desc": "查询anne个人信息,没有参数查自己",
-        "eg": "/Ranne 爱丽数码",
-        "need_ck": false,
-        "need_sk": false,
-        "need_admin": false
-      },
-      {
-        "name": "Sanne(玩家)",
-        "desc": "按昵称查询anne玩家信息",
-        "eg": "/Sanne 爱丽数码",
-        "need_ck": false,
-        "need_sk": false,
-        "need_admin": false
-      },
-      {
-        "name": "Danne(玩家)",
-        "desc": "删除anne玩家信息",
-        "eg": "/Danne 爱丽数码",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
@@ -83,7 +46,7 @@
         "need_ck": false,
         "need_sk": false,
         "need_admin": true
-      },      
+      },
       {
         "name": "l4地图上传",
         "desc": "进入交互上传地图文件",
