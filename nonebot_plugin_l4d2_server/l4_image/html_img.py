@@ -88,18 +88,3 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
     except Exception as e:
         logger.warning(f"Error in get_help_img: {e}")
     return None
-
-
-# async def server_group_ip_pic(msg_list: List[ServerGroup]) -> bytes:
-#     """
-#     输入一个群组字典列表,输出图片
-#     msg_dict:folder/name/map_/players/max_players/Players/[Name]
-#     """
-#     template = env.get_template("group_ip.html")
-#     html = await template.render_async(plugins=msg_list)
-#     return await html_to_pic(
-#         html=html,
-#         wait=0,
-#         viewport={"width": 1100, "height": 800},
-#         template_path=f"file://{template_path.absolute()}",
-#     )

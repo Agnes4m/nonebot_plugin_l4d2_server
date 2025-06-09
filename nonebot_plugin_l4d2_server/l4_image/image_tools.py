@@ -155,9 +155,8 @@ def draw_text_by_line(
     y_add = math.ceil(1.3 * h) if line_space is None else math.ceil(h + line_space)
     draw = ImageDraw.Draw(img)
     row = ""  # 存储本行文字
-    length = 0  # 记录本行长度
+    length = 0
     for character in text:
-        # 获取当前字符的宽度
         if hasattr(font, "getsize"):
             w, h = font.getsize(character)  # type: ignore
         else:
