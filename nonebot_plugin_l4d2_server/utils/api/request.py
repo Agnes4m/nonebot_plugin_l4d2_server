@@ -9,12 +9,11 @@ import a2s
 import aiofiles
 import ujson as js
 import ujson as json
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from httpx import AsyncClient
+from nonebot.log import logger
 
 from ...config import config
-
-# from nonebot.log import logger
 from ..utils import split_maohao
 from .api import AnnePlayerApi, AnneSearchApi, anne_ban
 from .models import (
@@ -42,6 +41,23 @@ class L4D2Api:
         "Content-Type": "application/x-www-form-urlencoded",
     }
 
+    def safe_select(self, element: Optional[Tag], selector: str) -> List[Any]:
+        """安全地调用 select 方法"""
+        if isinstance(element, Tag):
+            return element.select(selector)
+        return []
+
+    def safe_find_all(
+        self,
+        element: Optional[Tag],
+        tag: str,
+        class_: str = "",
+    ) -> List[Any]:
+        """安全地调用 find_all 方法"""
+        if isinstance(element, Tag):
+            return element.find_all(tag, class_=class_)
+        return []
+
     async def a2s_info(
         self,
         ip_list: List[Tuple[str, int]],
@@ -53,28 +69,29 @@ class L4D2Api:
         msg_list: List[
             Tuple[Union[a2s.SourceInfo[str], a2s.GoldSrcInfo[str]], List[a2s.Player]]
         ] = []
-        sorted_msg_list = []
-        tasks = []  # 用来保存异步任务
-        if ip_list != []:
-            for index, i in enumerate(ip_list):
-                try:
-                    tasks.append(
-                        asyncio.create_task(
-                            self.process_message(
-                                i,
-                                index,
-                                is_server,
-                                is_player,
-                            ),
-                        ),
-                    )
-                except ValueError:
-                    continue  # 处理异常情况
 
-            msg_list = await asyncio.gather(*tasks)
-            sorted_msg_list = sorted(msg_list, key=lambda x: x[0].steam_id)
+        if ip_list:
+            tasks = [
+                asyncio.create_task(
+                    self.process_message(ip, index, is_server, is_player),
+                )
+                for index, ip in enumerate(ip_list)
+            ]
 
-        return sorted_msg_list
+            try:
+                results = await asyncio.gather(*tasks)
+                msg_list = [r for r in results if r is not None]
+            except Exception as e:
+                logger.error(f"获取服务器信息时发生错误: {e}")
+
+        # 使用稳定的排序方式，避免服务器频繁变动位置
+        return sorted(
+            msg_list,
+            key=lambda x: (
+                getattr(x[0], "steam_id", float("inf")) is None,
+                getattr(x[0], "steam_id", float("inf")),
+            ),
+        )
 
     async def process_message(
         self,
@@ -235,14 +252,12 @@ class L4D2Api:
         tag_path = Path(Path(config.l4_path) / f"l4d2/{tag}.json")
 
         async with aiofiles.open(tag_path, "w", encoding="utf-8") as f:
-            print(Path(Path(config.l4_path) / f"l4d2/{tag}.json"))
             up_data = {}
             for server in server_list:
                 new_dict = {}
                 new_dict["id"] = int(server.index) + 1
                 new_dict["ip"] = server.host + ":" + str(server.port)
                 up_data.update(new_dict)
-            print(up_data)
             json.dump(up_data, f, ensure_ascii=False, indent=4)
         return server_list
 
@@ -277,7 +292,7 @@ class L4D2Api:
                     "last_time": td_tags,
                 },
             )
-        print(server_list)
+        logger.debug(server_list)
         return cast(List[AnneSearch], server_list)
 
     async def get_anne_playerdetail(self, steamid: str):
@@ -307,7 +322,7 @@ class L4D2Api:
             "table",
             class_="table content-table-noborder text-left",
         )
-        print(len(tbody_tags))
+
         info_tag = tbody_tags[0]
         detail_tag = tbody_tags[1]
         error_tag = tbody_tags[2]

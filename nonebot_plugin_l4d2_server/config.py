@@ -10,7 +10,6 @@ DATAOUT.mkdir(parents=True, exist_ok=True)
 if not Path(DATAOUT / "l4d2.json").exists():
     logger.info("文件 l4d2.json 不存在，已创建并初始化为 {}")
     Path(DATAOUT / "l4d2.json").write_text("{}", encoding="utf-8")
-print(DATAOUT.absolute())
 server_all_path = DATAOUT / "l4d2"
 server_all_path.mkdir(parents=True, exist_ok=True)
 

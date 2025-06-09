@@ -16,7 +16,7 @@
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional
 
 import aiofiles
 import ujson as json
@@ -40,6 +40,7 @@ from .l4_request import (
     tj_request,
 )
 from .utils.api.request import L4API
+from .utils.api.utils import out_msg_out
 
 if TYPE_CHECKING:
     from .utils.api.models import OutServer
@@ -111,10 +112,15 @@ async def _(
         _id = None
     logger.info(f"组:{command} ;数字:{_id}")
     msg = await get_server_detail(command, _id)
-    if msg is not None:
-        await out_msg_out(msg, is_connect=config.l4_image)
-    else:
+    if msg is None:
         await out_msg_out("服务器无响应")
+        return
+    if _id is None:
+        logger.info(f"正在输出组:{command}")
+        await out_msg_out(msg)
+    if _id:
+        logger.info(f"正在输出单服务器:{command} {_id}", is_connect=config.l4_image)
+        await out_msg_out(msg)
 
 
 @l4_find_player.handle()
@@ -161,7 +167,6 @@ async def _(args: Message = CommandArg()):
 @l4_reload.handle()
 async def _(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
-    print(arg)
     if not arg:
         reload_ip()
         logger.success("重载ip完成")
@@ -259,24 +264,6 @@ async def _(matcher: Matcher):
 async def _(matcher: Matcher):
     await matcher.send("正在寻找牢房信息")
     await matcher.finish(await tj_request("云", "zl"))
-
-
-async def out_msg_out(
-    msg: Union[str, bytes, UniMessage],
-    is_connect: bool = False,
-    host: str = "",
-    port: str = "",
-):
-    if isinstance(msg, UniMessage):
-        return await msg.finish()
-    if isinstance(msg, str):
-        await UniMessage.text(msg).finish()
-    if is_connect:
-        out = UniMessage.image(raw=msg) + UniMessage.text(
-            f"连接到服务器: {host}:{port}",
-        )
-        return await out.finish()
-    return await UniMessage.image(raw=msg).finish()
 
 
 ## 以下为配置修改

@@ -45,7 +45,7 @@ async def server_ip_pic(server_dict: List[OutServer]):
                 key=lambda x: x.score,
                 reverse=True,
             )[:max_number]
-            print(sorted_players)
+            logger.debug(sorted_players)
             server_info["player"] = sorted_players
         else:
             server_info["player"] = []

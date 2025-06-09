@@ -76,7 +76,7 @@ connect {host}:{port}"""
         text: str,
         font: ImageFont.FreeTypeFont,
         draw: ImageDraw.ImageDraw,
-    ) -> Image.Image:
+    ) -> Image.Image:  # type: ignore # 明确返回类型
         """在图片上绘制文本
         Args:
             text: 要绘制的文本

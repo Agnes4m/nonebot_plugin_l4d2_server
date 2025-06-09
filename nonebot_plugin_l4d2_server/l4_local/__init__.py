@@ -47,7 +47,6 @@ else:
     async def _():
         supath = local_path[map_index] / "addons"
         vpk_list: list[str] = []
-        print(supath)
         if supath.is_dir():
             for sudir in supath.iterdir():
                 logger.info(f"找到文件:{sudir}")
