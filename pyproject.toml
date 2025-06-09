@@ -49,7 +49,7 @@ includes = []
 
 [tool.pdm.version]
 source = "file"
-path = "nonebot_plugin_l4d2_server/__init__.py"
+path = "nonebot_plugin_l4d2_server/l4d2_help/__init__.py"
 
 [build-system]
 requires = ["pdm-backend"]
