@@ -30,32 +30,32 @@ ALLHOST: Dict[str, List[NserverOut]] = {}
 COMMAND = set()
 
 
-async def get_all_server_detail():
+async def get_all_server_detail() -> str:
     """
     获取所有服务器的详细信息。
 
-    Args:
-        无
-
     Returns:
         str: 包含所有服务器详细信息的字符串。
-
     """
     out_list: List[AllServer] = []
     for group in ALLHOST:
         msg_list = await get_group_detail(group)
-        if msg_list is None:
+        if not msg_list:
             continue
-        active_server = 0
-        max_server = 0
-        active_player = 0
-        max_player = 0
-        for index, msg in enumerate(msg_list):
-            max_server = index + 1
-            if msg["server"].max_players != 0:
-                active_server += 1
-                active_player += msg["server"].player_count
-                max_player += msg["server"].max_players
+
+        active_server = sum(1 for msg in msg_list if msg["server"].max_players != 0)
+        max_server = len(msg_list)
+        active_player = sum(
+            msg["server"].player_count
+            for msg in msg_list
+            if msg["server"].max_players != 0
+        )
+        max_player = sum(
+            msg["server"].max_players
+            for msg in msg_list
+            if msg["server"].max_players != 0
+        )
+
         data = {
             "command": group,
             "active_server": active_server,
@@ -65,14 +65,12 @@ async def get_all_server_detail():
         }
         out_list.append(cast(AllServer, data))
 
-    # to do作图，先用文字凑合
-    out_msg = ""
-    for one in out_list:
-        if one["max_player"]:
-            out_msg += f"{one['command']} | 服务器{one['active_server']}/{one['max_server']} | 玩家{one['active_player']}/{one['max_player']}\n"
-        else:
-            continue
-    return out_msg
+    # 输出服务器信息文本
+    return "\n".join(
+        f"{one['command']} | 服务器{one['active_server']}/{one['max_server']} | 玩家{one['active_player']}/{one['max_player']}"
+        for one in out_list
+        if one["max_player"]
+    )
 
 
 async def get_server_detail(
@@ -87,13 +85,10 @@ async def get_server_detail(
         command (str): 服务器组名。
         _id (Optional[str], optional): 服务器ID。默认为None。
         is_img (bool, optional): 是否返回图片格式的信息。默认为True。
-        return_host_port (bool, optional): 是否返回host和port值。默认为False。
 
     Returns:
-        Union[bytes, str, None, Tuple[str, int]]:
-            如果return_host_port为True且_id不为None，返回(host, port)元组；
-            否则返回服务器详细信息(图片格式返回bytes，文本格式返回str)；
-            未找到服务器组返回None。
+        Union[UniMessage, None]:
+            返回服务器详细信息（图片或文本格式），未找到服务器组或服务器时返回None。
     """
     server_json = _get_server_json(command, ALLHOST)
     logger.info(server_json)
@@ -101,7 +96,7 @@ async def get_server_detail(
         logger.warning("未找到这个组")
         return None
 
-    # 输出组服务器
+    # 输出组服务器信息
     if _id is None:
         return await _handle_group_info(server_json, command, is_img)
 

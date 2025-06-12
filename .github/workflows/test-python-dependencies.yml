@@ -6,6 +6,7 @@ on:
     branches: [ 1.x.x ]
 jobs:
   test:
+    if: github.repository == 'Agnes4m/nonebot_plugin_l4d2_server'
     runs-on: ubuntu-latest
     strategy:
       matrix:
