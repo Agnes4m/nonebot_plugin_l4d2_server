@@ -208,3 +208,33 @@ async def tj_request(command: str = "云", tj="tj"):
     except Exception as e:
         logger.error(f"tj_request error: {e}")
         return "获取服务器信息时出错"
+
+
+async def server_find(
+    command: str = "云",
+    _id: Optional[str] = None,
+    is_img: bool = True,
+):
+    server_json = _get_server_json(command, ALLHOST)
+    logger.info(server_json)
+    if server_json is None:
+        logger.warning("未找到这个组")
+        return None
+
+    # 输出组服务器信息
+    if _id is None:
+        return await _handle_group_info(server_json, command, is_img)
+
+    _ip = await get_single_server_info(server_json, _id)
+    if _ip is None:
+        logger.warning("未找到这个服务器")
+        return None
+
+    out_msg = await _handle_single_server(server_json, _id, is_img)
+    if isinstance(out_msg, bytes):
+        return UniMessage.image(raw=out_msg) + UniMessage.text(
+            f"connect {_ip[0]}:{_ip[1]}",
+        )
+    if isinstance(out_msg, str):
+        return UniMessage.text(out_msg)
+    return None

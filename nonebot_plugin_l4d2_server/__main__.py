@@ -37,6 +37,7 @@ from .l4_request import (
     get_ip_server,
     get_server_detail,
     reload_ip,
+    server_find,
     tj_request,
 )
 from .utils.api.request import L4API
@@ -133,16 +134,19 @@ async def _(
     if len(tag_list) == 1:
         await UniMessage.text("未设置组，正在全服查找，时间较长").send()
         name = tag_list[0]
-        out: List[OutServer] = await get_server_detail(is_img=False)  # type: ignore
+        out: List[OutServer] = await server_find(is_img=False)  # type: ignore
+        logger.info(out)
+        logger.info(type(out))
         out_msg = "未找到玩家"
         for one in out:
+            logger.info(one)
             for player in one["player"]:
                 if name in player.name:
                     out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
     if len(tag_list) == 2:
         group, name = tag_list
         await UniMessage.text(f"正在查询{group}组").send()
-        out: List[OutServer] = await get_server_detail(group=group, is_img=False)  # type: ignore
+        out: List[OutServer] = await server_find(command=group, is_img=False)  # type: ignore
         out_msg = "未找到玩家"
         for one in out:
             for player in one["player"]:

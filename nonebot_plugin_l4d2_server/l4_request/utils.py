@@ -34,7 +34,7 @@ async def _handle_group_info(
     server_json: list,
     command: str,
     is_img: bool,
-) -> Union[bytes, str, None]:
+):
     """
     处理服务器组信息请求
 
@@ -44,13 +44,13 @@ async def _handle_group_info(
         is_img (bool): 是否返回图片格式
 
     Returns:
-        Union[bytes, str, None]: 图片格式返回bytes，否则返回服务器列表
+        Union[bytes, list, None]: 图片格式返回bytes，否则返回服务器列表
     """
     logger.info(f"正在请求组服务器信息 {command}")
     server_dict = await get_much_server(server_json, command)
     if is_img:
         return await msg_to_image(server_dict)
-    return str(server_dict)
+    return server_dict
 
 
 async def get_single_server_info(
