@@ -42,6 +42,7 @@ from .l4_request import (
 )
 from .utils.api.request import L4API
 from .utils.api.utils import out_msg_out
+from .utils.utils import split_maohao
 
 if TYPE_CHECKING:
     from .utils.api.models import OutServer
@@ -152,6 +153,12 @@ async def _(
             for player in one["player"]:
                 if name in player.name:
                     out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
+                    if config.l4_connect and isinstance(out_msg, bytes):
+                        out_msg = UniMessage.image(raw=out_msg) + UniMessage.text(
+                            f"\nconnect {one['host']}:{one['port']}",
+                        )
+                    else:
+                        out_msg = UniMessage.text(out_msg)
 
     return await out_msg_out(out_msg)
 
@@ -165,7 +172,13 @@ async def _():
 async def _(args: Message = CommandArg()):
     ip: Optional[str] = args.extract_plain_text()
     if ip is not None:
-        await out_msg_out(await get_ip_server(ip), is_connect=config.l4_image)
+        host, port = split_maohao(ip)
+        await out_msg_out(
+            await get_ip_server(ip),
+            is_connect=config.l4_connect,
+            host=host,
+            port=port,
+        )
 
 
 @l4_reload.handle()

@@ -24,7 +24,7 @@ async def out_msg_out(
         await UniMessage.text(msg).finish()
     if is_connect:
         out = UniMessage.image(raw=msg) + UniMessage.text(
-            f"连接到服务器: {host}:{port}",
+            f"connect: {host}:{port}",
         )
         return await out.finish()
     return await UniMessage.image(raw=msg).finish()
