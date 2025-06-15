@@ -153,7 +153,7 @@ async def text2pic(text: str, max_size: int = 800, font_size: int = 24):
         text = text[:-1]
 
     # 更准确的高度计算
-    line_count = text.count('\n') + 1
+    line_count = text.count("\n") + 1
     line_height = int(font_size * 1.2)  # 每行高度，包含行间距
     estimated_height = line_count * line_height + 80  # 加上上下边距
 
