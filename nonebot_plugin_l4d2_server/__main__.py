@@ -42,7 +42,7 @@ from .l4_request import (
 )
 from .utils.api.request import L4API
 from .utils.api.utils import out_msg_out
-from .utils.utils import split_maohao
+from .utils.utils import log_and_send, read_config, split_maohao, write_config
 
 if TYPE_CHECKING:
     from .utils.api.models import OutServer
@@ -131,6 +131,8 @@ async def _(
 ):
     # 以后有时间补img格式
     msg: str = args.extract_plain_text().strip()
+    if not msg:
+        return UniMessage.text("请在指令后添加要找的昵称哦")
     tag_list: List[str] = msg.split(" ", maxsplit=1)
     if len(tag_list) == 1:
         await UniMessage.text("未设置组，正在全服查找，时间较长").send()
@@ -199,33 +201,19 @@ async def _(args: Message = CommandArg()):
 l4_add_ban = on_command("l4addban", aliases={"l4添加ban"})
 
 
+
 @l4_add_ban.handle()
 async def _(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip().split(" ")
-
     if len(arg) != 2:
         await UniMessage.text("请在命令后增加响应指令名和网址").finish()
 
-    if not config_path.is_file():
-        config_data = {}
-    else:
-        try:
-            with config_path.open("r") as f:
-                config_data = json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
-            config_data = {}
-
+    config_data = read_config(config_path)
     config_data.update({arg[0]: arg[1]})
-
-    try:
-        with config_path.open("w") as f:
-            json.dump(config_data, f, ensure_ascii=False, indent=4)
-    except IOError as e:
-        await UniMessage.text(f"文件写入失败: {e}").finish()
+    write_config(config_path, config_data)
 
     await L4API.get_sourceban(arg[0], arg[1])
-    await out_msg_out(f"添加成功\n组名: {arg[0]}\n网址: {arg[1]}")
-
+    await log_and_send(l4_add_ban, f"添加成功\n组名: {arg[0]}\n网址: {arg[1]}")
 
 l4_del_ban = on_command("l4delban", aliases={"l4删除ban", "l4移除ban"})
 
