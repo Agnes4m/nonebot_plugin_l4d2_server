@@ -32,7 +32,7 @@ async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
         player_msg = ""
         if len(players):
             max_duration_len = max(
-                [len(str(await convert_duration(i.duration))) for i in players],
+                [len(str(await convert_duration(i.duration))) for i in players]
             )
             max_score_len = max(len(str(i.score)) for i in players)
 
@@ -40,15 +40,10 @@ async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
                 soc = "[{:>{}}]".format(player.score, max_score_len)
                 chines_dur = await convert_duration(player.duration)
                 dur = "{:^{}}".format(chines_dur, max_duration_len)
-                name_leg = len(player.name)
-                if name_leg > 2:
-                    xing = ":)" * (name_leg - 2)
-                    name = f"{player.name[0]}{xing}{player.name[-1]}"
-                else:
-                    name = player.name
+                name = player.name
                 player_msg += f"{soc} | {dur} | {name} \n"
         else:
-            player_msg = "服务器感觉很安静啊"
+            player_msg = "服务器感觉很安静啊\n"
         return player_msg
 
     def build_server_message(server, player_info: str) -> str:
@@ -59,13 +54,35 @@ async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
         Returns:
             完整的服务器信息字符串
         """
+
+        # 处理服务器类型显示
+        type_map = {
+            'd': 'Dedicated',
+            'l': 'Listen'
+        }
+        platform_map = {
+            'w': 'Windows',
+            'l': 'Linux'
+        }
+        # 解析原始数据 (例如 "d(w)" -> type='d', platform='w')
+        server_type = server.server_type[0] if server.server_type else 'd'
+        platform = server.platform[0] if server.platform else 'w'
+        
+        # 处理VAC状态显示
+        vac_status = "启用" if server.vac_enabled else "禁用"
+        # 处理密码状态显示
+        pw_status = "是" if server.password_protected else "否"
+        
         msg = f"""-{server.server_name}-
 游戏: {server.folder}
 地图: {server.map_name}
-人数: {server.player_count}/{server.max_players}"""
+人数: {server.player_count} / {server.max_players}"""
         if server.ping is not None:
             msg += f"""
-ping: {server.ping * 1000:.0f}ms
+延迟: {server.ping * 1000:.0f} ms
+类型: {type_map.get(server_type, '未知')} ({platform_map.get(platform, '未知')})
+VAC : {vac_status}
+密码: {pw_status}\n
 {player_info}"""
         if config.l4_show_ip:
             msg += f"""
@@ -112,7 +129,7 @@ connect {host}:{port}"""
 
             # 计算图片尺寸
             margin = 20
-            line_spacing = 5
+            line_spacing = 7
             img_width = max(title_width, content_width) + 2 * margin
             content_lines_count = len(content.split("\n")) if content else 0
             img_height = max(
@@ -141,15 +158,56 @@ connect {host}:{port}"""
                 if content:
                     content_x = margin
                     content_y = title_y + title_height + margin
-                    draw.text(
-                        (content_x, content_y),
-                        content,
-                        font=font,
-                        fill=(255, 255, 255),
-                        spacing=line_spacing,
-                    )
+                    
+                    # 定义不同参数值的颜色（冒号后的内容）
+                    value_colors = {
+                        "游戏: ": (200, 180, 255),  # 淡紫
+                        "地图: ": (166, 202, 253),  # 淡蓝
+                        "人数: ": (100, 255, 100),  # 绿色
+                        "延迟: ": (100, 255, 100),  # 绿色
+                        "类型: ": (180, 220, 255),  # 淡蓝
+                        "密码: ": (255, 255, 255),  # 白色
+                        # connect不修改，保持原逻辑
+                    }
+                    
+                    # 按行绘制内容
+                    current_y = content_y
+                    for line in content_lines:
+                        # 检查是否是参数行
+                        colored = False
+                        for prefix, color in value_colors.items():
+                            if line.startswith(prefix):
+                                # 绘制完整参数名（白色）
+                                prefix_part = prefix
+                                prefix_width = font.getbbox(prefix_part)[2] - font.getbbox(prefix_part)[0]
+                                draw.text((content_x, current_y), prefix_part, font=font, fill=(255, 255, 255))
+                                
+                                # 绘制参数值（带颜色）
+                                value_part = line[len(prefix):].strip()
+                                draw.text((content_x + prefix_width, current_y), value_part, font=font, fill=color)
+                                
+                                colored = True
+                                break
+                        # 特殊处理VAC行
+                        if not colored and line.startswith("VAC :"):
+                            prefix = "VAC : "
+                            prefix_width = font.getbbox(prefix)[2] - font.getbbox(prefix)[0]
+                            draw.text((content_x, current_y), prefix, font=font, fill=(255, 255, 255))
+                            
+                            value_part = line[len(prefix):].strip()
+                            vac_color = (70, 209, 110) if value_part == "启用" else (255, 90, 90)  # 启用绿/禁用红
+                            draw.text((content_x + prefix_width, current_y), value_part, 
+                                     font=font, fill=vac_color)
+                            
+                            colored = True
+                        
+                        # 普通行（玩家信息）和connect保持原样
+                        if not colored:
+                            draw.text((content_x, current_y), line, font=font, fill=(255, 255, 255))
+                        
+                        current_y += line_height + line_spacing
 
-                    return img
+                return img
             except Exception as e:
                 logger.error(f"加载背景图片失败: {e}")
                 img = Image.new(
