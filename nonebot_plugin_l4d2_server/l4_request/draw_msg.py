@@ -57,22 +57,22 @@ async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
 
         # 处理服务器类型显示
         type_map = {
-            'd': 'Dedicated',
-            'l': 'Listen'
+            "d": "Dedicated",
+            "l": "Listen",
         }
         platform_map = {
-            'w': 'Windows',
-            'l': 'Linux'
+            "w": "Windows",
+            "l": "Linux",
         }
         # 解析原始数据 (例如 "d(w)" -> type='d', platform='w')
-        server_type = server.server_type[0] if server.server_type else 'd'
-        platform = server.platform[0] if server.platform else 'w'
-        
+        server_type = server.server_type[0] if server.server_type else "d"
+        platform = server.platform[0] if server.platform else "w"
+
         # 处理VAC状态显示
         vac_status = "启用" if server.vac_enabled else "禁用"
         # 处理密码状态显示
         pw_status = "是" if server.password_protected else "否"
-        
+
         msg = f"""-{server.server_name}-
 游戏: {server.folder}
 地图: {server.map_name}
@@ -158,7 +158,7 @@ connect {host}:{port}"""
                 if content:
                     content_x = margin
                     content_y = title_y + title_height + margin
-                    
+
                     # 定义不同参数值的颜色（冒号后的内容）
                     value_colors = {
                         "游戏: ": (200, 180, 255),  # 淡紫
@@ -169,7 +169,7 @@ connect {host}:{port}"""
                         "密码: ": (255, 255, 255),  # 白色
                         # connect不修改，保持原逻辑
                     }
-                    
+
                     # 按行绘制内容
                     current_y = content_y
                     for line in content_lines:
@@ -179,32 +179,65 @@ connect {host}:{port}"""
                             if line.startswith(prefix):
                                 # 绘制完整参数名（白色）
                                 prefix_part = prefix
-                                prefix_width = font.getbbox(prefix_part)[2] - font.getbbox(prefix_part)[0]
-                                draw.text((content_x, current_y), prefix_part, font=font, fill=(255, 255, 255))
-                                
+                                prefix_width = (
+                                    font.getbbox(prefix_part)[2]
+                                    - font.getbbox(prefix_part)[0]
+                                )
+                                draw.text(
+                                    (content_x, current_y),
+                                    prefix_part,
+                                    font=font,
+                                    fill=(255, 255, 255),
+                                )
+
                                 # 绘制参数值（带颜色）
-                                value_part = line[len(prefix):].strip()
-                                draw.text((content_x + prefix_width, current_y), value_part, font=font, fill=color)
-                                
+                                value_part = line[len(prefix) :].strip()
+                                draw.text(
+                                    (content_x + prefix_width, current_y),
+                                    value_part,
+                                    font=font,
+                                    fill=color,
+                                )
+
                                 colored = True
                                 break
                         # 特殊处理VAC行
                         if not colored and line.startswith("VAC :"):
                             prefix = "VAC : "
-                            prefix_width = font.getbbox(prefix)[2] - font.getbbox(prefix)[0]
-                            draw.text((content_x, current_y), prefix, font=font, fill=(255, 255, 255))
-                            
-                            value_part = line[len(prefix):].strip()
-                            vac_color = (70, 209, 110) if value_part == "启用" else (255, 90, 90)  # 启用绿/禁用红
-                            draw.text((content_x + prefix_width, current_y), value_part, 
-                                     font=font, fill=vac_color)
-                            
+                            prefix_width = (
+                                font.getbbox(prefix)[2] - font.getbbox(prefix)[0]
+                            )
+                            draw.text(
+                                (content_x, current_y),
+                                prefix,
+                                font=font,
+                                fill=(255, 255, 255),
+                            )
+
+                            value_part = line[len(prefix) :].strip()
+                            vac_color = (
+                                (70, 209, 110)
+                                if value_part == "启用"
+                                else (255, 90, 90)
+                            )  # 启用绿/禁用红
+                            draw.text(
+                                (content_x + prefix_width, current_y),
+                                value_part,
+                                font=font,
+                                fill=vac_color,
+                            )
+
                             colored = True
-                        
+
                         # 普通行（玩家信息）和connect保持原样
                         if not colored:
-                            draw.text((content_x, current_y), line, font=font, fill=(255, 255, 255))
-                        
+                            draw.text(
+                                (content_x, current_y),
+                                line,
+                                font=font,
+                                fill=(255, 255, 255),
+                            )
+
                         current_y += line_height + line_spacing
 
                     return img
