@@ -152,20 +152,26 @@ async def text2pic(text: str, max_size: int = 800, font_size: int = 24):
     if text.endswith("\n"):
         text = text[:-1]
 
+    # 更准确的高度计算
+    line_count = text.count("\n") + 1
+    line_height = int(font_size * 1.2)  # 每行高度，包含行间距
+    estimated_height = line_count * line_height + 80  # 加上上下边距
+
     img = Image.new(
         "RGB",
-        (max_size, len(text) * font_size // 10),
+        (max_size, estimated_height),
         (255, 255, 255),
     )
     img_draw = ImageDraw.ImageDraw(img)
     y = draw_center_text_by_line(
         img_draw,
-        (50, 50),
+        (50, 30),
         text,
         core_font(font_size),
         "black",
         max_size - 80,
         True,  # noqa: FBT003
     )
-    img = img.crop((0, 0, max_size, int(y + 80)))
+    # 裁剪时留一些余量
+    img = img.crop((0, 0, max_size, int(y + 55)))
     return await convert_img(img)
