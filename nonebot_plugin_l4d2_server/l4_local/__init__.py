@@ -45,7 +45,15 @@ else:
 
     @search_map.handle()
     async def _():
-        supath = local_path[map_index] / "addons"
+        try:
+            supath = local_path[map_index] / "addons"
+        except IndexError:
+            logger.warning(
+                "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
+            )
+            await UniMessage.text(
+                "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
+            ).finish()
         vpk_list: list[str] = []
         if supath.is_dir():
             for sudir in supath.iterdir():

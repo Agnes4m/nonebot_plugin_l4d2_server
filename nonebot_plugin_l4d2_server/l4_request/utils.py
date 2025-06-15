@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union
 
 from nonebot.log import logger
 
@@ -95,10 +95,7 @@ async def _handle_single_server(
         return None
 
     host, port = server_info
-    out_msg = await draw_one_ip(host, port)
-    if is_img:
-        return cast(bytes, out_msg)
-    return out_msg
+    return await draw_one_ip(host, port, is_img=is_img)
 
 
 async def _filter_servers(

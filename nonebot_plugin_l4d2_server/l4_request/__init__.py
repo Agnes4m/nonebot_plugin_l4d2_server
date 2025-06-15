@@ -119,7 +119,7 @@ async def get_group_detail(
     command: str,
 ):
     server_json = _get_server_json(command, ALLHOST)
-    logger.info(server_json)
+    logger.debug(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
         return None
@@ -170,7 +170,7 @@ def reload_ip():
 async def tj_request(command: str = "云", tj="tj"):
     map_type = "普通药役"
     server_json = ALLHOST.get(command)
-    logger.info(server_json)
+    logger.debug(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
         return None
@@ -186,8 +186,9 @@ async def tj_request(command: str = "云", tj="tj"):
             logger.warning("没有找到符合条件的服务器")
             return "没有符合条件的服务器"
 
+        server_list_str = [f"{ip['host']}:{ip['port']}" for ip in right_ip]
         logger.info(
-            f"符合条件的服务器列表: {[f'{ip['host']}:{ip['port']}' for ip in right_ip]}",
+            f"符合条件的服务器列表: {server_list_str}",
         )
         s = random.choice(right_ip)
         logger.info(f"最终选择的服务器: {s['host']}:{s['port']}")
@@ -216,7 +217,7 @@ async def server_find(
     is_img: bool = True,
 ):
     server_json = _get_server_json(command, ALLHOST)
-    logger.info(server_json)
+    logger.debug(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
         return None

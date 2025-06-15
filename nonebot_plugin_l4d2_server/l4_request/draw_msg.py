@@ -1,5 +1,3 @@
-import asyncio
-
 # from logging import log
 import io
 from pathlib import Path
@@ -15,9 +13,9 @@ from ..utils.api.request import L4API
 
 async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
     """输出单个ip"""
-    try:
-        ser_list = await L4API.a2s_info([(host, port)], is_player=True)
-    except asyncio.exceptions.TimeoutError:
+    ser_list = await L4API.a2s_info([(host, port)], is_player=True)
+    if not ser_list or ser_list[0][0].max_players == 0:
+        # except asyncio.exceptions.TimeoutError:
         return "服务器无响应"
     one_server = ser_list[0][0]
     one_player = ser_list[0][1]
