@@ -32,7 +32,7 @@ async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
         player_msg = ""
         if len(players):
             max_duration_len = max(
-                [len(str(await convert_duration(i.duration))) for i in players]
+                [len(str(await convert_duration(i.duration))) for i in players],
             )
             max_score_len = max(len(str(i.score)) for i in players)
 
@@ -207,7 +207,7 @@ connect {host}:{port}"""
                         
                         current_y += line_height + line_spacing
 
-                return img
+                    return img
             except Exception as e:
                 logger.error(f"加载背景图片失败: {e}")
                 img = Image.new(
