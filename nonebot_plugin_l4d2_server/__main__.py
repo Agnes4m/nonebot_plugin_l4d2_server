@@ -201,7 +201,6 @@ async def _(args: Message = CommandArg()):
 l4_add_ban = on_command("l4addban", aliases={"l4添加ban"})
 
 
-
 @l4_add_ban.handle()
 async def _(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip().split(" ")
@@ -214,6 +213,7 @@ async def _(args: Message = CommandArg()):
 
     await L4API.get_sourceban(arg[0], arg[1])
     await log_and_send(l4_add_ban, f"添加成功\n组名: {arg[0]}\n网址: {arg[1]}")
+
 
 l4_del_ban = on_command("l4delban", aliases={"l4删除ban", "l4移除ban"})
 

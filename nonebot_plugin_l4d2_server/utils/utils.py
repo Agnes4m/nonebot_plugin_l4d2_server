@@ -16,6 +16,8 @@ from nonebot_plugin_alconna import UniMessage
 async def log_and_send(matcher, message: str, level="info"):
     getattr(logger, level)(message)
     await matcher.finish(UniMessage.text(message))
+
+
 def read_config(config_path: Path) -> dict:
     if not config_path.is_file():
         return {}
@@ -25,12 +27,15 @@ def read_config(config_path: Path) -> dict:
     except (json.JSONDecodeError, FileNotFoundError):
         return {}
 
+
 def write_config(config_path: Path, data: dict) -> None:
     try:
         with config_path.open("w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
     except IOError as e:
         raise RuntimeError(f"配置写入失败: {e}") from e
+
+
 async def get_file(url: str, down_file: Path):
     """
     下载指定Url到指定位置
