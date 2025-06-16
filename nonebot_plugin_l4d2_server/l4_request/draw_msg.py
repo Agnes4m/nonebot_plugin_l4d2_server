@@ -53,24 +53,7 @@ async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
             完整的服务器信息字符串
         """
 
-        # 处理服务器类型显示
-        type_map = {
-            "d": "Dedicated",
-            "l": "Listen",
-        }
-        platform_map = {
-            "w": "Windows",
-            "l": "Linux",
-        }
-        # 解析原始数据 (例如 "d(w)" -> type='d', platform='w')
-        server_type = server.server_type[0] if server.server_type else "d"
-        platform = server.platform[0] if server.platform else "w"
-
-        # 处理VAC状态显示
         vac_status = "启用" if server.vac_enabled else "禁用"
-        # 处理密码状态显示
-        pw_status = "是" if server.password_protected else "否"
-
         msg = f"""-{server.server_name}-
 游戏: {server.folder}
 地图: {server.map_name}
@@ -78,9 +61,7 @@ async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
         if server.ping is not None:
             msg += f"""
 延迟: {server.ping * 1000:.0f} ms
-类型: {type_map.get(server_type, '未知')} ({platform_map.get(platform, '未知')})
-VAC : {vac_status}
-密码: {pw_status}\n
+VAC : {vac_status}\n
 {player_info}"""
         if config.l4_show_ip:
             msg += f"""
