@@ -45,7 +45,15 @@ else:
 
     @search_map.handle()
     async def _():
-        supath = local_path[map_index] / "addons"
+        try:
+            supath = local_path[map_index] / "addons"
+        except IndexError:
+            logger.warning(
+                "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
+            )
+            await UniMessage.text(
+                "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
+            ).finish()
         vpk_list: list[str] = []
         if supath.is_dir():
             for sudir in supath.iterdir():
@@ -54,6 +62,27 @@ else:
                     vpk_list.append(sudir.name)
         if not vpk_list:
             await UniMessage.text("未找到可用的VPK文件").finish()
+
+        # 添加排序逻辑（数字升序）
+        def sort_key(filename: str):
+            # 提取文件名开头的数字（如果有）
+            num_part = ""
+            for char in filename:
+                if char.isdigit():
+                    num_part += char
+                elif num_part:  # 遇到非数字且已经有数字部分时停止
+                    break
+
+            # 返回一个元组作为排序依据：(数字值, 整个文件名)
+            # 使用正数表示升序，没有数字的用无穷大排在最后
+            return (
+                int(num_part) if num_part else float("inf"),
+                filename,
+            )
+
+        # 按数字升序，然后按字母和中文排序
+        vpk_list.sort(key=sort_key)
+
         out_msg = "\n".join(
             f"{index + 1}、{line}" for index, line in enumerate(vpk_list)
         )
