@@ -119,6 +119,7 @@ async def get_group_detail(
     command: str,
 ):
     server_json = _get_server_json(command, ALLHOST)
+    # logger.debug(f"获取组服务器信息: {server_json}")
     logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
@@ -211,11 +212,15 @@ async def tj_request(command: str = "云", tj="tj"):
 
 
 async def server_find(
-    command: str = "云",
+    command: str = "",
     _id: Optional[str] = None,
     is_img: bool = True,
 ):
-    server_json = _get_server_json(command, ALLHOST)
+    all_command = get_all_json_filenames()
+    server_json = []
+    for one_command in all_command:
+        server_j = _get_server_json(one_command, ALLHOST)
+        server_json.extend(server_j)
     logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
@@ -238,3 +243,19 @@ async def server_find(
     if isinstance(out_msg, str):
         return UniMessage.text(out_msg)
     return None
+
+
+def get_all_json_filenames():
+    """
+    获取 server_all_path 路径下所有 json 文件的文件名（不带扩展名）的列表。
+    """
+    json_files = []
+    for item in server_all_path.iterdir():
+        if item.is_file() and item.suffix == ".json":
+            json_files.append(item.stem)
+    return json_files
+
+
+# 使用示例
+
+# all_json_names 现在是一个包含所有 json 文件名（不带扩展名）的 list

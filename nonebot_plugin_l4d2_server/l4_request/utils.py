@@ -22,11 +22,13 @@ def _get_server_json(
     Returns:
         Optional[list]: 服务器JSON列表，未找到组时返回None
     """
+    logger.debug(f"获取服务器组 {allhost} 的信息")
     if command:
         return allhost.get(command)
     server_json = []
     for servers in allhost.values():
         server_json.extend(servers)
+    logger.debug(f"获取到的服务器组信息: {server_json}")
     return server_json
 
 
