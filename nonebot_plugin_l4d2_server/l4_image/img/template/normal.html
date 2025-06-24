@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <title>Anne云服服务器状态</title>
@@ -10,12 +11,12 @@
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
             background: url('../back_img/background.jpg') repeat;
             background-size: cover;
-                filter: blur(12px) brightness(0.6);
+            /* filter: blur(12px) brightness(0.6); */
         }
     </style>
 </head>
 
-<body> 
+<body>
     <div class="outer-frame">
         <div class="container">
             <h1>Anne云服服务器状态 (共 {{ servers|length }} 台)</h1>
@@ -35,19 +36,20 @@
                     <div class="players">
                         <span class="status-indicator">
                             {% if server.server.player_count >= 0 %}
-                                {% if server.server.max_players == 0 %}
-                                    <span class="offline">🔴</span>
-                                {% elif server.server.player_count / server.server.max_players < 0.5 %}
-                                    <span class="online">🟢</span>
-                                {% elif server.server.player_count >= server.server.max_players %}
-                                    <span class="warning">🟡</span>
-                                {% else %}
-                                    <span class="online">🔵</span>
-                                {% endif %}
-                                <span class="player-count">{{ server.server.player_count }}/{{ server.server.max_players }}</span>
-                            {% else %}
-                                <span class="offline">🔴 错误</span>
-                            {% endif %}
+                            {% if server.server.max_players == 0 %}
+                            <span class="offline">🔴</span>
+                            {% elif server.server.player_count / server.server.max_players < 0.5 %} <span
+                                class="online">🟢</span>
+                        {% elif server.server.player_count >= server.server.max_players %}
+                        <span class="warning">🟡</span>
+                        {% else %}
+                        <span class="online">🔵</span>
+                        {% endif %}
+                        <span class="player-count">{{ server.server.player_count }}/{{ server.server.max_players
+                            }}</span>
+                        {% else %}
+                        <span class="offline">🔴 错误</span>
+                        {% endif %}
                         </span>
 
                         <span class="server-meta">
@@ -68,23 +70,23 @@
                     <div class="player-list">
                         {% set player_count = server.player|length %}
                         {% for i in range(max_count) %}
-                            {% set player = server.player[i] if i < player_count else None %}
-                            {% if player and player.name %}
-                                <div class="player-item">
-                                    <span class="player-name">{{ player.name }}</span>
-                                    <span class="player-score">{{ player.score }}</span>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
+                        {% set player = server.player[i] if i < player_count else None %} {% if player and player.name
+                            %} <div class="player-item">
+                            <span class="player-name">{{ player.name }}</span>
+                            <span class="player-score">{{ player.score }}</span>
                     </div>
+                    {% endif %}
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
+            {% endfor %}
+        </div>
 
-            <div class="footer">
-                @Anges Digital & Nonebot2
-            </div>
+        <div class="footer">
+            @Anges Digital & Nonebot2
         </div>
     </div>
+    </div>
 </body>
+
 </html>
