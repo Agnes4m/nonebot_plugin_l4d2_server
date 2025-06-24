@@ -76,7 +76,7 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
         else:
             template = env.get_template("normal.html")
         content = await template.render_async(
-            plugins=plugins,
+            servers=plugins,
             max_count=config.l4_players,
         )
         return await html_to_pic(
@@ -86,5 +86,5 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
             template_path=f"file://{template_path.absolute()}",
         )
     except Exception as e:
-        logger.warning(f"Error in get_help_img: {e}")
+        logger.warning(f"Error in get_server_img: {e}")
     return None

@@ -1,247 +1,205 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 
 <head>
-  <style>
-    body {
-      margin: 0px;
-      zoom: 150%;
-    }
+    <meta charset="UTF-8">
+    <title>Anne云服服务器状态</title>
+    <style>
+        body {
+            width: 900px;
+            margin: 0 auto;
+            /* 改为自动居中 */
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            padding: 10px 0;
+            /* 只保留上下padding */
+        }
 
-    /* Vac图标样式 */
-    .vac-icon {
-      width: 13px;
-      height: auto;
-      margin-left: 190px;
-    }
+        .outer-frame {
+            width: 900px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e0e3e7;
+            margin: 0 auto;
+            /* 确保居中 */
+        }
 
-    .image {
-      display: flex;
-      flex-direction: column;
-      overflow: scroll;
-      width: max-content;
-      padding: 20px;
-    }
+        .container {
+            width: 880px;
+            /* 调整为更接近外层宽度 */
+            margin: 0 auto;
+            padding: 20px 10px;
+            /* 减少左右padding */
+            box-sizing: border-box;
+        }
 
-    .head {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      background-color: #f5f6f7;
-      padding-left: 20px;
-      padding-right: 20px;
-      padding-top: 10px;
-      padding-bottom: 10px;
-      border: 2px solid;
-      border-radius: 50px;
-      border-color: #e5e7eb;
-      font-size: 16px;
-      margin-bottom: 20px;
-    }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            font-size: 24px;
+        }
 
-    .plugins {
-      display: grid;
-      grid-template-columns: auto auto auto;
-      row-gap: 20px;
-      column-gap: 20px;
-      margin-bottom: 20px;
-    }
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 280px);
+            /* 调整为3列280px */
+            gap: 10px;
+            justify-content: center;
+            /* 确保居中 */
+            padding: 0 10px;
+            /* 添加内边距防止溢出 */
+        }
 
-    .plugin {
-      display: flex;
-      padding: 5px;
-      border: 1px solid;
-      border-radius: 5px;
-      border-color: #e5e7eb;
-      box-shadow: 0px 2px 6px 1px rgba(0, 0, 0, 0.2);
-      background-color: #f5f6f7;
-    }
+        .server-card {
+            width: 100%;
+            /* 改为100%填充网格单元格 */
+            background-color: #fff;
+            border: 1px solid #e0e3e7;
+            border-radius: 8px;
+            padding: 12px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
 
-    .plugin_meta {
-      display: flex;
-      flex-direction: column;
-      padding: 5px;
-      width: 250px;
-      justify-content: space-between;
-    }
+        /* 其余样式保持不变... */
+        .server-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #3498db;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+        }
 
-    .plugin_name {
-      font-size: 20px;
-    }
+        .server-details {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 5px;
+            font-size: 12px;
+        }
 
-    .plugin_description {
-      font-size: 15px;
-      color: gray;
-      margin-top: 5px;
-      margin-bottom: 5px;
-    }
+        .detail-label {
+            font-weight: bold;
+            color: #7f8c8d;
+            text-align: left;
+        }
 
-    .plugin_meta_line1 {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
+        .detail-value {
+            text-align: left;
+        }
 
-    .plugin_meta_line3 {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
+        .map-name {
+            font-size: 13px;
+            color: #e74c3c;
+            margin: 5px 0;
+            text-align: left;
+            font-style: normal;
+            padding-left: 5px;
+        }
 
-    .package_name_label {
-      background-image: url(./fingerprint.svg);
-      width: 13px;
-      height: 13px;
-      margin-right: 8px;
-    }
+        .players {
+            text-align: left;
+            margin-top: 6px;
+            font-size: 12px;
+            padding-left: 0px;
+        }
 
-    .package_name {
-      font-size: 13px;
-      color: gray;
-    }
+        .online {
+            color: #27ae60;
+        }
 
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 40px;
-      height: 24px;
-    }
+        .offline {
+            color: #e74c3c;
+        }
 
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-    }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
 
-    .slider.round {
-      border-radius: 24px;
-    }
+        .map-name:before,
+        .players:before {
+            margin-right: 5px;
+        }
 
-    .status_text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      white-space: nowrap;
-      /* 防止换行 */
-      padding: 2px 6px;
-      /* 添加一些内边距以增加可读性 */
-      border-radius: 16px;
-      /* 圆角 */
-    }
-
-    .error {
-      background-color: #999;
-      /* 灰色背景 */
-      color: white;
-      /* 白色文字 */
-    }
-
-    .lack {
-      background-color: #4CAF50;
-      /* 绿色背景 */
-      color: white;
-      /* 白色文字 */
-    }
-
-    .full {
-      background-color: #f44336;
-      /* 红色背景 */
-      color: white;
-      /* 白色文字 */
-    }
-
-    .not_full {
-      background-color: #2196F3;
-      /* 蓝色背景 */
-      color: white;
-      /* 白色文字 */
-    }
-  </style>
+        .vac-icon {
+            width: 13px;
+            height: auto;
+            margin-left: 15px;
+        }
+    
+        .platform {
+            width: 13px;
+            height: auto;
+            margin-left: 15px;
+        }
+    </style>
 </head>
 
 <body>
-  <div class="image">
-    <div class="head">
-      <span><b>已加载服务器</b></span>
-      <span>发送 “<b>查询指令+序号</b>” 查看详情</span>
-    </div>
-    <div class="plugins">
-      {% for plugin in plugins %}
-      <div class="plugin">
-        <div class="plugin_meta">
-          <div class="plugin_meta_line1">
-            <div class="plugin_name">{{ plugin.command }}{{ plugin.id_ }}:{{ plugin.server.server_name }}</div>
-            <div class="plugin_status">
-              <label class="switch">
-                <input class="checkbox" type="checkbox" {% if plugin.enabled %} checked {% endif %} />
-                <span
-                  class="slider round {% if plugin.server.player_count >= plugin.server.max_players %} locked {% endif %}">
-                  <span
-                    class="lock {% if plugin.server.player_count >= plugin.server.max_players %} locked {% endif %}"></span>
-                  <span
-                    class="status_text {% if plugin.server.max_players == 0 %}error{% elif plugin.server.player_count / plugin.server.max_players < 0.5 %}lack{% elif plugin.server.player_count >= plugin.server.max_players %}full{% else %}not_full{% endif %}">
-                    {% if plugin.server.max_players == 0 %}
-                    错误
-                    {% elif plugin.server.player_count / plugin.server.max_players < 0.5 %} 缺人 {% elif
-                      plugin.server.player_count>= plugin.server.max_players
-                      %}
-                      已满
-                      {% else %}
-                      未满
-                      {% endif %}
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-          <div class="plugin_meta_line2">
-            <font color="blue">地图:{{ plugin.server.map_name }}</font><br>
-            {% set player_count = plugin.player|length %}
+    <div class="outer-frame">
+        <div class="container">
+            <h1>Anne云服服务器状态 (共 {{ servers|length }} 台)</h1>
+
+            <div class="server-grid">
+                {% for server in servers %}
+                <div class="server-card">
+                    <div class="server-name" title="{{ server.server.server_name }}">
+                        {{ server.server.server_name|replace('\n', ' ')|replace(' ', ' ')|trim }}
+                    </div>
+
+                    <div class="map-name" title="当前地图">
+                        🗺️ {{ server.server.map_name }}
+                    </div>
+
+                    <div class="players">
+                        {% if server.server.player_count >= 0 %}
+                        <span class="online">
+                            {% if server.server.max_players == 0 %}
+                            🔴
+                            {% elif server.server.player_count / server.server.max_players < 0.5 %} 🟢 {% elif
+                                server.server.player_count>= server.server.max_players
+                                %}
+                                🟡
+                                {% else %}
+                                🔵
+                                {% endif %}</span>
+                        {{ server.server.player_count }}/{{ server.server.max_players}}
+                        {% else %}
+                        <span class="offline">🔴 错误</span>
+                        {% endif %}
+                        <img class="platform" src="{{server.server.platform}}.svg" width="13" height="13" />{% if server.server.vac_enabled %}<img class="vac-icon" src="vac.png">{% endif %}
+                        <span class="platform">{{ (server.server.ping * 1000)|round(1) }} ms </span>
+                    </div>
+          <div class="player">
+            {% set player_count = server.player|length %}
             {% for i in range(max_count) %}
-            {% set player = plugin.player[i] if i < player_count else None %} {% if player and player.name %} <font
+            {% set player = server.player[i] if i < player_count else None %} {% if player and player.name %} <font
               color="green">• {{ player.score }} | {{ player.name }}</font><br>
               {% else %}
-              <!-- 如果玩家不存在或没有名字，则显示空行或占位符 -->
-              <br>
               {% endif %}
               {% endfor %}
           </div>
-          <div class="plugin_meta_line3">
-            {% if plugin.server.platform == 'l' %}
-            <image xlink:href="l.svg" width="13" height="13" />
-            </svg>
-            {% elif plugin.server.platform == 'w' %}
-            <image xlink:href="w.svg" width="13" height="13" />
-            {% else %}
-            <image xlink:href="m.svg" width="13" height="13" />
-            {% endif %}
-            <div class="package_name">&nbsp{{ plugin.server.player_count }}/{{ plugin.server.max_players }} </div>
-            {% if plugin.server.vac_enabled %}
-            <img class="vac-icon" src="vac.png">
-            {% else %}
-            {% endif %}
-          </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="footer">
+                111
+            </div>
         </div>
-      </div>
-      {% endfor %}
     </div>
-    <div class="head">
-      <span class="loaded-text">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
-          style="vertical-align: middle;">
-          <image xlink:href="github.svg" width="20" height="20" />
-        </svg>
-        <b style="vertical-align: middle;">插件:Agnes4m</b>
-      </span>
-      <span class="loaded-text"><b>©爱丽数码</b></span>
-    </div>
-  </div>
+</body>
 
 </html>
-</body>

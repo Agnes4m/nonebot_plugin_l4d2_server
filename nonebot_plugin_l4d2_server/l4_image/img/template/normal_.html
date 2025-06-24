@@ -1,0 +1,247 @@
+<html>
+
+<head>
+  <style>
+    body {
+      margin: 0px;
+      zoom: 150%;
+    }
+
+    /* Vac图标样式 */
+    .vac-icon {
+      width: 13px;
+      height: auto;
+      margin-left: 190px;
+    }
+
+    .image {
+      display: flex;
+      flex-direction: column;
+      overflow: scroll;
+      width: max-content;
+      padding: 20px;
+    }
+
+    .head {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #f5f6f7;
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border: 2px solid;
+      border-radius: 50px;
+      border-color: #e5e7eb;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .plugins {
+      display: grid;
+      grid-template-columns: auto auto auto;
+      row-gap: 20px;
+      column-gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .plugin {
+      display: flex;
+      padding: 5px;
+      border: 1px solid;
+      border-radius: 5px;
+      border-color: #e5e7eb;
+      box-shadow: 0px 2px 6px 1px rgba(0, 0, 0, 0.2);
+      background-color: #f5f6f7;
+    }
+
+    .plugin_meta {
+      display: flex;
+      flex-direction: column;
+      padding: 5px;
+      width: 250px;
+      justify-content: space-between;
+    }
+
+    .plugin_name {
+      font-size: 20px;
+    }
+
+    .plugin_description {
+      font-size: 15px;
+      color: gray;
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+
+    .plugin_meta_line1 {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .plugin_meta_line3 {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .package_name_label {
+      background-image: url(./fingerprint.svg);
+      width: 13px;
+      height: 13px;
+      margin-right: 8px;
+    }
+
+    .package_name {
+      font-size: 13px;
+      color: gray;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 24px;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+    }
+
+    .slider.round {
+      border-radius: 24px;
+    }
+
+    .status_text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      /* 防止换行 */
+      padding: 2px 6px;
+      /* 添加一些内边距以增加可读性 */
+      border-radius: 16px;
+      /* 圆角 */
+    }
+
+    .error {
+      background-color: #999;
+      /* 灰色背景 */
+      color: white;
+      /* 白色文字 */
+    }
+
+    .lack {
+      background-color: #4CAF50;
+      /* 绿色背景 */
+      color: white;
+      /* 白色文字 */
+    }
+
+    .full {
+      background-color: #f44336;
+      /* 红色背景 */
+      color: white;
+      /* 白色文字 */
+    }
+
+    .not_full {
+      background-color: #2196F3;
+      /* 蓝色背景 */
+      color: white;
+      /* 白色文字 */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="image">
+    <div class="head">
+      <span><b>已加载服务器</b></span>
+      <span>发送 “<b>查询指令+序号</b>” 查看详情</span>
+    </div>
+    <div class="plugins">
+      {% for plugin in plugins %}
+      <div class="plugin">
+        <div class="plugin_meta">
+          <div class="plugin_meta_line1">
+            <div class="plugin_name">{{ plugin.command }}{{ plugin.id_ }}:{{ plugin.server.server_name }}</div>
+            <div class="plugin_status">
+              <label class="switch">
+                <input class="checkbox" type="checkbox" {% if plugin.enabled %} checked {% endif %} />
+                <span
+                  class="slider round {% if plugin.server.player_count >= plugin.server.max_players %} locked {% endif %}">
+                  <span
+                    class="lock {% if plugin.server.player_count >= plugin.server.max_players %} locked {% endif %}"></span>
+                  <span
+                    class="status_text {% if plugin.server.max_players == 0 %}error{% elif plugin.server.player_count / plugin.server.max_players < 0.5 %}lack{% elif plugin.server.player_count >= plugin.server.max_players %}full{% else %}not_full{% endif %}">
+                    {% if plugin.server.max_players == 0 %}
+                    错误
+                    {% elif plugin.server.player_count / plugin.server.max_players < 0.5 %} 缺人 {% elif
+                      plugin.server.player_count>= plugin.server.max_players
+                      %}
+                      已满
+                      {% else %}
+                      未满
+                      {% endif %}
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="plugin_meta_line2">
+            <font color="blue">地图:{{ plugin.server.map_name }}</font><br>
+            {% set player_count = plugin.player|length %}
+            {% for i in range(max_count) %}
+            {% set player = plugin.player[i] if i < player_count else None %} {% if player and player.name %} <font
+              color="green">• {{ player.score }} | {{ player.name }}</font><br>
+              {% else %}
+              <!-- 如果玩家不存在或没有名字，则显示空行或占位符 -->
+              <br>
+              {% endif %}
+              {% endfor %}
+          </div>
+          <div class="plugin_meta_line3">
+            {% if plugin.server.platform == 'l' %}
+            <image xlink:href="l.svg" width="13" height="13" />
+            </svg>
+            {% elif plugin.server.platform == 'w' %}
+            <image xlink:href="w.svg" width="13" height="13" />
+            {% else %}
+            <image xlink:href="m.svg" width="13" height="13" />
+            {% endif %}
+            <div class="package_name">&nbsp{{ plugin.server.player_count }}/{{ plugin.server.max_players }} </div>
+            {% if plugin.server.vac_enabled %}
+            <img class="vac-icon" src="vac.png">
+            {% else %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="head">
+      <span class="loaded-text">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
+          style="vertical-align: middle;">
+          <image xlink:href="github.svg" width="20" height="20" />
+        </svg>
+        <b style="vertical-align: middle;">插件:Agnes4m</b>
+      </span>
+      <span class="loaded-text"><b>©爱丽数码</b></span>
+    </div>
+  </div>
+
+</html>
+</body>
