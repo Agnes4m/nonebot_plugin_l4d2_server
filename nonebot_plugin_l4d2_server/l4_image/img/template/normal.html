@@ -1,153 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <title>Anne云服服务器状态</title>
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
-            width: 900px;
-            margin: 0 auto;
-            /* 改为自动居中 */
-            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
-            background-color: #f0f2f5;
-            padding: 10px 0;
-            /* 只保留上下padding */
-        }
-
-        .outer-frame {
-            width: 900px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            border: 1px solid #e0e3e7;
-            margin: 0 auto;
-            /* 确保居中 */
-        }
-
-        .container {
-            width: 880px;
-            /* 调整为更接近外层宽度 */
-            margin: 0 auto;
-            padding: 20px 10px;
-            /* 减少左右padding */
-            box-sizing: border-box;
-        }
-
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin: 0 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eee;
-            font-size: 24px;
-        }
-
-        .server-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 280px);
-            /* 调整为3列280px */
-            gap: 10px;
-            justify-content: center;
-            /* 确保居中 */
-            padding: 0 10px;
-            /* 添加内边距防止溢出 */
-        }
-
-        .server-card {
-            width: 100%;
-            /* 改为100%填充网格单元格 */
-            background-color: #fff;
-            border: 1px solid #e0e3e7;
-            border-radius: 8px;
-            padding: 12px;
-            box-sizing: border-box;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-        }
-
-        /* 其余样式保持不变... */
-        .server-name {
-            font-weight: bold;
-            font-size: 14px;
-            color: #3498db;
-            margin-bottom: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: left;
-        }
-
-        .server-details {
-            display: grid;
-            grid-template-columns: 80px 1fr;
-            gap: 5px;
-            font-size: 12px;
-        }
-
-        .detail-label {
-            font-weight: bold;
-            color: #7f8c8d;
-            text-align: left;
-        }
-
-        .detail-value {
-            text-align: left;
-        }
-
-        .map-name {
-            font-size: 13px;
-            color: #e74c3c;
-            margin: 5px 0;
-            text-align: left;
-            font-style: normal;
-            padding-left: 5px;
-        }
-
-        .players {
-            text-align: left;
-            margin-top: 6px;
-            font-size: 12px;
-            padding-left: 0px;
-        }
-
-        .online {
-            color: #27ae60;
-        }
-
-        .offline {
-            color: #e74c3c;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #7f8c8d;
-            font-size: 12px;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-        }
-
-        .map-name:before,
-        .players:before {
-            margin-right: 5px;
-        }
-
-        .vac-icon {
-            width: 13px;
-            height: auto;
-            margin-left: 15px;
-        }
-    
-        .platform {
-            width: 13px;
-            height: auto;
-            margin-left: 15px;
+            margin: 0;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: url('../back_img/background.jpg') repeat;
+            background-size: cover;
+                filter: blur(12px) brightness(0.6);
         }
     </style>
 </head>
 
-<body>
+<body> 
     <div class="outer-frame">
         <div class="container">
             <h1>Anne云服服务器状态 (共 {{ servers|length }} 台)</h1>
@@ -159,47 +27,64 @@
                         {{ server.server.server_name|replace('\n', ' ')|replace(' ', ' ')|trim }}
                     </div>
 
-                    <div class="map-name" title="当前地图">
-                        🗺️ {{ server.server.map_name }}
+                    <div class="map-name">
+                        <span>🗺️</span>
+                        <span>{{ server.server.map_name }}</span>
                     </div>
 
                     <div class="players">
-                        {% if server.server.player_count >= 0 %}
-                        <span class="online">
-                            {% if server.server.max_players == 0 %}
-                            🔴
-                            {% elif server.server.player_count / server.server.max_players < 0.5 %} 🟢 {% elif
-                                server.server.player_count>= server.server.max_players
-                                %}
-                                🟡
+                        <span class="status-indicator">
+                            {% if server.server.player_count >= 0 %}
+                                {% if server.server.max_players == 0 %}
+                                    <span class="offline">🔴</span>
+                                {% elif server.server.player_count / server.server.max_players < 0.5 %}
+                                    <span class="online">🟢</span>
+                                {% elif server.server.player_count >= server.server.max_players %}
+                                    <span class="warning">🟡</span>
                                 {% else %}
-                                🔵
-                                {% endif %}</span>
-                        {{ server.server.player_count }}/{{ server.server.max_players}}
-                        {% else %}
-                        <span class="offline">🔴 错误</span>
-                        {% endif %}
-                        <img class="platform" src="{{server.server.platform}}.svg" width="13" height="13" />{% if server.server.vac_enabled %}<img class="vac-icon" src="vac.png">{% endif %}
-                        <span class="platform">{{ (server.server.ping * 1000)|round(1) }} ms </span>
+                                    <span class="online">🔵</span>
+                                {% endif %}
+                                <span class="player-count">{{ server.server.player_count }}/{{ server.server.max_players }}</span>
+                            {% else %}
+                                <span class="offline">🔴 错误</span>
+                            {% endif %}
+                        </span>
+
+                        <span class="server-meta">
+                            <span class="server-meta-item">
+                                <img src="{{ server.server.platform }}.svg" alt="平台">
+                            </span>
+                            {% if server.server.vac_enabled %}
+                            <span class="server-meta-item">
+                                <img src="vac.png" alt="VAC保护">
+                            </span>
+                            {% endif %}
+                            <span class="server-meta-item ping-value">
+                                {{ (server.server.ping * 1000)|round(1) }} ms
+                            </span>
+                        </span>
                     </div>
-          <div class="player">
-            {% set player_count = server.player|length %}
-            {% for i in range(max_count) %}
-            {% set player = server.player[i] if i < player_count else None %} {% if player and player.name %} <font
-              color="green">• {{ player.score }} | {{ player.name }}</font><br>
-              {% else %}
-              {% endif %}
-              {% endfor %}
-          </div>
+
+                    <div class="player-list">
+                        {% set player_count = server.player|length %}
+                        {% for i in range(max_count) %}
+                            {% set player = server.player[i] if i < player_count else None %}
+                            {% if player and player.name %}
+                                <div class="player-item">
+                                    <span class="player-name">{{ player.name }}</span>
+                                    <span class="player-score">{{ player.score }}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>
 
             <div class="footer">
-                111
+                @Anges Digital & Nonebot2
             </div>
         </div>
     </div>
 </body>
-
 </html>

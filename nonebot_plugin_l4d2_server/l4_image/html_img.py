@@ -1,4 +1,3 @@
-import random
 from pathlib import Path
 from typing import List, Optional
 
@@ -62,23 +61,13 @@ async def server_ip_pic(server_dict: List[OutServer]):
 
 async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
     try:
-        if config.l4_style == "孤独摇滚":
-            template = env.get_template("Bocchi_The_Rock.html")
-        elif config.l4_style == "电玩像素":
-            template = env.get_template("Pixel.html")
-        elif config.l4_style == "缤纷彩虹":
-            template = env.get_template("Rainbow.html")
-        elif config.l4_style == "随机":
-            html_files = [
-                str(f.name) for f in template_path.rglob("*.html") if f.is_file()
-            ]
-            template = env.get_template(random.choice(html_files))
-        else:
-            template = env.get_template("normal.html")
+        template = env.get_template("normal.html")
         content = await template.render_async(
             servers=plugins,
             max_count=config.l4_players,
         )
+        # with open("test.html", "w", encoding="utf-8") as f:
+        #     f.write(content)
         return await html_to_pic(
             content,
             wait=0,
