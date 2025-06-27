@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Anne云服服务器状态</title>
+    <title>已加载服务器</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body {
@@ -19,7 +19,7 @@
 <body>
     <div class="outer-frame">
         <div class="container">
-            <h1>Anne云服服务器状态 (共 {{ servers|length }} 台)</h1>
+            <h1>已加载服务器 {{ servers[1].command }} (共 {{ servers|length }} 台)</h1>
 
             <div class="server-grid">
                 {% for server in servers %}
@@ -29,9 +29,41 @@
                     </div>
 
                     <div class="map-name">
-                        <span>🗺️</span>
+                        <span>🌎️</span>
                         <span>{{ server.server.map_name }}</span>
+                        <label class="switch">
+                            <input class="checkbox" type="checkbox" {% if server.enabled %} checked {% endif %} />
+                            <span
+                                class="slider round {% if server.server.player_count >= server.server.max_players %} locked {% endif %}">
+                                <span
+                                    class="lock {% if server.server.player_count >= server.server.max_players %} locked {% endif %}"></span>
+                                <span
+                                    class="status_text {% if server.server.max_players == 0 %}error{% elif server.server.player_count / server.server.max_players < 0.5 %}lack{% elif server.server.player_count >= server.server.max_players %}full{% else %}not_full{% endif %}">
+                                    {% if server.server.max_players == 0 %}
+                                    错误
+                                    {% elif server.server.player_count / server.server.max_players < 0.5 %} 缺人 {% elif
+                                        server.server.player_count>= server.server.max_players
+                                        %}
+                                        已满
+                                        {% else %}
+                                        未满
+                                        {% endif %}
+                                </span>
+                            </span>
+                        </label>
                     </div>
+
+                    <div class="player-list">
+                        {% set player_count = server.player|length %}
+                        {% for i in range(max_count) %}
+                        {% set player = server.player[i] if i < player_count else None %} {% if player and player.name
+                            %} <div class="player-item">
+                            <span class="player-score">【{{ player.score }}】</span>
+                            <span class="player-name">{{ player.name }}</span>
+                            
+                    </div>
+                    {% endif %}
+                    {% endfor %}
 
                     <div class="players">
                         <span class="status-indicator">
@@ -53,30 +85,19 @@
                         </span>
 
                         <span class="server-meta">
-                            <span class="server-meta-item">
+                            <span class="server-icon">
                                 <img src="{{ server.server.platform }}.svg" alt="平台">
                             </span>
                             {% if server.server.vac_enabled %}
-                            <span class="server-meta-item">
+                            <span class="server-icon">
                                 <img src="vac.png" alt="VAC保护">
                             </span>
                             {% endif %}
-                            <span class="server-meta-item ping-value">
+                            <span class="ping-value">
                                 {{ (server.server.ping * 1000)|round(1) }} ms
                             </span>
                         </span>
                     </div>
-
-                    <div class="player-list">
-                        {% set player_count = server.player|length %}
-                        {% for i in range(max_count) %}
-                        {% set player = server.player[i] if i < player_count else None %} {% if player and player.name
-                            %} <div class="player-item">
-                            <span class="player-name">{{ player.name }}</span>
-                            <span class="player-score">{{ player.score }}</span>
-                    </div>
-                    {% endif %}
-                    {% endfor %}
                 </div>
             </div>
             {% endfor %}

@@ -7,6 +7,7 @@ from nonebot.log import logger
 from PIL import Image, ImageDraw, ImageFont
 
 from ..config import config
+from ..l4_image.html_img import convert_duration
 from ..utils.api.models import NserverOut, OutServer
 from ..utils.api.request import L4API
 
@@ -283,19 +284,3 @@ async def get_much_server(server_json: List[NserverOut], command: str):
     return out_server
 
 
-async def convert_duration(duration: float) -> str:
-    """Convert duration in seconds to human-readable string format (e.g. '1h 30m 15s')
-    Args:
-        duration: Duration in seconds
-    Returns:
-        Formatted time string
-    """
-    minutes, seconds = divmod(duration, 60)
-    hours, minutes = divmod(minutes, 60)
-    time_str = ""
-    if hours > 0:
-        time_str += f"{int(hours)}h "
-    if minutes > 0:
-        time_str += f"{int(minutes)}m "
-    time_str += f"{int(seconds)}s"
-    return time_str

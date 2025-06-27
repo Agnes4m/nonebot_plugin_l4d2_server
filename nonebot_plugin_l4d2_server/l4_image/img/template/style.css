@@ -83,6 +83,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 5px;
+    
 }
 
 /* 玩家信息样式 */
@@ -93,6 +94,7 @@ h1 {
     font-size: 12px;
     gap: 8px;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 /* 状态指示器样式 */
@@ -125,8 +127,8 @@ h1 {
     margin-top: 8px;
 }
 
-/* 服务器元信息项 */
-.server-meta-item {
+/* icon选项 */
+.server-icon {
     display: flex;
     align-items: center;
     gap: 3px;
@@ -135,7 +137,7 @@ h1 {
 }
 
 /* 服务器图标大小 */
-.server-meta-item img {
+.server-icon img {
     width: 12px;
     height: 12px;
 }
@@ -152,13 +154,14 @@ h1 {
     font-size: 11px;
     line-height: 1.4;
     background-color: transparent;
+    flex-wrap: wrap;
 }
 
 /* 单个玩家条目 */
 .player-item {
     color: #2c3e50;
     display: flex;
-    justify-content: space-between;
+    align-items: right;
 }
 
 /* 玩家名字体 */
@@ -166,6 +169,8 @@ h1 {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: calc(100% - 10px); /* 假设右边没有其他元素需要空间 */
+    box-sizing: border-box; /* 确保padding和border计入总宽度 */
 }
 
 /* 玩家分数样式 */
@@ -183,4 +188,77 @@ h1 {
     font-size: 12px;
     border-top: 1px solid #eee;
     padding-top: 12px;
+}
+
+.status_text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    /* 防止换行 */
+    padding: 2px 6px;
+    /* 添加一些内边距以增加可读性 */
+    border-radius: 16px;
+    /* 圆角 */
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+}
+
+.plugin_meta_line1 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+}
+
+.error {
+    background-color: #999;
+    /* 灰色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+.lack {
+    background-color: #4CAF50;
+    /* 绿色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+.full {
+    background-color: #f44336;
+    /* 红色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+.not_full {
+    background-color: #2196F3;
+    /* 蓝色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
+.switch {
+    float: right;
 }
