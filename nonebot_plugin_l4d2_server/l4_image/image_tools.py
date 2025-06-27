@@ -6,14 +6,10 @@ from typing import Optional, Tuple, Union
 
 import httpx
 from httpx import get
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 TEXT_PATH = Path(__file__).parent / "texture2d"
 BG_PATH = Path(__file__).parents[1] / "default_bg"
-
-
-def get_div():
-    return Image.open(TEXT_PATH / "div.png")
 
 
 async def sget(url: str):
@@ -21,66 +17,6 @@ async def sget(url: str):
         return await client.get(url=url)
 
 
-def get_status_icon(status: Union[int, bool]) -> Image.Image:
-    if status:
-        img = Image.open(TEXT_PATH / "yes.png")
-    else:
-        img = Image.open(TEXT_PATH / "no.png")
-    return img
-
-
-def get_v4_footer():
-    return Image.open(TEXT_PATH / "footer.png")
-
-
-def get_v4_bg(w: int, h: int, is_dark: bool = False, is_blur: bool = False):
-    ci_img = CustomizeImage(BG_PATH)
-    img = ci_img.get_image(None, w, h)
-    if is_blur:
-        img = img.filter(ImageFilter.GaussianBlur(radius=20))
-    if is_dark:
-        black_img = Image.new("RGBA", (w, h), (0, 0, 0, 180))
-        img.paste(black_img, (0, 0), black_img)
-    return img.convert("RGBA")
-
-
-async def shift_image_hue(
-    img: Image.Image,
-    angle: float = 30,
-) -> Image.Image:  # noqa: RUF029
-    alpha = img.getchannel("A")
-    img = img.convert("HSV")
-
-    pixels = img.load()
-    assert pixels is not None
-    hue_shift = angle
-
-    for y in range(img.height):
-        for x in range(img.width):
-            h, s, v = pixels[x, y]  # type: ignore
-            h = (h + hue_shift) % 360
-            pixels[x, y] = (h, s, v)  # type: ignore
-
-    img = img.convert("RGBA")
-    img.putalpha(alpha)
-    return img
-
-
-async def get_pic(url: str, size: Optional[Tuple[int, int]] = None) -> Image.Image:
-    """
-    从网络获取图片, 格式化为RGBA格式的指定尺寸
-    """
-    async with httpx.AsyncClient(timeout=None) as client:  # noqa: S113
-        resp = await client.get(url=url)
-        if resp.status_code != 200:
-            if size is None:
-                size = (960, 600)
-            return Image.new("RGBA", size)
-        pic = Image.open(BytesIO(resp.read()))
-        pic = pic.convert("RGBA")
-        if size is not None:
-            pic = pic.resize(size)
-        return pic
 
 
 def draw_center_text_by_line(
@@ -190,42 +126,6 @@ def draw_text_by_line(
         draw.text((x, y), row, font=font, fill=fill)
     return y
 
-
-def easy_paste(
-    im: Image.Image,
-    im_paste: Image.Image,
-    pos=(0, 0),  # noqa: ANN001
-    direction="lt",  # noqa: ANN001
-):
-    """
-    inplace method
-    快速粘贴, 自动获取被粘贴图像的坐标。
-    pos应当是粘贴点坐标,direction指定粘贴点方位,例如lt为左上
-    """
-    x, y = pos
-    size_x, size_y = im_paste.size
-    if "d" in direction:
-        y = y - size_y
-    if "r" in direction:
-        x = x - size_x
-    if "c" in direction:
-        x = x - int(0.5 * size_x)
-        y = y - int(0.5 * size_y)
-    im.paste(im_paste, (x, y, x + size_x, y + size_y), im_paste)
-
-
-def easy_alpha_composite(
-    im: Image.Image,
-    im_paste: Image.Image,
-    pos=(0, 0),  # noqa: ANN001
-    direction="lt",  # noqa: ANN001
-) -> Image.Image:
-    """
-    透明图像快速粘贴
-    """
-    base = Image.new("RGBA", im.size)
-    easy_paste(base, im_paste, pos, direction)
-    return Image.alpha_composite(im, base)
 
 
 async def get_qq_avatar(

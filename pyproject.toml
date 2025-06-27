@@ -17,7 +17,6 @@ dependencies = [
     "jinja2>=3.0.0",
     "srctools>=2.6.0",
     "httpx>=0.22.0",
-    "msgspec>=0.18.0",
     "python-a2s>=1.4.1",
     "ujson>=5.10.0",
     "lxml>=5.2.2",

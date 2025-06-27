@@ -79,73 +79,7 @@ async def convert_img(
     return f"base64://{b64encode(img).decode()}"
 
 
-def convert_img_sync(img_path: Path):
-    with img_path.open("rb") as fp:
-        img = fp.read()
 
-    return f"base64://{b64encode(img).decode()}"
-
-
-async def str_lenth(r: str, size: int, limit: int = 540) -> str:  # noqa: RUF029
-    result = ""
-    temp = 0
-    for i in r:
-        if i == "\n":
-            temp = 0
-            result += i
-            continue
-
-        if temp >= limit:
-            result += "\n" + i
-            temp = 0
-        else:
-            result += i
-
-        if i.isdigit():
-            temp += round(size / 10 * 6)
-        elif i == "/":
-            temp += round(size / 10 * 2.2)
-        elif i == ".":
-            temp += round(size / 10 * 3)
-        elif i == "%":
-            temp += round(size / 10 * 9.4)
-        else:
-            temp += size
-    return result
-
-
-def get_str_size(
-    r: str,
-    font: ImageFont.FreeTypeFont,
-    limit: int = 540,
-) -> str:
-    result = ""
-    line = ""
-    for i in r:
-        if i == "\n":
-            result += f"{line}\n"
-            line = ""
-            continue
-
-        line += i
-
-        if hasattr(font, "getsize"):
-            size, _ = font.getsize(line)  # type: ignore
-        else:
-            bbox = font.getbbox(line)
-            size, _ = bbox[2] - bbox[0], bbox[3] - bbox[1]
-
-        if size >= limit:
-            result += f"{line}\n"
-            line = ""
-    else:
-        result += line
-    return result
-
-
-def get_height(content: str, size: int) -> int:
-    line_count = content.count("\n")
-    return (line_count + 1) * size
 
 
 async def text2pic(text: str, max_size: int = 800, font_size: int = 24):

@@ -6,7 +6,6 @@ from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
 from ..config import config
-
 from ..utils.api.models import OutServer
 
 # from .htmlimg import dict_to_dict_img
@@ -46,7 +45,7 @@ async def server_ip_pic(server_dict: List[OutServer]):
                 reverse=True,
             )[:max_number]
             logger.debug(sorted_players)
-            
+
             # 时间转换
             max_duration_len = max(
                 [len(str(await convert_duration(i.duration))) for i in sorted_players],
@@ -54,16 +53,12 @@ async def server_ip_pic(server_dict: List[OutServer]):
             for player in sorted_players:
                 chines_dur = await convert_duration(player.duration)
                 dur = "{:^{}}".format(chines_dur, max_duration_len)
-                player.name = str(player.name) + dur
-                print(player.name)
-            
-            
+                player.name = str(player.name) + " | " + dur
+
             server_info["player"] = sorted_players
         else:
             server_info["player"] = []
 
-        # server_info["server"].server_type= f"{server_info['server'].server_type}.svg"
-    print(server_dict)
     pic = await get_server_img(server_dict)
     if pic:
         logger.success("正在输出图片")
@@ -90,6 +85,7 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
     except Exception as e:
         logger.warning(f"Error in get_server_img: {e}")
         return None
+
 
 async def convert_duration(duration: float) -> str:
     """将秒数转换为易读的时间字符串格式（例如 '1h 30m 15s'）

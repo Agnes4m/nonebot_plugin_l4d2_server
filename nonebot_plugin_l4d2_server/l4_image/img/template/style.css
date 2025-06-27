@@ -184,9 +184,9 @@ h1 {
 .footer {
     text-align: center;
     margin-top: 25px;
-    color: #7f8c8d;
+    color: #000000;
     font-size: 12px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #858585;
     padding-top: 12px;
 }
 

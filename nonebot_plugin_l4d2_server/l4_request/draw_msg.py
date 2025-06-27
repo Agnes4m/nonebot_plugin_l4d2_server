@@ -282,5 +282,3 @@ async def get_much_server(server_json: List[NserverOut], command: str):
         )
 
     return out_server
-
-
