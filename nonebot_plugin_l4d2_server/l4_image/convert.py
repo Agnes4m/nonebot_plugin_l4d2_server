@@ -79,9 +79,6 @@ async def convert_img(
     return f"base64://{b64encode(img).decode()}"
 
 
-
-
-
 async def text2pic(text: str, max_size: int = 800, font_size: int = 24):
     if text.endswith("\n"):
         text = text[:-1]

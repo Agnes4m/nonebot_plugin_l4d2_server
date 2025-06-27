@@ -17,8 +17,6 @@ async def sget(url: str):
         return await client.get(url=url)
 
 
-
-
 def draw_center_text_by_line(
     img: ImageDraw.ImageDraw,
     pos: Tuple[int, int],
@@ -125,7 +123,6 @@ def draw_text_by_line(
             x = math.ceil((img.size[0] - font_size[0]) / 2)
         draw.text((x, y), row, font=font, fill=fill)
     return y
-
 
 
 async def get_qq_avatar(

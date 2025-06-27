@@ -3,22 +3,24 @@ from typing import List
 
 from nonebot import get_plugin_config
 from nonebot.log import logger
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 # 常量定义
 DATAPATH = Path(__file__).parent.joinpath("data")
 DEFAULT_DATA_DIR = "data/L4D2"
 DEFAULT_FONT = str(Path(__file__).parent.joinpath("data/font/loli.ttf"))
 
+
 # 初始化数据目录
 def init_data_directory(data_dir: Path) -> None:
     """初始化数据目录和必要文件"""
     data_dir.mkdir(parents=True, exist_ok=True)
     json_file = data_dir / "l4d2.json"
-    
+
     if not json_file.exists():
         logger.info(f"文件 {json_file.name} 不存在，已创建并初始化为 {{}}")
         json_file.write_text("{}", encoding="utf-8")
+
 
 # 初始化目录结构
 DATAOUT = Path(DEFAULT_DATA_DIR)
@@ -31,8 +33,10 @@ ICONPATH = DATAPATH / "icon"
 global map_index
 map_index = 0
 
+
 class ConfigModel(BaseModel):
     """插件配置模型"""
+
     l4_enable: bool = Field(default=True, description="是否全局启用求生功能")
     l4_image: bool = Field(default=True, description="是否启用图片")
     l4_connect: bool = Field(default=True, description="是否在查服命令后加入connect ip")
@@ -40,7 +44,10 @@ class ConfigModel(BaseModel):
     l4_players: int = Field(default=4, ge=1, description="查询总图时展示的用户数量")
     l4_style: str = Field(default="default", description="图片风格")
     l4_font: str = Field(default=DEFAULT_FONT, description="字体文件路径")
-    l4_show_ip: bool = Field(default=True, description="单服务器查询时是否展示ip直连地址")
+    l4_show_ip: bool = Field(
+        default=True,
+        description="单服务器查询时是否展示ip直连地址",
+    )
     l4_local: List[str] = Field(default_factory=list, description="本地服务器路径列表")
 
     @classmethod
@@ -62,7 +69,9 @@ class ConfigModel(BaseModel):
             raise ValueError(f"路径 {v} 下缺少 steam_appid.txt 文件")
         return str(path.resolve())
 
+
 config = get_plugin_config(ConfigModel)
+
 
 class ConfigManager:
     """配置项管理类，提供类型安全的配置更新方法"""
@@ -92,24 +101,24 @@ class ConfigManager:
     def update(self, **kwargs) -> None:
         """
         通用配置更新方法
-        
+
         Args:
             **kwargs: 要更新的配置项键值对
-            
+
         Raises:
             ValueError: 当传入无效的配置项或值不合法时
             TypeError: 当传入值的类型不正确时
         """
         valid_keys = ConfigModel.model_fields.keys()
-        
+
         for key, value in kwargs.items():
             if key not in valid_keys:
                 raise ValueError(f"无效的配置项: {key}")
-            
+
             field_type = ConfigModel[key].type_
             if not isinstance(value, field_type):
                 raise TypeError(f"{key} 必须是 {field_type.__name__} 类型")
-            
+
             setattr(self._config, key, value)
 
         # 验证更新后的配置
@@ -117,5 +126,6 @@ class ConfigManager:
             self._config = ConfigModel(**self._config.dict())
         except ValueError as e:
             logger.error(f"配置更新失败: {e!s}")
+
 
 config_manager = ConfigManager()
