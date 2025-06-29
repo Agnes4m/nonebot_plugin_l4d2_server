@@ -119,11 +119,8 @@ conda install nonebot-plugin-l4d2-server
     l4_players = 4
     """查询总图的时候展示的用户数量"""
     l4_style = "default"
-    """图片风格，可选包括以下，默认简洁
-    - 暗风格
-    - 孤独摇滚
-    - 电玩像素
-    - 缤纷彩虹
+    """图片风格，可选包括以下
+    - 简洁
 """
 
 ## 和0.x.x更改部分
