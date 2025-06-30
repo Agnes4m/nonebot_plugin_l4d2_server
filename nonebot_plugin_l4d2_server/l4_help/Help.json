@@ -54,6 +54,22 @@
         "need_ck": false,
         "need_sk": false,
         "need_admin": true
+      },
+      {
+        "name": "l4地图修改",
+        "desc": "进入交互修改地图名称(需要设置本地服务器)",
+        "eg": "l4地图修改 1 114514",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "l4地图删除",
+        "desc": "进入交互删除地图名称(需要设置本地服务器)",
+        "eg": "l4地图删除 1",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
       }
     ]
   },

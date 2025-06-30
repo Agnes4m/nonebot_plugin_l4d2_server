@@ -103,3 +103,46 @@ async def all_zip_to_one(data_list: List[bytes]):  # noqa: RUF029
             zf.writestr(filename, file)
 
     return data_file.getbuffer()
+
+
+async def change_name(old_name: str, new_name: str, vpk_path: Path):
+    if not new_name.endswith(".vpk"):
+        new_name += ".vpk"
+    file_path = Path(vpk_path / old_name)
+
+    new_file_path = Path(vpk_path / new_name)
+
+    try:
+        if not file_path.exists():
+            logger.error(f"文件 {old_name} 不存在")
+            return False
+        file_path.rename(new_file_path)
+        logger.info(f"文件 {old_name} 已重命名为 {new_name}")
+
+    except PermissionError:
+        logger.error(f"没有权限重命名文件 {old_name} 到 {new_name}")
+        return False
+
+    except Exception as e:
+        logger.error(f"重命名文件 {old_name} 到 {new_name} 时发生错误: {e}")
+        return False
+    return True
+
+
+async def delete_file(file_path: Path) -> bool:
+
+    try:
+        if not file_path.exists():
+            logger.error(f"文件 {file_path} 不存在")
+            return False
+        file_path.unlink()
+        logger.info(f"文件 {file_path} 已删除")
+
+    except PermissionError:
+        logger.error(f"没有权限删除文件 {file_path}")
+        return False
+
+    except Exception as e:
+        logger.error(f"删除文件 {file_path} 时发生错误: {e}")
+        return False
+    return True
