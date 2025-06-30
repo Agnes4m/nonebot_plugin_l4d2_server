@@ -1,10 +1,9 @@
 from pathlib import Path
-import re
 from typing import List, Optional
 
 import jinja2
 from nonebot.log import logger
-from nonebot_plugin_htmlrender import html_to_pic, template_to_html, template_to_pic
+from nonebot_plugin_htmlrender import html_to_pic
 
 from ..config import config
 from ..utils.api.models import OutServer
@@ -71,7 +70,6 @@ async def server_ip_pic(server_dict: List[OutServer]):
 async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
     try:
         if config.l4_style == "default":
-
 
             template = env.get_template("normal.html")
         else:
