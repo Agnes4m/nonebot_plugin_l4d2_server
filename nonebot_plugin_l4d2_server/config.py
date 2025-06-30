@@ -30,8 +30,6 @@ server_all_path = DATAOUT / "l4d2"
 server_all_path.mkdir(parents=True, exist_ok=True)
 
 ICONPATH = DATAPATH / "icon"
-global map_index
-map_index = 0
 
 
 class ConfigModel(BaseModel):
@@ -48,7 +46,8 @@ class ConfigModel(BaseModel):
         default=True,
         description="单服务器查询时是否展示ip直连地址",
     )
-    l4_local: List[str] = Field(default_factory=list, description="本地服务器路径列表")
+    l4_local: List[str] = Field(default=[], description="本地服务器路径列表")
+    l4_map_index: int = Field(default=0, description="地图索引")
 
     @classmethod
     def validate_players(cls, v):
@@ -68,6 +67,12 @@ class ConfigModel(BaseModel):
         if not (path / "steam_appid.txt").exists():
             raise ValueError(f"路径 {v} 下缺少 steam_appid.txt 文件")
         return str(path.resolve())
+
+    def update_map_index(self, index: int) -> None:
+        """更新地图索引配置"""
+        if index < 0:
+            raise ValueError("地图索引不能小于0")
+        self._config.map_index = index
 
 
 config = get_plugin_config(ConfigModel)

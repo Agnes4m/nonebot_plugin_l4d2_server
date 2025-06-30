@@ -5,18 +5,11 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot_plugin_alconna import File, UniMessage, UniMsg, on_alconna
 
-from ..config import config, map_index
+from ..config import config
 from ..l4_image.convert import text2pic
 from ..utils.utils import mes_list
 from .file import updown_l4d2_vpk
-
-try:
-    vpk_path = config.l4_local[map_index]
-except IndexError:
-    logger.warning(
-        "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
-    )
-    vpk_path = ""
+from .utils import sort_key
 
 local_path_list = config.l4_local
 if not local_path_list:
@@ -42,54 +35,6 @@ else:
         priority=20,
         block=True,
     )
-
-    @search_map.handle()
-    async def _():
-        try:
-            supath = local_path[map_index] / "addons"
-        except IndexError:
-            logger.warning(
-                "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
-            )
-            await UniMessage.text(
-                "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
-            ).finish()
-        vpk_list: list[str] = []
-        if supath.is_dir():
-            for sudir in supath.iterdir():
-                logger.info(f"找到文件:{sudir}")
-                if sudir.is_file() and sudir.name.endswith(".vpk"):
-                    vpk_list.append(sudir.name)
-        if not vpk_list:
-            await UniMessage.text("未找到可用的VPK文件").finish()
-
-        # 添加排序逻辑（数字升序）
-        def sort_key(filename: str):
-            # 提取文件名开头的数字（如果有）
-            num_part = ""
-            for char in filename:
-                if char.isdigit():
-                    num_part += char
-                elif num_part:  # 遇到非数字且已经有数字部分时停止
-                    break
-
-            # 返回一个元组作为排序依据：(数字值, 整个文件名)
-            # 使用正数表示升序，没有数字的用无穷大排在最后
-            return (
-                int(num_part) if num_part else float("inf"),
-                filename,
-            )
-
-        # 按数字升序，然后按字母和中文排序
-        vpk_list.sort(key=sort_key)
-
-        out_msg = "\n".join(
-            f"{index + 1}、{line}" for index, line in enumerate(vpk_list)
-        )
-
-        img = await text2pic(f"服务器地图:\n{out_msg}")
-        await UniMessage.image(raw=img).send()
-
     up = on_alconna(
         "l4upload",
         aliases={"l4地图上传"},
@@ -97,32 +42,80 @@ else:
         block=True,
     )
 
+    @search_map.handle()
+    async def search_map_handler() -> None:
+        try:
+            if not local_path or config.l4_map_index is None:
+                await UniMessage.text("未知错误").finish()
+            addons_path = local_path[config.l4_map_index] / "addons"
+        except IndexError:
+            logger.warning("未配置本地服务器路径")
+            await UniMessage.text("未配置本地服务器路径").finish()
+            return
+
+        vpk_files: list[str] = []
+        if addons_path.is_dir():
+            for file in addons_path.iterdir():
+                if file.is_file() and file.suffix == ".vpk":
+                    vpk_files.append(file.name)
+
+        if not vpk_files:
+            await UniMessage.text("未找到可用的VPK文件").finish()
+            return
+
+        vpk_files.sort(key=sort_key)
+        out_msg = "\n".join(f"{i+1}、{name}" for i, name in enumerate(vpk_files))
+
+        img = await text2pic(f"服务器地图:\n{out_msg}")
+        await UniMessage.image(raw=img).send()
+
     @up.handle()
     async def _():
         await UniMessage.text("请发送地图文件").finish()
 
     @up.got("map_url", prompt="图来")
-    async def _(ev: Event, msg: UniMsg, matcher: Matcher):
+    async def handle_upload(
+        ev: Event,
+        msg: UniMsg,
+        matcher: Matcher,
+    ) -> None:
         if not msg.has(File):
-            await UniMessage.text("不是文件,退出交互").finish()
-        args = ev.dict()
-        if args["notice_type"] != "offline_file":
+            await UniMessage.text("不是文件，退出交互").finish()
+
+        args = ev.model_dump()
+        if args.get("notice_type") != "offline_file":
             matcher.set_arg("txt", args)  # type: ignore
             return
-        l4_file_path = config.l4_local[map_index]
-        map_path = Path(l4_file_path, vpk_path)  # type: ignore
-        # 检查下载路径是否存在
-        if not Path(l4_file_path).exists():  # type: ignore
-            await UniMessage.text("你填写的路径不存在辣").finish()
-        if not Path(map_path).exists():
-            await UniMessage.text("这个路径并不是求生服务器的路径,请再看看罢").finish()
-        url: str = args["file"]["url"]
-        name: str = args["file"]["name"]
-        # 如果不符合格式则忽略
-        await up.send("已收到文件,开始下载")
+
+        try:
+            if not hasattr(config, "l4_map_index"):
+                await UniMessage.text("未知错误").finish()
+            l4_file_path = config.l4_local[config.l4_map_index]
+        except (IndexError, AttributeError):
+            await UniMessage.text("服务器配置错误").finish()
+
+        map_path = Path(l4_file_path) / "addons"
+
+        if not map_path.parent.exists():
+            await UniMessage.text("配置的路径不存在").finish()
+        if not map_path.exists():
+            await UniMessage.text("无效的求生服务器路径").finish()
+
+        file_info = args.get("file")
+        if not file_info:
+            await UniMessage.text("无效的文件信息").finish()
+
+        url = file_info.get("url", "")
+        name = file_info.get("name", "")
+
+        if not url or not name or not name.endswith(".vpk"):
+            await UniMessage.text("无效的文件格式").finish()
+
+        await up.send("已收到文件，开始下载")
         vpk_files = await updown_l4d2_vpk(map_path, name, url)
+
         if vpk_files:
-            mes = "解压成功,新增以下几个vpk文件"
+            mes = "解压成功，新增以下vpk文件："
             await UniMessage.text(mes_list(mes, vpk_files)).finish()
         else:
-            await UniMessage.text("你可能上传了相同的文件,或者解压失败了捏").finish()
+            await UniMessage.text("文件已存在或解压失败").finish()
