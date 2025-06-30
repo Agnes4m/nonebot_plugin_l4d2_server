@@ -19,10 +19,8 @@ dependencies = [
     "httpx>=0.22.0",
     "python-a2s>=1.4.1",
     "ujson>=5.10.0",
-    "lxml>=5.2.2",
     "rcon>=2.1.0",
     "pillow>10.0.0",
-    "bs4>=0.0.2",
     "rarfile>=4.2",
     "pyunpack>=0.3",
     "aiofiles>=24.1.0"
