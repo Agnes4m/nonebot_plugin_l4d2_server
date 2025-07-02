@@ -15,7 +15,7 @@ from nonebot.log import logger
 
 from ...config import config
 from ..utils import split_maohao
-from .api import AnnePlayerApi, AnneSearchApi, anne_ban
+from .api import AnnePlayerApi, AnneSearchApi, WorkshopApi, anne_ban
 from .models import (
     AnnePlayer2,
     AnnePlayerDetail,
@@ -26,6 +26,7 @@ from .models import (
     AnnePlayerSur,
     AnneSearch,
     SourceBansInfo,
+    WorksopInfo,
 )
 
 config_path = Path(config.l4_path) / "config.json"
@@ -39,6 +40,7 @@ class L4D2Api:
         "Chrome/126.0.0.0"
         "Safari/537.36 Edg/126.0.0.0",
         "Content-Type": "application/x-www-form-urlencoded",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
     }
 
     def safe_select(self, element: Optional[Tag], selector: str) -> List[Any]:
@@ -160,7 +162,7 @@ class L4D2Api:
         method: Literal["GET", "POST"] = "GET",
         header: Dict[str, str] = _HEADER,
         params: Optional[Dict[str, Any]] = None,
-        json: Optional[Dict[str, Any]] = None,
+        json: Optional[Dict[str, Any] | list] = None,
         data: Optional[Dict[str, Any]] = None,
         is_json: bool = True,
     ) -> Union[Dict[str, Any], BeautifulSoup]:  # type: ignore
@@ -417,6 +419,16 @@ class L4D2Api:
         }
 
         return cast(AnnePlayer2, out_dict)
+
+    async def workshops(self, workshop_id: str) -> WorksopInfo:
+        workshop_json = await self._server_request(
+            url=WorkshopApi,
+            json=[int(workshop_id)],
+            header=self._HEADER,
+            method="POST",
+            is_json=True,
+        )
+        return cast(WorksopInfo, workshop_json[0])
 
 
 L4API = L4D2Api()

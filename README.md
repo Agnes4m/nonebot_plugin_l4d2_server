@@ -15,29 +15,38 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
         <a href="https://agnes4m.github.io/l4d2/reader/#%E5%8A%9F%E8%83%BD-%E6%8C%87%E4%BB%A4-%F0%9F%A4%94" target="_blank">指令列表</a> &nbsp; · &nbsp;
         <a href="https://agnes4m.github.io/l4d2/bug/">常见问题</a>
 </div><br>
-<a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server/stargazers">
-        <img alt="GitHub stars" src="https://img.shields.io/github/stars/Agnes4m/nonebot_plugin_l4d2_server" alt="stars">
+
+<img src="https://img.shields.io/badge/python-3.9+-blue?logo=python&logoColor=edb641" alt="python">
+<a href ="LICENSE"> 
+<img src="https://img.shields.io/github/license/Agnes4m/nonebot_plugin_l4d2_server">
 </a>
+<img src="https://img.shields.io/badge/nonebot-2.1.0+-red.svg" alt="NoneBot">
+<a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
+<img src="https://img.shields.io/pypi/v/nonebot_plugin_l4d2_server?logo=python&logoColor=edb641" alt="python">
+</a>
+</br>
+<a href="https://github.com/astral-sh/ruff">
+<img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v2.json" alt="ruff">
+</a>
+<a href="https://github.com/psf/black">
+<img src="https://img.shields.io/badge/code%20style-black-000000.svg?logo=python&logoColor=edb641" alt="black">
+</a>
+
+<img src="https://img.shields.io/badge/alconna-0.58.3+-red.svg" alt="NoneBot">    
+
 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server/issues">
         <img alt="GitHub issues" src="https://img.shields.io/github/issues/Agnes4m/nonebot_plugin_l4d2_server" alt="issues">
 </a>
-<a href="https://jq.qq.com/?_wv=1027&k=HdjoCcAe">
-        <img src="https://img.shields.io/badge/QQ%E7%BE%A4-399365126-orange?style=flat-square" alt="QQ Chat Group">
-</a>
-<a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
-        <img src="https://img.shields.io/pypi/v/nonebot_plugin_l4d2_server.svg" alt="pypi">
-</a>
+
 <a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
     <img src="https://img.shields.io/pypi/dm/nonebot_plugin_l4d2_server" alt="pypi download">
 </a>
-    <img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="python">
-    <img src="https://img.shields.io/badge/nonebot-2.0.0+-red.svg" alt="NoneBot">
-
+</br>
+<a href="https://jq.qq.com/?_wv=1027&k=HdjoCcAe">
+        <img src="https://img.shields.io/badge/QQ%E7%BE%A4-399365126-orange?style=flat-square" alt="QQ Chat Group">
+</a>
 </div>
 
-## 顶置公告（如果以前用0.x.x版本暂时别更新）
-
-- **版本**  1.x.x进行了破坏式更新，使用旧插件的不要更新
 
 ## 指令
 

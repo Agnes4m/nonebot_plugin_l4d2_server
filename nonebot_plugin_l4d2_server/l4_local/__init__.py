@@ -6,10 +6,12 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
 from nonebot_plugin_alconna import File, UniMessage, UniMsg
+from nonebot_plugin_waiter import prompt
 
 from ..config import config
 from ..l4_image.convert import text2pic
 from ..utils.utils import mes_list
+from .download import process_ws_download
 from .file import change_name, delete_file, updown_l4d2_vpk
 from .utils import (
     get_vpk_files,
@@ -160,3 +162,23 @@ else:
         await UniMessage.text(
             f"已删除地图:{old_path}" if success else "删除失败",
         ).finish()
+
+
+ws_download = on_command(
+    "l4ws",
+    aliases={"l4工坊下载"},
+    priority=20,
+    block=True,
+)
+
+
+@ws_download.handle()
+async def _(args: Message = CommandArg()):
+    arg = args.extract_plain_text().strip()
+    if not arg:
+        arg = await prompt("请输入创意工坊id或者url", timeout=60)
+        if arg is None:
+            return None
+        arg = arg.extract_plain_text().strip()
+
+    return await process_ws_download(arg)

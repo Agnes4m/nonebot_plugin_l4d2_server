@@ -1,3 +1,5 @@
+import re
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -101,3 +103,48 @@ async def process_map_change_or_delete(
         return None
 
     return (int(parts[0]), parts[1])
+
+
+async def timestamp_to_date(timestamp):
+    return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+
+
+async def format_text_to_html(text: str):
+    html_parts = []
+    paragraphs = re.split(r"\r?\n\r?\n", text.strip())
+
+    for para in paragraphs:
+        if not para.strip():
+            continue
+
+        title_match = re.match(r"^\s*~{\s*(.*?)\s*}~\s*$", para)
+        if title_match:
+            html_parts.append(
+                f'<h2 class="adjustable-heading">{title_match.group(1)}</h2>',
+            )
+            continue
+
+        if para.lstrip().startswith("- "):
+            list_items = []
+            for line in para.split("\n"):
+                line = line.strip()
+                if line.startswith("- "):
+                    list_items.append(f"<li>{line[2:].strip()}</li>")
+                elif line and list_items:
+                    list_items[-1] = list_items[-1].replace(
+                        "</li>",
+                        f"<br>{line.strip()}</li>",
+                    )
+            html_parts.append(f'<ul>{"".join(list_items)}</ul>')
+            continue
+
+        processed_para = re.sub(
+            r"\[url=([^\]]+)\]([^\[]+)\[/url\]",
+            r'<a href="\1" target="_blank">\2</a>',
+            para,
+        )
+        processed_para = " ".join(processed_para.split())
+        processed_para = processed_para.replace("\n", "<br>")
+        html_parts.append(f"<p>{processed_para}</p>")
+
+    return "\n".join(html_parts)

@@ -135,3 +135,44 @@ class AnnePlayer2(TypedDict):
     inf_avg: AnnePlayerInfAvg
     sur: AnnePlayerSur
     inf: AnnePlayerInf
+
+
+class Tag(TypedDict):
+    tag: str
+    """标签内容"""
+    adminonly: bool
+
+
+class WorksopInfo(TypedDict):
+    result: int
+    """结果数量"""
+    publishedfileid: str
+    """物品id"""
+    creator: str
+    creator_appid: int
+    consumer_appid: int
+    consumer_shortcutid: int
+    filename: str
+    """文件名称"""
+    preview_file_size: str
+    """文件大小"""
+    file_url: str
+    """文件"""
+    preview_url: str
+    """文件预览"""
+    title: str
+    """标题"""
+    title_disk_safe: str
+    file_description: str
+    """文件描述"""
+    time_created: int
+    time_updated: int
+
+    favorited: int
+    """当前收藏者"""
+    subscriptions: int
+    """当前订阅者"""
+    lifetime_subscriptions: int
+    """不重复访客"""
+    tags: List[Tag]
+    """标签"""
