@@ -7,7 +7,6 @@ from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
 
 import a2s
 import aiofiles
-import ujson as js
 import ujson as json
 from bs4 import BeautifulSoup, Tag
 from httpx import AsyncClient
@@ -184,11 +183,11 @@ class L4D2Api:
 
             if is_json:
                 try:
-                    raw_data = await resp.json()
+                    raw_data = resp.json()
                 except:  # noqa: E722
                     _raw_data = resp.text
                     try:
-                        raw_data = js.loads(_raw_data)
+                        raw_data = json.loads(_raw_data)
                     except:  # noqa: E722
                         raw_data = {
                             "result": {"error_code": -999, "data": _raw_data},
@@ -198,10 +197,11 @@ class L4D2Api:
                         return raw_data
                 except Exception:
                     return raw_data
+                logger.debug(f"Raw data: {raw_data}")
                 if (
                     "result" in raw_data
                     and "error_code" in raw_data["result"]
-                    and raw_data["code"] != 0
+                    and raw_data.get("code") != 200
                 ):
                     return raw_data["result"]["error_code"]
                 return raw_data
@@ -233,9 +233,9 @@ class L4D2Api:
         tbody = soup.select_one("tbody")
         if tbody is None:
             return []
-        tr_tags = tbody.select("tr")
+        tr_tags = self.safe_select(tbody, "tr")
         for index, tr in enumerate(tr_tags):
-            td_tags = tr.select("td")
+            td_tags = self.safe_select(tr, "td")
             for num, td in enumerate(td_tags):
                 if num == 4:
                     host, port = split_maohao(td.text)

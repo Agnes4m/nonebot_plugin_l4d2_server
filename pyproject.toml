@@ -23,7 +23,8 @@ dependencies = [
     "pillow>10.0.0",
     "rarfile>=4.2",
     "pyunpack>=0.3",
-    "aiofiles>=24.1.0"
+    "aiofiles>=24.1.0",
+    "bs4",
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

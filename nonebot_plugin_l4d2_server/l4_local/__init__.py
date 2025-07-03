@@ -1,16 +1,21 @@
+import asyncio
 from pathlib import Path
+from zipfile import ZipFile
 
+import aiofiles
 from nonebot import on_command
 from nonebot.adapters import Event, Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
+from nonebot.typing import T_State
 from nonebot_plugin_alconna import File, UniMessage, UniMsg
 from nonebot_plugin_waiter import prompt
 
 from ..config import config
 from ..l4_image.convert import text2pic
-from ..utils.utils import mes_list
+from ..utils.api.models import WorksopInfo
+from ..utils.utils import mes_list, url_to_byte
 from .download import process_ws_download
 from .file import change_name, delete_file, updown_l4d2_vpk
 from .utils import (
@@ -173,12 +178,60 @@ ws_download = on_command(
 
 
 @ws_download.handle()
-async def _(args: Message = CommandArg()):
+async def _(matcher: Matcher, state: T_State, args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
     if not arg:
         arg = await prompt("请输入创意工坊id或者url", timeout=60)
         if arg is None:
-            return None
+            return
         arg = arg.extract_plain_text().strip()
 
-    return await process_ws_download(arg)
+    ws_msg = await process_ws_download(arg)
+    state["workshop"] = ws_msg
+    await matcher.pause("是否下载")
+
+
+@ws_download.handle()
+async def _(state: T_State, msg: UniMsg):
+
+    if msg.extract_plain_text().strip() == "是":
+        try:
+            ws_path = Path(config.l4_local[config.l4_map_index]) / "left4dead2/addons"
+            cache = True
+        except IndexError:
+            ws_path = Path(config.l4_path) / "addons"
+            cache = False
+        ws_path.mkdir(parents=True, exist_ok=True)
+        ws_msg: WorksopInfo = state["workshop"]
+        logger.info(f"正在下载 {ws_msg['filename']}")
+        fina_path = ws_path / f"{ws_msg['filename']}"
+        if fina_path.is_file():
+            logger.info(f"{ws_msg['filename']} 已存在")
+        else:
+            dl_msg = await url_to_byte(ws_msg["file_url"])
+            if dl_msg is None:
+                await UniMessage.text("下载失败").finish()
+
+            async with aiofiles.open(fina_path, "wb") as f:
+                await f.write(dl_msg)
+        try:
+            await asyncio.wait_for(
+                UniMessage.file(path=fina_path, name=f"{ws_msg['title']}.vpk").send(),
+                timeout=60,
+            )
+        except asyncio.TimeoutError:
+            await compress_and_send_file()
+            return
+        if cache:
+            fina_path.unlink()
+
+
+async def compress_and_send_file(file_path: Path, file_name: str):
+    zip_path = file_path.with_suffix(".zip")
+    with ZipFile(zip_path, "w") as zipf:
+        zipf.write(file_path, file_name)
+
+    try:
+        await UniMessage.file(path=zip_path, name=f"{file_name}.zip").send()
+    finally:
+        zip_path.unlink()

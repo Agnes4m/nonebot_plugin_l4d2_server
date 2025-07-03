@@ -16,21 +16,24 @@ async def process_ws_download(workshop: str):
         workshop_id = workshop.split("/?id=")[-1]
     else:
         await UniMessage.text("无效的steam链接").finish()
-    workshop_json = await L4API.workshops(workshop_id)
-    workshop_json["time_created"] = await timestamp_to_date(
-        workshop_json["time_created"],
+    wj = await L4API.workshops(workshop_id)
+    wj["time_created"] = await timestamp_to_date(
+        wj["time_created"],
     )
-    workshop_json["time_updated"] = await timestamp_to_date(
-        workshop_json["time_updated"],
+    wj["time_updated"] = await timestamp_to_date(
+        wj["time_updated"],
     )
-    workshop_json["file_description"] = await format_text_to_html(
-        workshop_json["file_description"],
+    wj["file_description"] = await format_text_to_html(
+        wj["file_description"],
     )
-    logger.debug(workshop_json)
+    wj["filename"] = wj["filename"].split("/")[-1]
+
+    logger.debug(wj)
 
     msg = await t2p(
         template_path=Path(__file__).parent.parent / "l4_image/img/template",
         template_name="workshop.html",
-        templates={"info": workshop_json},
+        templates={"info": wj},
     )
     await UniMessage.image(raw=msg).send()
+    return wj
