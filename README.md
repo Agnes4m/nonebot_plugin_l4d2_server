@@ -52,6 +52,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 
 - 在json文件设置的前缀指令，例如设置"云"，则指令 云 输出组服务器，云1 输出1号服务器
 - l4图片开启/关闭 超管指令 可以修改输出单图是否为图片输出
+- l4查找用户  在已知服务器中查找
+- l4工坊下载  提供创意工坊id下载到服务器和群聊
 
 ## 安装
 
@@ -107,8 +109,11 @@ conda install nonebot-plugin-l4d2-server
 
 ## 主要功能
 
-- [ ] 求生服务器-本地多路径操作（传地图等）
+- [x] 求生服务器-本地多路径操作（传地图等）
 - [x] 批量查询指定ip服务器状态和玩家
+- [x] connect指令直接呼出服务器信息
+- [x] 根据用户名，在已知服务器搜索玩家信息
+
 
 ## [数据结构](./docs/standand.md)
 
@@ -116,7 +121,7 @@ conda install nonebot-plugin-l4d2-server
 
 ## env设置
 
-"""bash
+```bash
     l4_enable = True
     """是否全局启用求生功能"""
     l4_image = False
@@ -130,14 +135,13 @@ conda install nonebot-plugin-l4d2-server
     l4_style = "default"
     """图片风格，可选包括以下
     - 简洁
-"""
+```
 
 ## 和0.x.x更改部分
 
 - 取消了网页控制台(没有卵用)
 - 取消了自动重启(与其他插件功能重复)
 - 取消了git拉取更新(nb规范用pypi)
-- 增加pil和浏览器渲染做选择(可以选择pil以节省性能性能)
 - 删除无用部分(依赖太多难以维护)
 - 删除了anne部分，已移植到[这里](https://github.com/Agnes4m/L4D2UID),通过core插件调用
 
@@ -154,7 +158,6 @@ conda install nonebot-plugin-l4d2-server
 - [nonebot2](https://github.com/nonebot/nonebot2)- 聊天机器人的基础框架
 - [饼干](https://github.com/lgc2333) - 指导nonebot2框架的函数使用
 - [wuyi](https://github.com/KimigaiiWuyi/) - 指导pil作图
-- 水果 - html图片优化
 
 - 感谢以下服主大力支持
   - Michaela's | 机器人功能测试反馈

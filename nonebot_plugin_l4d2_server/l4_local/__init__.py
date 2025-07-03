@@ -1,6 +1,4 @@
-import asyncio
 from pathlib import Path
-from zipfile import ZipFile
 
 import aiofiles
 from nonebot import on_command
@@ -193,45 +191,40 @@ async def _(matcher: Matcher, state: T_State, args: Message = CommandArg()):
 
 @ws_download.handle()
 async def _(state: T_State, msg: UniMsg):
-
     if msg.extract_plain_text().strip() == "是":
         try:
-            ws_path = Path(config.l4_local[config.l4_map_index]) / "left4dead2/addons"
+            ws_path = Path(config.l4_local[config.l4_map_index]) / "addons"
             cache = True
         except IndexError:
             ws_path = Path(config.l4_path) / "addons"
             cache = False
-        ws_path.mkdir(parents=True, exist_ok=True)
-        ws_msg: WorksopInfo = state["workshop"]
-        logger.info(f"正在下载 {ws_msg['filename']}")
-        fina_path = ws_path / f"{ws_msg['filename']}"
-        if fina_path.is_file():
-            logger.info(f"{ws_msg['filename']} 已存在")
-        else:
-            dl_msg = await url_to_byte(ws_msg["file_url"])
-            if dl_msg is None:
-                await UniMessage.text("下载失败").finish()
 
-            async with aiofiles.open(fina_path, "wb") as f:
-                await f.write(dl_msg)
         try:
-            await asyncio.wait_for(
-                UniMessage.file(path=fina_path, name=f"{ws_msg['title']}.vpk").send(),
-                timeout=60,
+            ws_path.mkdir(parents=True, exist_ok=True)
+            ws_msg: WorksopInfo = state["workshop"]
+            logger.info(
+                f"正在下载地图: {ws_msg['title']} (文件名: {ws_msg['filename']})",
             )
-        except asyncio.TimeoutError:
-            await compress_and_send_file()
-            return
-        if cache:
-            fina_path.unlink()
 
+            final_path = ws_path / ws_msg["filename"]
+            if final_path.is_file():
+                logger.info(f"地图文件已存在: {final_path}")
+            else:
+                dl_msg = await url_to_byte(ws_msg["file_url"])
+                if dl_msg is None:
+                    logger.error(f"下载失败: {ws_msg['file_url']}")
+                    await UniMessage.text("下载失败").finish()
 
-async def compress_and_send_file(file_path: Path, file_name: str):
-    zip_path = file_path.with_suffix(".zip")
-    with ZipFile(zip_path, "w") as zipf:
-        zipf.write(file_path, file_name)
+                async with aiofiles.open(final_path, "wb") as f:
+                    await f.write(dl_msg)
+                logger.info(f"地图下载完成: {final_path}")
 
-    try:
-        await UniMessage.file(path=zip_path, name=f"{file_name}.zip").send()
-    finally:
-        zip_path.unlink()
+            await UniMessage.file(path=final_path, name=f"{ws_msg['title']}.vpk").send()
+
+            if cache:
+                final_path.unlink()
+                logger.info(f"已清理临时文件: {final_path}")
+
+        except Exception as e:
+            logger.error(f"处理地图下载时出错: {e}")
+            await UniMessage.text("处理地图时发生错误").finish()
