@@ -57,9 +57,7 @@ l4_all = on_command("l4all", aliases={"l4全服"})
 l4_connect = on_command("connect", aliases={"l4连接"})
 l4_find_player = on_command("l4find", aliases={"l4查找"})
 
-ld_tj = on_command("tj", aliases={"探监"})
-ld_zl = on_command("zl")
-ld_kl = on_command("kl")
+
 config_path = Path(config.l4_path) / "config.json"
 
 
@@ -265,16 +263,25 @@ async def _(args: Message = CommandArg()):
                 await out_msg_out(f"修改成功，组名:{arg[0]},网址:{arg[1]}")
 
 
-@ld_tj.handle()
-async def _(matcher: Matcher):
-    await matcher.send("正在寻找牢房信息")
-    await matcher.finish(await tj_request("云", "tj"))
+if "云" in COMMAND:
+    ld_tj = on_command("tj", aliases={"探监"})
+    ld_zl = on_command("zl")
+    ld_kl = on_command("kl")
 
+    @ld_tj.handle()
+    async def _(matcher: Matcher):
+        await matcher.send("正在寻找牢房信息")
+        await matcher.finish(await tj_request("云", "tj"))
 
-@ld_zl.handle()
-async def _(matcher: Matcher):
-    await matcher.send("正在寻找牢房信息")
-    await matcher.finish(await tj_request("云", "zl"))
+    @ld_zl.handle()
+    async def _(matcher: Matcher):
+        await matcher.send("正在寻找牢房信息")
+        await matcher.finish(await tj_request("云", "zl"))
+
+    @ld_kl.handle()
+    async def _(matcher: Matcher):
+        await matcher.send("正在寻找牢房信息")
+        await matcher.finish(await tj_request("云", "kl"))
 
 
 ## 以下为配置修改

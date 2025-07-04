@@ -103,7 +103,7 @@ async def _handle_single_server(
 async def _filter_servers(
     servers: list,
     tj_mode: str,
-    map_type: str = "普通药役",
+    map_type: Optional[list[str]] = None,
 ) -> list:
     """筛选符合条件的服务器
     Args:
@@ -113,26 +113,44 @@ async def _filter_servers(
     Returns:
         符合条件的服务器列表
     """
+    if map_type is None:
+        map_type = ["普通药役", "硬核药役"]
     filtered = []
     for i in servers:
         ser_list = await L4API.a2s_info([(i["host"], i["port"])], is_player=True)
+
         if not ser_list:
             continue
 
         srv = ser_list[0][0]
         players = ser_list[0][1]
+        logger.info(srv)
+        logger.info(players)
+        if srv.map_name == "无":
+            continue
 
-        if tj_mode == "tj" and map_type in srv.map_name:
-            score = sum(p.score for p in players[:4])
-            t = srv.map_name.split("[")[-1].split("特")[0]
-            if t.isdigit() and int(t) * 50 < score:
+        if tj_mode == "tj" and any(
+            map_type_value in srv.server_name for map_type_value in map_type
+        ):
+            scores = [p.score for p in players[:4]]
+            total_score = sum(scores)
+            part_with_number = srv.server_name.split("[")[1].split("]")[0]
+            t = part_with_number.split("特")[0]
+            logger.info(t)
+            logger.info(total_score)
+            if t.isdigit() and int(t) * 10 < total_score:
                 logger.info(
-                    f"符合TJ条件的服务器: {i['host']}:{i['port']}, 地图: {srv.map_name}, 分数: {score}",
+                    f"符合TJ条件的服务器: {i['host']}:{i['port']}, 地图: {srv.map_name}, 分数: {total_score}",
                 )
                 filtered.append(i)
-        elif tj_mode == "zl" and map_type in srv.map_name and len(players) <= 4:
+        elif tj_mode == "zl" and map_type in srv.server_name and len(players) <= 4:
             logger.info(
                 f"符合ZL条件的服务器: {i['host']}:{i['port']}, 地图: {srv.map_name}, 玩家数: {len(players)}",
+            )
+            filtered.append(i)
+        elif tj_mode == "kl" and len(players) == 0:
+            logger.info(
+                f"符合KL条件的服务器: {i['host']}:{i['port']}, 地图: {srv.map_name}, 玩家数: {len(players)}",
             )
             filtered.append(i)
     return filtered

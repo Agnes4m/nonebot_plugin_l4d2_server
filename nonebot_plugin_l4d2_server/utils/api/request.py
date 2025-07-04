@@ -59,6 +59,49 @@ class L4D2Api:
             return element.find_all(tag, class_=class_)
         return []
 
+    async def a2s_server_info(
+        self,
+        ip: Tuple[str, int],
+    ):
+        try:
+            server = await a2s.ainfo(
+                ip,
+                timeout=3,
+                encoding="utf8",
+            )
+
+        except (
+            asyncio.exceptions.TimeoutError,
+            ConnectionRefusedError,
+            socket.gaierror,
+        ):
+            server = a2s.SourceInfo(
+                protocol=0,
+                server_name="服务器无响应",
+                map_name="无",
+                folder="m",
+                game="L4D2",
+                app_id=114514,
+                steam_id=0,
+                player_count=0,
+                max_players=0,
+                bot_count=0,
+                server_type="w",
+                platform="w",
+                password_protected=False,
+                vac_enabled=False,
+                version="1.0",
+                edf=0,
+                ping=0,
+            )
+            server.player_count = 0
+            server.max_players = 0
+            server.server_name = "服务器无响应"
+            server.map_name = "无"
+            server.folder = "m"
+            server.vac_enabled = False
+        return server
+
     async def a2s_info(
         self,
         ip_list: List[Tuple[str, int]],
@@ -145,6 +188,7 @@ class L4D2Api:
                 server.map_name = "无"
                 server.folder = "m"
                 server.vac_enabled = False
+                is_player = False
 
         if is_player:
             with contextlib.suppress(
@@ -153,6 +197,8 @@ class L4D2Api:
                 socket.gaierror,
             ):
                 play = await a2s.aplayers(ip, timeout=3, encoding="utf8")
+        else:
+            play = []
         return server, play
 
     async def _server_request(
