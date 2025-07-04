@@ -171,6 +171,7 @@ ws_download = on_command(
     "l4ws",
     aliases={"l4工坊下载"},
     priority=20,
+    permission=config.l4_permission_set,
     block=True,
 )
 

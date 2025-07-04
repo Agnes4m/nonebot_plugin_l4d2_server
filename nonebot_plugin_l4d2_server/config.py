@@ -1,8 +1,10 @@
 from pathlib import Path
-from typing import List
+from typing import List, Set
 
 from nonebot import get_plugin_config
+from nonebot.adapters.onebot.v11 import GROUP_ADMIN, GROUP_MEMBER, GROUP_OWNER
 from nonebot.log import logger
+from nonebot.permission import SUPERUSER
 from pydantic import BaseModel, Field
 
 # 常量定义
@@ -48,6 +50,12 @@ class ConfigModel(BaseModel):
     )
     l4_local: List[str] = Field(default=[], description="本地服务器路径列表")
     l4_map_index: int = Field(default=0, description="地图索引")
+    l4_permission: int = Field(
+        default=1,  # 默认为1，只包括SUPERUSER
+        ge=1,
+        le=4,
+        description="上传地图权限",
+    )
 
     @classmethod
     def validate_players(cls, v):
@@ -73,6 +81,16 @@ class ConfigModel(BaseModel):
         if index < 0:
             raise ValueError("地图索引不能小于0")
         self._config.map_index = index
+
+    @property
+    def l4_permission_set(self) -> Set[int]:
+        permissions = {
+            1: SUPERUSER,
+            2: SUPERUSER | GROUP_OWNER,
+            3: SUPERUSER | GROUP_OWNER | GROUP_ADMIN,
+            4: SUPERUSER | GROUP_OWNER | GROUP_ADMIN | GROUP_MEMBER,
+        }
+        return permissions[self.l4_permission]
 
 
 config = get_plugin_config(ConfigModel)

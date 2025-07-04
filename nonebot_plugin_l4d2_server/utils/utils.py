@@ -1,6 +1,4 @@
 import json
-import os
-import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -8,14 +6,12 @@ import aiofiles
 import aiohttp
 import nonebot
 from aiohttp import ClientTimeout
-from nonebot.adapters.onebot.v11 import Bot, GroupMessageEvent, MessageEvent
 from nonebot.log import logger
 from nonebot_plugin_alconna import UniMessage
 
-
-async def log_and_send(matcher, message: str, level="info"):
-    getattr(logger, level)(message)
-    await matcher.finish(UniMessage.text(message))
+# async def log_and_send(matcher, message: str, level="info"):
+#     getattr(logger, level)(message)
+#     await matcher.finish(UniMessage.text(message))
 
 
 def read_config(config_path: Path) -> dict:
@@ -107,46 +103,6 @@ async def save_file(file: bytes, path_name: str):
     """保存文件"""
     async with aiofiles.open(path_name, "wb") as files:
         await files.write(file)
-
-
-async def upload_file(bot: Bot, event: MessageEvent, file_data: bytes, filename: str):
-    """上传临时文件"""
-    if os.name == "nt":
-        with tempfile.TemporaryDirectory() as temp_dir:
-            async with aiofiles.open(Path(temp_dir) / filename, "wb") as f:
-                await f.write(file_data)
-            if isinstance(event, GroupMessageEvent):
-                await bot.call_api(
-                    "upload_group_file",
-                    group_id=event.group_id,
-                    file=f.name,
-                    name=filename,
-                )
-            else:
-                await bot.call_api(
-                    "upload_private_file",
-                    user_id=event.user_id,
-                    file=f.name,
-                    name=filename,
-                )
-        (Path().joinpath(filename)).unlink()
-    else:
-        with tempfile.NamedTemporaryFile("wb+") as f:
-            f.write(file_data)
-        if isinstance(event, GroupMessageEvent):
-            await bot.call_api(
-                "upload_group_file",
-                group_id=event.group_id,
-                file=f.name,
-                name=filename,
-            )
-        else:
-            await bot.call_api(
-                "upload_private_file",
-                user_id=event.user_id,
-                file=f.name,
-                name=filename,
-            )
 
 
 sub_menus = []

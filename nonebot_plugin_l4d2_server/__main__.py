@@ -40,9 +40,10 @@ from .l4_request import (
     server_find,
     tj_request,
 )
+from .message import Gm, Sm
 from .utils.api.request import L4API
 from .utils.api.utils import out_msg_out
-from .utils.utils import log_and_send, read_config, split_maohao, write_config
+from .utils.utils import read_config, split_maohao, write_config
 
 if TYPE_CHECKING:
     from .utils.api.models import OutServer
@@ -107,22 +108,27 @@ async def _(
         command = command.replace(start, "")
     if command == "anne":
         command = "云"
-    _id: Optional[str] = args.extract_plain_text()
-    if _id is not None and not _id.isdigit() and _id:
-        return
+
+    _id: Optional[str] = args.extract_plain_text().strip()
+    if _id and not _id.isdigit():
+        logger.info(Gm.no_id)
+
     if not _id:
         _id = None
-    logger.info(f"组:{command} ;数字:{_id}")
+        logger.info(Gm.no_id)
+    else:
+        logger.info(f"ID: {_id}")
+
     msg = await get_server_detail(command, _id)
     if msg is None:
-        await out_msg_out("服务器无响应")
+        await out_msg_out(Sm.server_outtime)
         return
-    if _id is None:
-        logger.info(f"正在输出组:{command}")
-        await out_msg_out(msg)
-    if _id:
-        logger.info(f"正在输出单服务器:{command} {_id}", is_connect=config.l4_image)
-        await out_msg_out(msg)
+
+    logger_info_msg = Gm.outputing_group
+    if _id is not None:
+        logger_info_msg += f" {_id}"
+    logger.info(logger_info_msg, is_connect=config.l4_image)
+    await out_msg_out(msg)
 
 
 @l4_find_player.handle()
@@ -132,15 +138,15 @@ async def _(
     # 以后有时间补img格式
     msg: str = args.extract_plain_text().strip()
     if not msg:
-        return UniMessage.text("请在指令后添加要找的昵称哦")
+        return UniMessage.text(Gm.add_name)
     tag_list: List[str] = msg.split(" ", maxsplit=1)
     if len(tag_list) == 1:
-        await UniMessage.text("未设置组，正在全服查找，时间较长").send()
+        await UniMessage.text(Gm.no_group_search).send()
         name = tag_list[0]
         out: List[OutServer] = await server_find(is_img=False)  # type: ignore
         logger.info(out)
         logger.info(type(out))
-        out_msg = "未找到玩家"
+        out_msg = Gm.no_player
         for one in out:
             logger.info(one)
             for player in one["player"]:
@@ -150,7 +156,7 @@ async def _(
         group, name = tag_list
         await UniMessage.text(f"正在查询{group}组").send()
         out: List[OutServer] = await server_find(command=group, is_img=False)  # type: ignore
-        out_msg = "未找到玩家"
+        out_msg = Gm.no_player
         for one in out:
             for player in one["player"]:
                 if name in player.name:
@@ -212,7 +218,7 @@ async def _(args: Message = CommandArg()):
     write_config(config_path, config_data)
 
     await L4API.get_sourceban(arg[0], arg[1])
-    await log_and_send(l4_add_ban, f"添加成功\n组名: {arg[0]}\n网址: {arg[1]}")
+    await UniMessage.text("添加成功\n组名: {arg[0]}\n网址: {arg[1]}").send()
 
 
 l4_del_ban = on_command("l4delban", aliases={"l4删除ban", "l4移除ban"})
@@ -274,6 +280,7 @@ async def _(matcher: Matcher):
 ## 以下为配置修改
 
 img_trung = on_command("l4img", aliases={"l4图片"}, permission=SUPERUSER)
+style_trung = on_command("l4style", aliases={"l4风格切换"}, permission=SUPERUSER)
 
 
 @img_trung.handle()
@@ -287,3 +294,13 @@ async def _(args: Message = CommandArg()):
         await out_msg_out("[l4]已关闭图片模式")
     else:
         await UniMessage.text("请在参数后加上开启或关闭").finish()
+
+
+@style_trung.handle()
+async def _():
+    if config.l4_style == "default":
+        config_manager.update_style_config(style="old")
+        await UniMessage.text("[l4]已切换为旧风格").finish()
+    else:
+        config_manager.update_style_config(style="default")
+        await UniMessage.text("[l4]已切换为默认风格").finish()
