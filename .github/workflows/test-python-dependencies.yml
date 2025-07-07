@@ -1,9 +1,8 @@
 name: Test-python-dependencies
 on:
-  push:
-    branches: [ 1.x.x ]
-  pull_request:
-    branches: [ 1.x.x ]
+  release:
+    types: [published]
+  workflow_dispatch:
 jobs:
   test:
     if: github.repository == 'Agnes4m/nonebot_plugin_l4d2_server'

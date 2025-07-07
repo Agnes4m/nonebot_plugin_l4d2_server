@@ -4,7 +4,6 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-
 jobs:
   build-n-publish:
     name: Use PDM to Build and publish Python 🐍 distributions 📦 to PyPI

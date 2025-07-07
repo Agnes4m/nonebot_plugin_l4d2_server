@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ 1.x.x ]
     repository: Agnes4m/nonebot_plugin_l4d2_server
-
 jobs:
   test:
     name: Run tests and collect coverage
@@ -17,14 +16,14 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
 
       - name: Install dependencies
-        run: npm install
+        run: pip install pytest pytest-cov
 
       - name: Run tests
-        run: npx jest --coverage
+        run: pytest --cov --cov-branch --cov-report=xml
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
