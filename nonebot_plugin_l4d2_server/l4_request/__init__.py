@@ -9,15 +9,14 @@ from ..utils.api.models import AllServer, NserverOut
 from ..utils.utils import split_maohao
 from .draw_msg import draw_one_ip, get_much_server
 from .tj import tj_request as tj_request
+from .typing import ALLHOST, COMMAND
 from .utils import (
-    ALLHOST,
-    COMMAND,
-    _calculate_group_stats,
-    _format_server_details,
+    _calculate_server_stats,
+    _format_server_summary,
     _get_server_json,
     _handle_group_info,
     _handle_single_server,
-    get_single_server_info,
+    get_server_endpoint,
 )
 
 try:
@@ -40,7 +39,7 @@ async def get_all_server_detail() -> str:
             continue
 
         # 计算服务器组的统计指标
-        active_server, max_server, active_player, max_player = _calculate_group_stats(
+        active_server, max_server, active_player, max_player = _calculate_server_stats(
             msg_list,
         )
 
@@ -53,7 +52,7 @@ async def get_all_server_detail() -> str:
         }
         out_list.append(cast(AllServer, data))
 
-    return _format_server_details(out_list)
+    return _format_server_summary(out_list)
 
 
 async def get_server_detail(
@@ -83,7 +82,7 @@ async def get_server_detail(
     if _id is None:
         return await _handle_group_info(server_json, command, is_img)
 
-    _ip = await get_single_server_info(server_json, _id)
+    _ip = await get_server_endpoint(server_json, _id)
     if _ip is None:
         logger.warning("未找到这个服务器")
         return None
@@ -203,7 +202,7 @@ async def server_find(
     if _id is None:
         return await _handle_group_info(server_json, command, is_img)
 
-    _ip = await get_single_server_info(server_json, _id)
+    _ip = await get_server_endpoint(server_json, _id)
     if _ip is None:
         logger.warning("未找到这个服务器")
         return None

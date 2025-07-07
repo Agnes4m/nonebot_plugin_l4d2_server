@@ -25,7 +25,7 @@
                 {% for server in servers %}
                 <div class="server-card">
                     <div class="server-name" title="{{ server.server.server_name }}">
-                        {{ server.server.server_name|replace('\n', ' ')|replace(' ', ' ')|trim }}
+                        {{ server.command }}{{ server.id_ }}:{{ server.server.server_name }}
                     </div>
 
                     <div class="map-name">

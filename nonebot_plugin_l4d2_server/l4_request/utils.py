@@ -1,231 +1,286 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Union
 
 from nonebot.log import logger
 
 from ..l4_image import msg_to_image
-from ..utils.api.models import AllServer, NserverOut
+from ..utils.api.models import AllServer
 from ..utils.api.request import L4API
 from .draw_msg import convert_duration, draw_one_ip, get_much_server
-
-ALLHOST: Dict[str, List[NserverOut]] = {}
-COMMAND = set()
+from .typing import (
+    DEFAULT_MAP_TYPES,
+    FILTER_MODES,
+    ServerDict,
+    ServerInfo,
+    ServerList,
+    ServerStats,
+)
 
 
 def _get_server_json(
     command: str,
-    allhost: Dict[str, List[NserverOut]],
-) -> Optional[list]:
+    server_registry: ServerDict,
+) -> Optional[ServerList]:
     """
-    根据命令获取服务器JSON列表
+    根据命令获取服务器列表
 
     Args:
-        command (str): 服务器组名
-        ALLHOST (Dict): 全局服务器字典
+        command: 服务器组名
+        server_registry: 服务器注册表
 
     Returns:
-        Optional[list]: 服务器JSON列表，未找到组时返回None
+        服务器列表，未找到组时返回None
     """
-    logger.debug(f"获取服务器组 {allhost} 的信息")
-    if command:
-        return allhost.get(command)
-    server_json = []
-    for servers in allhost.values():
-        server_json.extend(servers)
-    logger.debug(f"获取到的服务器组信息: {server_json}")
-    return server_json
+    logger.debug(f"获取服务器组 {command} 的信息")
+
+    if not command:
+        # 返回所有服务器的扁平列表
+        return [server for servers in server_registry.values() for server in servers]
+
+    return server_registry.get(command)
 
 
 async def _handle_group_info(
-    server_json: list,
+    servers: ServerList,
     command: str,
-    is_img: bool,
-):
+    use_image: bool,
+) -> Union[bytes, List[Dict], None]:
     """
     处理服务器组信息请求
 
     Args:
-        server_json (list): 服务器JSON列表
-        command (str): 服务器组名
-        is_img (bool): 是否返回图片格式
+        servers: 服务器列表
+        command: 服务器组名
+        use_image: 是否返回图片格式
 
     Returns:
-        Union[bytes, list, None]: 图片格式返回bytes，否则返回服务器列表
+        图片格式返回bytes，否则返回服务器列表
     """
     logger.info(f"正在请求组服务器信息 {command}")
-    server_dict = await get_much_server(server_json, command)
-    if is_img:
-        return await msg_to_image(server_dict)
-    return server_dict
+    server_data = await get_much_server(servers, command)
+
+    if use_image:
+        return await msg_to_image(server_data)
+    return server_data
 
 
-async def get_single_server_info(
-    server_json: list,
-    _id: str,
-) -> Optional[Tuple[str, int]]:
+async def get_server_endpoint(
+    servers: ServerList,
+    server_id: str,
+) -> Optional[ServerInfo]:
     """
-    获取单个服务器的host和port信息
+    获取单个服务器的连接端点(host:port)
 
     Args:
-        server_json (list): 服务器JSON列表
-        _id (str): 服务器ID
+        servers: 服务器列表
+        server_id: 服务器ID
 
     Returns:
-        Optional[Tuple[str, int]]: 返回(host, port)元组，未找到返回None
+        返回(host, port)元组，未找到返回None
     """
-    logger.info("正在获取单服务器信息")
-    for i in server_json:
-        if str(_id) == str(i["id"]):
-            return i["host"], i["port"]
+    logger.info(f"正在获取服务器 {server_id} 的连接信息")
+
+    for server in servers:
+        if str(server_id) == str(server["id"]):
+            return server["host"], server["port"]
     return None
 
 
 async def _handle_single_server(
-    server_json: list,
-    _id: str,
-    is_img: bool,
+    servers: ServerList,
+    server_id: str,
+    use_image: bool,
 ) -> Union[bytes, str, None]:
     """
     处理单个服务器信息请求
 
     Args:
-        server_json (list): 服务器JSON列表
-        _id (str): 服务器ID
-        is_img (bool): 是否返回图片格式
+        servers: 服务器列表
+        server_id: 服务器ID
+        use_image: 是否返回图片格式
 
     Returns:
-        Union[bytes, str, None]: 找到服务器时返回信息，否则返回None
+        找到服务器时返回信息，否则返回None
     """
-    server_info = await get_single_server_info(server_json, _id)
-    if server_info is None:
+    endpoint = await get_server_endpoint(servers, server_id)
+    if endpoint is None:
         return None
 
-    host, port = server_info
-    return await draw_one_ip(host, port, is_img=is_img)
+    host, port = endpoint
+    return await draw_one_ip(host, port, use_image)
 
 
 async def _filter_servers(
-    servers: list,
-    tj_mode: str,
-    map_type: Optional[list[str]] = None,
-) -> list:
-    """筛选符合条件的服务器
+    servers: ServerList,
+    filter_mode: str,
+    map_types: Optional[List[str]] = None,
+) -> ServerList:
+    """
+    根据条件筛选服务器
+
     Args:
         servers: 服务器列表
-        tj_mode: 筛选模式（'tj'或'zl'）
-        map_type: 地图类型筛选条件
+        filter_mode: 筛选模式（'tj'/'zl'/'kl'）
+        map_types: 地图类型筛选条件
+
     Returns:
         符合条件的服务器列表
     """
-    map_type = ["普通药役", "硬核药役"]
-    map_type = map_type
-    filtered = []
+    if filter_mode not in FILTER_MODES:
+        raise ValueError(f"无效的筛选模式: {filter_mode}")
+
+    map_types = map_types or DEFAULT_MAP_TYPES
+    filtered_servers = []
 
     for server in servers:
-        ser_list = await L4API.a2s_info(
+        server_info = await L4API.a2s_info(
             [(server["host"], server["port"])],
             is_player=True,
         )
-        if not ser_list:
+
+        if not server_info:
             continue
 
-        srv, players = ser_list[0]
-        if srv.map_name == "无":
+        server_data, players = server_info[0]
+
+        if server_data.map_name == "无":
             continue
 
-        server_info = f"{server['host']}:{server['port']}, 地图: {srv.map_name}"
-        if tj_mode == "tj" and any(m in srv.server_name for m in map_type):
-            scores = [p.score for p in players[:4]]
-            total_score = sum(scores)
-            part = srv.server_name.split("[")[1].split("]")[0]
-            threshold = part.split("特")[0]
-            if threshold.isdigit() and int(threshold) * 50 < total_score:
-                logger.info(f"符合TJ条件的服务器: {server_info}, 分数: {total_score}")
-                filtered.append(server)
-        elif (
-            tj_mode == "zl"
-            and any(m in srv.server_name for m in map_type)
-            and len(players) <= 4
-        ):
-            logger.info(f"符合ZL条件的服务器: {server_info}, 玩家数: {len(players)}")
-            filtered.append(server)
-        elif tj_mode == "kl" and len(players) == 0:
-            logger.info(f"符合KL条件的服务器: {server_info}, 玩家数: {len(players)}")
-            filtered.append(server)
+        server_details = (
+            f"{server['host']}:{server['port']}, 地图: {server_data.map_name}"
+        )
 
-    return filtered
+        if filter_mode == "tj":
+            if await _is_tj_server(server_data, players, map_types):
+                logger.info(f"符合TJ条件的服务器: {server_details}")
+                filtered_servers.append(server)
+
+        elif filter_mode == "zl":
+            if await _is_zl_server(server_data, players, map_types):
+                logger.info(f"符合ZL条件的服务器: {server_details}")
+                filtered_servers.append(server)
+
+        elif filter_mode == "kl" and not players:
+            logger.info(f"符合KL条件的服务器: {server_details}")
+            filtered_servers.append(server)
+
+    return filtered_servers
 
 
-async def _format_players(player_list: list) -> str:
-    """格式化玩家信息
+async def _is_tj_server(server_data: Dict, players: List, map_types: List[str]) -> bool:
+    """检查服务器是否符合TJ条件"""
+    if not any(m in server_data.server_name for m in map_types):
+        return False
+
+    scores = [p.score for p in players[:4]]
+    total_score = sum(scores)
+
+    try:
+        threshold = int(
+            server_data.server_name.split("[")[1].split("]")[0].split("特")[0],
+        )
+        return threshold * 50 < total_score
+    except (IndexError, ValueError):
+        return False
+
+
+async def _is_zl_server(server_data: Dict, players: List, map_types: List[str]) -> bool:
+    """检查服务器是否符合ZL条件"""
+    return any(m in server_data.server_name for m in map_types) and len(players) <= 4
+
+
+async def _format_players(players: List[Dict]) -> str:
+    """
+    格式化玩家信息为可读字符串
+
     Args:
-        player_list: 玩家对象列表
+        players: 玩家对象列表
+
     Returns:
         格式化后的玩家信息字符串
     """
-    durations = [await convert_duration(p.duration) for p in player_list]
+    if not players:
+        return "无玩家在线"
+
+    durations = [await convert_duration(p.duration) for p in players]
     max_duration_len = max(len(str(d)) for d in durations)
-    max_score_len = max(len(str(p.score)) for p in player_list)
+    max_score_len = max(len(str(p.score)) for p in players)
+
     return "\n".join(
         f"[{p.score:>{max_score_len}}] | {durations[i]:^{max_duration_len}} | {p.name[0]}***{p.name[-1]}"
-        for i, p in enumerate(player_list)
+        for i, p in enumerate(players)
     )
 
 
-def _build_message(srv_info, players_msg: str, selected_srv: dict, config) -> str:
-    """构建服务器信息消息
-    Args:
-        srv_info: 服务器信息对象
-        players_msg: 格式化后的玩家信息
-        selected_srv: 选中的服务器信息
-        config: 配置对象
-    Returns:
-        完整的消息字符串
+def build_server_message(
+    server_data: Dict,
+    players_info: str,
+    selected_server: Dict,
+    show_ip: bool,
+) -> str:
     """
-    msg = f"""*{srv_info.server_name}*
-游戏: {srv_info.folder}
-地图: {srv_info.map_name}
-人数: {srv_info.player_count}/{srv_info.max_players}"""
-    if srv_info.ping is not None:
-        msg += f"\nping: {srv_info.ping * 1000:.0f}ms\n{players_msg}"
-    if config.l4_show_ip:
-        msg += f"\nconnect {selected_srv['host']}:{selected_srv['port']}"
-    return msg
+    构建完整的服务器信息消息
+
+    Args:
+        server_data: 服务器信息
+        players_info: 玩家信息字符串
+        selected_server: 选中的服务器
+        show_ip: 是否显示连接信息
+
+    Returns:
+        格式化后的消息字符串
+    """
+    message = [
+        f"*{server_data.server_name}*",
+        f"游戏: {server_data.folder}",
+        f"地图: {server_data.map_name}",
+        f"人数: {server_data.player_count}/{server_data.max_players}",
+    ]
+
+    if server_data.ping is not None:
+        message.append(f"ping: {server_data.ping * 1000:.0f}ms")
+        message.append(players_info)
+
+    if show_ip:
+        message.append(f"connect {selected_server['host']}:{selected_server['port']}")
+
+    return "\n".join(message)
 
 
-def _calculate_group_stats(msg_list: List) -> Tuple[int, int, int, int]:
+def _calculate_server_stats(servers: List[Dict]) -> ServerStats:
     """
     计算服务器组的统计指标
 
     Args:
-        msg_list: 服务器组详细信息列表
+        servers: 服务器组详细信息列表
 
     Returns:
-        Tuple[int, int, int, int]:
-            (活跃服务器数, 总服务器数, 活跃玩家数, 最大玩家数)
+        ServerStats对象包含统计信息
     """
-    active_server = sum(1 for msg in msg_list if msg["server"].max_players != 0)
-    max_server = len(msg_list)
-    active_player = sum(
-        msg["server"].player_count for msg in msg_list if msg["server"].max_players != 0
+    active_servers = sum(1 for s in servers if s["server"].max_players != 0)
+    total_servers = len(servers)
+    active_players = sum(
+        s["server"].player_count for s in servers if s["server"].max_players != 0
     )
-    max_player = sum(
-        msg["server"].max_players for msg in msg_list if msg["server"].max_players != 0
+    max_players = sum(
+        s["server"].max_players for s in servers if s["server"].max_players != 0
     )
-    return active_server, max_server, active_player, max_player
+
+    return ServerStats(active_servers, total_servers, active_players, max_players)
 
 
-def _format_server_details(out_list: List[AllServer]) -> str:
+def _format_server_summary(servers: List[AllServer]) -> str:
     """
-    格式化服务器详情输出文本
+    格式化服务器摘要信息
 
     Args:
-        out_list: 服务器信息字典列表
+        servers: 服务器信息列表
 
     Returns:
-        str: 格式化后的多行字符串
+        格式化后的多行字符串
     """
     return "\n".join(
-        f"{one['command']} | 服务器{one['active_server']}/{one['max_server']} | 玩家{one['active_player']}/{one['max_player']}"
-        for one in out_list
-        if one["max_player"]
+        f"{srv['command']} | 服务器{srv['active_server']}/{srv['max_server']} | "
+        f"玩家{srv['active_player']}/{srv['max_player']}"
+        for srv in servers
+        if srv["max_player"]
     )
