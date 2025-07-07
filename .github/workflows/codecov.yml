@@ -32,7 +32,7 @@ jobs:
     - name: Install project dependencies
       run: |
         pdm install -G test
-        pdm add pytest pytest-asyncio uvicorn 
+        pdm add pytest pytest-asyncio uvicorn
     
     - name: Run tests
       run: pdm run pytest -v
@@ -55,7 +55,7 @@ jobs:
       - name: Install project dependencies
         run: |
           pdm install -G test
-          pdm add pytest pytest-asyncio uvicorn 
+          pdm add pytest uvicorn pytest-cov
           
       - name: Run tests
         run: pdm run pytest --cov --cov-branch --cov-report=xml
