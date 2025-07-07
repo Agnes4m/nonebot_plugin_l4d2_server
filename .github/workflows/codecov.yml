@@ -1,0 +1,33 @@
+name: Upload coverage reports to Codecov
+on:
+  push:
+    branches: [ 1.x.x ]
+    repository: Agnes4m/nonebot_plugin_l4d2_server
+  pull_request:
+    branches: [ 1.x.x ]
+    repository: Agnes4m/nonebot_plugin_l4d2_server
+
+jobs:
+  test:
+    name: Run tests and collect coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npx jest --coverage
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: Agnes4m/nonebot_plugin_l4d2_server
