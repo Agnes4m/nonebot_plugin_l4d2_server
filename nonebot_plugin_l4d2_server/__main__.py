@@ -139,12 +139,12 @@ async def _(
         return UniMessage.text(Gm.add_name)
     tag_list: List[str] = msg.split(" ", maxsplit=1)
     if len(tag_list) == 1:
-        await UniMessage.text(Gm.no_group_search).send()
+        await UniMessage.text(Sm.no_group_search).send()
         name = tag_list[0]
         out: List[OutServer] = await server_find(is_img=False)  # type: ignore
         logger.info(out)
         logger.info(type(out))
-        out_msg = Gm.no_player
+        out_msg = Sm.no_player
         for one in out:
             logger.info(one)
             for player in one["player"]:

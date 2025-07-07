@@ -221,7 +221,8 @@ async def server_find(
     server_json = []
     for one_command in all_command:
         server_j = _get_server_json(one_command, ALLHOST)
-        server_json.extend(server_j)
+        if server_j is not None:
+            server_json.extend(server_j)
     logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
