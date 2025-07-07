@@ -1,14 +1,44 @@
-name: Upload coverage reports to Codecov
+name: Combined Workflow
+
 on:
+  release:
+    types: [published]
   push:
-    branches: [ 1.x.x ]
+    branches: [1.x.x]
     repository: Agnes4m/nonebot_plugin_l4d2_server
   pull_request:
-    branches: [ 1.x.x ]
+    branches: [1.x.x]
     repository: Agnes4m/nonebot_plugin_l4d2_server
+  workflow_dispatch:
+
 jobs:
-  test:
-    name: Run tests and collect coverage
+  test-on-release:
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install PDM
+      run: pip install pdm
+    
+    - name: Install project dependencies
+      run: |
+        pdm install -G test
+        pdm add pytest pytest-asyncio uvicorn 
+    
+    - name: Run tests
+      run: pdm run pytest -v
+
+  test-and-upload-coverage:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,13 +49,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
 
-      - name: Install dependencies
-        run: pip install pytest pytest-cov
-
+      - name: Install PDM
+        run: pip install pdm
+    
+      - name: Install project dependencies
+        run: |
+          pdm install -G test
+          pdm add pytest pytest-asyncio uvicorn 
+          
       - name: Run tests
         run: pytest --cov --cov-branch --cov-report=xml
 
       - name: Upload results to Codecov
+        if: github.event_name == 'push'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

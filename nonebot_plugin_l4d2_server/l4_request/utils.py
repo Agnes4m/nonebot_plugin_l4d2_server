@@ -3,9 +3,12 @@ from typing import Dict, List, Optional, Tuple, Union
 from nonebot.log import logger
 
 from ..l4_image import msg_to_image
-from ..utils.api.models import NserverOut
+from ..utils.api.models import AllServer, NserverOut
 from ..utils.api.request import L4API
 from .draw_msg import convert_duration, draw_one_ip, get_much_server
+
+ALLHOST: Dict[str, List[NserverOut]] = {}
+COMMAND = set()
 
 
 def _get_server_json(
@@ -187,3 +190,42 @@ def _build_message(srv_info, players_msg: str, selected_srv: dict, config) -> st
     if config.l4_show_ip:
         msg += f"\nconnect {selected_srv['host']}:{selected_srv['port']}"
     return msg
+
+
+def _calculate_group_stats(msg_list: List) -> Tuple[int, int, int, int]:
+    """
+    计算服务器组的统计指标
+
+    Args:
+        msg_list: 服务器组详细信息列表
+
+    Returns:
+        Tuple[int, int, int, int]:
+            (活跃服务器数, 总服务器数, 活跃玩家数, 最大玩家数)
+    """
+    active_server = sum(1 for msg in msg_list if msg["server"].max_players != 0)
+    max_server = len(msg_list)
+    active_player = sum(
+        msg["server"].player_count for msg in msg_list if msg["server"].max_players != 0
+    )
+    max_player = sum(
+        msg["server"].max_players for msg in msg_list if msg["server"].max_players != 0
+    )
+    return active_server, max_server, active_player, max_player
+
+
+def _format_server_details(out_list: List[AllServer]) -> str:
+    """
+    格式化服务器详情输出文本
+
+    Args:
+        out_list: 服务器信息字典列表
+
+    Returns:
+        str: 格式化后的多行字符串
+    """
+    return "\n".join(
+        f"{one['command']} | 服务器{one['active_server']}/{one['max_server']} | 玩家{one['active_player']}/{one['max_player']}"
+        for one in out_list
+        if one["max_player"]
+    )

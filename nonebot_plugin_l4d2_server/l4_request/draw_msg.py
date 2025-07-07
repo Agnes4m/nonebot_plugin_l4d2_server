@@ -1,13 +1,14 @@
 # from logging import log
 import io
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 from nonebot.log import logger
 from PIL import Image, ImageDraw, ImageFont
 
 from ..config import config
 from ..l4_image.html_img import convert_duration
+from ..message import Sm
 from ..utils.api.models import NserverOut, OutServer
 from ..utils.api.request import L4API
 
@@ -17,17 +18,11 @@ async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
     ser_list = await L4API.a2s_info([(host, port)], is_player=True)
     if not ser_list or ser_list[0][0].max_players == 0:
         # except asyncio.exceptions.TimeoutError:
-        return "服务器无响应"
+        return Sm.server_outtime
     one_server = ser_list[0][0]
     one_player = ser_list[0][1]
 
     async def format_player_info(players: list) -> str:
-        """格式化玩家信息
-        Args:
-            players: 玩家对象列表
-        Returns:
-            格式化后的玩家信息字符串
-        """
         player_msg = ""
         if len(players):
             max_duration_len = max(
@@ -261,24 +256,25 @@ connect {host}:{port}"""
     return server_message
 
 
-async def get_much_server(server_json: List[NserverOut], command: str):
+async def get_much_server(
+    server_json: List[NserverOut],
+    command: str,
+) -> List[OutServer]:
     out_server: List[OutServer] = []
-    search_list: List[Tuple[str, int]] = []
-    for i in server_json:
-        search_list.append((i["host"], i["port"]))
+    search_list = [(s["host"], s["port"]) for s in server_json]
 
     all_server = await L4API.a2s_info(search_list, is_player=True)
 
-    for index, i in enumerate(all_server):
+    for (server, player), srv_json in zip(all_server, server_json):
         out_server.append(
-            {
-                "server": i[0],  # type: ignore
-                "player": i[1],
-                "host": server_json[index]["host"],
-                "port": server_json[index]["port"],
-                "command": command,
-                "id_": server_json[index]["id"],
-            },
+            OutServer(
+                server=server,
+                player=player,
+                host=srv_json["host"],
+                port=srv_json["port"],
+                command=command,
+                id_=srv_json["id"],
+            ),
         )
 
     return out_server

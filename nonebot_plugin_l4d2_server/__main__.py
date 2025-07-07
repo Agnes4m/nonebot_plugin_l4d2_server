@@ -110,6 +110,7 @@ async def _(
     _id: Optional[str] = args.extract_plain_text().strip()
     if _id and not _id.isdigit():
         logger.info(Gm.no_id)
+        return
 
     if not _id:
         _id = None
