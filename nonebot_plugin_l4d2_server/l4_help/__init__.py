@@ -12,11 +12,11 @@ from .draw import get_help
 
 __version__ = "1.1.5"
 TEXT_PATH = Path(__file__).parent / "texture2d"
-HELP_DATA = Path(__file__).parent / "Help.json"
+HELP_DATA = Path(__file__).parent / "help.json"
 
 
 async def get_help_data() -> Union[Dict[str, PluginHelp], None]:
-    if HELP_DATA.exists():
+    if HELP_DATA.is_file():
         async with aiofiles.open(HELP_DATA, "r", encoding="utf-8") as file:
             content = await file.read()
             return json.loads(content)

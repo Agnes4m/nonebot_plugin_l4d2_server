@@ -9,10 +9,6 @@ from aiohttp import ClientTimeout
 from nonebot.log import logger
 from nonebot_plugin_alconna import UniMessage
 
-# async def log_and_send(matcher, message: str, level="info"):
-#     getattr(logger, level)(message)
-#     await matcher.finish(UniMessage.text(message))
-
 
 def read_config(config_path: Path) -> dict:
     if not config_path.is_file():

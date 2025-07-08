@@ -12,30 +12,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-on-python:
-    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.12"]
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Install PDM
-      run: pip install pdm
-    
-    - name: Install project dependencies
-      run: |
-        pdm install -G test
-        pdm add pytest pytest-asyncio uvicorn
-    
-    - name: Run tests
-      run: pdm run pytest -v
 
   upload-coverage:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -55,7 +31,7 @@ jobs:
       - name: Install project dependencies
         run: |
           pdm install -G test
-          pdm add pytest uvicorn pytest-cov pytest-asyncio
+          pdm add pytest uvicorn pytest-cov pytest-asyncio nonebug
           
       - name: Run tests
         run: pdm run pytest --cov=nonebot_plugin_l4d2_server --cov-branch --cov-report=xml

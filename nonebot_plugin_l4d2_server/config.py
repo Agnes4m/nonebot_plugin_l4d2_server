@@ -5,7 +5,7 @@ from nonebot import get_plugin_config
 from nonebot.adapters.onebot.v11 import GROUP_ADMIN, GROUP_MEMBER, GROUP_OWNER
 from nonebot.log import logger
 from nonebot.permission import SUPERUSER
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # 常量定义
 DATAPATH = Path(__file__).parent.joinpath("data")
@@ -19,7 +19,7 @@ def init_data_directory(data_dir: Path) -> None:
     data_dir.mkdir(parents=True, exist_ok=True)
     json_file = data_dir / "l4d2.json"
 
-    if not json_file.exists():
+    if not json_file.is_file():
         logger.info(f"文件 {json_file.name} 不存在，已创建并初始化为 {{}}")
         json_file.write_text("{}", encoding="utf-8")
 
@@ -57,24 +57,26 @@ class ConfigModel(BaseModel):
         description="上传地图权限",
     )
 
+    @field_validator("l4_players")
     @classmethod
     def validate_players(cls, v):
         if v < 1:
-            raise ValueError("玩家数量必须大于0")
+            v = 1
+            logger.warning("玩家数量必须大于0, 默认设置为1")
         return v
 
-    @classmethod
-    def validate_font(cls, v):
-        if not Path(v).exists():
-            logger.warning(f"字体文件 {v} 不存在")
-        return v
-
+    @field_validator("l4_local", mode="before")
     @classmethod
     def validate_local_paths(cls, v):
-        path = Path(v)
-        if not (path / "steam_appid.txt").exists():
-            raise ValueError(f"路径 {v} 下缺少 steam_appid.txt 文件")
-        return str(path.resolve())
+        if isinstance(v, list):
+            validated_paths = []
+            for path in v:
+                path_obj = Path(path)
+                if not (path_obj / "steam_appid.txt").exists():
+                    raise ValueError(f"路径 {path} 下缺少 steam_appid.txt 文件")
+                validated_paths.append(str(path_obj.resolve()))
+            return validated_paths
+        return v
 
     def update_map_index(self, index: int) -> None:
         """更新地图索引配置"""

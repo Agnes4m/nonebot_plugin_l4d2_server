@@ -16,7 +16,7 @@
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional
 
 import aiofiles
 import ujson as json
@@ -41,12 +41,10 @@ from .l4_request import (
     tj_request,
 )
 from .message import Gm, Sm
+from .utils.api.models import OutServer
 from .utils.api.request import L4API
 from .utils.api.utils import out_msg_out
 from .utils.utils import read_config, split_maohao, write_config
-
-if TYPE_CHECKING:
-    from .utils.api.models import OutServer
 
 reload_ip()
 
