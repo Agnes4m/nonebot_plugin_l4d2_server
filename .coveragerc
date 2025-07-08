@@ -1,6 +1,3 @@
 [run]
 source = nonebot_plugin_l4d2_server
 branch = True
-
-[report]
-show_missing = True

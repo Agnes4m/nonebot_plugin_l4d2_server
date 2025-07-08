@@ -58,7 +58,7 @@ jobs:
           pdm add pytest uvicorn pytest-cov pytest-asyncio
           
       - name: Run tests
-        run: pdm run pytest --cov --cov-report=xml
+        run: pdm run pytest --cov=nonebot_plugin_l4d2_server --cov-branch --cov-report=xml
 
       - name: Upload results to Codecov
         if: github.event_name == 'push'

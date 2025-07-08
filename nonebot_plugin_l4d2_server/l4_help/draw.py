@@ -12,7 +12,10 @@ from ..l4_image.model import PluginHelp
 cache: Dict[str, int] = {}
 Micon_path = Path(__file__).parent / "icon"
 DEFAULT_ICON = Micon_path / "拼图.png"
-plugin_data = get_plugin_data()
+try:
+    plugin_data = get_plugin_data()
+except ValueError:
+    plugin_data = Path() / "data"
 
 
 def cx(w: int, x: int) -> int:
