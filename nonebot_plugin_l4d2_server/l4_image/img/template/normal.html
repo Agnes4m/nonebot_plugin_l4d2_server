@@ -38,9 +38,11 @@
                                 <span
                                     class="lock {% if server.server.player_count >= server.server.max_players %} locked {% endif %}"></span>
                                 <span
-                                    class="status_text {% if server.server.max_players == 0 %}error{% elif server.server.player_count / server.server.max_players < 0.5 %}lack{% elif server.server.player_count >= server.server.max_players %}full{% else %}not_full{% endif %}">
+                                    class="status_text {% if server.server.max_players == 0 %}error{% elif server.server.player_count == 0 %}none{% elif server.server.player_count / server.server.max_players < 0.5 %}lack{% elif server.server.player_count >= server.server.max_players %}full{% else %}not_full{% endif %}">
                                     {% if server.server.max_players == 0 %}
                                     错误
+                                    {% elif server.server.player_count == 0 %}
+                                    无人
                                     {% elif server.server.player_count / server.server.max_players < 0.5 %} 缺人 {% elif
                                         server.server.player_count>= server.server.max_players
                                         %}
@@ -60,7 +62,7 @@
                             %} <div class="player-item">
                             <span class="player-score">【{{ player.score }}】</span>
                             <span class="player-name">{{ player.name }}</span>
-                            
+
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -93,7 +95,7 @@
                                 <img src="vac.png" alt="VAC保护">
                             </span>
                             {% endif %}
-                            </span>
+                        </span>
                         </span>
                     </div>
                 </div>

@@ -15,7 +15,7 @@ from .utils import (
     _format_server_summary,
     _get_server_json,
     _handle_group_info,
-    _handle_single_server,
+    _handle_single_server_with_endpoint,
     get_server_endpoint,
 )
 
@@ -26,19 +26,13 @@ except ImportError:
 
 
 async def get_all_server_detail() -> str:
-    """
-    获取所有服务器的详细信息。
-
-    Returns:
-        str: 包含所有服务器详细信息的字符串。
-    """
+    """获取所有服务器的详细信息"""
     out_list: List[AllServer] = []
     for group in ALLHOST:
         msg_list = await get_group_detail(group)
         if not msg_list:
             continue
 
-        # 计算服务器组的统计指标
         active_server, max_server, active_player, max_player = _calculate_server_stats(
             msg_list,
         )
@@ -60,20 +54,9 @@ async def get_server_detail(
     _id: Optional[str] = None,
     is_img: bool = True,
 ):
-    """
-    异步获取服务器详细信息。
-
-    Args:
-        command (str): 服务器组名。
-        _id (Optional[str], optional): 服务器ID。默认为None。
-        is_img (bool, optional): 是否返回图片格式的信息。默认为True。
-
-    Returns:
-        Union[UniMessage, None]:
-            返回服务器详细信息（图片或文本格式），未找到服务器组或服务器时返回None。
-    """
+    """异步获取服务器详细信息"""
     server_json = _get_server_json(command, ALLHOST)
-    logger.info(server_json)
+    logger.debug(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
         return None
@@ -82,15 +65,16 @@ async def get_server_detail(
     if _id is None:
         return await _handle_group_info(server_json, command, is_img)
 
-    _ip = await get_server_endpoint(server_json, _id)
-    if _ip is None:
+    endpoint = await get_server_endpoint(server_json, _id)
+    if endpoint is None:
         logger.warning("未找到这个服务器")
         return None
 
-    out_msg = await _handle_single_server(server_json, _id, is_img)
+    host, port = endpoint
+    out_msg = await _handle_single_server_with_endpoint(is_img, host, port)
     if isinstance(out_msg, bytes):
         return UniMessage.image(raw=out_msg) + UniMessage.text(
-            f"connect {_ip[0]}:{_ip[1]}",
+            f"connect {endpoint[0]}:{endpoint[1]}",
         )
     if isinstance(out_msg, str):
         return UniMessage.text(out_msg)
@@ -100,9 +84,9 @@ async def get_server_detail(
 async def get_group_detail(
     command: str,
 ):
+    """根据组获取所有返回服务器信息"""
     server_json = _get_server_json(command, ALLHOST)
     # logger.debug(f"获取组服务器信息: {server_json}")
-    logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
         return None
@@ -193,7 +177,6 @@ async def server_find(
         server_j = _get_server_json(one_command, ALLHOST)
         if server_j is not None:
             server_json.extend(server_j)
-    logger.info(server_json)
     if server_json is None:
         logger.warning("未找到这个组")
         return None
@@ -202,15 +185,16 @@ async def server_find(
     if _id is None:
         return await _handle_group_info(server_json, command, is_img)
 
-    _ip = await get_server_endpoint(server_json, _id)
-    if _ip is None:
+    endpoint = await get_server_endpoint(server_json, _id)
+    if endpoint is None:
         logger.warning("未找到这个服务器")
         return None
 
-    out_msg = await _handle_single_server(server_json, _id, is_img)
+    host, port = endpoint
+    out_msg = await _handle_single_server_with_endpoint(is_img, host, port)
     if isinstance(out_msg, bytes):
         return UniMessage.image(raw=out_msg) + UniMessage.text(
-            f"connect {_ip[0]}:{_ip[1]}",
+            f"connect {endpoint[0]}:{endpoint[1]}",
         )
     if isinstance(out_msg, str):
         return UniMessage.text(out_msg)

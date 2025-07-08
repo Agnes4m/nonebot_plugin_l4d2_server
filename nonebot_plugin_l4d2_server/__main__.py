@@ -151,16 +151,28 @@ async def _(
             for player in one["player"]:
                 if name in player.name:
                     out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
+                    logger.info(config.l4_connect)
+                    logger.info(type(out_msg))
+                    if config.l4_connect and isinstance(out_msg, bytes):
+                        logger.info(f"connect {one['host']}:{one['port']}")
+                        out_msg = UniMessage.image(raw=out_msg) + UniMessage.text(
+                            f"\nconnect {one['host']}:{one['port']}",
+                        )
+                    else:
+                        out_msg = UniMessage.text(out_msg)
     if len(tag_list) == 2:
         group, name = tag_list
         await UniMessage.text(f"正在查询{group}组").send()
-        out: List[OutServer] = await server_find(command=group, is_img=False)  # type: ignore
+        out: List[OutServer] = await server_find(command=group, is_img=True)
         out_msg = Gm.no_player
         for one in out:
             for player in one["player"]:
                 if name in player.name:
                     out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
+                    logger.info(config.l4_connect)
+                    logger.info(type(out_msg))
                     if config.l4_connect and isinstance(out_msg, bytes):
+                        logger.info(f"connect {one['host']}:{one['port']}")
                         out_msg = UniMessage.image(raw=out_msg) + UniMessage.text(
                             f"\nconnect {one['host']}:{one['port']}",
                         )

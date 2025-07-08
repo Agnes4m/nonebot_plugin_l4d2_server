@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-on-release:
+  test-on-python:
     if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
@@ -37,7 +37,7 @@ jobs:
     - name: Run tests
       run: pdm run pytest -v
 
-  test-and-upload-coverage:
+  upload-coverage:
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +55,7 @@ jobs:
       - name: Install project dependencies
         run: |
           pdm install -G test
-          pdm add pytest uvicorn pytest-cov
+          pdm add pytest uvicorn pytest-cov pytest-asyncio
           
       - name: Run tests
         run: pdm run pytest --cov --cov-branch --cov-report=xml

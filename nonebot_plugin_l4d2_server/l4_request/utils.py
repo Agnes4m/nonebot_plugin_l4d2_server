@@ -1,6 +1,8 @@
+from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from nonebot.log import logger
+from nonebot_plugin_alconna import UniMessage
 
 from ..l4_image import msg_to_image
 from ..utils.api.models import AllServer
@@ -115,7 +117,7 @@ async def _filter_servers(
     map_types: Optional[List[str]] = None,
 ) -> ServerList:
     """
-    根据条件筛选服务器
+    根据tj等等条件筛选服务器
 
     Args:
         servers: 服务器列表
@@ -284,3 +286,51 @@ def _format_server_summary(servers: List[AllServer]) -> str:
         for srv in servers
         if srv["max_player"]
     )
+
+
+def _update_global_state(
+    group_name: str,
+    servers: List[dict],
+    item: Path,
+) -> None:
+    """
+    更新全局状态并记录日志
+
+    参数:
+        group_name: 服务器组名称
+        servers: 处理后的服务器配置列表
+    输出:
+        无，直接修改全局变量ALLHOST和COMMAND
+    """
+    global ALLHOST, COMMAND
+    ALLHOST.update({group_name: servers})
+    COMMAND.add(group_name)
+    logger.success(
+        f"成功加载 {item.name.split('.')[0]} {len(servers)}个",
+    )
+
+
+async def _handle_single_server_with_endpoint(
+    use_image: bool,
+    host: str,
+    port: int,
+) -> Union[bytes, str, None]:
+    """
+    处理单个服务器信息请求（已获取端点信息）
+
+    Args:
+        servers: 服务器列表
+        server_id: 服务器ID
+        use_image: 是否返回图片格式
+        host: 服务器主机地址
+        port: 服务器端口
+
+    Returns:
+        找到服务器时返回信息，否则返回None
+    """
+    msg = await draw_one_ip(host, port, use_image)
+    if isinstance(msg, bytes):
+        await (
+            UniMessage.image(raw=msg) + UniMessage.text(f"connect {host}:{port}")
+        ).finish()
+    return msg
