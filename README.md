@@ -7,9 +7,10 @@
 
 <div align="center">
 
-# nonebot_plugin_l4d2_server 1.0.4
+# nonebot_plugin_l4d2_server 1.1.6
 
-_✨Nonebot & Left 4 Dead 2 server操作✨_
+_✨Nonebot & Left 4 Dead 2 server 操作 ✨_
+
 <div align = "center">
         <a href="https://agnes4m.github.io/l4d2/" target="_blank">文档</a> &nbsp; · &nbsp;
         <a href="https://agnes4m.github.io/l4d2/reader/#%E5%8A%9F%E8%83%BD-%E6%8C%87%E4%BB%A4-%F0%9F%A4%94" target="_blank">指令列表</a> &nbsp; · &nbsp;
@@ -17,8 +18,8 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 </div><br>
 
 <img src="https://img.shields.io/badge/python-3.9+-blue?logo=python&logoColor=edb641" alt="python">
-<a href ="LICENSE"> 
-<img src="https://img.shields.io/github/license/Agnes4m/nonebot_plugin_l4d2_server">
+<a href ="LICENSE">
+<img src="https://img.shields.io/github/license/Agnes4m/nonebot_plugin_l4d2_server" alt="l4logo">
 </a>
 <img src="https://img.shields.io/badge/nonebot-2.1.0+-red.svg" alt="NoneBot">
 <a href="https://pypi.python.org/pypi/nonebot_plugin_l4d2_server">
@@ -32,7 +33,7 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 <img src="https://img.shields.io/badge/code%20style-black-000000.svg?logo=python&logoColor=edb641" alt="black">
 </a>
 
-<img src="https://img.shields.io/badge/alconna-0.58.3+-red.svg" alt="NoneBot">    
+<img src="https://img.shields.io/badge/alconna-0.58.3+-red.svg" alt="NoneBot">
 
 <a href="https://github.com/Agnes4m/nonebot_plugin_l4d2_server/issues">
         <img alt="GitHub issues" src="https://img.shields.io/github/issues/Agnes4m/nonebot_plugin_l4d2_server" alt="issues">
@@ -47,13 +48,13 @@ _✨Nonebot & Left 4 Dead 2 server操作✨_
 </a>
 </div>
 
-
 ## 指令
 
-- 在json文件设置的前缀指令，例如设置"云"，则指令 云 输出组服务器，云1 输出1号服务器
-- l4图片开启/关闭 超管指令 可以修改输出单图是否为图片输出
-- l4查找用户  在已知服务器中查找
-- l4工坊下载  提供创意工坊id下载到服务器和群聊
+- 在 json 文件设置的前缀指令，例如设置"云"，则指令 云 输出组服务器，云 1 输出 1 号服务器
+- `l4d2帮助` 帮助指令
+- l4 图片开启/关闭 超管指令 可以修改输出单图是否为图片输出
+- l4 查找用户 在已知服务器中查找
+- l4 工坊下载 提供创意工坊 id 下载到服务器和群聊
 
 ## 安装
 
@@ -110,16 +111,15 @@ conda install nonebot-plugin-l4d2-server
 ## 主要功能
 
 - [x] 求生服务器-本地多路径操作（传地图等）
-- [x] 批量查询指定ip服务器状态和玩家
-- [x] connect指令直接呼出服务器信息
+- [x] 批量查询指定 ip 服务器状态和玩家
+- [x] connect 指令直接呼出服务器信息
 - [x] 根据用户名，在已知服务器搜索玩家信息
-
 
 ## [数据结构](./docs/standand.md)
 
 暂未更新
 
-## env设置
+## env 设置
 
 ```bash
     l4_enable = True
@@ -137,18 +137,18 @@ conda install nonebot-plugin-l4d2-server
     - 简洁
 ```
 
-## 和0.x.x更改部分
+## 和 0.x.x 更改部分
 
 - 取消了网页控制台(没有卵用)
 - 取消了自动重启(与其他插件功能重复)
-- 取消了git拉取更新(nb规范用pypi)
+- 取消了 git 拉取更新(nb 规范用 pypi)
 - 删除无用部分(依赖太多难以维护)
-- 删除了anne部分，已移植到[这里](https://github.com/Agnes4m/L4D2UID),通过core插件调用
+- 删除了 anne 部分，已移植到[这里](https://github.com/Agnes4m/L4D2UID),通过 core 插件调用
 
 ## 其他
 
-- 本人技术很差，如果您有发现BUG或者更好的建议，欢迎提Issue & Pr
-- 如果本插件对你有帮助，不要忘了点个Star~
+- 本人技术很差，如果您有发现 BUG 或者更好的建议，欢迎提 Issue & Pr
+- 如果本插件对你有帮助，不要忘了点个 Star~
 - 本项目仅供学习使用，请勿用于商业用途
 - [更新日志](./docs/update.md)
 - [GPL-3.0 License](https://github.com/Agnes4m/nonebot_plugin_l4d2_server/blob/main/LICENSE) ©[@Agnes4m](https://github.com/Agnes4m)
@@ -156,11 +156,11 @@ conda install nonebot-plugin-l4d2-server
 ## 🌐 感谢
 
 - [nonebot2](https://github.com/nonebot/nonebot2)- 聊天机器人的基础框架
-- [饼干](https://github.com/lgc2333) - 指导nonebot2框架的函数使用
-- [wuyi](https://github.com/KimigaiiWuyi/) - 指导pil作图
+- [饼干](https://github.com/lgc2333) - 指导 nonebot2 框架的函数使用
+- [wuyi](https://github.com/KimigaiiWuyi/) - 指导 pil 作图
 
 - 感谢以下服主大力支持
   - Michaela's | 机器人功能测试反馈
-  - 东 | 提供docker部署方法等建议 | [电信服anne游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6i7r5aJ7Jyg0ejby4rt9GWmFRF53nV1K&authKey=ekMsWepBZPL26%2BfJAG%2F95JD0fhvH39%2BIGVyKOvNlXVDbpIclJlly4kXqukL7JhWR&noverify=0&group_code=883237206)
-  - 迷茫 | 催命更新byd
-  - ArcPav | 积极反馈bug，提供改进思路
+  - 东 | 提供 docker 部署方法等建议 | [电信服 anne 游戏群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6i7r5aJ7Jyg0ejby4rt9GWmFRF53nV1K&authKey=ekMsWepBZPL26%2BfJAG%2F95JD0fhvH39%2BIGVyKOvNlXVDbpIclJlly4kXqukL7JhWR&noverify=0&group_code=883237206)
+  - 迷茫 | 催命更新 byd
+  - ArcPav | 积极反馈 bug，提供改进思路
