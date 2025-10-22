@@ -1,17 +1,25 @@
 # nonebot_plugin_l4d2_server/commands/server_groups.py
 from __future__ import annotations
+
+import ujson as json
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 from nonebot_plugin_alconna import UniMessage
-import ujson as json
 
 from ..utils.api.request import L4D2Api
-from ..utils.sb_sources import get_page, set_page, load_pages, del_page
-from ..utils.group_store import set_group, get_group, remove_group, list_groups, export_all
+from ..utils.group_store import (
+    export_all,
+    get_group,
+    list_groups,
+    remove_group,
+    set_group,
+)
+from ..utils.sb_sources import del_page, get_page, load_pages, set_page
 
 # l4addban <组名> [SourceBans服务器页URL]
 l4_add_ban = on_command("l4addban", aliases={"l4添加服务器组"})
+
 
 @l4_add_ban.handle()
 async def _(args: Message = CommandArg()):
@@ -30,7 +38,7 @@ async def _(args: Message = CommandArg()):
     page = url or await get_page(tag)
     if not page:
         await UniMessage.text(
-            f"未在 data/L4D2/sb_pages.json 找到组“{tag}”的 URL；请执行：l4addban {tag} <URL>"
+            f"未在 data/L4D2/sb_pages.json 找到组“{tag}”的 URL；请执行：l4addban {tag} <URL>",
         ).finish()
 
     api = L4D2Api()
@@ -40,17 +48,22 @@ async def _(args: Message = CommandArg()):
         await UniMessage.text(f"抓取失败：{e}").finish()
 
     path = await set_group(tag, server_list)
-    await UniMessage.text(f"✅ 已更新：{path.name}（共 {len(server_list)} 台）").finish()
+    await UniMessage.text(
+        f"✅ 已更新：{path.name}（共 {len(server_list)} 台）"
+    ).finish()
 
 
 # 批量刷新：遍历 sb_pages.json 中所有组
 l4_reload_sb = on_command("l4reloadsb", aliases={"l4刷新服务器组"})
 
+
 @l4_reload_sb.handle()
 async def _():
     pages = await load_pages()
     if not pages:
-        await UniMessage.text("data/L4D2/sb_pages.json 为空，先用：l4addban <组名> <URL>").finish()
+        await UniMessage.text(
+            "data/L4D2/sb_pages.json 为空，先用：l4addban <组名> <URL>"
+        ).finish()
 
     api = L4D2Api()
     ok, fail = 0, []
@@ -71,6 +84,7 @@ async def _():
 # 列出所有组及数量
 l4_list_groups = on_command("l4listgroup", aliases={"l4listgroups", "l4列服务器组"})
 
+
 @l4_list_groups.handle()
 async def _():
     names = await list_groups()
@@ -86,6 +100,7 @@ async def _():
 # 删除服务器组（即删除 data/L4D2/l4d2/<tag>.json）
 l4_del_group = on_command("l4delgroup", aliases={"l4删除服务器组"})
 
+
 @l4_del_group.handle()
 async def _(args: Message = CommandArg()):
     tag = args.extract_plain_text().strip()
@@ -98,6 +113,7 @@ async def _(args: Message = CommandArg()):
 # 删除 sb_pages.json 里的 URL 映射（仅删 URL）
 l4_del_page = on_command("l4delpage", aliases={"l4删除服务器页"})
 
+
 @l4_del_page.handle()
 async def _(args: Message = CommandArg()):
     tag = args.extract_plain_text().strip()
@@ -109,6 +125,7 @@ async def _(args: Message = CommandArg()):
 
 # 导出指定组的 JSON 片段（直接读取 data/L4D2/l4d2/<tag>.json）
 l4_export_group = on_command("l4exportgroup", aliases={"l4导出服务器组"})
+
 
 @l4_export_group.handle()
 async def _(args: Message = CommandArg()):
@@ -124,6 +141,7 @@ async def _(args: Message = CommandArg()):
 
 # 导出全部组（仅用于查看，组合成一个对象返回，不写入任何聚合文件）
 l4_export_groups = on_command("l4exportgroups", aliases={"l4导出全部服务器组"})
+
 
 @l4_export_groups.handle()
 async def _():

@@ -1,6 +1,8 @@
 # nonebot_plugin_l4d2_server/utils/group_store.py
 from __future__ import annotations
+
 from pathlib import Path
+
 import aiofiles
 import ujson as json
 
@@ -9,8 +11,10 @@ from ..config import config
 # 每个组独立文件目录：data/L4D2/l4d2/<tag>.json
 GROUPS_DIR = Path(config.l4_path) / "l4d2"
 
+
 async def _ensure_dir():
     GROUPS_DIR.mkdir(parents=True, exist_ok=True)
+
 
 def _normalize(servers) -> list[dict]:
     """支持对象(host/port)、{'ip': 'h:p'}、或 'h:p'；去重保序，id 从 1 开始（字符串）。"""
@@ -31,6 +35,7 @@ def _normalize(servers) -> list[dict]:
             ips.append(ip)
     return [{"id": str(i + 1), "ip": ip} for i, ip in enumerate(ips)]
 
+
 async def set_group(tag: str, servers) -> Path:
     """写入 data/L4D2/l4d2/<tag>.json ，内容为 { "<tag>": [ {id,ip}, ... ] }"""
     await _ensure_dir()
@@ -41,6 +46,7 @@ async def set_group(tag: str, servers) -> Path:
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(content + "\n")
     return path
+
 
 async def get_group(tag: str) -> list[dict]:
     """读取单组文件，返回 [ {id,ip}, ... ]；不存在则返回空列表。"""
@@ -56,6 +62,7 @@ async def get_group(tag: str) -> list[dict]:
     except Exception:
         return []
 
+
 async def remove_group(tag: str) -> bool:
     """删除单组文件。"""
     await _ensure_dir()
@@ -64,6 +71,7 @@ async def remove_group(tag: str) -> bool:
         path.unlink()
         return True
     return False
+
 
 async def list_groups() -> list[str]:
     """列出现有组名（按文件名）。"""
@@ -74,6 +82,7 @@ async def list_groups() -> list[str]:
             names.append(p.stem)
     names.sort()
     return names
+
 
 async def export_all() -> dict:
     """读取目录下所有组，组合成 {tag: [..]} 的字典（仅用于导出，不落盘）。"""
