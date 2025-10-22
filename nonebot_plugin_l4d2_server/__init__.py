@@ -44,3 +44,4 @@ __plugin_meta__ = PluginMetadata(
         "author": "Agnes4m <Z735803792@163.com>",
     },
 )
+from .commands import server_groups
