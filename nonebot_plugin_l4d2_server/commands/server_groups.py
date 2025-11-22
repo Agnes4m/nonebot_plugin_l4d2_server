@@ -16,6 +16,8 @@ from ..utils.group_store import (
     set_group,
 )
 from ..utils.sb_sources import del_page, get_page, load_pages, set_page
+from ..l4_request import reload_ip
+from ..__main__ import refresh_server_command_rule
 
 # l4addban <组名> [SourceBans服务器页URL]
 l4_add_ban = on_command("l4addban", aliases={"l4添加服务器组"})
@@ -78,7 +80,9 @@ async def _():
     msg = [f"✅ 刷新完成：成功 {ok} 个组。"]
     if fail:
         msg.append("❌ 失败：\n" + "\n".join(fail))
-    await UniMessage.text("\n".join(msg)).finish()
+    await UniMessage.text("\n".join(msg)).send()
+    reload_ip()
+    refresh_server_command_rule()
 
 
 # 列出所有组及数量

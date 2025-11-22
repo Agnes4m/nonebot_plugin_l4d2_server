@@ -20,12 +20,14 @@ from typing import List, Optional
 
 import aiofiles
 import ujson as json
+from nonebot import get_driver
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
+from nonebot.rule import command as command_rule
 from nonebot_plugin_alconna import UniMessage
 
 from .config import config, config_manager
@@ -42,14 +44,18 @@ from .l4_request import (
 )
 from .message import Gm, Sm
 from .utils.api.models import OutServer
-from .utils.api.request import L4API
+from .utils.api.request import L4API, L4D2Api
 from .utils.api.utils import out_msg_out
+from .utils.group_store import set_group
+from .utils.sb_sources import load_pages
 from .utils.utils import read_config, split_maohao, write_config
+
+driver = get_driver()
 
 reload_ip()
 
 l4_help = on_command("l4help", aliases={"l4d2帮助"})
-l4_request = on_command("anne", aliases=COMMAND, priority=10)
+l4_request = on_command("anne", priority=10)
 l4_reload = on_command("l4reload", aliases={"l4刷新,l4重载"})
 l4_all = on_command("l4all", aliases={"l4全服"})
 l4_connect = on_command("connect", aliases={"l4连接"})
@@ -57,6 +63,50 @@ l4_find_player = on_command("l4find", aliases={"l4查找"})
 
 
 config_path = Path(config.l4_path) / "config.json"
+
+
+def refresh_server_command_rule() -> None:
+    """根据最新的服务器组刷新命令别名"""
+    commands = {"anne"}
+    commands.update(COMMAND)
+    l4_request.rule = command_rule(*commands)
+
+
+refresh_server_command_rule()
+
+
+async def sync_sb_pages_groups() -> None:
+    """根据 sb_pages.json 内容刷新所有服务器组"""
+    pages = await load_pages()
+    if not pages:
+        logger.info("sb_pages.json 为空，跳过启动时刷新")
+        reload_ip()
+        refresh_server_command_rule()
+        return
+
+    api = L4D2Api()
+    ok = 0
+    failed: List[str] = []
+    for tag, page in pages.items():
+        try:
+            servers = await api.get_sourceban(tag, page)
+            await set_group(tag, servers)
+            ok += 1
+        except Exception as exc:
+            failed.append(f"{tag}: {exc}")
+
+    reload_ip()
+    refresh_server_command_rule()
+
+    if ok:
+        logger.success(f"启动时已刷新 {ok} 个服务器组")
+    if failed:
+        logger.warning("以下服务器组刷新失败：" + "; ".join(failed))
+
+
+@driver.on_startup
+async def _sync_groups_on_startup() -> None:
+    await sync_sb_pages_groups()
 
 
 @l4_help.handle()
@@ -202,14 +252,15 @@ async def _(args: Message = CommandArg()):
 async def _(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
     if not arg:
-        reload_ip()
-        logger.success("重载ip完成")
         with (Path(config.l4_path) / "l4d2.json").open("r", encoding="utf-8") as f:
             content = f.read().strip()
             ip_json = json.loads(content)
         for tag, url in ip_json.items():
             logger.info(f"重载{tag}的ip")
             await L4API.get_sourceban(tag, url)
+        reload_ip()
+        refresh_server_command_rule()
+        logger.success("重载ip完成")
         await out_msg_out("重载ip完成")
 
 
@@ -227,6 +278,8 @@ async def _(args: Message = CommandArg()):
     write_config(config_path, config_data)
 
     await L4API.get_sourceban(arg[0], arg[1])
+    reload_ip()
+    refresh_server_command_rule()
     await UniMessage.text("添加成功\n组名: {arg[0]}\n网址: {arg[1]}").send()
 
 
