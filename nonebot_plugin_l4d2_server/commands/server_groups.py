@@ -7,6 +7,8 @@ from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 from nonebot_plugin_alconna import UniMessage
 
+from ..__main__ import refresh_server_command_rule
+from ..l4_request import reload_ip
 from ..utils.api.request import L4D2Api
 from ..utils.group_store import (
     export_all,
@@ -16,8 +18,6 @@ from ..utils.group_store import (
     set_group,
 )
 from ..utils.sb_sources import del_page, get_page, load_pages, set_page
-from ..l4_request import reload_ip
-from ..__main__ import refresh_server_command_rule
 
 # l4addban <组名> [SourceBans服务器页URL]
 l4_add_ban = on_command("l4addban", aliases={"l4添加服务器组"})
@@ -51,7 +51,7 @@ async def _(args: Message = CommandArg()):
 
     path = await set_group(tag, server_list)
     await UniMessage.text(
-        f"✅ 已更新：{path.name}（共 {len(server_list)} 台）"
+        f"✅ 已更新：{path.name}（共 {len(server_list)} 台）",
     ).finish()
 
 
@@ -64,7 +64,7 @@ async def _():
     pages = await load_pages()
     if not pages:
         await UniMessage.text(
-            "data/L4D2/sb_pages.json 为空，先用：l4addban <组名> <URL>"
+            "data/L4D2/sb_pages.json 为空，先用：l4addban <组名> <URL>",
         ).finish()
 
     api = L4D2Api()
