@@ -10,7 +10,7 @@ from ..l4_image.convert import core_font
 from ..l4_image.model import PluginHelp
 from .draw import get_help
 
-__version__ = "1.1.6"
+__version__ = "1.2.0"
 TEXT_PATH = Path(__file__).parent / "texture2d"
 HELP_DATA = Path(__file__).parent / "help.json"
 

@@ -24,7 +24,8 @@ dependencies = [
     "rarfile>=4.2",
     "pyunpack>=0.3",
     "aiofiles>=24.1.0",
-    "bs4==0.0.2"
+    "bs4==0.0.2",
+    "lxml>=6.0.2",
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

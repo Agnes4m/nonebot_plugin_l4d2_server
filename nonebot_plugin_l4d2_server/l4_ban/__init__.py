@@ -31,7 +31,19 @@ async def _delete_group_and_page(tag: str) -> tuple[bool, bool]:
 
 
 # l4addban <组名> [SourceBans服务器页URL]
-l4_add_ban = on_command("l4addban", aliases={"l4添加服务器组"})
+l4_add_ban = on_command("l4addban", aliases={"l4添加组"})
+# 批量刷新：遍历 sb_pages.json 中所有组
+l4_reload_sb = on_command("l4reloadsb", aliases={"l4刷新组"})
+# 列出所有组及数量
+l4_list_groups = on_command("l4listgroup", aliases={"l4listgroups", "l4列组"})
+# 删除服务器组（即删除 data/L4D2/l4d2/<tag>.json）
+l4_del_group = on_command("l4delgroup", aliases={"l4删除组"})
+# 删除 sb_pages.json 里的 URL 映射（仅删 URL）
+l4_del_page = on_command("l4delpage", aliases={"l4删除页"})
+# 导出指定组的 JSON 片段（直接读取 data/L4D2/l4d2/<tag>.json）
+l4_export_group = on_command("l4exportgroup", aliases={"l4导出组"})
+# 导出全部组（仅用于查看，组合成一个对象返回，不写入任何聚合文件）
+l4_export_groups = on_command("l4exportgroups", aliases={"l4导出全部组"})
 
 
 @l4_add_ban.handle()
@@ -55,19 +67,15 @@ async def _(args: Message = CommandArg()):
         ).finish()
 
     api = L4D2Api()
-    try:
-        server_list = await api.get_sourceban(tag, page)
-    except Exception as e:
-        await UniMessage.text(f"抓取失败：{e}").finish()
+    # try:
+    server_list = await api.get_sourceban(tag, page)
+    # except Exception as e:
+    #     await UniMessage.text(f"抓取失败：{e}").finish()
 
     path = await set_group(tag, server_list)
     await UniMessage.text(
         f"✅ 已更新：{path.name}（共 {len(server_list)} 台）",
     ).finish()
-
-
-# 批量刷新：遍历 sb_pages.json 中所有组
-l4_reload_sb = on_command("l4reloadsb", aliases={"l4刷新服务器组"})
 
 
 @l4_reload_sb.handle()
@@ -96,10 +104,6 @@ async def _():
     refresh_server_command_rule(l4_request)
 
 
-# 列出所有组及数量
-l4_list_groups = on_command("l4listgroup", aliases={"l4listgroups", "l4列服务器组"})
-
-
 @l4_list_groups.handle()
 async def _():
     names = await list_groups()
@@ -110,10 +114,6 @@ async def _():
         items = await get_group(name)
         lines.append(f"{name}（{len(items)}）")
     await UniMessage.text("现有服务器组：\n" + "\n".join(lines)).finish()
-
-
-# 删除服务器组（即删除 data/L4D2/l4d2/<tag>.json）
-l4_del_group = on_command("l4delgroup", aliases={"l4删除服务器组"})
 
 
 @l4_del_group.handle()
@@ -137,10 +137,6 @@ async def _(args: Message = CommandArg()):
     refresh_server_command_rule(l4_request)
 
 
-# 删除 sb_pages.json 里的 URL 映射（仅删 URL）
-l4_del_page = on_command("l4delpage", aliases={"l4删除服务器页"})
-
-
 @l4_del_page.handle()
 async def _(args: Message = CommandArg()):
     tag = args.extract_plain_text().strip()
@@ -148,10 +144,6 @@ async def _(args: Message = CommandArg()):
         await UniMessage.text("用法：l4delpage <组名>").finish()
     ok = await del_page(tag)
     await UniMessage.text("✅ 已删除" if ok else "未找到该组的 URL").finish()
-
-
-# 导出指定组的 JSON 片段（直接读取 data/L4D2/l4d2/<tag>.json）
-l4_export_group = on_command("l4exportgroup", aliases={"l4导出服务器组"})
 
 
 @l4_export_group.handle()
@@ -164,10 +156,6 @@ async def _(args: Message = CommandArg()):
         await UniMessage.text("未找到该组。").finish()
     data = {tag: items}
     await UniMessage.text(json.dumps(data, ensure_ascii=False, indent=4)).finish()
-
-
-# 导出全部组（仅用于查看，组合成一个对象返回，不写入任何聚合文件）
-l4_export_groups = on_command("l4exportgroups", aliases={"l4导出全部服务器组"})
 
 
 @l4_export_groups.handle()

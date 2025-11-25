@@ -73,6 +73,58 @@
       }
     ]
   },
+  "SourceBan服务": {
+    "desc": "通过网页抓取服务器信息",
+    "data": [
+      {
+        "name": "l4添加组",
+        "desc": "添加sb组网址",
+        "eg": "l4添加组 云 123.com",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4刷新组",
+        "desc": "刷新sb组网址",
+        "eg": "l4刷新组",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4列组",
+        "desc": "列出所有sb组网址",
+        "eg": "l4列组",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4删除组",
+        "desc": "删除sb组网址",
+        "eg": "l4列组 云",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4删除页",
+        "desc": "删除sb组网址",
+        "eg": "",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4导出组",
+        "desc": "导出sb组网址",
+        "eg": "",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      }
+    ],
   "其他服务": {
     "desc": "一些杂项服务",
     "data": [

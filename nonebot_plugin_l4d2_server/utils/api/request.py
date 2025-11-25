@@ -320,7 +320,7 @@ class L4D2Api:
                 new_dict["id"] = int(server.index) + 1
                 new_dict["ip"] = server.host + ":" + str(server.port)
                 up_data.update(new_dict)
-            json.dump(up_data, f, ensure_ascii=False, indent=4)
+            await f.write(json.dumps(up_data, ensure_ascii=False, indent=4))
         return server_list
 
     async def get_anne_steamid(self, name: str):
