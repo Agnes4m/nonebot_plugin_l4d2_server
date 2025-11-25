@@ -102,9 +102,10 @@ async def get_ip_server(ip: str):
 
 # 以下是重载ip
 def reload_ip():
-    global COMMAND
+    global COMMAND, ALLHOST
 
-    group_ip = []
+    ALLHOST.clear()
+    COMMAND.clear()
     for item in server_all_path.iterdir():
         if item.is_file() and item.name.endswith("json"):
             json_data = json.loads(item.read_text(encoding="utf-8"))
