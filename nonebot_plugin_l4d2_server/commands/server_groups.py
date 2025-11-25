@@ -7,6 +7,8 @@ from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 from nonebot_plugin_alconna import UniMessage
 
+from ..__main__ import refresh_server_command_rule
+from ..l4_request import reload_ip
 from ..utils.api.request import L4D2Api
 from ..utils.group_store import (
     export_all,
@@ -16,6 +18,14 @@ from ..utils.group_store import (
     set_group,
 )
 from ..utils.sb_sources import del_page, get_page, load_pages, set_page
+
+
+async def _delete_group_and_page(tag: str) -> tuple[bool, bool]:
+    """删除服务器组文件及对应的 URL 配置"""
+    group_deleted = await remove_group(tag)
+    page_deleted = await del_page(tag)
+    return group_deleted, page_deleted
+
 
 # l4addban <组名> [SourceBans服务器页URL]
 l4_add_ban = on_command("l4addban", aliases={"l4添加服务器组"})
@@ -49,7 +59,7 @@ async def _(args: Message = CommandArg()):
 
     path = await set_group(tag, server_list)
     await UniMessage.text(
-        f"✅ 已更新：{path.name}（共 {len(server_list)} 台）"
+        f"✅ 已更新：{path.name}（共 {len(server_list)} 台）",
     ).finish()
 
 
@@ -62,7 +72,7 @@ async def _():
     pages = await load_pages()
     if not pages:
         await UniMessage.text(
-            "data/L4D2/sb_pages.json 为空，先用：l4addban <组名> <URL>"
+            "data/L4D2/sb_pages.json 为空，先用：l4addban <组名> <URL>",
         ).finish()
 
     api = L4D2Api()
@@ -78,7 +88,9 @@ async def _():
     msg = [f"✅ 刷新完成：成功 {ok} 个组。"]
     if fail:
         msg.append("❌ 失败：\n" + "\n".join(fail))
-    await UniMessage.text("\n".join(msg)).finish()
+    await UniMessage.text("\n".join(msg)).send()
+    reload_ip()
+    refresh_server_command_rule()
 
 
 # 列出所有组及数量
@@ -106,8 +118,20 @@ async def _(args: Message = CommandArg()):
     tag = args.extract_plain_text().strip()
     if not tag:
         await UniMessage.text("用法：l4delgroup <组名>").finish()
-    ok = await remove_group(tag)
-    await UniMessage.text("✅ 已删除" if ok else "未找到该组文件").finish()
+    group_deleted, page_deleted = await _delete_group_and_page(tag)
+
+    if not group_deleted and not page_deleted:
+        await UniMessage.text("未找到该组文件或 URL 记录").finish()
+        return
+
+    msg_parts = []
+    if group_deleted:
+        msg_parts.append("服务器组文件")
+    if page_deleted:
+        msg_parts.append("SourceBans URL")
+    await UniMessage.text("✅ 已删除 " + "、".join(msg_parts)).send()
+    reload_ip()
+    refresh_server_command_rule()
 
 
 # 删除 sb_pages.json 里的 URL 映射（仅删 URL）
