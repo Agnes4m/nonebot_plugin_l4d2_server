@@ -28,10 +28,9 @@ from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
 from nonebot_plugin_alconna import UniMessage
 
-from nonebot_plugin_l4d2_server.l4_ban.utils import refresh_server_command_rule
-
 from .config import config, config_manager
 from .l4_ban import l4_request
+from .l4_ban.utils import refresh_server_command_rule
 from .l4_help import get_l4d2_core_help
 from .l4_local import *  # noqa: F403
 from .l4_request import (

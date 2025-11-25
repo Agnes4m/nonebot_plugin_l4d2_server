@@ -108,7 +108,10 @@ def reload_ip():
     COMMAND.clear()
     for item in server_all_path.iterdir():
         if item.is_file() and item.name.endswith("json"):
-            json_data = json.loads(item.read_text(encoding="utf-8"))
+            try:
+                json_data = json.loads(item.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                continue
             group_server = cast(Dict[str, List[NserverOut]], json_data)
 
             for group, group_ip in group_server.items():
