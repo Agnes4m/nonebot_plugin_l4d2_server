@@ -27,7 +27,6 @@ def init_data_directory(data_dir: Path) -> None:
 # 初始化目录结构
 DATAOUT = Path(DEFAULT_DATA_DIR)
 init_data_directory(DATAOUT)
-init_data_directory(DATAOUT / "l4d2")
 server_all_path = DATAOUT / "l4d2"
 server_all_path.mkdir(parents=True, exist_ok=True)
 

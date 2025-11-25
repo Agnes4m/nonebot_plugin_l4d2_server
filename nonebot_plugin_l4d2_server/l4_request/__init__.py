@@ -105,6 +105,7 @@ def reload_ip():
     global COMMAND
 
     group_ip = []
+    logger.info(server_all_path)
     for item in server_all_path.iterdir():
         if item.is_file() and item.name.endswith("json"):
             json_data = json.loads(item.read_text(encoding="utf-8"))
@@ -164,7 +165,6 @@ def reload_ip():
                 # 执行处理流程
                 _process_server_group(group_ip)
                 _update_global_state(group, group_ip, item)
-
 
 async def server_find(
     command: str = "",

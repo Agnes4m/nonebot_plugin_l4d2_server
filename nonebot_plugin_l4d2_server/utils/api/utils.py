@@ -4,7 +4,7 @@ from nonebot_plugin_alconna import UniMessage
 
 
 async def out_msg_out(
-    msg: Union[str, bytes, UniMessage],
+    msg: Union[str, bytes, UniMessage, list],
     is_connect: bool = False,
     host: str = "",
     port: str = "",
@@ -22,6 +22,8 @@ async def out_msg_out(
         return await msg.finish()
     if isinstance(msg, str):
         await UniMessage.text(msg).finish()
+    if isinstance(msg, list):
+        await UniMessage.text(" ".join(msg)).finish()
     if is_connect:
         out = UniMessage.image(raw=msg) + UniMessage.text(
             f"connect: {host}:{port}",

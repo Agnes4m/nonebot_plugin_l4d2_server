@@ -46,6 +46,7 @@ from .utils.api.request import L4API
 from .utils.api.utils import out_msg_out
 from .utils.utils import read_config, split_maohao, write_config
 
+logger.info("正在加载ip列表...")
 reload_ip()
 
 l4_help = on_command("l4help", aliases={"l4d2帮助"})
@@ -112,7 +113,6 @@ async def _(
 
     if not _id:
         _id = None
-        logger.info(Gm.no_id)
     else:
         logger.info(f"ID: {_id}")
 
