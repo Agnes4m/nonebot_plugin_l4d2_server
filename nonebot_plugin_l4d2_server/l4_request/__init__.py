@@ -9,7 +9,7 @@ from ..utils.api.models import AllServer, NserverOut
 from ..utils.utils import split_maohao
 from .draw_msg import draw_one_ip, get_much_server
 from .tj import tj_request as tj_request
-from .typing import ALLHOST, COMMAND
+from .typing import ALLHOST, COMMAND, ServerList
 from .utils import (
     _calculate_server_stats,
     _format_server_summary,
@@ -30,7 +30,7 @@ async def get_all_server_detail() -> str:
     out_list: List[AllServer] = []
     for group in ALLHOST:
         msg_list = await get_group_detail(group)
-        if not msg_list:
+        if msg_list is None:
             continue
 
         active_server, max_server, active_player, max_player = _calculate_server_stats(
@@ -113,7 +113,7 @@ def reload_ip():
 
             for group, group_ip in group_server.items():
                 # 处理整个服务器组
-                def _process_server_group(server_group: List[dict]) -> None:
+                def _process_server_group(server_group: List[NserverOut]) -> None:
                     """
                     处理服务器组中每个配置项的字段逻辑
 
@@ -143,7 +143,7 @@ def reload_ip():
                 # 处理组更新逻辑
                 def _update_global_state(
                     group_name: str,
-                    servers: List[dict],
+                    servers: ServerList,
                     item: Path,
                 ) -> None:
                     """
@@ -156,7 +156,7 @@ def reload_ip():
                         无，直接修改全局变量ALLHOST和COMMAND
                     """
                     global ALLHOST
-                    ALLHOST.update({group_name: servers})
+                    ALLHOST[group_name] = servers
                     COMMAND.add(group_name)
                     logger.success(
                         f"成功加载 {item.name.split('.')[0]} {len(servers)}个",

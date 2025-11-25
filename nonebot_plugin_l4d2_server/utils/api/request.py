@@ -146,6 +146,7 @@ class L4D2Api:
     ):
         play: List[a2s.Player] = []
         server: Union[a2s.SourceInfo, a2s.GoldSrcInfo]
+
         if is_server:
             try:
                 server = await a2s.ainfo(
@@ -153,10 +154,8 @@ class L4D2Api:
                     timeout=3,
                     encoding="utf8",
                 )
-
                 if server is not None:
                     server.steam_id = index  # type: ignore
-
             except (
                 asyncio.exceptions.TimeoutError,
                 ConnectionRefusedError,
@@ -181,14 +180,28 @@ class L4D2Api:
                     edf=0,
                     ping=0,
                 )
-                server.steam_id = index
-                server.player_count = 0
-                server.max_players = 0
-                server.server_name = "服务器无响应"
-                server.map_name = "无"
-                server.folder = "m"
-                server.vac_enabled = False
                 is_player = False
+        else:
+            # 如果 is_server 为 False，则初始化一个默认 server 对象
+            server = a2s.SourceInfo(
+                protocol=0,
+                server_name="未知服务器",
+                map_name="无",
+                folder="m",
+                game="L4D2",
+                app_id=114514,
+                steam_id=index,
+                player_count=0,
+                max_players=0,
+                bot_count=0,
+                server_type="w",
+                platform="w",
+                password_protected=False,
+                vac_enabled=False,
+                version="1.0",
+                edf=0,
+                ping=0,
+            )
 
         if is_player:
             with contextlib.suppress(
@@ -199,6 +212,7 @@ class L4D2Api:
                 play = await a2s.aplayers(ip, timeout=3, encoding="utf8")
         else:
             play = []
+
         return server, play
 
     async def _server_request(
@@ -207,7 +221,7 @@ class L4D2Api:
         method: Literal["GET", "POST"] = "GET",
         header: Dict[str, str] = _HEADER,
         params: Optional[Dict[str, Any]] = None,
-        json: Optional[Dict[str, Any] | list] = None,
+        jsons: Optional[Dict[str, Any] | list] = None,
         data: Optional[Dict[str, Any]] = None,
         is_json: bool = True,
     ) -> Union[Dict[str, Any], BeautifulSoup]:  # type: ignore
@@ -222,7 +236,7 @@ class L4D2Api:
                 url=url,
                 headers=header,
                 params=params,
-                json=json,
+                json=jsons,
                 data=data,
                 timeout=300,
             )
@@ -469,12 +483,22 @@ class L4D2Api:
     async def workshops(self, workshop_id: str) -> WorksopInfo:
         workshop_json = await self._server_request(
             url=WorkshopApi,
-            json=[int(workshop_id)],
+            jsons=[int(workshop_id)],
             header=self._HEADER,
             method="POST",
             is_json=True,
         )
-        return cast(WorksopInfo, workshop_json[0])
+        if isinstance(workshop_json, dict):
+            if (
+                "result" in workshop_json
+                and isinstance(workshop_json["result"], list)
+                and len(workshop_json["result"]) > 0
+            ):
+                return cast(WorksopInfo, workshop_json["result"][0])
+            if len(workshop_json) > 0:
+                return cast(WorksopInfo, workshop_json)
+            raise ValueError("没有找到创意工坊内容")
+        raise TypeError("请求创意工坊失败")
 
 
 L4API = L4D2Api()

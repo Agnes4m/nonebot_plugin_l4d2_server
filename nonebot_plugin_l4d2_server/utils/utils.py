@@ -4,8 +4,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import aiofiles
 import aiohttp
-import nonebot
 from aiohttp import ClientTimeout
+from nonebot.exception import AdapterException
 from nonebot.log import logger
 from nonebot_plugin_alconna import UniMessage
 
@@ -193,7 +193,7 @@ async def get_message_at(datas: str) -> Optional[int]:
 async def send_ip_msg(msg: str):
     try:
         await UniMessage.text(msg).finish()
-    except nonebot.adapters.qq:
+    except AdapterException:
         msg_new = msg.split("\n")[:-2]
         msg_out = "\n".join(msg_new)
         await UniMessage.text(msg_out).send()

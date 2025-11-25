@@ -1,20 +1,23 @@
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
+from a2s import SourceInfo
+from a2s.players import Player
 from nonebot.log import logger
 from nonebot_plugin_alconna import UniMessage
 
 from ..l4_image import msg_to_image
-from ..utils.api.models import AllServer
+from ..utils.api.models import AllServer, OutServer
 from ..utils.api.request import L4API
 from .draw_msg import convert_duration, draw_one_ip, get_much_server
 from .typing import (
+    ALLHOST,
+    COMMAND,
     DEFAULT_MAP_TYPES,
     FILTER_MODES,
     ServerDict,
     ServerInfo,
     ServerList,
-    ServerStats,
 )
 
 
@@ -45,7 +48,7 @@ async def _handle_group_info(
     servers: ServerList,
     command: str,
     use_image: bool,
-) -> Union[bytes, List[Dict], None]:
+) -> Union[bytes, List[OutServer], None]:
     """
     处理服务器组信息请求
 
@@ -143,6 +146,7 @@ async def _filter_servers(
             continue
 
         server_data, players = server_info[0]
+        server_data = cast(SourceInfo[str], server_data)
 
         if server_data.map_name == "无":
             continue
@@ -168,7 +172,11 @@ async def _filter_servers(
     return filtered_servers
 
 
-async def _is_tj_server(server_data: Dict, players: List, map_types: List[str]) -> bool:
+async def _is_tj_server(
+    server_data: SourceInfo[str],
+    players: List,
+    map_types: List[str],
+) -> bool:
     """检查服务器是否符合TJ条件"""
     if not any(m in server_data.server_name for m in map_types):
         return False
@@ -185,12 +193,16 @@ async def _is_tj_server(server_data: Dict, players: List, map_types: List[str]) 
         return False
 
 
-async def _is_zl_server(server_data: Dict, players: List, map_types: List[str]) -> bool:
+async def _is_zl_server(
+    server_data: SourceInfo[str],
+    players: List,
+    map_types: List[str],
+) -> bool:
     """检查服务器是否符合ZL条件"""
     return any(m in server_data.server_name for m in map_types) and len(players) <= 4
 
 
-async def _format_players(players: List[Dict]) -> str:
+async def _format_players(players: List[Player[Any]]) -> str:
     """
     格式化玩家信息为可读字符串
 
@@ -214,7 +226,7 @@ async def _format_players(players: List[Dict]) -> str:
 
 
 def build_server_message(
-    server_data: Dict,
+    server_data: SourceInfo[Any],
     players_info: str,
     selected_server: Dict,
     show_ip: bool,
@@ -248,7 +260,7 @@ def build_server_message(
     return "\n".join(message)
 
 
-def _calculate_server_stats(servers: List[Dict]) -> ServerStats:
+def _calculate_server_stats(servers: List[OutServer]) -> Tuple[int, int, int, int]:
     """
     计算服务器组的统计指标
 
@@ -267,7 +279,7 @@ def _calculate_server_stats(servers: List[Dict]) -> ServerStats:
         s["server"].max_players for s in servers if s["server"].max_players != 0
     )
 
-    return ServerStats(active_servers, total_servers, active_players, max_players)
+    return active_servers, total_servers, active_players, max_players
 
 
 def _format_server_summary(servers: List[AllServer]) -> str:
@@ -290,7 +302,7 @@ def _format_server_summary(servers: List[AllServer]) -> str:
 
 def _update_global_state(
     group_name: str,
-    servers: List[dict],
+    servers: ServerList,
     item: Path,
 ) -> None:
     """
@@ -303,7 +315,7 @@ def _update_global_state(
         无，直接修改全局变量ALLHOST和COMMAND
     """
     global ALLHOST, COMMAND
-    ALLHOST.update({group_name: servers})
+    ALLHOST[group_name] = servers
     COMMAND.add(group_name)
     logger.success(
         f"成功加载 {item.name.split('.')[0]} {len(servers)}个",

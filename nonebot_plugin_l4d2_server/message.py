@@ -6,6 +6,7 @@ class Gm:
     outputing_group: str = "正在输出组"
     add_name: str = "请在指令后添加要找的昵称哦"
     no_found: str = "未找到这个组"
+    no_player: str = "未找到玩家"
 
 
 class Sm:

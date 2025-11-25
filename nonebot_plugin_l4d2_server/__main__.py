@@ -16,7 +16,7 @@
 """
 
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, cast
 
 import aiofiles
 import ujson as json
@@ -27,10 +27,12 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
-from nonebot.rule import command as command_rule
 from nonebot_plugin_alconna import UniMessage
 
+from nonebot_plugin_l4d2_server.l4_ban.utils import refresh_server_command_rule
+
 from .config import config, config_manager
+from .l4_ban import l4_request
 from .l4_help import get_l4d2_core_help
 from .l4_local import *  # noqa: F403
 from .l4_request import (
@@ -54,8 +56,9 @@ driver = get_driver()
 
 reload_ip()
 
+
 l4_help = on_command("l4help", aliases={"l4d2帮助"})
-l4_request = on_command("anne", priority=10)
+
 l4_reload = on_command("l4reload", aliases={"l4刷新,l4重载"})
 l4_all = on_command("l4all", aliases={"l4全服"})
 l4_connect = on_command("connect", aliases={"l4连接"})
@@ -63,16 +66,7 @@ l4_find_player = on_command("l4find", aliases={"l4查找"})
 
 
 config_path = Path(config.l4_path) / "config.json"
-
-
-def refresh_server_command_rule() -> None:
-    """根据最新的服务器组刷新命令别名"""
-    commands = {"anne"}
-    commands.update(COMMAND)
-    l4_request.rule = command_rule(*commands)
-
-
-refresh_server_command_rule()
+refresh_server_command_rule(l4_request)
 
 
 async def sync_sb_pages_groups() -> None:
@@ -81,7 +75,7 @@ async def sync_sb_pages_groups() -> None:
     if not pages:
         logger.info("sb_pages.json 为空，跳过启动时刷新")
         reload_ip()
-        refresh_server_command_rule()
+        refresh_server_command_rule(l4_request)
         return
 
     api = L4D2Api()
@@ -96,7 +90,7 @@ async def sync_sb_pages_groups() -> None:
             failed.append(f"{tag}: {exc}")
 
     reload_ip()
-    refresh_server_command_rule()
+    refresh_server_command_rule(l4_request)
 
     if ok:
         logger.success(f"启动时已刷新 {ok} 个服务器组")
@@ -202,15 +196,24 @@ async def _(
                     logger.info(type(out_msg))
                     if config.l4_connect and isinstance(out_msg, bytes):
                         logger.info(f"connect {one['host']}:{one['port']}")
-                        out_msg = UniMessage.image(raw=out_msg) + UniMessage.text(
+                        out_msgs = UniMessage.image(raw=out_msg) + UniMessage.text(
                             f"\nconnect {one['host']}:{one['port']}",
                         )
+                    elif config.l4_connect and isinstance(out_msg, str):
+                        logger.info(f"connect {one['host']}:{one['port']}")
+                        out_msgs = UniMessage.text(out_msg) + UniMessage.text(
+                            f"\nconnect {one['host']}:{one['port']}",
+                        )
+                    elif isinstance(out_msg, str):
+                        out_msgs = UniMessage.text(out_msg)
                     else:
-                        out_msg = UniMessage.text(out_msg)
+                        out_msgs = UniMessage.image(raw=out_msg)
+                    return await out_msg_out(out_msgs)
+        return None
     if len(tag_list) == 2:
         group, name = tag_list
         await UniMessage.text(f"正在查询{group}组").send()
-        out: List[OutServer] = await server_find(command=group, is_img=True)
+        out = cast(List[OutServer], await server_find(command=group, is_img=True))
         out_msg = Gm.no_player
         for one in out:
             for player in one["player"]:
@@ -220,13 +223,22 @@ async def _(
                     logger.info(type(out_msg))
                     if config.l4_connect and isinstance(out_msg, bytes):
                         logger.info(f"connect {one['host']}:{one['port']}")
-                        out_msg = UniMessage.image(raw=out_msg) + UniMessage.text(
+                        out_msgs = UniMessage.image(raw=out_msg) + UniMessage.text(
                             f"\nconnect {one['host']}:{one['port']}",
                         )
+                    elif config.l4_connect and isinstance(out_msg, str):
+                        logger.info(f"connect {one['host']}:{one['port']}")
+                        out_msgs = UniMessage.text(out_msg) + UniMessage.text(
+                            f"\nconnect {one['host']}:{one['port']}",
+                        )
+                    elif isinstance(out_msg, str):
+                        out_msgs = UniMessage.text(out_msg)
                     else:
-                        out_msg = UniMessage.text(out_msg)
+                        out_msgs = UniMessage.image(raw=out_msg)
 
-    return await out_msg_out(out_msg)
+                    return await out_msg_out(out_msgs)
+        return None
+    return None
 
 
 @l4_all.handle()
@@ -243,7 +255,7 @@ async def _(args: Message = CommandArg()):
             await get_ip_server(ip),
             is_connect=config.l4_connect,
             host=host,
-            port=port,
+            port=str(port),
         )
 
 
@@ -258,7 +270,7 @@ async def _(args: Message = CommandArg()):
             logger.info(f"重载{tag}的ip")
             await L4API.get_sourceban(tag, url)
         reload_ip()
-        refresh_server_command_rule()
+        refresh_server_command_rule(l4_request)
         logger.success("重载ip完成")
         await out_msg_out("重载ip完成")
 
@@ -278,7 +290,7 @@ async def _(args: Message = CommandArg()):
 
     await L4API.get_sourceban(arg[0], arg[1])
     reload_ip()
-    refresh_server_command_rule()
+    refresh_server_command_rule(l4_request)
     await UniMessage.text("添加成功\n组名: {arg[0]}\n网址: {arg[1]}").send()
 
 

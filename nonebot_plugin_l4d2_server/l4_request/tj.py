@@ -1,5 +1,8 @@
 import random
+from typing import Any, List, cast
 
+from a2s import SourceInfo
+from a2s.players import Player
 from nonebot.log import logger
 
 from ..config import config
@@ -14,11 +17,11 @@ from .utils import (
 
 
 async def tj_request(command: str = "云", tj="tj"):
-    map_type = "普通药役"
+    map_type = ["普通药役"]
     server_json = ALLHOST.get(command)
     logger.debug(server_json)
     if server_json is None:
-        logger.warning(Gm.no_founds)
+        logger.warning(Gm.no_found)
         return None
 
     logger.info(Sm.searching)
@@ -59,8 +62,8 @@ async def _get_server_info_and_build(server_list: list, config) -> str:
     if not ser_list:
         return Sm.no_get
 
-    one_server = ser_list[0][0]
-    one_player = ser_list[0][1]
+    one_server = cast(SourceInfo, ser_list[0][0])
+    one_player: List[Player[Any]] = ser_list[0][1]
 
     if one_player:
         player_msg = await _format_players(one_player)

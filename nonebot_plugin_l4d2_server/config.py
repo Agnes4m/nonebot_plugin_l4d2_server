@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import List, Set
+from typing import List
 
 from nonebot import get_plugin_config
 from nonebot.adapters.onebot.v11 import GROUP_ADMIN, GROUP_MEMBER, GROUP_OWNER
 from nonebot.log import logger
-from nonebot.permission import SUPERUSER
+from nonebot.permission import SUPERUSER, Permission
 from pydantic import BaseModel, Field, field_validator
 
 # 常量定义
@@ -81,10 +81,10 @@ class ConfigModel(BaseModel):
         """更新地图索引配置"""
         if index < 0:
             raise ValueError("地图索引不能小于0")
-        self._config.map_index = index
+        self.map_index = index
 
     @property
-    def l4_permission_set(self) -> Set[int]:
+    def l4_permission_set(self) -> Permission:
         permissions = {
             1: SUPERUSER,
             2: SUPERUSER | GROUP_OWNER,
@@ -139,7 +139,11 @@ class ConfigManager:
             if key not in valid_keys:
                 raise ValueError(f"无效的配置项: {key}")
 
-            field_type = ConfigModel[key].type_
+            field_info = ConfigModel.model_fields[key]
+            field_type = field_info.annotation
+            if not field_type:
+                continue
+
             if not isinstance(value, field_type):
                 raise TypeError(f"{key} 必须是 {field_type.__name__} 类型")
 
@@ -147,7 +151,7 @@ class ConfigManager:
 
         # 验证更新后的配置
         try:
-            self._config = ConfigModel(**self._config.dict())
+            self._config = ConfigModel(**self._config.model_dump())
         except ValueError as e:
             logger.error(f"配置更新失败: {e!s}")
 
