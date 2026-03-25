@@ -1,6 +1,5 @@
 import asyncio
 import contextlib
-import socket
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
@@ -70,11 +69,7 @@ class L4D2Api:
                 encoding="utf8",
             )
 
-        except (
-            asyncio.exceptions.TimeoutError,
-            ConnectionRefusedError,
-            socket.gaierror,
-        ):
+        except Exception:
             server = a2s.SourceInfo(
                 protocol=0,
                 server_name="服务器无响应",
@@ -124,7 +119,7 @@ class L4D2Api:
 
             try:
                 results = await asyncio.gather(*tasks)
-                msg_list = [r for r in results if r is not None]
+                msg_list = results  # 不过滤 None，保持与输入列表相同的长度
             except Exception as e:
                 logger.error(f"获取服务器信息时发生错误: {e}")
 
@@ -156,11 +151,7 @@ class L4D2Api:
                 )
                 if server is not None:
                     server.steam_id = index  # type: ignore
-            except (
-                asyncio.exceptions.TimeoutError,
-                ConnectionRefusedError,
-                socket.gaierror,
-            ):
+            except Exception:
                 server = a2s.SourceInfo(
                     protocol=0,
                     server_name="服务器无响应",
@@ -204,11 +195,7 @@ class L4D2Api:
             )
 
         if is_player:
-            with contextlib.suppress(
-                asyncio.exceptions.TimeoutError,
-                ConnectionRefusedError,
-                socket.gaierror,
-            ):
+            with contextlib.suppress(Exception):
                 play = await a2s.aplayers(ip, timeout=3, encoding="utf8")
         else:
             play = []

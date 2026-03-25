@@ -46,10 +46,15 @@ async def server_ip_pic(server_dict: List[OutServer]):
             )[:max_number]
             logger.debug(sorted_players)
 
-            # 时间转换
-            max_duration_len = max(
-                [len(str(await convert_duration(i.duration))) for i in sorted_players],
-            )
+            # 时间转换 - 添加空列表安全检查
+            max_duration_len = 1
+            if sorted_players:
+                max_duration_len = max(
+                    [
+                        len(str(await convert_duration(i.duration)))
+                        for i in sorted_players
+                    ],
+                )
             for player in sorted_players:
                 chines_dur = await convert_duration(player.duration)
                 dur = "{:^{}}".format(chines_dur, max_duration_len)
@@ -70,7 +75,6 @@ async def server_ip_pic(server_dict: List[OutServer]):
 async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
     try:
         if config.l4_style == "default":
-
             template = env.get_template("normal.html")
         else:
             template = env.get_template("normal_old.html")

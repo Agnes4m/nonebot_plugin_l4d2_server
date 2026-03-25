@@ -260,6 +260,32 @@ async def get_much_server(
 
     all_server = await L4API.a2s_info(search_list, is_player=True)
 
+    # 确保两个列表长度相同，如果不同则用默认值填充
+    while len(all_server) < len(server_json):
+        # 创建默认的无响应服务器信息
+        import a2s
+
+        default_server = a2s.SourceInfo(
+            protocol=0,
+            server_name="服务器无响应",
+            map_name="无",
+            folder="m",
+            game="L4D2",
+            app_id=114514,
+            steam_id=len(all_server),
+            player_count=0,
+            max_players=0,
+            bot_count=0,
+            server_type="w",
+            platform="w",
+            password_protected=False,
+            vac_enabled=False,
+            version="1.0",
+            edf=0,
+            ping=0,
+        )
+        all_server.append((default_server, []))
+
     for (server, player), srv_json in zip(all_server, server_json):
         out_server.append(
             OutServer(

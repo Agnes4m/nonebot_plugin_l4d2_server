@@ -27,6 +27,7 @@ from nonebot.plugin import PluginMetadata, inherit_supported_adapters  # noqa: E
 from . import __main__ as __main__  # noqa: E402
 from .config import ConfigModel  # noqa: E402
 from .l4_help import __version__  # noqa: E402
+from .utils.database import models  # noqa: E402, F401
 
 driver = get_driver()
 
