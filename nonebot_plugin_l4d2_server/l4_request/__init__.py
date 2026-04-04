@@ -137,9 +137,9 @@ def reload_ip():
                                 )
                         else:
                             if one_ip.get("host") and one_ip.get("port"):
-                                one_ip["ip"] = f'{one_ip["host"]}:{one_ip["port"]}'
+                                one_ip["ip"] = f"{one_ip['host']}:{one_ip['port']}"
                             if one_ip.get("host") and not one_ip.get("port"):
-                                one_ip["ip"] = f'{one_ip["host"]}:20715'
+                                one_ip["ip"] = f"{one_ip['host']}:20715"
                             else:
                                 logger.warning(f"{one_ip} 没有ip")
 

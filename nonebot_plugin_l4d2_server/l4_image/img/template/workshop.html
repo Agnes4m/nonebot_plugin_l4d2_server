@@ -75,16 +75,16 @@
 </head>
 <body>
     <h1>{{ info.title }}</h1>
-    
+
     <div class="date">
-        上传日期: {{ info.time_created }} | 
+        上传日期: {{ info.time_created }} |
         更新日期: {{ info.time_updated }}
     </div>
-    
+
     {% if info.preview_url %}
     <img src="{{ info.preview_url }}" alt="Preview image" class="preview">
     {% endif %}
-    
+
     <div class="stats">
         <div class="stat-box">
             <div class="stat-label">已订阅</div>
@@ -99,7 +99,7 @@
             <div class="stat-value">{{ info.lifetime_subscriptions }}</div>
         </div>
     </div>
-    
+
     <div class="tags">
         {% for tag in info.tags %}
         <span class="tag {% if tag.adminonly %}admin-tag{% endif %}">
@@ -107,10 +107,10 @@
         </span>
         {% endfor %}
     </div>
-    
+
     <h2>描述</h2>
     <div class="description">{{ info.file_description }}</div>
-    
+
     {% if info.file_url %}
     <p>
         <a href="{{ info.file_url }}" target="_blank">Download File ({{ (info.file_size|int / 1024 / 1024)|round(2) }} MB)</a>

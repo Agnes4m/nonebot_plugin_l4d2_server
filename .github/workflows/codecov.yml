@@ -27,12 +27,12 @@ jobs:
 
       - name: Install PDM
         run: pip install pdm
-    
+
       - name: Install project dependencies
         run: |
           pdm install -G test
           pdm add pytest uvicorn pytest-cov pytest-asyncio nonebug
-          
+
       - name: Run tests
         run: pdm run pytest --cov=nonebot_plugin_l4d2_server --cov-branch --cov-report=xml
 

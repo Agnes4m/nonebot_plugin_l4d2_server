@@ -135,7 +135,7 @@ async def format_text_to_html(text: str):
                         "</li>",
                         f"<br>{line.strip()}</li>",
                     )
-            html_parts.append(f'<ul>{"".join(list_items)}</ul>')
+            html_parts.append(f"<ul>{''.join(list_items)}</ul>")
             continue
 
         processed_para = re.sub(

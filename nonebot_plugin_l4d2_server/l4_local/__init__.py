@@ -29,7 +29,6 @@ if not local_path_list:
         "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
     )
 else:
-
     search_map = on_command(
         "l4map",
         aliases={"l4地图查询", "l4地图"},

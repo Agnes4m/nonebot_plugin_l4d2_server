@@ -130,7 +130,6 @@ async def change_name(old_name: str, new_name: str, vpk_path: Path):
 
 
 async def delete_file(file_path: Path) -> bool:
-
     try:
         if not file_path.exists():
             logger.error(f"文件 {file_path} 不存在")

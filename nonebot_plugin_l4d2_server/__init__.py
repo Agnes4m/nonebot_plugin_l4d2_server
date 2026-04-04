@@ -16,15 +16,15 @@
 """
 
 from nonebot import get_driver, require
+from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
-require("nonebot_plugin_htmlrender")
+# 依赖插件声明 必须在导入其它插件模块之前执行
 require("nonebot_plugin_alconna")
-require("nonebot_plugin_tortoise_orm")
 require("nonebot_plugin_datastore")
+require("nonebot_plugin_htmlrender")
+require("nonebot_plugin_tortoise_orm")
 
-from nonebot.plugin import PluginMetadata, inherit_supported_adapters  # noqa: E402
-
-from . import __main__ as __main__  # noqa: E402
+from . import __main__  # noqa: E402, F401
 from .config import ConfigModel  # noqa: E402
 from .l4_help import __version__  # noqa: E402
 from .utils.database import models  # noqa: E402, F401

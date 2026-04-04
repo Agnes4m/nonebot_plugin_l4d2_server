@@ -9,7 +9,6 @@ from .utils import format_text_to_html, timestamp_to_date
 
 
 async def process_ws_download(workshop: str):
-
     if workshop.isdigit():
         workshop_id = workshop
     elif workshop.startswith("https://steamcommunity.com/sharedfiles/filedetails"):
