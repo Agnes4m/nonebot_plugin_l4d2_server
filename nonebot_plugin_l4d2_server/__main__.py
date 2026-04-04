@@ -102,7 +102,7 @@ async def _sync_groups_on_startup() -> None:
 
 
 @l4_help.handle()
-async def _():
+async def handle_l4_help():
     """帮助"""
     logger.info("开始执行[l4d2帮助]")
     im = await get_l4d2_core_help()
@@ -110,7 +110,7 @@ async def _():
 
 
 @l4_request.handle()
-async def _(
+async def handle_server_query(
     start: str = CommandStart(),
     command: str = RawCommand(),
     args: Message = CommandArg(),
@@ -170,7 +170,7 @@ async def _(
 
 
 @l4_find_player.handle()
-async def _(
+async def handle_find_player(
     args: Message = CommandArg(),
 ):
     # 以后有时间补img格式
@@ -240,12 +240,12 @@ async def _(
 
 
 @l4_all.handle()
-async def _():
+async def handle_all_servers():
     await out_msg_out(await get_all_server_detail())
 
 
 @l4_connect.handle()
-async def _(args: Message = CommandArg()):
+async def handle_connect_server(args: Message = CommandArg()):
     ip: Optional[str] = args.extract_plain_text()
     if ip is not None:
         host, port = split_maohao(ip)
@@ -258,7 +258,7 @@ async def _(args: Message = CommandArg()):
 
 
 @l4_reload.handle()
-async def _(args: Message = CommandArg()):
+async def handle_reload_servers(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
     if not arg:
         with (Path(config.l4_path) / "l4d2.json").open("r", encoding="utf-8") as f:
@@ -342,17 +342,17 @@ if "云" in COMMAND:
     ld_kl = on_command("kl")
 
     @ld_tj.handle()
-    async def _(matcher: Matcher):
+    async def handle_tj_command(matcher: Matcher):
         await matcher.send("正在寻找牢房信息")
         await matcher.finish(await tj_request("云", "tj"))
 
     @ld_zl.handle()
-    async def _(matcher: Matcher):
+    async def handle_zl_command(matcher: Matcher):
         await matcher.send("正在寻找牢房信息")
         await matcher.finish(await tj_request("云", "zl"))
 
     @ld_kl.handle()
-    async def _(matcher: Matcher):
+    async def handle_kl_command(matcher: Matcher):
         await matcher.send("正在寻找牢房信息")
         await matcher.finish(await tj_request("云", "kl"))
 
@@ -364,7 +364,7 @@ style_trung = on_command("l4style", aliases={"l4风格切换"}, permission=SUPER
 
 
 @img_trung.handle()
-async def _(args: Message = CommandArg()):
+async def handle_toggle_image_mode(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip().lower()
     if arg == "开启":
         config_manager.update_image_config(enabled=True)
@@ -377,7 +377,7 @@ async def _(args: Message = CommandArg()):
 
 
 @style_trung.handle()
-async def _():
+async def handle_switch_style():
     if config.l4_style == "default":
         config_manager.update_style_config(style="old")
         await UniMessage.text("[l4]已切换为旧风格").finish()
