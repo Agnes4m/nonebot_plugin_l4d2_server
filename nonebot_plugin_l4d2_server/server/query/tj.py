@@ -5,9 +5,9 @@ from a2s import SourceInfo
 from a2s.players import Player
 from nonebot.log import logger
 
-from ..config import config
-from ..message import Gm, Sm
-from ..utils.api.request import L4API
+from ...config import config
+from ...message import Gm, Sm
+from ...shared.utils.api.request import L4API
 from .typing import ALLHOST
 from .utils import (
     _filter_servers,

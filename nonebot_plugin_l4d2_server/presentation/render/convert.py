@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from .image_tools import draw_center_text_by_line
 
-FONT_PATH = Path(__file__).parent.parent / "data/font/loli.ttf"
+FONT_PATH = Path(__file__).parent.parent.parent / "domain/font/loli.ttf"
 pic_quality: int = 95
 
 

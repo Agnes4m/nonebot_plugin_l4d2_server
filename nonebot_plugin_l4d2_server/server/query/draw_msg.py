@@ -7,11 +7,11 @@ from a2s import Player
 from nonebot.log import logger
 from PIL import Image, ImageDraw, ImageFont
 
-from ..config import config
-from ..l4_image.html_img import convert_duration
-from ..message import Sm
-from ..utils.api.models import NserverOut, OutServer
-from ..utils.api.request import L4API
+from ...config import config
+from ...message import Sm
+from ...presentation.render.html_img import convert_duration
+from ...shared.utils.api.models import NserverOut, OutServer
+from ...shared.utils.api.request import L4API
 
 
 async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):

@@ -43,12 +43,12 @@ from .l4_request import (
     tj_request,
 )
 from .message import Gm, Sm
-from .utils.api.models import OutServer
-from .utils.api.request import L4API, L4D2Api
-from .utils.api.utils import out_msg_out
-from .utils.group_store import set_group
-from .utils.sb_sources import load_pages
-from .utils.utils import split_maohao
+from .shared.utils.api.models import OutServer
+from .shared.utils.api.request import L4API, L4D2Api
+from .shared.utils.api.utils import out_msg_out
+from .shared.utils.group_store import set_group
+from .shared.utils.sb_sources import load_pages
+from .shared.utils.utils import split_maohao
 
 driver = get_driver()
 
@@ -115,32 +115,6 @@ async def handle_server_query(
     command: str = RawCommand(),
     args: Message = CommandArg(),
 ):
-    """
-    异步函数，用于处理特定的指令。
-
-    Args:
-        start (str, optional): 指令的开头部分，默认为 CommandStart() 返回的值。
-        command (str, optional): 完整的指令字符串，默认为 RawCommand() 返回的值。
-        args (Message, optional): 指令后的参数，默认为 CommandArg() 返回的值。
-
-    Returns:
-        None
-
-    Examples:
-        示例指令："/橘5"
-        - start: "/" (指令的开头部分)
-        - command: "/橘" (完整的指令字符串)
-        - args: "5" (指令后的参数)
-
-    Notes:
-        1. 如果 start 存在，会将 command 中的 start 部分替换为空字符串。
-        2. 如果 command 等于 "anne"，则将其替换为 "云"。
-        3. 提取 args 中的纯文本内容，如果内容非空且不是数字，则返回。
-        4. 如果 args 为空，则将其设置为 None。
-        5. 使用 logger 记录处理过程中的信息。
-        6. 调用 get_server_detail 函数获取服务器详情，并根据返回结果发送相应的消息。
-        7. 如果 get_server_detail 返回 None，则发送 "服务器无响应" 的文本消息。
-    """
     logger.info(f"[l4]开始执行请求]：{command}")
     if start:
         command = command.replace(start, "")

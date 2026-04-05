@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 
-from ..config import config
+from ...config import config
 
 local_path_list = config.l4_local
 

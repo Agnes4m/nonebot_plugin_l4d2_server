@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup, Tag
 from httpx import AsyncClient
 from nonebot.log import logger
 
-from ...config import config
+from ....config import config
 from ..utils import split_maohao
 from .api import AnnePlayerApi, AnneSearchApi, WorkshopApi, anne_ban
 from .models import (

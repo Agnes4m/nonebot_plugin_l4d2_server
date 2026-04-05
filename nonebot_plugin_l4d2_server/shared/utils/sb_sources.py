@@ -6,7 +6,7 @@ from pathlib import Path
 import aiofiles
 import ujson as json
 
-from ..config import config
+from ...config import config
 
 # data/L4D2/sb_pages.json : {"组名": "SourceBans服务器页URL"}
 PAGES_FILE = Path(config.l4_path) / "sb_pages.json"

@@ -5,8 +5,8 @@ import jinja2
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
-from ..config import config
-from ..utils.api.models import OutServer
+from ...config import config
+from ...shared.utils.api.models import OutServer
 
 # from .htmlimg import dict_to_dict_img
 # from ..l4d2_anne.anne_telecom import ANNE_API

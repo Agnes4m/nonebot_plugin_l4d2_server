@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, TypedDict
 
-from ..utils.api.models import NserverOut
+from ...shared.utils.api.models import NserverOut
 
 ServerList = List[NserverOut]
 ServerDict = Dict[str, ServerList]

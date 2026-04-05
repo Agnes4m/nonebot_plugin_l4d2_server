@@ -9,7 +9,7 @@ import rarfile
 from nonebot.log import logger
 from pyunpack import Archive
 
-from ..utils.utils import get_file, get_vpk
+from ...shared.utils.utils import get_file, get_vpk
 
 systems = platform.system()
 

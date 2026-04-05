@@ -6,7 +6,7 @@ from pathlib import Path
 import aiofiles
 import ujson as json
 
-from ..config import config
+from ...config import config
 
 # 每个组独立文件目录：data/L4D2/l4d2/<tag>.json
 GROUPS_DIR = Path(config.l4_path) / "l4d2"

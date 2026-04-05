@@ -123,8 +123,33 @@
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
+      },
+      {
+        "name": "l4添加ban",
+        "desc": "添加ban记录",
+        "eg": "l4addban 玩家名 原因",
+        "need_ck": false,
+        "need_sk": true,
+        "need_admin": true
+      },
+      {
+        "name": "l4删除ban",
+        "desc": "移除ban记录",
+        "eg": "l4delban 玩家名",
+        "need_ck": false,
+        "need_sk": true,
+        "need_admin": true
+      },
+      {
+        "name": "l4查看ban",
+        "desc": "查看ban列表",
+        "eg": "l4banlist",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
       }
-    ],
+    ]
+  },
   "其他服务": {
     "desc": "一些杂项服务",
     "data": [

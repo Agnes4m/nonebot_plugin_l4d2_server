@@ -4,7 +4,7 @@ from loguru import logger
 from nonebot_plugin_alconna import UniMessage
 from nonebot_plugin_htmlrender import template_to_pic as t2p
 
-from ..utils.api.request import L4API
+from ...shared.utils.api.request import L4API
 from .utils import format_text_to_html, timestamp_to_date
 
 
