@@ -1,3 +1,5 @@
+# from .htmlimg import dict_to_dict_img
+# from ..l4d2_anne.anne_telecom import ANNE_API
 from pathlib import Path
 from typing import List, Optional
 
@@ -8,9 +10,7 @@ from nonebot_plugin_htmlrender import html_to_pic
 from ...config import config
 from ...shared.utils.api.models import OutServer
 
-# from .htmlimg import dict_to_dict_img
-# from ..l4d2_anne.anne_telecom import ANNE_API
-
+# 原始插件模板目录
 template_path = Path(__file__).parent / "img/template"
 
 env = jinja2.Environment(
@@ -82,8 +82,8 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
             servers=plugins,
             max_count=config.l4_players,
         )
-        # with open("test.html", "w", encoding="utf-8") as f:
-        #     f.write(content)
+
+        # 完全原始写法 只加载插件内部资源
         return await html_to_pic(
             content,
             wait=0,

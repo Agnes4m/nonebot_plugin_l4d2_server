@@ -134,6 +134,10 @@ class CustomizeImage:
         based_w: int,
         based_h: int,
     ) -> Image.Image:
+        import logging
+
+        logger = logging.getLogger(__name__)
+
         # 获取背景图片
         if isinstance(image, Image.Image):
             edit_bg = image
@@ -141,16 +145,31 @@ class CustomizeImage:
             edit_bg = Image.open(BytesIO(get(image).content)).convert("RGBA")
         else:
             # 读取用户自定义背景图片
+            logger.debug(f"正在查找自定义背景图片，目录: {CUSTOM_BG_PATH.absolute()}")
+            logger.debug(f"目录存在: {CUSTOM_BG_PATH.exists()}")
+            logger.debug(f"目录是文件夹: {CUSTOM_BG_PATH.is_dir()}")
+
             bg_files = (
                 list(CUSTOM_BG_PATH.glob("*.png"))
                 + list(CUSTOM_BG_PATH.glob("*.jpg"))
                 + list(CUSTOM_BG_PATH.glob("*.jpeg"))
             )
+
+            logger.debug(f"找到图片文件数量: {len(bg_files)}")
             if bg_files:
+                for f in bg_files:
+                    logger.debug(f"  - {f.name}")
+
                 # 有自定义图片时随机选择
                 path = random.choice(bg_files)
-                edit_bg = Image.open(path).convert("RGBA")
+                logger.debug(f"选择使用图片: {path.name}")
+                try:
+                    edit_bg = Image.open(path).convert("RGBA")
+                except Exception:
+                    logger.exception(f"打开图片失败 {path.name}")
+                    return Image.new("RGBA", (based_w, based_h), (255, 255, 255, 255))
             else:
+                logger.debug("未找到自定义背景图片，使用纯白色背景")
                 # 无自定义图片时使用纯白色背景
                 return Image.new("RGBA", (based_w, based_h), (255, 255, 255, 255))
 
