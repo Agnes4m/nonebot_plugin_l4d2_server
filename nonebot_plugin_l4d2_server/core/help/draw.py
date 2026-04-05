@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple, cast
 
 from nonebot_plugin_datastore import get_plugin_data
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -14,8 +14,9 @@ Micon_path = Path(__file__).parent / "icon"
 DEFAULT_ICON = Micon_path / "拼图.png"
 try:
     plugin_data = get_plugin_data()
+    data_dir = plugin_data.data_dir
 except ValueError:
-    plugin_data = Path() / "data"
+    data_dir = Path() / "data"
 
 
 def cx(w: int, x: int) -> int:
@@ -77,14 +78,26 @@ async def get_help(
     enable_cache: bool = True,
 ) -> bytes:
     if sub_c is None and is_dark:
-        sub_c = tuple(x - 50 if x > 50 else x for x in text_color)  # type: ignore
+        sub_c = cast(
+            Tuple[int, int, int],
+            tuple(x - 50 if x > 50 else x for x in text_color),
+        )
     elif sub_c is None and not is_dark:
-        sub_c = tuple(x + 50 if x < 205 else x for x in text_color)  # type: ignore
+        sub_c = cast(
+            Tuple[int, int, int],
+            tuple(x + 50 if x < 205 else x for x in text_color),
+        )
 
     if op_color is None and is_dark:
-        op_color = tuple(x - 90 if x > 90 else x for x in text_color)  # type: ignore
+        op_color = cast(
+            Tuple[int, int, int],
+            tuple(x - 90 if x > 90 else x for x in text_color),
+        )
     elif op_color is None and not is_dark:
-        op_color = tuple(x + 90 if x < 160 else x for x in text_color)  # type: ignore
+        op_color = cast(
+            Tuple[int, int, int],
+            tuple(x + 90 if x < 160 else x for x in text_color),
+        )
 
     _h = 600
 
@@ -195,7 +208,7 @@ async def get_help(
     img = Image.alpha_composite(all_white, img)
 
     img = img.convert("RGB")
-    help_path = plugin_data.data_dir.joinpath("help") / f"{name}.jpg"
+    help_path = data_dir / "help" / f"{name}.jpg"
     help_path.parent.mkdir(parents=True, exist_ok=True)
     if enable_cache:
         img.save(

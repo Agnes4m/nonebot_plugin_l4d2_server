@@ -31,26 +31,34 @@ async def _delete_group_and_page(tag: str) -> tuple[bool, bool]:
 
 
 # l4addban <组名> [SourceBans服务器页URL]
-l4_add_ban = on_command("l4addban", aliases={"l4添加组"})
+l4_add_ban = on_command("l4_add_ban", aliases={"l4addban", "l4添加组"})
 # 批量刷新：遍历 sb_pages.json 中所有组
-l4_reload_sb = on_command("l4reloadsb", aliases={"l4刷新组"})
+l4_reload_groups = on_command("l4_reload_groups", aliases={"l4reloadsb", "l4刷新组"})
 # 列出所有组及数量
-l4_list_groups = on_command("l4listgroup", aliases={"l4listgroups", "l4列组"})
+l4_list_groups = on_command(
+    "l4_list_groups",
+    aliases={"l4listgroup", "l4listgroups", "l4列组"},
+)
 # 删除服务器组（即删除 data/L4D2/l4d2/<tag>.json）
-l4_del_group = on_command("l4delgroup", aliases={"l4删除组"})
+l4_remove_group = on_command("l4_remove_group", aliases={"l4delgroup", "l4删除组"})
 # 删除 sb_pages.json 里的 URL 映射（仅删 URL）
-l4_del_page = on_command("l4delpage", aliases={"l4删除页"})
+l4_remove_page = on_command("l4_remove_page", aliases={"l4delpage", "l4删除页"})
 # 导出指定组的 JSON 片段（直接读取 data/L4D2/l4d2/<tag>.json）
-l4_export_group = on_command("l4exportgroup", aliases={"l4导出组"})
+l4_export_group = on_command("l4_export_group", aliases={"l4exportgroup", "l4导出组"})
 # 导出全部组（仅用于查看，组合成一个对象返回，不写入任何聚合文件）
-l4_export_groups = on_command("l4exportgroups", aliases={"l4导出全部组"})
+l4_export_groups = on_command(
+    "l4_export_groups",
+    aliases={"l4exportgroups", "l4导出全部组"},
+)
 
 
 @l4_add_ban.handle()
 async def _(args: Message = CommandArg()):
     text = args.extract_plain_text().strip()
     if not text:
-        await UniMessage.text("用法：l4addban <组名> [SourceBans服务器页URL]").finish()
+        await UniMessage.text(
+            "用法：l4_add_ban <组名> [SourceBans服务器页URL]",
+        ).finish()
 
     parts = text.split(None, 1)
     tag = parts[0]
@@ -78,7 +86,7 @@ async def _(args: Message = CommandArg()):
     ).finish()
 
 
-@l4_reload_sb.handle()
+@l4_reload_groups.handle()
 async def _():
     pages = await load_pages()
     if not pages:
@@ -116,7 +124,7 @@ async def _():
     await UniMessage.text("现有服务器组：\n" + "\n".join(lines)).finish()
 
 
-@l4_del_group.handle()
+@l4_remove_group.handle()
 async def _(args: Message = CommandArg()):
     tag = args.extract_plain_text().strip()
     if not tag:
@@ -137,7 +145,7 @@ async def _(args: Message = CommandArg()):
     refresh_server_command_rule(l4_request)
 
 
-@l4_del_page.handle()
+@l4_remove_page.handle()
 async def _(args: Message = CommandArg()):
     tag = args.extract_plain_text().strip()
     if not tag:

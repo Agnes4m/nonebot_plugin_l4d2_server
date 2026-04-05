@@ -30,26 +30,26 @@ if not local_path_list:
     )
 else:
     search_map = on_command(
-        "l4map",
-        aliases={"l4地图查询", "l4地图"},
+        "l4_map",
+        aliases={"l4map", "l4地图查询", "l4地图"},
         priority=20,
         block=True,
     )
-    up = on_command(
-        "l4upload",
-        aliases={"l4地图上传"},
+    l4_map_upload = on_command(
+        "l4_map_upload",
+        aliases={"l4upload", "l4地图上传"},
         priority=5,
         block=True,
     )
-    map_change = on_command(
-        "l4mapchange",
-        aliases={"l4地图修改"},
+    l4_map_change = on_command(
+        "l4_map_change",
+        aliases={"l4mapchange", "l4地图修改"},
         priority=20,
         block=True,
     )
-    map_del = on_command(
-        "l4mapdel",
-        aliases={"l4地图删除"},
+    l4_map_delete = on_command(
+        "l4_map_delete",
+        aliases={"l4mapdel", "l4地图删除"},
         priority=20,
         block=True,
     )
@@ -71,11 +71,11 @@ else:
         img = await text2pic(f"服务器地图:\n{out_msg}")
         await UniMessage.image(raw=img).send()
 
-    @up.handle()
+    @l4_map_upload.handle()
     async def _(matcher: Matcher):
         await matcher.pause("请发送地图文件")
 
-    @up.got("map_url", prompt="图来")
+    @l4_map_upload.got("map_url", prompt="图来")
     async def handle_up_got(ev: Event, msg: UniMsg):
         if not msg.has(File):
             await UniMessage.text("不是文件,退出交互").finish()
@@ -98,7 +98,7 @@ else:
         url: str = args["file"]["url"]
         name: str = args["file"]["name"]
 
-        await up.send("已收到文件,开始下载")
+        await l4_map_upload.send("已收到文件,开始下载")
         vpk_files = await updown_l4d2_vpk(map_path, name, url)
 
         if vpk_files:
@@ -107,7 +107,7 @@ else:
         else:
             await UniMessage.text("你可能上传了相同的文件,或者解压失败了").finish()
 
-    @map_change.handle()
+    @l4_map_change.handle()
     async def handle_map_change(
         matcher: Matcher,
         event: Event,
@@ -135,7 +135,7 @@ else:
 
         await UniMessage.text("重命名成功" if success else "重命名失败").finish()
 
-    @map_del.handle()
+    @l4_map_delete.handle()
     async def handle_map_del(
         matcher: Matcher,
         event: Event,

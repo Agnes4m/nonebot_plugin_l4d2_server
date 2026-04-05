@@ -7,7 +7,7 @@
 
 <div align="center">
 
-# nonebot_plugin_l4d2_server 1.1.6
+# nonebot_plugin_l4d2_server 1.3.0
 
 _✨Nonebot & Left 4 Dead 2 server 操作 ✨_
 
@@ -48,13 +48,33 @@ _✨Nonebot & Left 4 Dead 2 server 操作 ✨_
 </a>
 </div>
 
-## 指令
+## 功能
+
+- `l4d2帮助` 帮助指令
+
+### 自定义服务器
 
 - 在 json 文件设置的前缀指令，例如设置"云"，则指令 云 输出组服务器，云 1 输出 1 号服务器
-- `l4d2帮助` 帮助指令
+
+### SourceBans++
+
+- 通过 [SourceBans++](https://sbpp.github.io/) 获取服务器的 ban 信息，自动导入ip
+
+### 配置管理
+
 - l4 图片开启/关闭 超管指令 可以修改输出单图是否为图片输出
 - l4 查找用户 在已知服务器中查找
 - l4 工坊下载 提供创意工坊 id 下载到服务器和群聊
+
+### 自定义查服背景图片
+
+插件支持自定义图片背景，在 `data/L4D2/custom_backgrounds/` 目录下放入 PNG/JPG/JPEG 格式图片即可，插件会自动随机选择使用。
+
+具体位置参考 [数据结构](./docs/standand.md)
+
+- 目录不存在时插件会自动创建
+- 放入图片无需重启立即生效
+- 未放置图片时默认使用纯白色背景
 
 ## 安装
 
@@ -117,8 +137,6 @@ conda install nonebot-plugin-l4d2-server
 
 ## [数据结构](./docs/standand.md)
 
-暂未更新
-
 ## env 设置
 
 ```bash
@@ -139,15 +157,10 @@ conda install nonebot-plugin-l4d2-server
 
 ## 和 0.x.x 更改部分
 
-- 取消了网页控制台(没有卵用)
-- 取消了自动重启(与其他插件功能重复)
-- 取消了 git 拉取更新(nb 规范用 pypi)
-- 删除无用部分(依赖太多难以维护)
-- 删除了 anne 部分，已移植到[这里](https://github.com/Agnes4m/L4D2UID),通过 core 插件调用
-
 ## 其他
 
-- 本人技术很差，如果您有发现 BUG 或者更好的建议，欢迎提 Issue & Pr
+- anne 部分，已移植到[这里](https://github.com/Agnes4m/L4D2UID),通过 core 插件调用
+- 如果您有发现 BUG 或者更好的建议，欢迎提 Issue & Pr
 - 如果本插件对你有帮助，不要忘了点个 Star~
 - 本项目仅供学习使用，请勿用于商业用途
 - [更新日志](./docs/update.md)

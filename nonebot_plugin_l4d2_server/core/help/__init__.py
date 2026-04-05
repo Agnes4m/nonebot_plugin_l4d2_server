@@ -10,7 +10,7 @@ from ...presentation.render.convert import core_font
 from ...presentation.render.model import PluginHelp
 from .draw import get_help
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 TEXT_PATH = Path(__file__).parent / "texture2d"
 HELP_DATA = Path(__file__).parent / "help.json"
 

@@ -55,12 +55,12 @@ driver = get_driver()
 reload_ip()
 
 
-l4_help = on_command("l4help", aliases={"l4d2帮助"})
+l4_help = on_command("l4_help", aliases={"l4help", "l4d2帮助"})
 
-l4_reload = on_command("l4reload", aliases={"l4刷新,l4重载"})
-l4_all = on_command("l4all", aliases={"l4全服"})
-l4_connect = on_command("connect", aliases={"l4连接"})
-l4_find_player = on_command("l4find", aliases={"l4查找"})
+l4_reload_servers = on_command("l4_reload", aliases={"l4reload", "l4刷新", "l4重载"})
+l4_list_all_servers = on_command("l4_all", aliases={"l4all", "l4全服"})
+l4_connect_server = on_command("l4_connect", aliases={"connect", "l4连接"})
+l4_find_player = on_command("l4_find_player", aliases={"l4find", "l4查找"})
 
 
 config_path = Path(config.l4_path) / "config.json"
@@ -155,7 +155,7 @@ async def handle_find_player(
     if len(tag_list) == 1:
         await UniMessage.text(Sm.no_group_search).send()
         name = tag_list[0]
-        out: List[OutServer] = await server_find(is_img=False)  # type: ignore
+        out = cast(List[OutServer], await server_find(is_img=False))
         logger.info(out)
         logger.info(type(out))
         out_msg = Sm.no_player
@@ -213,12 +213,12 @@ async def handle_find_player(
     return None
 
 
-@l4_all.handle()
+@l4_list_all_servers.handle()
 async def handle_all_servers():
     await out_msg_out(await get_all_server_detail())
 
 
-@l4_connect.handle()
+@l4_connect_server.handle()
 async def handle_connect_server(args: Message = CommandArg()):
     ip: Optional[str] = args.extract_plain_text()
     if ip is not None:
@@ -231,7 +231,7 @@ async def handle_connect_server(args: Message = CommandArg()):
         )
 
 
-@l4_reload.handle()
+@l4_reload_servers.handle()
 async def handle_reload_servers(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
     if not arg:
@@ -333,11 +333,19 @@ if "云" in COMMAND:
 
 ## 以下为配置修改
 
-img_trung = on_command("l4img", aliases={"l4图片"}, permission=SUPERUSER)
-style_trung = on_command("l4style", aliases={"l4风格切换"}, permission=SUPERUSER)
+l4_toggle_image = on_command(
+    "l4_toggle_image",
+    aliases={"l4img", "l4图片"},
+    permission=SUPERUSER,
+)
+l4_switch_style = on_command(
+    "l4_switch_style",
+    aliases={"l4style", "l4风格切换"},
+    permission=SUPERUSER,
+)
 
 
-@img_trung.handle()
+@l4_toggle_image.handle()
 async def handle_toggle_image_mode(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip().lower()
     if arg == "开启":
@@ -350,7 +358,7 @@ async def handle_toggle_image_mode(args: Message = CommandArg()):
         await UniMessage.text("请在参数后加上开启或关闭").finish()
 
 
-@style_trung.handle()
+@l4_switch_style.handle()
 async def handle_switch_style():
     if config.l4_style == "default":
         config_manager.update_style_config(style="old")

@@ -2,14 +2,18 @@ import math
 import random
 from io import BytesIO
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, cast
 
 import httpx
 from httpx import get
 from PIL import Image, ImageDraw, ImageFont
 
 TEXT_PATH = Path(__file__).parent / "texture2d"
-BG_PATH = Path(__file__).parents[1] / "default_bg"
+# 用户自定义背景目录
+CUSTOM_BG_PATH = Path("data") / "L4D2" / "custom_backgrounds"
+
+# 自动创建用户目录
+CUSTOM_BG_PATH.mkdir(parents=True, exist_ok=True)
 
 
 async def sget(url: str):
@@ -31,7 +35,8 @@ def draw_center_text_by_line(
     x, y = pos
 
     if hasattr(font, "getsize"):
-        _, h = font.getsize("X")  # type: ignore
+        bbox = font.getbbox("X")
+        _, h = 0, bbox[3] - bbox[1]
     else:
         bbox = font.getbbox("X")
         _, h = 0, bbox[3] - bbox[1]
@@ -42,7 +47,8 @@ def draw_center_text_by_line(
     for index, char in enumerate(text):
         if hasattr(font, "getsize"):
             # 获取当前字符的宽度
-            size, _ = font.getsize(char)  # type: ignore
+            bbox = font.getbbox(char)
+            size, _ = bbox[2] - bbox[0], bbox[3] - bbox[1]
         else:
             bbox = font.getbbox(char)
             size, _ = bbox[2] - bbox[0], bbox[3] - bbox[1]
@@ -92,13 +98,12 @@ def crop_center_img(
 async def get_color_bg(
     based_w: int,
     based_h: int,
-    bg_path: Optional[Path] = None,
     without_mask: bool = False,
     is_full: bool = False,
     color: Optional[Tuple[int, int, int]] = None,
     full_opacity: int = 200,
 ) -> Image.Image:
-    ci_img = CustomizeImage(bg_path)  # type: ignore
+    ci_img = CustomizeImage(CUSTOM_BG_PATH)
     img = ci_img.get_image(None, based_w, based_h)
     if color is None:
         color = ci_img.get_bg_color(img)
@@ -135,12 +140,19 @@ class CustomizeImage:
         elif image:
             edit_bg = Image.open(BytesIO(get(image).content)).convert("RGBA")
         else:
-            _lst = list(self.bg_path.iterdir())
-            if _lst:
-                path = random.choice(list(self.bg_path.iterdir()))
+            # 读取用户自定义背景图片
+            bg_files = (
+                list(CUSTOM_BG_PATH.glob("*.png"))
+                + list(CUSTOM_BG_PATH.glob("*.jpg"))
+                + list(CUSTOM_BG_PATH.glob("*.jpeg"))
+            )
+            if bg_files:
+                # 有自定义图片时随机选择
+                path = random.choice(bg_files)
+                edit_bg = Image.open(path).convert("RGBA")
             else:
-                path = random.choice(list(BG_PATH.iterdir()))
-            edit_bg = Image.open(path).convert("RGBA")
+                # 无自定义图片时使用纯白色背景
+                return Image.new("RGBA", (based_w, based_h), (255, 255, 255, 255))
 
         # 确定图片的长宽
         return crop_center_img(edit_bg, based_w, based_h)
@@ -150,7 +162,8 @@ class CustomizeImage:
         img = pil_img.copy()
         img = img.convert("RGBA")
         img = img.resize((1, 1), resample=0)
-        return img.getpixel((0, 0))  # type: ignore
+        pixel = img.getpixel((0, 0))
+        return cast(Tuple[int, int, int], pixel[:3])
 
     @staticmethod
     def get_bg_color(
