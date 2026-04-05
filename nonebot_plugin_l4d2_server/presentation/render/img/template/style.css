@@ -1,0 +1,233 @@
+/* 页面基础样式 */
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+
+}
+
+.outer-frame {
+    width: 900px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    border: 1px solid #e0e3e7;
+    margin: 30px auto;
+    backdrop-filter: blur(2px);
+    position: relative;
+    z-index: 1;
+}
+
+.container {
+    width: 880px;
+    margin: 0 auto;
+    padding: 20px 10px;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.server-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 280px);
+    gap: 15px;
+    justify-content: center;
+    padding: 0 10px;
+}
+
+.server-card {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.6);
+    border: 1px solid #e0e3e7;
+    border-radius: 8px;
+    padding: 15px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+}
+
+
+.server-name {
+    font-weight: bold;
+    font-size: 15px;
+    color: #3498db;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #eee;
+}
+
+.map-name {
+    font-size: 13px;
+    color: #e74c3c;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+}
+
+.players {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.online {
+    color: #27ae60;
+}
+
+.offline {
+    color: #e74c3c;
+}
+
+.warning {
+    color: #f39c12;
+}
+
+.server-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.server-icon {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    color: #7f8c8d;
+}
+
+.server-icon img {
+    width: 12px;
+    height: 12px;
+}
+
+/* 玩家列表样式 */
+.player-list {
+    margin-top: 5px;
+    margin-left: -8px;
+    font-size: 12px;
+    line-height: 1.4;
+    background-color: transparent;
+    flex-wrap: wrap;
+}
+
+/* 单个玩家条目 */
+.player-item {
+    color: #2c3e50;
+    display: flex;
+    align-items: right;
+}
+
+/* 玩家名字体 */
+.player-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 10px);
+    box-sizing: border-box;
+}
+
+.player-score {
+    color: #27ae60;
+    font-weight: bold;
+    margin-left: 20px;
+}
+
+/* 页脚样式 */
+.footer {
+    text-align: center;
+    margin-top: 25px;
+    color: #000000;
+    font-size: 12px;
+    border-top: 1px solid #858585;
+    padding-top: 12px;
+}
+
+.status_text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    padding: 2px 6px;
+    border-radius: 16px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+    margin-left: auto;
+}
+
+.plugin_meta_line1 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+}
+
+.error {
+    background-color: #999;
+    color: white;
+}
+
+.lack {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.full {
+    background-color: #f44336;
+    color: white;
+}
+
+.not_full {
+    background-color: #2196F3;
+    color: white;
+}
+.none{
+    background-color: #67eb6c;
+    color: white;
+}

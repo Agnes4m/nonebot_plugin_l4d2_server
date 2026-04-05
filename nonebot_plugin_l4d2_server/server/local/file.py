@@ -1,0 +1,147 @@
+import io
+import platform
+import zipfile
+from pathlib import Path
+from typing import Callable, Dict, List
+from zipfile import ZipFile
+
+import rarfile
+from nonebot.log import logger
+from pyunpack import Archive
+
+from ...shared.utils.utils import get_file, get_vpk
+
+systems = platform.system()
+
+
+async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
+    """从url下载压缩包并解压到位置"""
+    original_vpk_files = get_vpk(map_paths)
+    down_file = Path(map_paths, name)
+    if await get_file(url, down_file) is None:
+        return None
+    msg = open_packet(name, down_file)
+    logger.info(msg)
+
+    extracted_vpk_files = get_vpk(map_paths)
+    # 获取新增vpk文件的list
+    return list(set(extracted_vpk_files) - set(original_vpk_files))
+
+
+SUPPORTED_EXTENSIONS = (".zip", ".7z", ".rar")
+
+
+def unzip_zipfile(down_file: Path, down_path: Path):
+    """解压zip文件"""
+    with support_gbk(zipfile.ZipFile(down_file, "r")) as z:
+        z.extractall(down_path)
+    down_file.unlink()
+
+
+def unpack_7zfile(down_file: Path, down_path: Path):
+    """解压7z文件"""
+    Archive(str(down_file)).extractall(str(down_path))
+    down_file.unlink()
+
+
+def unpack_rarfile(down_file: Path, down_path: Path):
+    """解压rar文件"""
+    with rarfile.RarFile(down_file, "r") as z:
+        z.extractall(down_path)
+    down_file.unlink()
+
+
+def open_packet(name: str, down_file: Path) -> str:
+    """解压压缩包"""
+    down_path = down_file.parent
+    logger.info("文件名为:" + name)
+    logger.info(f"系统为{systems}")
+    if name.endswith(".vpk"):
+        return "vpk文件已下载"
+
+    for ext in SUPPORTED_EXTENSIONS:
+        if name.endswith(ext):
+            mes = f"{ext[1:]}文件已下载,正在解压"
+            unpack_funcs: Dict[str, Callable] = {
+                ".zip": unzip_zipfile,
+                ".7z": unpack_7zfile,
+                ".rar": unpack_rarfile,
+            }
+            unpack_func = unpack_funcs.get(ext)
+            if not unpack_func:
+                raise ValueError(f"不支持的拓展名: {ext}")
+            unpack_func(down_file, down_path)
+            return mes
+
+    raise ValueError(f"不支持的文件: {name}")
+
+
+def support_gbk(zip_file: ZipFile):
+    """
+    压缩包中文恢复
+    """
+    if isinstance(zip_file, ZipFile):
+        name_to_info = zip_file.NameToInfo
+        # copy map first
+        for name, info in name_to_info.copy().items():
+            real_name = name.encode("cp437").decode("gbk")
+            if real_name != name:
+                info.filename = real_name
+                del name_to_info[name]
+                name_to_info[real_name] = info
+    return zip_file
+
+
+async def all_zip_to_one(data_list: List[bytes]):  # noqa: RUF029
+    """多压缩包文件合并"""
+    file_list = [io.BytesIO(data).getbuffer() for data in data_list]
+    data_file = io.BytesIO()
+
+    with ZipFile(data_file, mode="w") as zf:
+        for i, file in enumerate(file_list):
+            filename = f"file{i}.zip"
+            zf.writestr(filename, file)
+
+    return data_file.getbuffer()
+
+
+async def change_name(old_name: str, new_name: str, vpk_path: Path):
+    if not new_name.endswith(".vpk"):
+        new_name += ".vpk"
+    file_path = Path(vpk_path / old_name)
+
+    new_file_path = Path(vpk_path / new_name)
+
+    try:
+        if not file_path.exists():
+            logger.error(f"文件 {old_name} 不存在")
+            return False
+        file_path.rename(new_file_path)
+        logger.info(f"文件 {old_name} 已重命名为 {new_name}")
+
+    except PermissionError:
+        logger.error(f"没有权限重命名文件 {old_name} 到 {new_name}")
+        return False
+
+    except Exception as e:
+        logger.error(f"重命名文件 {old_name} 到 {new_name} 时发生错误: {e}")
+        return False
+    return True
+
+
+async def delete_file(file_path: Path) -> bool:
+    try:
+        if not file_path.exists():
+            logger.error(f"文件 {file_path} 不存在")
+            return False
+        file_path.unlink()
+        logger.info(f"文件 {file_path} 已删除")
+
+    except PermissionError:
+        logger.error(f"没有权限删除文件 {file_path}")
+        return False
+
+    except Exception as e:
+        logger.error(f"删除文件 {file_path} 时发生错误: {e}")
+        return False
+    return True

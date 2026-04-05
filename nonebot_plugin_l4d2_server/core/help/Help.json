@@ -1,0 +1,166 @@
+{
+  "基础服务": {
+    "desc": "无需任何权限",
+    "data": [
+      {
+        "name": "(组)",
+        "desc": "返回一个组的服务器信息",
+        "eg": "/云",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "(组)(id)",
+        "desc": "查询单服信息",
+        "eg": "/云1",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4查找(组)(玩家)",
+        "desc": "查询用户所在服务器状态",
+        "eg": "/l4查找 云 爱丽数码",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4全服",
+        "desc": "返回可以查询的所有服务器组",
+        "eg": "/l4全服",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      }
+    ]
+  },
+  "管理员服务": {
+    "desc": "管理可以使用的指令",
+    "data": [
+      {
+        "name": "l4刷新",
+        "desc": "重载存储的ip数据",
+        "eg": "l4刷新",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "l4地图上传",
+        "desc": "进入交互上传地图文件(需要设置本地服务器)",
+        "eg": "l4地图上传",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "l4地图修改",
+        "desc": "进入交互修改地图名称(需要设置本地服务器)",
+        "eg": "l4地图修改 1 114514",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "l4地图删除",
+        "desc": "进入交互删除地图名称(需要设置本地服务器)",
+        "eg": "l4地图删除 1",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
+      }
+    ]
+  },
+  "SourceBan服务": {
+    "desc": "通过网页抓取服务器信息",
+    "data": [
+      {
+        "name": "l4添加组",
+        "desc": "添加sb组网址",
+        "eg": "l4添加组 云 123.com",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4刷新组",
+        "desc": "刷新sb组网址",
+        "eg": "l4刷新组",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4列组",
+        "desc": "列出所有sb组网址",
+        "eg": "l4列组",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4删除组",
+        "desc": "删除sb组网址",
+        "eg": "l4列组 云",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4删除页",
+        "desc": "删除sb组网址",
+        "eg": "",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4导出组",
+        "desc": "导出sb组网址",
+        "eg": "",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "l4添加ban",
+        "desc": "添加ban记录",
+        "eg": "l4addban 玩家名 原因",
+        "need_ck": false,
+        "need_sk": true,
+        "need_admin": true
+      },
+      {
+        "name": "l4删除ban",
+        "desc": "移除ban记录",
+        "eg": "l4delban 玩家名",
+        "need_ck": false,
+        "need_sk": true,
+        "need_admin": true
+      },
+      {
+        "name": "l4查看ban",
+        "desc": "查看ban列表",
+        "eg": "l4banlist",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
+      }
+    ]
+  },
+  "其他服务": {
+    "desc": "一些杂项服务",
+    "data": [
+      {
+        "name": "connect",
+        "desc": "直接发送求生链接返回信息",
+        "eg": "connect 127.0.0.1:27015",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      }
+    ]
+  }
+}
