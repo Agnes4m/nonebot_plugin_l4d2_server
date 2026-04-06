@@ -120,9 +120,21 @@ connect {host}:{port}"""
             300,
         )
 
+        title_x = (img_width - title_width) // 2
+        title_y = margin
+
+        if content:
+            content_x = margin
+            content_y = title_y + title_height + margin
+
         # 加载背景图片
         bg_path = (
-            Path(__file__).parent.parent / "l4_image" / "img" / "anne" / "back.png"
+            Path(__file__).parent.parent.parent
+            / "presentation"
+            / "render"
+            / "img"
+            / "anne"
+            / "back.png"
         )
         try:
             img = Image.open(bg_path)
@@ -130,93 +142,6 @@ connect {host}:{port}"""
             img = img.resize((int(min(img_width, 800)), int(img_height)))
             logger.info(f"图片像素大小: {img.width}x{img.height}")
             draw = ImageDraw.Draw(img)
-
-            title_x = (img_width - title_width) // 2
-            title_y = margin
-            draw.text((title_x, title_y), title, font=font, fill=(255, 255, 255))
-
-            if content:
-                content_x = margin
-                content_y = title_y + title_height + margin
-
-                # 定义不同参数值的颜色（冒号后的内容）
-                value_colors = {
-                    "游戏: ": (200, 180, 255),  # 淡紫
-                    "地图: ": (166, 202, 253),  # 淡蓝
-                    "人数: ": (100, 255, 100),  # 绿色
-                    "延迟: ": (100, 255, 100),  # 绿色
-                    "类型: ": (180, 220, 255),  # 淡蓝
-                    "密码: ": (255, 255, 255),  # 白色
-                    # connect不修改，保持原逻辑
-                }
-
-                # 按行绘制内容
-                current_y = content_y
-                for line in content_lines:
-                    # 检查是否是参数行
-                    colored = False
-                    for prefix, color in value_colors.items():
-                        if line.startswith(prefix):
-                            # 绘制完整参数名（白色）
-                            prefix_part = prefix
-                            prefix_width = (
-                                font.getbbox(prefix_part)[2]
-                                - font.getbbox(prefix_part)[0]
-                            )
-                            draw.text(
-                                (content_x, current_y),
-                                prefix_part,
-                                font=font,
-                                fill=(255, 255, 255),
-                            )
-
-                            # 绘制参数值（带颜色）
-                            value_part = line[len(prefix) :].strip()
-                            draw.text(
-                                (content_x + prefix_width, current_y),
-                                value_part,
-                                font=font,
-                                fill=color,
-                            )
-
-                            colored = True
-                            break
-                    # 特殊处理VAC行
-                    if not colored and line.startswith("VAC :"):
-                        prefix = "VAC : "
-                        prefix_width = font.getbbox(prefix)[2] - font.getbbox(prefix)[0]
-                        draw.text(
-                            (content_x, current_y),
-                            prefix,
-                            font=font,
-                            fill=(255, 255, 255),
-                        )
-
-                        value_part = line[len(prefix) :].strip()
-                        vac_color = (
-                            (70, 209, 110) if value_part == "启用" else (255, 90, 90)
-                        )  # 启用绿/禁用红
-                        draw.text(
-                            (content_x + prefix_width, current_y),
-                            value_part,
-                            font=font,
-                            fill=vac_color,
-                        )
-
-                        colored = True
-
-                    # 普通行（玩家信息）和connect保持原样
-                    if not colored:
-                        draw.text(
-                            (content_x, current_y),
-                            line,
-                            font=font,
-                            fill=(255, 255, 255),
-                        )
-
-                    current_y += line_height + line_spacing
-
-                return img
         except Exception as e:
             logger.error(f"加载背景图片失败: {e}")
             img = Image.new(
@@ -225,24 +150,106 @@ connect {host}:{port}"""
                 color=(73, 109, 137),
             )
             draw = ImageDraw.Draw(img)
-            draw.text((title_x, title_y), title, font=font, fill=(255, 255, 255))
-            if content:
-                draw.text(
-                    (content_x, content_y),
-                    content,
-                    font=font,
-                    fill=(255, 255, 255),
-                    spacing=line_spacing,
-                )
-            return img
+
+        # 绘制标题
+        draw.text((title_x, title_y), title, font=font, fill=(255, 255, 255))
+
+        if content:
+            # 定义不同参数值的颜色（冒号后的内容）
+            value_colors = {
+                "游戏: ": (200, 180, 255),  # 淡紫
+                "地图: ": (166, 202, 253),  # 淡蓝
+                "人数: ": (100, 255, 100),  # 绿色
+                "延迟: ": (100, 255, 100),  # 绿色
+                "类型: ": (180, 220, 255),  # 淡蓝
+                "密码: ": (255, 255, 255),  # 白色
+                # connect不修改，保持原逻辑
+            }
+
+            # 按行绘制内容
+            current_y = content_y
+            for line in content_lines:
+                # 检查是否是参数行
+                colored = False
+                for prefix, color in value_colors.items():
+                    if line.startswith(prefix):
+                        # 绘制完整参数名（白色）
+                        prefix_part = prefix
+                        prefix_width = (
+                            font.getbbox(prefix_part)[2] - font.getbbox(prefix_part)[0]
+                        )
+                        draw.text(
+                            (content_x, current_y),
+                            prefix_part,
+                            font=font,
+                            fill=(255, 255, 255),
+                        )
+
+                        # 绘制参数值（带颜色）
+                        value_part = line[len(prefix) :].strip()
+                        draw.text(
+                            (content_x + prefix_width, current_y),
+                            value_part,
+                            font=font,
+                            fill=color,
+                        )
+
+                        colored = True
+                        break
+                # 特殊处理VAC行
+                if not colored and line.startswith("VAC :"):
+                    prefix = "VAC : "
+                    prefix_width = font.getbbox(prefix)[2] - font.getbbox(prefix)[0]
+                    draw.text(
+                        (content_x, current_y),
+                        prefix,
+                        font=font,
+                        fill=(255, 255, 255),
+                    )
+
+                    value_part = line[len(prefix) :].strip()
+                    vac_color = (
+                        (70, 209, 110) if value_part == "启用" else (255, 90, 90)
+                    )  # 启用绿/禁用红
+                    draw.text(
+                        (content_x + prefix_width, current_y),
+                        value_part,
+                        font=font,
+                        fill=vac_color,
+                    )
+
+                    colored = True
+
+                # 普通行（玩家信息）和connect保持原样
+                if not colored:
+                    draw.text(
+                        (content_x, current_y),
+                        line,
+                        font=font,
+                        fill=(255, 255, 255),
+                    )
+
+                current_y += line_height + line_spacing
+
+        return img
 
     player_info = await format_player_info(one_player)
     server_message = build_server_message(one_server, player_info)
 
     if is_img:
-        # 加载字体
-        font_path = Path(__file__).parent.parent / "data" / "font" / "loli.ttf"
-        font = ImageFont.truetype(str(font_path), 18)
+        # 加载原本的字体文件
+        font_path = Path(__file__).parent.parent.parent / "domain" / "font" / "loli.ttf"
+        try:
+            font = ImageFont.truetype(str(font_path), 18)
+        except Exception as e:
+            logger.debug(f"加载字体失败: {e}")
+            try:
+                font = ImageFont.truetype("msyh.ttc", 18)
+            except OSError:
+                try:
+                    font = ImageFont.truetype("simhei.ttf", 18)
+                except OSError:
+                    font = ImageFont.load_default(18)
         draw = ImageDraw.Draw(Image.new("RGB", (600, 400), color=(73, 109, 137)))
         img = draw_text_on_image(server_message, font, draw)
         img_byte_arr = io.BytesIO()

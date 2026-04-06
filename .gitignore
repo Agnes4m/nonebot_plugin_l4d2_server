@@ -133,3 +133,10 @@ dmypy.json
 
 # pdm
 .pypirc
+
+# 本地开发目录
+.ruff_cache/
+.pytest_cache/
+.vscode/
+uv.lock
+pdm.lock
