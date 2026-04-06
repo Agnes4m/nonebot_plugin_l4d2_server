@@ -74,6 +74,22 @@ async def server_ip_pic(server_dict: List[OutServer]):
 
 async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
     try:
+        # 读取插件内部背景图片目录
+        import random
+
+        # 插件内部背景目录
+        bg_dir = Path(__file__).parent / "img" / "back_img"
+
+        # 自动匹配所有jpg/png图片文件
+        bg_files = [
+            f.name
+            for f in bg_dir.iterdir()
+            if f.suffix.lower() in (".jpg", ".jpeg", ".png")
+        ]
+
+        bg_filename = random.choice(bg_files) if bg_files else "background.jpg"
+        bg_filename = f"back_img/{bg_filename}"
+
         if config.l4_style == "default":
             template = env.get_template("normal.html")
         else:
@@ -81,6 +97,7 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
         content = await template.render_async(
             servers=plugins,
             max_count=config.l4_players,
+            bg_filename=bg_filename,
         )
 
         # 完全原始写法 只加载插件内部资源
