@@ -29,11 +29,12 @@ from nonebot.plugin import on_command, on_fullmatch
 from nonebot_plugin_alconna import UniMessage
 
 from .config import config, config_manager
-from .l4_ban import l4_request
-from .l4_ban.utils import refresh_server_command_rule
-from .l4_help import get_l4d2_core_help
-from .l4_local import *  # noqa: F403
-from .l4_request import (
+from .core.help import get_l4d2_core_help
+from .message import Gm, Sm
+from .server.ban import l4_request
+from .server.ban.utils import refresh_server_command_rule
+from .server.local import *  # noqa: F403
+from .server.query import (
     COMMAND,
     get_all_server_detail,
     get_ip_server,
@@ -42,7 +43,6 @@ from .l4_request import (
     server_find,
     tj_request,
 )
-from .message import Gm, Sm
 from .shared.utils.api.models import OutServer
 from .shared.utils.api.request import L4API, L4D2Api
 from .shared.utils.api.utils import out_msg_out
@@ -245,69 +245,6 @@ async def handle_reload_servers(args: Message = CommandArg()):
         refresh_server_command_rule(l4_request)
         logger.success("重载ip完成")
         await out_msg_out("重载ip完成")
-
-
-# l4_add_ban = on_command("l4addban", aliases={"l4添加ban"})
-
-
-# @l4_add_ban.handle()
-# async def _(args: Message = CommandArg()):
-#     arg = args.extract_plain_text().strip().split(" ")
-#     if len(arg) != 2:
-#         await UniMessage.text("请在命令后增加响应指令名和网址").finish()
-
-#     config_data = read_config(config_path)
-#     config_data.update({arg[0]: arg[1]})
-#     write_config(config_path, config_data)
-
-#     await L4API.get_sourceban(arg[0], arg[1])
-#     reload_ip()
-#     refresh_server_command_rule(l4_request)
-#     await UniMessage.text("添加成功\n组名: {arg[0]}\n网址: {arg[1]}").send()
-
-
-# l4_del_ban = on_command("l4delban", aliases={"l4删除ban", "l4移除ban"})
-
-
-# @l4_del_ban.handle()
-# async def _(args: Message = CommandArg()):
-#     arg = args.extract_plain_text().strip().split(" ")
-#     if len(arg) not in [1, 2]:
-#         await UniMessage.text("请在命令后增加响应指令名或者带响应网址").finish()
-#     elif len(arg) == 1:
-#         if not Path(Path(config.l4_path) / "config.json").is_file():
-#             await UniMessage.text("没有添加过组名").finish()
-#         else:
-#             with (Path(config.l4_path) / "config.json").open(
-#                 "r",
-#                 encoding="utf-8",
-#             ) as f:
-#                 content = f.read().strip()
-#                 config_data = json.loads(content)
-#             if arg[0] not in config_data:
-#                 await UniMessage.text("没有添加过这个组").finish()
-#             else:
-#                 del config_data[arg[0]]
-#             async with aiofiles.open(config_path, "w", encoding="utf-8") as f:
-#                 json.dump(config_data, f, ensure_ascii=False, indent=4)
-#             await out_msg_out(f"删除成功，组名:{arg[0]}")
-#     elif len(arg) == 2:
-#         if not Path(Path(config.l4_path) / "config.json").is_file():
-#             await UniMessage.text("没有添加过组名").finish()
-#         else:
-#             with (Path(config.l4_path) / "config.json").open(
-#                 "r",
-#                 encoding="utf-8",
-#             ) as f:
-#                 content = f.read().strip()
-#                 config_datas = json.loads(content)
-#             if arg[0] not in config_datas:
-#                 await UniMessage.text("没有添加过这个组").finish()
-#             else:
-#                 config_datas[arg[0]] = arg[1]
-#                 async with aiofiles.open(config_path, "w", encoding="utf-8") as f:
-#                     json.dump(config_datas, f, ensure_ascii=False, indent=4)
-#                 await out_msg_out(f"修改成功，组名:{arg[0]},网址:{arg[1]}")
 
 
 if "云" in COMMAND:

@@ -231,11 +231,11 @@ class L4D2Api:
             if is_json:
                 try:
                     raw_data = resp.json()
-                except:  # noqa: E722
+                except Exception:
                     _raw_data = resp.text
                     try:
                         raw_data = json.loads(_raw_data)
-                    except:  # noqa: E722
+                    except Exception:
                         raw_data = {
                             "result": {"error_code": -999, "data": _raw_data},
                         }

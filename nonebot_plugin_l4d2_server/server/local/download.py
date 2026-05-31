@@ -30,7 +30,7 @@ async def process_ws_download(workshop: str):
     logger.debug(wj)
 
     msg = await t2p(
-        template_path=Path(__file__).parent.parent / "l4_image/img/template",
+        template_path=Path(__file__).parent.parent / "presentation/render/img/template",
         template_name="workshop.html",
         templates={"info": wj},
     )

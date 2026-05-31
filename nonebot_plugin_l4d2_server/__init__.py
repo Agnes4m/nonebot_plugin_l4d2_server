@@ -26,7 +26,7 @@ require("nonebot_plugin_tortoise_orm")
 
 from . import __main__  # noqa: E402, F401
 from .config import ConfigModel  # noqa: E402
-from .l4_help import __version__  # noqa: E402
+from .core.help import __version__  # noqa: E402
 from .shared.utils.database import models  # noqa: E402, F401
 
 driver = get_driver()

@@ -29,8 +29,3 @@ class ServerResponse(TypedDict):
     max_server: int
     active_player: int
     max_player: int
-
-
-# 全局变量使用更明确的命名
-SERVER_REGISTRY: ServerDict = {}
-REGISTERED_COMMANDS: set[str] = set()
