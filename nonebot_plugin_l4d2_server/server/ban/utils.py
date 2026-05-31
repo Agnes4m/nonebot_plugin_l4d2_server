@@ -1,7 +1,7 @@
 from nonebot.matcher import Matcher
 from nonebot.rule import command as command_rule
 
-from ...l4_request import COMMAND
+from ...server.query import COMMAND
 
 
 def refresh_server_command_rule(l4_request: type[Matcher]) -> None:
