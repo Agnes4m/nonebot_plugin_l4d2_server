@@ -25,7 +25,7 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 from nonebot.permission import SUPERUSER
-from nonebot.plugin import on_command
+from nonebot.plugin import on_command, on_fullmatch
 from nonebot_plugin_alconna import UniMessage
 
 from .config import config, config_manager
@@ -311,9 +311,9 @@ async def handle_reload_servers(args: Message = CommandArg()):
 
 
 if "云" in COMMAND:
-    ld_tj = on_command("tj", aliases={"探监"})
-    ld_zl = on_command("zl")
-    ld_kl = on_command("kl")
+    ld_tj = on_fullmatch("tj")
+    ld_zl = on_fullmatch("zl")
+    ld_kl = on_fullmatch("kl")
 
     @ld_tj.handle()
     async def handle_tj_command(matcher: Matcher):
