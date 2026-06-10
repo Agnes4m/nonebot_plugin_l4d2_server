@@ -20,14 +20,11 @@ from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
 # 依赖插件声明 必须在导入其它插件模块之前执行
 require("nonebot_plugin_alconna")
-require("nonebot_plugin_datastore")
 require("nonebot_plugin_htmlrender")
-require("nonebot_plugin_tortoise_orm")
 
 from . import __main__  # noqa: E402, F401
 from .config import ConfigModel  # noqa: E402
 from .core.help import __version__  # noqa: E402
-from .shared.utils.database import models  # noqa: E402, F401
 
 driver = get_driver()
 
