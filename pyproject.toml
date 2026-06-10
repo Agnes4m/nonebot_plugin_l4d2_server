@@ -23,7 +23,7 @@ dependencies = [
     "aiofiles>=24.1.0",
     "bs4==0.0.2",
     "lxml>=6.0.2",
-    "playwright==1.57.0",
+    "playwright==1.60.0",
 ]
 classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
