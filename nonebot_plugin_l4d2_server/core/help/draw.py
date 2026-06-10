@@ -2,9 +2,9 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple, cast
 
-from nonebot_plugin_datastore import get_plugin_data
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+from ...config import DATAOUT
 from ...presentation.render.convert import convert_img, pic_quality
 from ...presentation.render.image_tools import crop_center_img
 from ...presentation.render.model import PluginHelp
@@ -12,11 +12,7 @@ from ...presentation.render.model import PluginHelp
 cache: Dict[str, int] = {}
 Micon_path = Path(__file__).parent / "icon"
 DEFAULT_ICON = Micon_path / "拼图.png"
-try:
-    plugin_data = get_plugin_data()
-    data_dir = plugin_data.data_dir
-except ValueError:
-    data_dir = Path() / "data"
+data_dir = DATAOUT
 
 
 def cx(w: int, x: int) -> int:
