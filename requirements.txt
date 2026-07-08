@@ -1566,9 +1566,9 @@ ujson==5.12.0 \
     --hash=sha256:f7a0430d765f9bda043e6aefaba5944d5f21ec43ff4774417d7e296f61917382 \
     --hash=sha256:fb94245a715b4d6e24689de12772b85329a1f9946cbf6187923a64ecdea39e65
     # via nonebot-plugin-l4d2-server
-uvicorn==0.43.0 \
-    --hash=sha256:46fac64f487fd968cd999e5e49efbbe64bd231b5bd8b4a0b482a23ebce499620 \
-    --hash=sha256:ab1652d2fb23abf124f36ccc399828558880def222c3cb3d98d24021520dc6e8
+uvicorn==0.51.0 \
+    --hash=sha256:5d38af6cd620f2ae3849fb44fd4879e0890aa1febe8d47eb355fb45d93fe6a5b \
+    --hash=sha256:f6f4b69b657c312f516dd2d268ab9ae6f254b11e4bac504f37b2ab58b24dd0b0
     # via nonebot2
 uvloop==0.22.1 ; platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32' \
     --hash=sha256:0530a5fbad9c9e4ee3f2b33b148c6a64d47bbad8000ea63704fa8260f4cf728e \
