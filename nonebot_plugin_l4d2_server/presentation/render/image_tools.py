@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 import random
 from io import BytesIO
@@ -6,7 +8,6 @@ from typing import Optional, Tuple, Union, cast
 
 import httpx
 from httpx import get
-from PIL import Image, ImageDraw, ImageFont
 
 TEXT_PATH = Path(__file__).parent / "texture2d"
 # 用户自定义背景目录
@@ -22,10 +23,10 @@ async def sget(url: str):
 
 
 def draw_center_text_by_line(
-    img: ImageDraw.ImageDraw,
+    img,
     pos: Tuple[int, int],
     text: str,
-    font: ImageFont.FreeTypeFont,
+    font,
     fill: Union[Tuple[int, int, int, int], str],
     max_length: float,
     not_center: bool = False,
@@ -70,10 +71,12 @@ def draw_center_text_by_line(
 
 
 def crop_center_img(
-    img: Image.Image,
+    img,
     based_w: int,
     based_h: int,
-) -> Image.Image:
+):
+    from PIL import Image
+
     # 确定图片的长宽
     based_scale = "%.3f" % (based_w / based_h)
     w, h = img.size
@@ -102,7 +105,9 @@ async def get_color_bg(
     is_full: bool = False,
     color: Optional[Tuple[int, int, int]] = None,
     full_opacity: int = 200,
-) -> Image.Image:
+):
+    from PIL import Image
+
     ci_img = CustomizeImage(CUSTOM_BG_PATH)
     img = ci_img.get_image(None, based_w, based_h)
     if color is None:
@@ -133,7 +138,8 @@ class CustomizeImage:
         image: Union[str, Image.Image, None],
         based_w: int,
         based_h: int,
-    ) -> Image.Image:
+    ):
+        from PIL import Image
         import logging
 
         logger = logging.getLogger(__name__)
@@ -186,9 +192,11 @@ class CustomizeImage:
 
     @staticmethod
     def get_bg_color(
-        edit_bg: Image.Image,
+        edit_bg,
         is_light: Optional[bool] = False,
     ) -> Tuple[int, int, int]:
+        from PIL import Image
+
         # 获取背景主色
         color = 8
         q = edit_bg.quantize(colors=color, method=Image.Quantize.FASTOCTREE)

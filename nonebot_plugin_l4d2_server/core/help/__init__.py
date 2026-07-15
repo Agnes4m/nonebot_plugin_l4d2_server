@@ -3,12 +3,10 @@ from pathlib import Path
 from typing import Dict, Union
 
 import aiofiles
-from PIL import Image
 
 from ...config import ICONPATH
 from ...presentation.render.convert import core_font
 from ...presentation.render.model import PluginHelp
-from .draw import get_help
 
 __version__ = "1.3.1"
 TEXT_PATH = Path(__file__).parent / "texture2d"
@@ -24,6 +22,10 @@ async def get_help_data() -> Union[Dict[str, PluginHelp], None]:
 
 
 async def get_l4d2_core_help() -> Union[bytes, str]:
+    from PIL import Image
+
+    from .draw import get_help
+
     help_data = await get_help_data()
     if help_data is None:
         return "暂未找到帮助数据..."

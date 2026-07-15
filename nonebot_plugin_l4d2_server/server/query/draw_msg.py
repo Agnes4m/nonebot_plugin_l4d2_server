@@ -1,11 +1,12 @@
 # from logging import log
+from __future__ import annotations
+
 import io
 from pathlib import Path
 from typing import List
 
 from a2s import Player
 from nonebot.log import logger
-from PIL import Image, ImageDraw, ImageFont
 
 from ...config import config
 from ...message import Sm
@@ -16,6 +17,8 @@ from ...shared.utils.api.request import L4API
 
 async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
     """输出单个ip"""
+    from PIL import Image, ImageDraw, ImageFont
+
     ser_list = await L4API.a2s_info([(host, port)], is_player=True)
     if not ser_list or ser_list[0][0].max_players == 0:
         # except asyncio.exceptions.TimeoutError:

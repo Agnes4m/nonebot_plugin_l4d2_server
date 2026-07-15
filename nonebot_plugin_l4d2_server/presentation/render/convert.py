@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from base64 import b64encode
+from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 from typing import Union, overload
 
 import aiofiles
 from nonebot.log import logger
-from PIL import Image, ImageDraw, ImageFont
 
 from .image_tools import draw_center_text_by_line
 
@@ -13,7 +15,10 @@ FONT_PATH = Path(__file__).parent.parent.parent / "domain/font/loli.ttf"
 pic_quality: int = 95
 
 
-def core_font(size: int) -> ImageFont.FreeTypeFont:
+@lru_cache(maxsize=8)
+def core_font(size: int):
+    from PIL import ImageFont
+
     return ImageFont.truetype(str(FONT_PATH), size=size)
 
 
@@ -58,6 +63,8 @@ async def convert_img(
     :返回:
       * res: bytes对象或base64编码图片。
     """
+    from PIL import Image
+
     logger.info("处理图片中....")
 
     if isinstance(img, Image.Image):
@@ -80,6 +87,8 @@ async def convert_img(
 
 
 async def text2pic(text: str, max_size: int = 800, font_size: int = 24):
+    from PIL import Image, ImageDraw
+
     if text.endswith("\n"):
         text = text[:-1]
 

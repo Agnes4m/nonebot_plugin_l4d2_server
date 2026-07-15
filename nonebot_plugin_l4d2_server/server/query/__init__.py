@@ -100,6 +100,17 @@ async def get_ip_server(ip: str):
     return await draw_one_ip(host, port)
 
 
+# 轻量扫描：只读文件名，填 COMMAND（模块级调用，不加载数据）
+def scan_group_names():
+    """扫描组名到 COMMAND（轻量，不加载服务器数据）"""
+    global COMMAND
+    COMMAND.clear()
+    for item in server_all_path.iterdir():
+        if item.is_file() and item.suffix == ".json":
+            COMMAND.add(item.stem)
+    logger.debug(f"扫描到组名: {COMMAND}")
+
+
 # 以下是重载ip
 def reload_ip():
     global COMMAND, ALLHOST

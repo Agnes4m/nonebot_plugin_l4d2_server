@@ -3,7 +3,6 @@
 from pathlib import Path
 from typing import List, Optional
 
-import jinja2
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
@@ -13,11 +12,21 @@ from ...shared.utils.api.models import OutServer
 # 原始插件模板目录
 template_path = Path(__file__).parent / "img/template"
 
-env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(template_path),
-    enable_async=True,
-    autoescape=True,
-)
+_env = None
+
+
+def _get_env():
+    """惰性创建 Jinja2 环境"""
+    global _env
+    if _env is None:
+        import jinja2
+
+        _env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(template_path),
+            enable_async=True,
+            autoescape=True,
+        )
+    return _env
 
 
 async def server_ip_pic(server_dict: List[OutServer]):
@@ -90,6 +99,7 @@ async def get_server_img(plugins: List[OutServer]) -> Optional[bytes]:
         bg_filename = random.choice(bg_files) if bg_files else "background.jpg"
         bg_filename = f"back_img/{bg_filename}"
 
+        env = _get_env()
         if config.l4_style == "default":
             template = env.get_template("normal.html")
         else:

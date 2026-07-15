@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Callable, Dict, List
 from zipfile import ZipFile
 
-import rarfile
 from nonebot.log import logger
 from pyunpack import Archive
 
@@ -45,9 +44,8 @@ def unpack_7zfile(down_file: Path, down_path: Path):
 
 
 def unpack_rarfile(down_file: Path, down_path: Path):
-    """解压rar文件"""
-    with rarfile.RarFile(down_file, "r") as z:
-        z.extractall(down_path)
+    """解压rar文件（通过 pyunpack 调用 7z，避免依赖 unrar 系统二进制）"""
+    Archive(str(down_file)).extractall(str(down_path))
     down_file.unlink()
 
 

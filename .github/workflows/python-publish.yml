@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 jobs:
   build-n-publish:
-    name: Use PDM to Build and publish Python 🐍 distributions 📦 to PyPI
+    name: Build and publish Python 🐍 distributions 📦 to PyPI
     runs-on: ubuntu-latest
 
     permissions:
@@ -15,12 +15,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
-        with:
-          submodules: true
+        uses: actions/checkout@v4
 
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v3
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
 
-      - name: Build and Publish distribution 📦 to PyPI
-        run: pdm publish
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Build distributions
+        run: uv build
+
+      - name: Publish to PyPI
+        run: uv publish
