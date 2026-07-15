@@ -159,6 +159,15 @@ headers = {
 async def url_to_byte(url: str):
     """获取URL数据的字节流"""
 
+    # 处理 file:// 本地文件路径（私聊直接发文件时，OneBot 上报的路径）
+    if url.startswith("file://"):
+        local_path = Path(url[7:])  # 去掉 file:// 前缀
+        if local_path.is_file():
+            async with aiofiles.open(local_path, "rb") as f:
+                return await f.read()
+        logger.warning(f"本地文件不存在: {local_path}")
+        return None
+
     async with aiohttp.ClientSession() as session:
         async with session.get(
             url,

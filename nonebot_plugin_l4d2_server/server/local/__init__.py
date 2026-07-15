@@ -17,14 +17,13 @@ from ...shared.utils.utils import mes_list, url_to_byte
 from .download import process_ws_download
 from .file import change_name, delete_file, updown_l4d2_vpk
 from .utils import (
+    get_local_path,
     get_vpk_files,
-    local_path,
     process_map_change_or_delete,
     validate_local_path,
 )
 
-local_path_list = config.l4_local
-if not local_path_list:
+if not config.l4_local:
     logger.warning(
         "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
     )
@@ -72,31 +71,38 @@ else:
         await UniMessage.image(raw=img).send()
 
     @l4_map_upload.handle()
-    async def _(matcher: Matcher):
-        await matcher.pause("请发送地图文件")
-
-    @l4_map_upload.got("map_url", prompt="图来")
-    async def handle_up_got(ev: Event, msg: UniMsg):
-        if not msg.has(File):
-            await UniMessage.text("不是文件,退出交互").finish()
-
-        args = ev.model_dump()
-        if args["notice_type"] != "offline_file":
-            return
-
+    async def handle_map_upload():
         if not validate_local_path():
+            await UniMessage.text(
+                "未配置有效的本地服务器路径",
+            ).finish()
+
+        msg = await prompt("请发送地图文件或下载链接", timeout=120)
+        if msg is None:
+            await UniMessage.text("操作已超时，已取消").finish()
+
+        # 提取文件 URL 和名称
+        files = msg.get(File)
+        if files:
+            url = files[0].url
+            name = files[0].name
+        elif text := msg.extract_plain_text().strip():
+            if text.startswith(("http://", "https://")):
+                url = text
+                name = url.split("/")[-1]
+            else:
+                await UniMessage.text("请输入有效的下载链接").finish()
+        else:
+            await UniMessage.text("请发送文件或下载链接").finish()
+
+        # 修正：使用与 l4_map 查询/删除一致的路径
+        try:
+            map_path = get_local_path()[config.l4_map_index] / "addons"
+        except IndexError:
             await UniMessage.text("未配置有效的本地服务器路径").finish()
 
-        l4_file_path = config.l4_local[config.l4_map_index]
-        map_path = Path(l4_file_path, "addons")
-
-        if not Path(l4_file_path).exists():
-            await UniMessage.text("你填写的路径不存在").finish()
-        if not Path(map_path).exists():
+        if not map_path.exists():
             await UniMessage.text("这个路径并不是求生服务器的路径,请检查").finish()
-
-        url: str = args["file"]["url"]
-        name: str = args["file"]["name"]
 
         await l4_map_upload.send("已收到文件,开始下载")
         vpk_files = await updown_l4d2_vpk(map_path, name, url)
@@ -125,7 +131,7 @@ else:
 
         try:
             old_path = vpk_list[index - 1]
-            supath = local_path[config.l4_map_index] / "addons"
+            supath = get_local_path()[config.l4_map_index] / "addons"
             success = await change_name(old_path, new_name, supath)
         except IndexError:
             await UniMessage.text("输入的地图序号无效").finish()
@@ -153,7 +159,7 @@ else:
 
         try:
             old_path = vpk_list[index - 1]
-            supath = local_path[config.l4_map_index] / "addons"
+            supath = get_local_path()[config.l4_map_index] / "addons"
             success = await delete_file(supath / old_path)
         except IndexError:
             await UniMessage.text("输入的地图序号无效").finish()

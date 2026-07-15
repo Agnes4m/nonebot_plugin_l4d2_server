@@ -8,20 +8,26 @@ from nonebot.matcher import Matcher
 
 from ...config import config
 
-local_path_list = config.l4_local
+_local_path_cache: list[Path] | None = None
 
 
-local_path: list[Path] = []
-for folder_path in local_path_list:
-    path = Path(folder_path)
+def get_local_path() -> list[Path]:
+    """惰性获取本地 left4dead2 路径（首次调用时扫描并缓存）"""
+    global _local_path_cache
+    if _local_path_cache is not None:
+        return _local_path_cache
 
-    if path.is_dir():
-        for nextdir in path.iterdir():
-            # 如果找到了名为left4dead2的目录,返回True
-            if nextdir.name == "left4dead2" and nextdir.is_dir():
-                local_path.append(nextdir)
-        continue
-logger.debug(f"本地服务器路径列表:{local_path}")
+    paths: list[Path] = []
+    for folder_path in config.l4_local:
+        path = Path(folder_path)
+        if path.is_dir():
+            for nextdir in path.iterdir():
+                if nextdir.name == "left4dead2" and nextdir.is_dir():
+                    paths.append(nextdir)
+            continue
+    _local_path_cache = paths
+    logger.debug(f"本地服务器路径列表:{_local_path_cache}")
+    return _local_path_cache
 
 
 def sort_key(filename: str):
@@ -43,8 +49,9 @@ def sort_key(filename: str):
 
 def get_vpk_files(local_path_index: int) -> list[str]:
     """获取指定索引的本地路径下的VPK文件列表"""
+    local_paths = get_local_path()
     try:
-        supath = local_path[local_path_index] / "addons"
+        supath = local_paths[local_path_index] / "addons"
     except IndexError:
         logger.warning(
             "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
@@ -64,7 +71,7 @@ def get_vpk_files(local_path_index: int) -> list[str]:
 
 def validate_local_path() -> bool:
     """验证本地路径是否有效"""
-    if not local_path:
+    if not get_local_path():
         logger.warning(
             "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
         )

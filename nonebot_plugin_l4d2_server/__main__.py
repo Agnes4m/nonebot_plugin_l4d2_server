@@ -40,6 +40,7 @@ from .server.query import (
     get_ip_server,
     get_server_detail,
     reload_ip,
+    scan_group_names,
     server_find,
     tj_request,
 )
@@ -52,7 +53,7 @@ from .shared.utils.utils import split_maohao
 
 driver = get_driver()
 
-reload_ip()
+scan_group_names()
 
 
 l4_help = on_command("l4_help", aliases={"l4help", "l4d2帮助"})
