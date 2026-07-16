@@ -1214,9 +1214,9 @@ pymdown-extensions==10.21.2 \
     --hash=sha256:5c0fd2a2bea14eb39af8ff284f1066d898ab2187d81b889b75d46d4348c01638 \
     --hash=sha256:c3f55a5b8a1d0edf6699e35dcbea71d978d34ff3fa79f3d807b8a5b3fa90fbdc
     # via nonebot-plugin-htmlrender
-python-a2s==1.4.1 \
-    --hash=sha256:b30fe1356ac2cbdfa83fb2eec63629801d2abf4cd169ab5dfaf354545cddcf79 \
-    --hash=sha256:c2320a1135d8e0c20da98b2aca164094c57f1557c05b22e73865e1f14469c810
+python-a2s==1.4.2 \
+    --hash=sha256:aacd7fb2d33b330eb6f84e2c99794e0a7c4bdd0c92c1b4507b0373a6f92c162b \
+    --hash=sha256:c0ff89b978147db62ed102789bf6cf4693c18b328e96edc6575e6b17edf826be
     # via nonebot-plugin-l4d2-server
 python-dotenv==1.2.2 \
     --hash=sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a \

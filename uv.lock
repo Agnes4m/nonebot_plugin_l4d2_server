@@ -1604,11 +1604,11 @@ wheels = [
 
 [[package]]
 name = "python-a2s"
-version = "1.4.1"
+version = "1.4.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/94/d7/c1ad1caa161c68f9360813c892a8bb880b0bcbfc54cc269f2d00f122841d/python_a2s-1.4.1.tar.gz", hash = "sha256:b30fe1356ac2cbdfa83fb2eec63629801d2abf4cd169ab5dfaf354545cddcf79", size = 12324, upload-time = "2024-11-15T23:17:49.102Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/67/44/7ee4a944dcc82952dc3c3649690ab35efa1d0ba62b2c5e75bc104606f728/python_a2s-1.4.2.tar.gz", hash = "sha256:aacd7fb2d33b330eb6f84e2c99794e0a7c4bdd0c92c1b4507b0373a6f92c162b", size = 12490, upload-time = "2026-06-15T23:34:24.725Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2e/43/25977d2616e2dbd018fadfb2d9f9c75075c06c875ed6371562893f7c71f5/python_a2s-1.4.1-py3-none-any.whl", hash = "sha256:c2320a1135d8e0c20da98b2aca164094c57f1557c05b22e73865e1f14469c810", size = 13318, upload-time = "2024-11-15T23:17:47.904Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/59/d7c5e09ffbb3b74d88f89306170091a0943b88a6f952f38bcfeca74fc60a/python_a2s-1.4.2-py3-none-any.whl", hash = "sha256:c0ff89b978147db62ed102789bf6cf4693c18b328e96edc6575e6b17edf826be", size = 13433, upload-time = "2026-06-15T23:34:23.289Z" },
 ]
 
 [[package]]
