@@ -23,7 +23,6 @@ async def updown_l4d2_vpk(map_paths: Path, name: str, url: str):
     logger.info(msg)
 
     extracted_vpk_files = get_vpk(map_paths)
-    # 获取新增vpk文件的list
     return list(set(extracted_vpk_files) - set(original_vpk_files))
 
 
@@ -44,16 +43,12 @@ def unpack_7zfile(down_file: Path, down_path: Path):
 
 
 def unpack_rarfile(down_file: Path, down_path: Path):
-    """解压rar文件（通过 pyunpack 调用 7z，避免依赖 unrar 系统二进制）"""
     Archive(str(down_file)).extractall(str(down_path))
     down_file.unlink()
 
 
 def open_packet(name: str, down_file: Path) -> str:
-    """解压压缩包"""
     down_path = down_file.parent
-    logger.info("文件名为:" + name)
-    logger.info(f"系统为{systems}")
     if name.endswith(".vpk"):
         return "vpk文件已下载"
 
@@ -75,12 +70,8 @@ def open_packet(name: str, down_file: Path) -> str:
 
 
 def support_gbk(zip_file: ZipFile):
-    """
-    压缩包中文恢复
-    """
     if isinstance(zip_file, ZipFile):
         name_to_info = zip_file.NameToInfo
-        # copy map first
         for name, info in name_to_info.copy().items():
             real_name = name.encode("cp437").decode("gbk")
             if real_name != name:
@@ -91,15 +82,11 @@ def support_gbk(zip_file: ZipFile):
 
 
 async def all_zip_to_one(data_list: List[bytes]):  # noqa: RUF029
-    """多压缩包文件合并"""
     file_list = [io.BytesIO(data).getbuffer() for data in data_list]
     data_file = io.BytesIO()
-
     with ZipFile(data_file, mode="w") as zf:
         for i, file in enumerate(file_list):
-            filename = f"file{i}.zip"
-            zf.writestr(filename, file)
-
+            zf.writestr(f"file{i}.zip", file)
     return data_file.getbuffer()
 
 

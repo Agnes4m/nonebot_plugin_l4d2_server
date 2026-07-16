@@ -64,7 +64,6 @@ l4_connect_server = on_command("l4_connect", aliases={"connect", "l4连接"})
 l4_find_player = on_command("l4_find_player", aliases={"l4find", "l4查找"})
 
 
-config_path = Path(config.l4_path) / "config.json"
 refresh_server_command_rule(l4_request)
 
 
@@ -104,8 +103,6 @@ async def _sync_groups_on_startup() -> None:
 
 @l4_help.handle()
 async def handle_l4_help():
-    """帮助"""
-    logger.info("开始执行[l4d2帮助]")
     im = await get_l4d2_core_help()
     await out_msg_out(im)
 
@@ -148,70 +145,43 @@ async def handle_server_query(
 async def handle_find_player(
     args: Message = CommandArg(),
 ):
-    # 以后有时间补img格式
     msg: str = args.extract_plain_text().strip()
     if not msg:
         return UniMessage.text(Gm.add_name)
     tag_list: List[str] = msg.split(" ", maxsplit=1)
     if len(tag_list) == 1:
-        await UniMessage.text(Sm.no_group_search).send()
         name = tag_list[0]
         out = cast(List[OutServer], await server_find(is_img=False))
-        logger.info(out)
-        logger.info(type(out))
-        out_msg = Sm.no_player
         for one in out:
-            logger.info(one)
             for player in one["player"]:
                 if name in player.name:
                     out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
-                    logger.info(config.l4_connect)
-                    logger.info(type(out_msg))
-                    if config.l4_connect and isinstance(out_msg, bytes):
-                        logger.info(f"connect {one['host']}:{one['port']}")
-                        out_msgs = UniMessage.image(raw=out_msg) + UniMessage.text(
-                            f"\nconnect {one['host']}:{one['port']}",
-                        )
-                    elif config.l4_connect and isinstance(out_msg, str):
-                        logger.info(f"connect {one['host']}:{one['port']}")
-                        out_msgs = UniMessage.text(out_msg) + UniMessage.text(
-                            f"\nconnect {one['host']}:{one['port']}",
-                        )
-                    elif isinstance(out_msg, str):
-                        out_msgs = UniMessage.text(out_msg)
-                    else:
-                        out_msgs = UniMessage.image(raw=out_msg)
-                    return await out_msg_out(out_msgs)
+                    return await _send_connect_msg(out_msg, one["host"], one["port"])
         return None
     if len(tag_list) == 2:
         group, name = tag_list
-        await UniMessage.text(f"正在查询{group}组").send()
         out = cast(List[OutServer], await server_find(command=group, is_img=True))
-        out_msg = Gm.no_player
         for one in out:
             for player in one["player"]:
                 if name in player.name:
                     out_msg = await get_ip_server(f"{one['host']}:{one['port']}")
-                    logger.info(config.l4_connect)
-                    logger.info(type(out_msg))
-                    if config.l4_connect and isinstance(out_msg, bytes):
-                        logger.info(f"connect {one['host']}:{one['port']}")
-                        out_msgs = UniMessage.image(raw=out_msg) + UniMessage.text(
-                            f"\nconnect {one['host']}:{one['port']}",
-                        )
-                    elif config.l4_connect and isinstance(out_msg, str):
-                        logger.info(f"connect {one['host']}:{one['port']}")
-                        out_msgs = UniMessage.text(out_msg) + UniMessage.text(
-                            f"\nconnect {one['host']}:{one['port']}",
-                        )
-                    elif isinstance(out_msg, str):
-                        out_msgs = UniMessage.text(out_msg)
-                    else:
-                        out_msgs = UniMessage.image(raw=out_msg)
-
-                    return await out_msg_out(out_msgs)
+                    return await _send_connect_msg(out_msg, one["host"], one["port"])
         return None
     return None
+
+
+async def _send_connect_msg(out_msg, host: str, port: int):
+    if config.l4_connect and isinstance(out_msg, bytes):
+        return await out_msg_out(
+            UniMessage.image(raw=out_msg) + UniMessage.text(f"\nconnect {host}:{port}"),
+        )
+    if config.l4_connect and isinstance(out_msg, str):
+        return await out_msg_out(
+            UniMessage.text(out_msg) + UniMessage.text(f"\nconnect {host}:{port}"),
+        )
+    if isinstance(out_msg, str):
+        return await out_msg_out(UniMessage.text(out_msg))
+    return await out_msg_out(UniMessage.image(raw=out_msg))
 
 
 @l4_list_all_servers.handle()
@@ -268,8 +238,6 @@ if "云" in COMMAND:
         await matcher.send("正在寻找牢房信息")
         await matcher.finish(await tj_request("云", "kl"))
 
-
-## 以下为配置修改
 
 l4_toggle_image = on_command(
     "l4_toggle_image",

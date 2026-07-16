@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Dict, List, Optional, cast
 
 from nonebot.log import logger
@@ -9,7 +8,7 @@ from ...shared.utils.api.models import AllServer, NserverOut
 from ...shared.utils.utils import split_maohao
 from .draw_msg import draw_one_ip, get_much_server
 from .tj import tj_request as tj_request
-from .typing import ALLHOST, COMMAND, ServerList
+from .typing import ALLHOST, COMMAND
 from .utils import (
     _calculate_server_stats,
     _format_server_summary,
@@ -84,14 +83,11 @@ async def get_server_detail(
 async def get_group_detail(
     command: str,
 ):
-    """根据组获取所有返回服务器信息"""
     server_json = _get_server_json(command, ALLHOST)
-    # logger.debug(f"获取组服务器信息: {server_json}")
     if server_json is None:
         logger.warning("未找到这个组")
         return None
 
-    logger.info("正在请求组服务器信息")
     return await get_much_server(server_json, command)
 
 
@@ -105,6 +101,8 @@ def scan_group_names():
     """扫描组名到 COMMAND（轻量，不加载服务器数据）"""
     global COMMAND
     COMMAND.clear()
+    if not server_all_path.is_dir():
+        return
     for item in server_all_path.iterdir():
         if item.is_file() and item.suffix == ".json":
             COMMAND.add(item.stem)
@@ -117,6 +115,8 @@ def reload_ip():
 
     ALLHOST.clear()
     COMMAND.clear()
+    if not server_all_path.is_dir():
+        return
     for item in server_all_path.iterdir():
         if item.is_file() and item.name.endswith("json"):
             try:
@@ -126,59 +126,27 @@ def reload_ip():
             group_server = cast(Dict[str, List[NserverOut]], json_data)
 
             for group, group_ip in group_server.items():
-                # 处理整个服务器组
-                def _process_server_group(server_group: List[NserverOut]) -> None:
-                    """
-                    处理服务器组中每个配置项的字段逻辑
-
-                    参数:
-                        server_group: 服务器组配置列表，每个元素为服务器配置字典
-                    输出:
-                        无，直接修改传入的列表元素
-                    """
-                    for one_ip in server_group:
-                        if one_ip.get("ip"):
-                            if one_ip.get("host") and one_ip.get("port"):
-                                pass
-                            if one_ip.get("host") and not one_ip.get("port"):
-                                one_ip["port"] = 20715
-                            if not one_ip.get("host"):
-                                one_ip["host"], one_ip["port"] = split_maohao(
-                                    one_ip.get("ip"),
-                                )
+                for one_ip in group_ip:
+                    if one_ip.get("ip"):
+                        if one_ip.get("host") and not one_ip.get("port"):
+                            one_ip["port"] = 20715
+                        if not one_ip.get("host"):
+                            one_ip["host"], one_ip["port"] = split_maohao(
+                                one_ip.get("ip"),
+                            )
+                    else:
+                        if one_ip.get("host") and one_ip.get("port"):
+                            one_ip["ip"] = f"{one_ip['host']}:{one_ip['port']}"
+                        if one_ip.get("host") and not one_ip.get("port"):
+                            one_ip["ip"] = f"{one_ip['host']}:20715"
                         else:
-                            if one_ip.get("host") and one_ip.get("port"):
-                                one_ip["ip"] = f"{one_ip['host']}:{one_ip['port']}"
-                            if one_ip.get("host") and not one_ip.get("port"):
-                                one_ip["ip"] = f"{one_ip['host']}:20715"
-                            else:
-                                logger.warning(f"{one_ip} 没有ip")
+                            logger.warning(f"{one_ip} 没有ip")
 
-                # 处理组更新逻辑
-                def _update_global_state(
-                    group_name: str,
-                    servers: ServerList,
-                    item: Path,
-                ) -> None:
-                    """
-                    更新全局状态并记录日志
-
-                    参数:
-                        group_name: 服务器组名称
-                        servers: 处理后的服务器配置列表
-                    输出:
-                        无，直接修改全局变量ALLHOST和COMMAND
-                    """
-                    global ALLHOST
-                    ALLHOST[group_name] = servers
-                    COMMAND.add(group_name)
-                    logger.success(
-                        f"成功加载 {item.name.split('.')[0]} {len(servers)}个",
-                    )
-
-                # 执行处理流程
-                _process_server_group(group_ip)
-                _update_global_state(group, group_ip, item)
+                ALLHOST[group] = group_ip
+                COMMAND.add(group)
+                logger.success(
+                    f"成功加载 {item.name.split('.')[0]} {len(group_ip)}个",
+                )
 
 
 async def server_find(
@@ -221,6 +189,8 @@ def get_all_json_filenames():
     获取 server_all_path 路径下所有 json 文件的文件名（不带扩展名）的列表。
     """
     json_files = []
+    if not server_all_path.is_dir():
+        return json_files
     for item in server_all_path.iterdir():
         if item.is_file() and item.suffix == ".json":
             json_files.append(item.stem)

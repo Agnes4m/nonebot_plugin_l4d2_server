@@ -7,29 +7,35 @@ from nonebot.log import logger
 from nonebot.permission import SUPERUSER, Permission
 from pydantic import BaseModel, Field, field_validator
 
-# 常量定义
+# 常量
 DATAPATH = Path(__file__).parent.joinpath("data")
 DEFAULT_DATA_DIR = "data/L4D2"
 DEFAULT_FONT = str(Path(__file__).parent.joinpath("data/font/loli.ttf"))
 
+_DATA_INITIALIZED = False
 
-# 初始化数据目录
-def init_data_directory(data_dir: Path) -> None:
-    """初始化数据目录和必要文件"""
+
+def _ensure_data_dir() -> None:
+    global _DATA_INITIALIZED
+    if _DATA_INITIALIZED:
+        return
+    data_dir = Path(DEFAULT_DATA_DIR)
     data_dir.mkdir(parents=True, exist_ok=True)
     json_file = data_dir / "l4d2.json"
-
     if not json_file.is_file():
         logger.info(f"文件 {json_file.name} 不存在，已创建并初始化为 {{}}")
         json_file.write_text("{}", encoding="utf-8")
+    (data_dir / "l4d2").mkdir(parents=True, exist_ok=True)
+    _DATA_INITIALIZED = True
 
 
-# 初始化目录结构
+def get_server_all_path() -> Path:
+    _ensure_data_dir()
+    return Path(DEFAULT_DATA_DIR) / "l4d2"
+
+
 DATAOUT = Path(DEFAULT_DATA_DIR)
-init_data_directory(DATAOUT)
-server_all_path = DATAOUT / "l4d2"
-server_all_path.mkdir(parents=True, exist_ok=True)
-
+server_all_path = Path(DEFAULT_DATA_DIR) / "l4d2"
 ICONPATH = DATAPATH / "icon"
 
 
@@ -50,7 +56,7 @@ class ConfigModel(BaseModel):
     l4_local: List[str] = Field(default=[], description="本地服务器路径列表")
     l4_map_index: int = Field(default=0, description="地图索引")
     l4_permission: int = Field(
-        default=1,  # 默认为1，只包括SUPERUSER
+        default=1,
         ge=1,
         le=4,
         description="上传地图权限",
@@ -98,58 +104,27 @@ config = get_plugin_config(ConfigModel)
 
 
 class ConfigManager:
-    """配置项管理类，提供类型安全的配置更新方法"""
-
     def __init__(self):
         self._config = config
 
-    @property
-    def current_config(self) -> ConfigModel:
-        """获取当前配置"""
-        return self._config
-
     def update_image_config(self, enabled: bool) -> None:
-        """更新图片配置"""
         self._config.l4_image = enabled
 
     def update_style_config(self, style: str) -> None:
-        """更新图片风格配置"""
         if not isinstance(style, str):
             raise TypeError("style必须是字符串")
         self._config.l4_style = style
 
-    def update_connect_config(self, enabled: bool) -> None:
-        """更新connect ip配置"""
-        self._config.l4_connect = enabled
-
     def update(self, **kwargs) -> None:
-        """
-        通用配置更新方法
-
-        Args:
-            **kwargs: 要更新的配置项键值对
-
-        Raises:
-            ValueError: 当传入无效的配置项或值不合法时
-            TypeError: 当传入值的类型不正确时
-        """
         valid_keys = ConfigModel.model_fields.keys()
-
         for key, value in kwargs.items():
             if key not in valid_keys:
                 raise ValueError(f"无效的配置项: {key}")
-
             field_info = ConfigModel.model_fields[key]
             field_type = field_info.annotation
-            if not field_type:
-                continue
-
-            if not isinstance(value, field_type):
+            if field_type and not isinstance(value, field_type):
                 raise TypeError(f"{key} 必须是 {field_type.__name__} 类型")
-
             setattr(self._config, key, value)
-
-        # 验证更新后的配置
         try:
             self._config = ConfigModel(**self._config.model_dump())
         except ValueError as e:
