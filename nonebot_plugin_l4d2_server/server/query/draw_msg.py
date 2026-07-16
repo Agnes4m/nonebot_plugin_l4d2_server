@@ -14,6 +14,27 @@ from ...presentation.render.html_img import convert_duration
 from ...shared.utils.api.models import NserverOut, OutServer
 from ...shared.utils.api.request import L4API
 
+_FONT_CACHE = {}
+
+
+def _load_font(size: int):
+    """缓存字体加载"""
+    if size not in _FONT_CACHE:
+        font_path = Path(__file__).parent.parent.parent / "domain" / "font" / "loli.ttf"
+        from PIL import ImageFont
+
+        try:
+            _FONT_CACHE[size] = ImageFont.truetype(str(font_path), size)
+        except Exception:
+            try:
+                _FONT_CACHE[size] = ImageFont.truetype("msyh.ttc", size)
+            except OSError:
+                try:
+                    _FONT_CACHE[size] = ImageFont.truetype("simhei.ttf", size)
+                except OSError:
+                    _FONT_CACHE[size] = ImageFont.load_default(size)
+    return _FONT_CACHE[size]
+
 
 async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
     """输出单个ip"""
@@ -240,19 +261,7 @@ connect {host}:{port}"""
     server_message = build_server_message(one_server, player_info)
 
     if is_img:
-        # 加载原本的字体文件
-        font_path = Path(__file__).parent.parent.parent / "domain" / "font" / "loli.ttf"
-        try:
-            font = ImageFont.truetype(str(font_path), 18)
-        except Exception as e:
-            logger.debug(f"加载字体失败: {e}")
-            try:
-                font = ImageFont.truetype("msyh.ttc", 18)
-            except OSError:
-                try:
-                    font = ImageFont.truetype("simhei.ttf", 18)
-                except OSError:
-                    font = ImageFont.load_default(18)
+        font = _load_font(18)
         draw = ImageDraw.Draw(Image.new("RGB", (600, 400), color=(73, 109, 137)))
         img = draw_text_on_image(server_message, font, draw)
         img_byte_arr = io.BytesIO()

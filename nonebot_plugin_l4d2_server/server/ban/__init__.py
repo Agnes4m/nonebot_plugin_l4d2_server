@@ -1,4 +1,3 @@
-# nonebot_plugin_l4d2_server/commands/server_groups.py
 from __future__ import annotations
 
 import ujson as json
@@ -30,22 +29,15 @@ async def _delete_group_and_page(tag: str) -> tuple[bool, bool]:
     return group_deleted, page_deleted
 
 
-# l4addban <组名> [SourceBans服务器页URL]
 l4_add_ban = on_command("l4_add_ban", aliases={"l4addban", "l4添加组"})
-# 批量刷新：遍历 sb_pages.json 中所有组
 l4_reload_groups = on_command("l4_reload_groups", aliases={"l4reloadsb", "l4刷新组"})
-# 列出所有组及数量
 l4_list_groups = on_command(
     "l4_list_groups",
     aliases={"l4listgroup", "l4listgroups", "l4列组"},
 )
-# 删除服务器组（即删除 data/L4D2/l4d2/<tag>.json）
 l4_remove_group = on_command("l4_remove_group", aliases={"l4delgroup", "l4删除组"})
-# 删除 sb_pages.json 里的 URL 映射（仅删 URL）
 l4_remove_page = on_command("l4_remove_page", aliases={"l4delpage", "l4删除页"})
-# 导出指定组的 JSON 片段（直接读取 data/L4D2/l4d2/<tag>.json）
 l4_export_group = on_command("l4_export_group", aliases={"l4exportgroup", "l4导出组"})
-# 导出全部组（仅用于查看，组合成一个对象返回，不写入任何聚合文件）
 l4_export_groups = on_command(
     "l4_export_groups",
     aliases={"l4exportgroups", "l4导出全部组"},
@@ -75,11 +67,7 @@ async def _(args: Message = CommandArg()):
         ).finish()
 
     api = L4D2Api()
-    # try:
     server_list = await api.get_sourceban(tag, page)
-    # except Exception as e:
-    #     await UniMessage.text(f"抓取失败：{e}").finish()
-
     path = await set_group(tag, server_list)
     await UniMessage.text(
         f"✅ 已更新：{path.name}（共 {len(server_list)} 台）",
