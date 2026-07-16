@@ -3,9 +3,17 @@
     "desc": "无需任何权限",
     "data": [
       {
+        "name": "l4创意工坊",
+        "desc": "从创意工坊下载地图到本地服务器",
+        "eg": "l4创意工坊 123456",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
         "name": "(组)",
         "desc": "返回一个组的服务器信息",
-        "eg": "/云",
+        "eg": "云",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
@@ -13,7 +21,7 @@
       {
         "name": "(组)(id)",
         "desc": "查询单服信息",
-        "eg": "/云1",
+        "eg": "云1",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
@@ -21,7 +29,7 @@
       {
         "name": "l4查找(组)(玩家)",
         "desc": "查询用户所在服务器状态",
-        "eg": "/l4查找 云 爱丽数码",
+        "eg": "l4查找 云 爱丽数码",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
@@ -29,7 +37,7 @@
       {
         "name": "l4全服",
         "desc": "返回可以查询的所有服务器组",
-        "eg": "/l4全服",
+        "eg": "l4全服",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false
@@ -48,25 +56,33 @@
         "need_admin": true
       },
       {
-        "name": "l4地图上传",
-        "desc": "进入交互上传地图文件(需要设置本地服务器)",
-        "eg": "l4地图上传",
+        "name": "l4本地地图",
+        "desc": "列出本地服务器已安装的地图",
+        "eg": "l4本地地图",
         "need_ck": false,
         "need_sk": false,
         "need_admin": true
       },
       {
-        "name": "l4地图修改",
-        "desc": "进入交互修改地图名称(需要设置本地服务器)",
-        "eg": "l4地图修改 1 114514",
+        "name": "l4本地上传",
+        "desc": "上传地图文件到本地服务器",
+        "eg": "l4本地上传",
         "need_ck": false,
         "need_sk": false,
         "need_admin": true
       },
       {
-        "name": "l4地图删除",
-        "desc": "进入交互删除地图名称(需要设置本地服务器)",
-        "eg": "l4地图删除 1",
+        "name": "l4本地改名",
+        "desc": "重命名本地服务器地图",
+        "eg": "l4本地改名 1 新地图名",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": true
+      },
+      {
+        "name": "l4本地删除",
+        "desc": "删除本地服务器地图",
+        "eg": "l4本地删除 1",
         "need_ck": false,
         "need_sk": false,
         "need_admin": true

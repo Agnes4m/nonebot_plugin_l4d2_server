@@ -6,15 +6,14 @@ from nonebot.adapters import Event, Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
-from nonebot.typing import T_State
-from nonebot_plugin_alconna import File, UniMessage, UniMsg
+from nonebot_plugin_alconna import File, UniMessage
 from nonebot_plugin_waiter import prompt
 
 from ...config import config
 from ...presentation.render.convert import text2pic
 from ...shared.utils.api.models import WorksopInfo
 from ...shared.utils.utils import mes_list, url_to_byte
-from .download import process_ws_download
+from .download import process_ws_download, render_workshop_info
 from .file import change_name, delete_file, updown_l4d2_vpk
 from .utils import (
     get_local_path,
@@ -29,26 +28,26 @@ if not config.l4_local:
     )
 else:
     search_map = on_command(
-        "l4_map",
-        aliases={"l4map", "l4地图查询", "l4地图"},
+        "l4本地地图",
+        aliases={"l4_map", "l4map", "l4地图查询"},
         priority=20,
         block=True,
     )
     l4_map_upload = on_command(
-        "l4_map_upload",
-        aliases={"l4upload", "l4地图上传"},
+        "l4本地上传",
+        aliases={"l4_map_upload", "l4upload"},
         priority=5,
         block=True,
     )
     l4_map_change = on_command(
-        "l4_map_change",
-        aliases={"l4mapchange", "l4地图修改"},
+        "l4本地改名",
+        aliases={"l4_map_change", "l4mapchange"},
         priority=20,
         block=True,
     )
     l4_map_delete = on_command(
-        "l4_map_delete",
-        aliases={"l4mapdel", "l4地图删除"},
+        "l4本地删除",
+        aliases={"l4_map_delete", "l4mapdel"},
         priority=20,
         block=True,
     )
@@ -173,8 +172,7 @@ else:
 
 
 ws_download = on_command(
-    "l4ws",
-    aliases={"l4工坊下载"},
+    "l4创意工坊",
     priority=20,
     permission=config.l4_permission_set,
     block=True,
@@ -182,55 +180,45 @@ ws_download = on_command(
 
 
 @ws_download.handle()
-async def _(matcher: Matcher, state: T_State, args: Message = CommandArg()):
+async def handle_ws_download(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
     if not arg:
         arg = await prompt("请输入创意工坊id或者url", timeout=60)
         if arg is None:
-            return
+            await UniMessage.text("操作已超时，已取消").finish()
         arg = arg.extract_plain_text().strip()
 
-    ws_msg = await process_ws_download(arg)
-    state["workshop"] = ws_msg
-    await matcher.pause("是否下载")
+    ws_id = await process_ws_download(arg)
+    ws_msg = await render_workshop_info(ws_id)
 
+    confirm = await prompt("是否下载该地图？(是/否)", timeout=60)
+    if confirm is None or confirm.extract_plain_text().strip() != "是":
+        await UniMessage.text("已取消下载").finish()
 
-@ws_download.handle()
-async def _(state: T_State, msg: UniMsg):
-    if msg.extract_plain_text().strip() == "是":
-        try:
-            ws_path = Path(config.l4_local[config.l4_map_index]) / "addons"
-            cache = True
-        except IndexError:
-            ws_path = Path(config.l4_path) / "addons"
-            cache = False
+    # 确定下载路径
+    local_paths = get_local_path()
+    if local_paths:
+        dl_path = local_paths[config.l4_map_index] / "addons"
+    else:
+        dl_path = Path(config.l4_path) / "addons"
 
-        try:
-            ws_path.mkdir(parents=True, exist_ok=True)
-            ws_msg: WorksopInfo = state["workshop"]
-            logger.info(
-                f"正在下载地图: {ws_msg['title']} (文件名: {ws_msg['filename']})",
-            )
+    dl_path.mkdir(parents=True, exist_ok=True)
+    ws_msg: WorksopInfo = ws_msg
+    filename = ws_msg["filename"]
+    final_path = dl_path / filename
 
-            final_path = ws_path / ws_msg["filename"]
-            if final_path.is_file():
-                logger.info(f"地图文件已存在: {final_path}")
-            else:
-                dl_msg = await url_to_byte(ws_msg["file_url"])
-                if dl_msg is None:
-                    logger.error(f"下载失败: {ws_msg['file_url']}")
-                    await UniMessage.text("下载失败").finish()
+    if final_path.is_file():
+        logger.info(f"地图文件已存在: {final_path}")
+        await UniMessage.text(f"地图已存在: {filename}").finish()
 
-                async with aiofiles.open(final_path, "wb") as f:
-                    await f.write(dl_msg)
-                logger.info(f"地图下载完成: {final_path}")
+    dl_data = await url_to_byte(ws_msg["file_url"])
+    if dl_data is None:
+        logger.error(f"下载失败: {ws_msg['file_url']}")
+        await UniMessage.text("下载失败").finish()
 
-            await UniMessage.file(path=final_path, name=f"{ws_msg['title']}.vpk").send()
+    async with aiofiles.open(final_path, "wb") as f:
+        await f.write(dl_data)
 
-            if cache:
-                final_path.unlink()
-                logger.info(f"已清理临时文件: {final_path}")
-
-        except Exception as e:
-            logger.error(f"处理地图下载时出错: {e}")
-            await UniMessage.text("处理地图时发生错误").finish()
+    logger.info(f"地图下载完成: {final_path}")
+    await UniMessage.text(f"✅ 地图下载完成: {filename}").send()
+    await UniMessage.file(path=final_path, name=f"{ws_msg['title']}.vpk").send()
