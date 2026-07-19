@@ -139,8 +139,9 @@ class CustomizeImage:
         based_w: int,
         based_h: int,
     ):
-        from PIL import Image
         import logging
+
+        from PIL import Image
 
         logger = logging.getLogger(__name__)
 
