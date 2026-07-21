@@ -29,6 +29,14 @@ async def _delete_group_and_page(tag: str) -> tuple[bool, bool]:
     return group_deleted, page_deleted
 
 
+async def _set_group_and_refresh(tag: str, servers):
+    """保存服务器组并立即刷新运行时查询状态。"""
+    path = await set_group(tag, servers)
+    reload_ip()
+    refresh_server_command_rule(l4_request)
+    return path
+
+
 l4_add_ban = on_command("l4_add_ban", aliases={"l4addban", "l4添加组"})
 l4_reload_groups = on_command("l4_reload_groups", aliases={"l4reloadsb", "l4刷新组"})
 l4_list_groups = on_command(
@@ -68,7 +76,7 @@ async def _(args: Message = CommandArg()):
 
     api = L4D2Api()
     server_list = await api.get_sourceban(tag, page)
-    path = await set_group(tag, server_list)
+    path = await _set_group_and_refresh(tag, server_list)
     await UniMessage.text(
         f"✅ 已更新：{path.name}（共 {len(server_list)} 台）",
     ).finish()
