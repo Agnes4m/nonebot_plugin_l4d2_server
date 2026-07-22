@@ -214,7 +214,7 @@ class L4D2Api:
     ) -> Union[Dict[str, Any], BeautifulSoup]:  # type: ignore
         header = deepcopy(self._HEADER)
 
-        if json is not None:
+        if jsons is not None:
             method = "POST"
 
         async with AsyncClient(verify=self.ssl_verify) as client:
@@ -293,21 +293,11 @@ class L4D2Api:
         if not Path(Path(config.l4_path) / "config.json").is_file():
             async with aiofiles.open(config_path, "w", encoding="utf-8") as f:
                 await f.write("{}")
-        with (Path(config.l4_path) / "config.json").open("r", encoding="utf-8") as f:
-            content = f.read().strip()
+        async with aiofiles.open(config_path, "r", encoding="utf-8") as f:
+            content = await f.read()
             ip_json = json.loads(content)
         if tag in ip_json:
             url = ip_json[tag]
-        tag_path = Path(Path(config.l4_path) / f"l4d2/{tag}.json")
-
-        async with aiofiles.open(tag_path, "w", encoding="utf-8") as f:
-            up_data = {}
-            for server in server_list:
-                new_dict = {}
-                new_dict["id"] = int(server.index) + 1
-                new_dict["ip"] = server.host + ":" + str(server.port)
-                up_data.update(new_dict)
-            await f.write(json.dumps(up_data, ensure_ascii=False, indent=4))
         return server_list
 
     async def get_anne_steamid(self, name: str):

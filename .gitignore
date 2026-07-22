@@ -138,5 +138,4 @@ dmypy.json
 .ruff_cache/
 .pytest_cache/
 .vscode/
-uv.lock
 pdm.lock

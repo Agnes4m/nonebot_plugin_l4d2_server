@@ -39,6 +39,13 @@ classifiers = [
 readme = "README.md"
 license = { text = "GPLv3" }
 
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "nonebug>=0.4.0",
+]
+
 [project.urls]
 homepage = "https://github.com/Agnes4m/nonebot_plugin_l4d2_server"
 
@@ -73,6 +80,7 @@ ignore = [
     "B008",
     "B905",
     "E501",
+    "F821",
     "N999",
     "FBT002",
     "PGH003",
