@@ -87,7 +87,7 @@ class ConfigModel(BaseModel):
         """更新地图索引配置"""
         if index < 0:
             raise ValueError("地图索引不能小于0")
-        self.map_index = index
+        self.l4_map_index = index
 
     @property
     def l4_permission_set(self) -> Permission:

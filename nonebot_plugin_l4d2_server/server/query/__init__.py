@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional, cast
 
+import aiofiles
 from nonebot.log import logger
 from nonebot_plugin_alconna import UniMessage
 
@@ -110,7 +111,7 @@ def scan_group_names():
 
 
 # 以下是重载ip
-def reload_ip():
+async def reload_ip():
     global COMMAND, ALLHOST
 
     ALLHOST.clear()
@@ -120,8 +121,10 @@ def reload_ip():
     for item in server_all_path.iterdir():
         if item.is_file() and item.name.endswith("json"):
             try:
-                json_data = json.loads(item.read_text(encoding="utf-8"))
-            except json.JSONDecodeError:
+                async with aiofiles.open(item, "r", encoding="utf-8") as f:
+                    content = await f.read()
+                json_data = json.loads(content)
+            except (json.JSONDecodeError, OSError):
                 continue
             group_server = cast(Dict[str, List[NserverOut]], json_data)
 
@@ -137,7 +140,7 @@ def reload_ip():
                     else:
                         if one_ip.get("host") and one_ip.get("port"):
                             one_ip["ip"] = f"{one_ip['host']}:{one_ip['port']}"
-                        if one_ip.get("host") and not one_ip.get("port"):
+                        elif one_ip.get("host") and not one_ip.get("port"):
                             one_ip["ip"] = f"{one_ip['host']}:20715"
                         else:
                             logger.warning(f"{one_ip} 没有ip")

@@ -32,7 +32,7 @@ async def _delete_group_and_page(tag: str) -> tuple[bool, bool]:
 async def _set_group_and_refresh(tag: str, servers):
     """保存服务器组并立即刷新运行时查询状态。"""
     path = await set_group(tag, servers)
-    reload_ip()
+    await reload_ip()
     refresh_server_command_rule(l4_request)
     return path
 
@@ -103,9 +103,9 @@ async def _():
     msg = [f"✅ 刷新完成：成功 {ok} 个组。"]
     if fail:
         msg.append("❌ 失败：\n" + "\n".join(fail))
-    await UniMessage.text("\n".join(msg)).send()
-    reload_ip()
+    await reload_ip()
     refresh_server_command_rule(l4_request)
+    await UniMessage.text("\n".join(msg)).send()
 
 
 @l4_list_groups.handle()
@@ -136,9 +136,9 @@ async def _(args: Message = CommandArg()):
         msg_parts.append("服务器组文件")
     if page_deleted:
         msg_parts.append("SourceBans URL")
-    await UniMessage.text("✅ 已删除 " + "、".join(msg_parts)).send()
-    reload_ip()
+    await reload_ip()
     refresh_server_command_rule(l4_request)
+    await UniMessage.text("✅ 已删除 " + "、".join(msg_parts)).send()
 
 
 @l4_remove_page.handle()

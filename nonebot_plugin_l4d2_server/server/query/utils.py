@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from a2s import SourceInfo
@@ -11,8 +10,6 @@ from ...shared.utils.api.models import AllServer, OutServer
 from ...shared.utils.api.request import L4API
 from .draw_msg import convert_duration, draw_one_ip, get_much_server
 from .typing import (
-    ALLHOST,
-    COMMAND,
     DEFAULT_MAP_TYPES,
     FILTER_MODES,
     ServerDict,
@@ -170,17 +167,6 @@ def _format_server_summary(servers: List[AllServer]) -> str:
         for s in servers
         if s["max_player"]
     )
-
-
-def _update_global_state(
-    group_name: str,
-    servers: ServerList,
-    item: Path,
-) -> None:
-    global ALLHOST, COMMAND
-    ALLHOST[group_name] = servers
-    COMMAND.add(group_name)
-    logger.success(f"成功加载 {item.stem} {len(servers)}个")
 
 
 async def _handle_single_server_with_endpoint(
