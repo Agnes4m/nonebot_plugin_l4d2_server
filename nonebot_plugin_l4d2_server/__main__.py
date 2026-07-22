@@ -18,6 +18,7 @@
 from pathlib import Path
 from typing import List, Optional, cast
 
+import aiofiles
 import ujson as json
 from nonebot import get_driver
 from nonebot.adapters import Message
@@ -72,7 +73,7 @@ async def sync_sb_pages_groups() -> None:
     pages = await load_pages()
     if not pages:
         logger.info("sb_pages.json 为空，跳过启动时刷新")
-        reload_ip()
+        await reload_ip()
         refresh_server_command_rule(l4_request)
         return
 
@@ -87,7 +88,7 @@ async def sync_sb_pages_groups() -> None:
         except Exception as exc:
             failed.append(f"{tag}: {exc}")
 
-    reload_ip()
+    await reload_ip()
     refresh_server_command_rule(l4_request)
 
     if ok:
@@ -147,7 +148,8 @@ async def handle_find_player(
 ):
     msg: str = args.extract_plain_text().strip()
     if not msg:
-        return UniMessage.text(Gm.add_name)
+        await UniMessage.text(Gm.add_name).finish()
+        return None
     tag_list: List[str] = msg.split(" ", maxsplit=1)
     if len(tag_list) == 1:
         name = tag_list[0]
@@ -206,13 +208,17 @@ async def handle_connect_server(args: Message = CommandArg()):
 async def handle_reload_servers(args: Message = CommandArg()):
     arg = args.extract_plain_text().strip()
     if not arg:
-        with (Path(config.l4_path) / "l4d2.json").open("r", encoding="utf-8") as f:
-            content = f.read().strip()
+        async with aiofiles.open(
+            Path(config.l4_path) / "l4d2.json",
+            "r",
+            encoding="utf-8",
+        ) as f:
+            content = await f.read()
             ip_json = json.loads(content)
         for tag, url in ip_json.items():
             logger.info(f"重载{tag}的ip")
             await L4API.get_sourceban(tag, url)
-        reload_ip()
+        await reload_ip()
         refresh_server_command_rule(l4_request)
         logger.success("重载ip完成")
         await out_msg_out("重载ip完成")

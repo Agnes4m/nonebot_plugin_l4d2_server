@@ -1,4 +1,3 @@
-# from logging import log
 from __future__ import annotations
 
 import io
@@ -36,8 +35,10 @@ def _load_font(size: int):
     return _FONT_CACHE[size]
 
 
-async def draw_one_ip(host: str, port: int, is_img: bool = config.l4_image):
+async def draw_one_ip(host: str, port: int, is_img: bool | None = None):
     """输出单个ip"""
+    if is_img is None:
+        is_img = config.l4_image
     from PIL import Image, ImageDraw, ImageFont
 
     ser_list = await L4API.a2s_info([(host, port)], is_player=True)
