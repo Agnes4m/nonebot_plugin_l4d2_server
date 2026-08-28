@@ -139,3 +139,20 @@ dmypy.json
 .pytest_cache/
 .vscode/
 pdm.lock
+
+# AI 助手相关文件
+.zcode/
+.claude/
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+QWEN.md
+.cursorrules
+.cursorignore
+.aider*
+.copilot*
+.windsurfrules
+.continue/
+.plan/
+plans/
+*.plan.md

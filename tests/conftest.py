@@ -1,27 +1,43 @@
-import pytest
-from pytest_asyncio import is_async_test
+"""Pytest configuration.
+
+Initialises a minimal nonebot runtime so the inner package's
+``config.get_plugin_config(...)`` call works during test collection
+(imports of the inner modules run before fixtures).
+"""
+
+from __future__ import annotations
+
+import logging
+import sys
+import types
+from pathlib import Path
+
+# Make the inner package importable as top-level modules for tests.
+INNER = Path(__file__).parent.parent / "nonebot_plugin_l4d2_server"
+sys.path.insert(0, str(INNER))
 
 
-def pytest_configure(config: pytest.Config) -> None:
-    from nonebug import NONEBOT_INIT_KWARGS
+def _ensure_nonebot() -> None:
+    """Initialise nonebot with an empty env if not already up."""
+    if "nonebot" not in sys.modules:
+        return
+    import nonebot  # type: ignore[import-not-found]
 
-    config.stash[NONEBOT_INIT_KWARGS] = {
-        "driver": "~fastapi+~websockets+~httpx",
-        "log_level": "DEBUG",
-    }
+    try:
+        from nonebot import get_driver  # type: ignore[import-not-found]
+        get_driver()
+        return
+    except ValueError:
+        pass
+
+    nonebot.init(env=types.SimpleNamespace(), _env_file=None)
 
 
-def pytest_collection_modifyitems(items: list[pytest.Item]):
-    pytest_asyncio_tests = (item for item in items if is_async_test(item))
-    session_scope_marker = pytest.mark.asyncio(loop_scope="session")
-    for async_test in pytest_asyncio_tests:
-        async_test.add_marker(session_scope_marker, append=False)
+# Run at import time (before any test collection).
+_ensure_nonebot()
+logging.getLogger("nonebot").setLevel(logging.CRITICAL)
 
 
-@pytest.fixture(scope="session", autouse=True)
-def load_adapters(nonebug_init: None):  # noqa: ARG001, PT004
-    from nonebot import get_driver
-    from nonebot.adapters.onebot.v11 import Adapter as AdapterV11
-
-    driver = get_driver()
-    driver.register_adapter(AdapterV11)
+def pytest_configure(config):
+    """Reset driver config so sub-tests with patched paths still work."""
+    pass

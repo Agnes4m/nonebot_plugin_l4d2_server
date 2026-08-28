@@ -1,7 +1,7 @@
 """
 * Copyright (c) 2023, Agnes Digital
 *
-* This program is free software: you can redistribute it and/or modify
+* This program is free software: you can redistribute it and or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
@@ -22,11 +22,28 @@ from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 require("nonebot_plugin_alconna")
 require("nonebot_plugin_htmlrender")
 
-from . import __main__  # noqa: E402, F401
+from . import commands  # noqa: E402, F401  (registers all commands)
 from .config import ConfigModel  # noqa: E402
-from .core.help import __version__  # noqa: E402
+from .services import migrate, sourceban  # noqa: E402
+from .version import __version__  # noqa: E402
 
 driver = get_driver()
+
+# Initial scan to populate command aliases before any rule refresh.
+from .registry import registry as _registry  # noqa: E402
+
+_registry.scan_commands()
+
+
+@driver.on_startup
+async def _on_startup() -> None:
+    migrate.migrate_legacy_layout()
+    await sourceban.refresh_all_pages()
+    await sourceban.reload_registry()
+    sourceban.register_anne_alias()
+    from .commands.query import refresh_server_command_rule
+
+    refresh_server_command_rule()
 
 
 __plugin_meta__ = PluginMetadata(
