@@ -9,10 +9,10 @@ from nonebot.plugin import on_command
 from nonebot_plugin_alconna import File, UniMessage
 from nonebot_plugin_waiter import prompt
 
-from nonebot_plugin_l4d2_server.config import config
-from nonebot_plugin_l4d2_server.render.images import text2pic
-from nonebot_plugin_l4d2_server.services import local_server as svc_local
-from nonebot_plugin_l4d2_server.services.workshop import download_to_addons, fetch_info
+from ..config import config
+from ..render.images import text2pic
+from ..services import local_server as svc_local
+from ..services.workshop import download_to_addons, fetch_info
 
 if not config.l4_local:
     from nonebot.log import logger

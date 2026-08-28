@@ -17,8 +17,7 @@ from bs4 import BeautifulSoup, Tag
 from httpx import AsyncClient
 from nonebot.log import logger
 
-from nonebot_plugin_l4d2_server.http_helpers import split_maohao
-
+from ..http_helpers import split_maohao
 from .models import (
     AnnePlayer2,
     AnnePlayerDetail,

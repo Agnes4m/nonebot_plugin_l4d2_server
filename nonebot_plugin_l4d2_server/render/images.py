@@ -10,8 +10,7 @@ import aiofiles
 from nonebot.log import logger
 from PIL import Image, ImageDraw
 
-from nonebot_plugin_l4d2_server.consts import JPEG_QUALITY
-
+from ..consts import JPEG_QUALITY
 from .fonts import core_font
 
 

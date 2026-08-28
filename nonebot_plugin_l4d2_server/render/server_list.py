@@ -11,13 +11,12 @@ from jinja2 import Environment, FileSystemLoader
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
-from nonebot_plugin_l4d2_server.config import config
-from nonebot_plugin_l4d2_server.consts import (
+from ..config import config
+from ..consts import (
     CUSTOM_BACKGROUNDS_PATH,
     RENDER_BACKGROUNDS_PATH,
     RENDER_TEMPLATES_PATH,
 )
-
 from .images import convert_duration
 
 _template_env: Environment | None = None

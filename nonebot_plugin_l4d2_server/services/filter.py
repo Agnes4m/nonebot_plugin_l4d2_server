@@ -13,11 +13,11 @@ from a2s import SourceInfo
 from a2s.players import Player
 from nonebot.log import logger
 
-from nonebot_plugin_l4d2_server.api import L4API
-from nonebot_plugin_l4d2_server.consts import DEFAULT_MAP_TYPES as MAP_TYPES_DEFAULT
-from nonebot_plugin_l4d2_server.consts import FILTER_MODES
-from nonebot_plugin_l4d2_server.messages import Sm as MsgSm
-from nonebot_plugin_l4d2_server.render.images import convert_duration
+from ..api import L4API
+from ..consts import DEFAULT_MAP_TYPES as MAP_TYPES_DEFAULT
+from ..consts import FILTER_MODES
+from ..messages import Sm as MsgSm
+from ..render.images import convert_duration
 
 
 def _is_tj_server(

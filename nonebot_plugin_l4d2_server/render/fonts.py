@@ -6,7 +6,7 @@ from functools import lru_cache
 
 from PIL import ImageFont
 
-from nonebot_plugin_l4d2_server.consts import FONT_PATH
+from ..consts import FONT_PATH
 
 
 @lru_cache(maxsize=8)

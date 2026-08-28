@@ -12,8 +12,8 @@ from a2s import Player
 from nonebot.log import logger
 from PIL import Image, ImageDraw, ImageFont
 
-from nonebot_plugin_l4d2_server.config import config
-from nonebot_plugin_l4d2_server.messages import Sm as MsgSm
+from ..config import config
+from ..messages import Sm as MsgSm
 
 # Background image bundled inside the plugin.
 BG_PATH = Path(__file__).parent / "backgrounds" / "anne" / "back.png"

@@ -12,11 +12,11 @@ from nonebot.params import CommandArg, CommandStart, RawCommand
 from nonebot.plugin import on_command
 from nonebot_plugin_alconna import UniMessage
 
-from nonebot_plugin_l4d2_server.config import config
-from nonebot_plugin_l4d2_server.messages import Gm, Sm
-from nonebot_plugin_l4d2_server.registry import registry
-from nonebot_plugin_l4d2_server.render import build_help_image
-from nonebot_plugin_l4d2_server.services import server_query
+from ..config import config
+from ..messages import Gm, Sm
+from ..registry import registry
+from ..render import build_help_image
+from ..services import server_query
 
 l4_help = on_command("l4_help", aliases={"l4help", "l4d2帮助"})
 l4_list_all_servers = on_command("l4_all", aliases={"l4all", "l4全服"})

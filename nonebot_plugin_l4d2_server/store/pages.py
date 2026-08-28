@@ -11,7 +11,7 @@ from pathlib import Path
 import aiofiles
 import ujson as json
 
-from nonebot_plugin_l4d2_server.consts import DEFAULT_DATA_DIR
+from ..consts import DEFAULT_DATA_DIR
 
 PAGES_FILE = Path(DEFAULT_DATA_DIR) / "sb_pages.json"
 

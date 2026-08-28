@@ -8,11 +8,11 @@ from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command, on_fullmatch
 from nonebot_plugin_alconna import UniMessage
 
-from nonebot_plugin_l4d2_server.config import config, config_manager
-from nonebot_plugin_l4d2_server.registry import registry
-from nonebot_plugin_l4d2_server.services import filter as svc_filter
-from nonebot_plugin_l4d2_server.services import sourceban
-from nonebot_plugin_l4d2_server.store import pages as pages_store
+from ..config import config, config_manager
+from ..registry import registry
+from ..services import filter as svc_filter
+from ..services import sourceban
+from ..store import pages as pages_store
 
 l4_toggle_image = on_command(
     "l4_toggle_image",
@@ -60,7 +60,7 @@ async def _(args: Message = CommandArg()) -> None:
     pages = await pages_store.load_pages()
     if pages:
         ok, fails = await sourceban.refresh_all_pages()
-        from nonebot_plugin_l4d2_server.commands.query import (
+        from ..commands.query import (
             refresh_server_command_rule,
         )
 
@@ -71,7 +71,7 @@ async def _(args: Message = CommandArg()) -> None:
         await UniMessage.text("\n".join(msg_lines)).send()
     else:
         await sourceban.reload_registry()
-        from nonebot_plugin_l4d2_server.commands.query import (
+        from ..commands.query import (
             refresh_server_command_rule,
         )
 

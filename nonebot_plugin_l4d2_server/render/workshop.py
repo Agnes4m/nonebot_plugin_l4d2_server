@@ -8,9 +8,8 @@ from pathlib import Path
 from nonebot_plugin_alconna import UniMessage
 from nonebot_plugin_htmlrender import template_to_pic as t2p
 
-from nonebot_plugin_l4d2_server.api import L4API
-from nonebot_plugin_l4d2_server.consts import RENDER_TEMPLATES_PATH
-
+from ..api import L4API
+from ..consts import RENDER_TEMPLATES_PATH
 from .images import convert_duration  # noqa: F401  (re-export for compat)
 
 

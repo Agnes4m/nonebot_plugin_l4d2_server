@@ -8,12 +8,12 @@ from nonebot.params import CommandArg
 from nonebot.plugin import on_command
 from nonebot_plugin_alconna import UniMessage
 
-from nonebot_plugin_l4d2_server.commands.query import (
+from ..commands.query import (
     refresh_server_command_rule,
 )
-from nonebot_plugin_l4d2_server.services import sourceban
-from nonebot_plugin_l4d2_server.store import groups as groups_store
-from nonebot_plugin_l4d2_server.store import pages as pages_store
+from ..services import sourceban
+from ..store import groups as groups_store
+from ..store import pages as pages_store
 
 l4_add_ban = on_command("l4_add_ban", aliases={"l4addban", "l4添加组", "l4添加ban"})
 l4_reload_groups = on_command(
