@@ -3,30 +3,34 @@
 from __future__ import annotations
 
 import ujson as json
-
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
 from nonebot.plugin import on_command
 from nonebot_plugin_alconna import UniMessage
 
-from commands.query import l4_request, refresh_server_command_rule
-from services import sourceban
-from store import groups as groups_store
-from store import pages as pages_store
+from nonebot_plugin_l4d2_server.commands.query import (
+    refresh_server_command_rule,
+)
+from nonebot_plugin_l4d2_server.services import sourceban
+from nonebot_plugin_l4d2_server.store import groups as groups_store
+from nonebot_plugin_l4d2_server.store import pages as pages_store
 
-l4_add_ban = on_command("l4_add_ban", aliases={"l4addban", "l4添加组"})
+l4_add_ban = on_command("l4_add_ban", aliases={"l4addban", "l4添加组", "l4添加ban"})
 l4_reload_groups = on_command(
-    "l4_reload_groups", aliases={"l4reloadsb", "l4刷新组"},
+    "l4_reload_groups",
+    aliases={"l4reloadsb", "l4刷新组"},
 )
 l4_list_groups = on_command(
     "l4_list_groups",
     aliases={"l4listgroup", "l4listgroups", "l4列组"},
 )
 l4_remove_group = on_command(
-    "l4_remove_group", aliases={"l4delgroup", "l4删除组"},
+    "l4_remove_group",
+    aliases={"l4delgroup", "l4删除组"},
 )
 l4_remove_page = on_command(
-    "l4_remove_page", aliases={"l4delpage", "l4删除页"},
+    "l4_remove_page",
+    aliases={"l4delpage", "l4删除页"},
 )
 l4_export_group = on_command(
     "l4_export_group",

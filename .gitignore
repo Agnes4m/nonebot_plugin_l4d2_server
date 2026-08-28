@@ -156,3 +156,6 @@ QWEN.md
 .plan/
 plans/
 *.plan.md
+
+# 运行时背景缓存
+nonebot_plugin_l4d2_server/render/back_img/

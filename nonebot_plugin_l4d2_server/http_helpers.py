@@ -48,9 +48,10 @@ async def save_url_to_file(url: str, dest: Path) -> str | None:
             return None
         async with aiofiles.open(dest, "wb") as f:
             await f.write(data)
-        return "下载完成"
     except Exception as exc:
         logger.info(f"文件获取失败: {exc}")
+    else:
+        return "下载完成"
         return None
 
 

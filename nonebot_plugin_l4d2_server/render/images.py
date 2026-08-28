@@ -7,10 +7,11 @@ from base64 import b64encode
 from io import BytesIO
 
 import aiofiles
-from PIL import Image, ImageDraw
 from nonebot.log import logger
+from PIL import Image, ImageDraw
 
-from consts import JPEG_QUALITY
+from nonebot_plugin_l4d2_server.consts import JPEG_QUALITY
+
 from .fonts import core_font
 
 

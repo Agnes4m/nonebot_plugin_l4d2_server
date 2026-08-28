@@ -1,6 +1,4 @@
-"""Single-server card renderer.
-
-Replaces ``server/query/draw_msg.draw_one_ip``. Outputs either a PIL image
+"""Single-server card renderer. Outputs either a PIL image
 (bytes) or a plain text description, depending on ``is_img``.
 """
 
@@ -10,18 +8,15 @@ import io
 from functools import lru_cache
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
 from a2s import Player
 from nonebot.log import logger
+from PIL import Image, ImageDraw, ImageFont
 
-from config import config  # noqa: F401  (config injected by app at runtime)
-from messages import Sm as MsgSm
-from .images import convert_duration
+from nonebot_plugin_l4d2_server.config import config
+from nonebot_plugin_l4d2_server.messages import Sm as MsgSm
 
 # Background image bundled inside the plugin.
-BG_PATH = (
-    Path(__file__).parent / "backgrounds" / "anne" / "back.png"
-)
+BG_PATH = Path(__file__).parent / "backgrounds" / "anne" / "back.png"
 
 
 @lru_cache(maxsize=16)
@@ -96,9 +91,7 @@ def _render_server_image(server, players, host, port) -> bytes | None:
     )
     if server.ping is not None:
         text += (
-            f"延迟: {server.ping * 1000:.0f} ms\n"
-            f"VAC : {vac_status}\n\n"
-            f"{player_info}"
+            f"延迟: {server.ping * 1000:.0f} ms\nVAC : {vac_status}\n\n{player_info}"
         )
     if config.l4_show_ip:
         text += f"\nconnect {host}:{port}"
@@ -117,14 +110,15 @@ def _render_server_image(server, players, host, port) -> bytes | None:
     content_lines = content.split("\n") if content else []
     content_height = len(content_lines) * line_height if content_lines else 0
     content_width = (
-        max(font.getbbox(l)[2] - font.getbbox(l)[0] for l in content_lines)
+        max(font.getbbox(line)[2] - font.getbbox(line)[0] for line in content_lines)
         if content_lines
         else 0
     )
 
     img_w = max(title_w, content_width) + 2 * margin
     img_h = max(
-        title_h + content_height
+        title_h
+        + content_height
         + (line_spacing + 1) * max(0, len(content_lines) - 1)
         + 2 * margin,
         300,
@@ -170,7 +164,7 @@ def _render_server_image(server, players, host, port) -> bytes | None:
                     )
                     draw.text(
                         (content_x + prefix_w, current_y),
-                        line[len(prefix):].strip(),
+                        line[len(prefix) :].strip(),
                         font=font,
                         fill=color,
                     )
@@ -185,7 +179,7 @@ def _render_server_image(server, players, host, port) -> bytes | None:
                     font=font,
                     fill=(255, 255, 255),
                 )
-                vac_value = line[len(prefix):].strip()
+                vac_value = line[len(prefix) :].strip()
                 vac_color = (70, 209, 110) if vac_value == "启用" else (255, 90, 90)
                 draw.text(
                     (content_x + prefix_w, current_y),

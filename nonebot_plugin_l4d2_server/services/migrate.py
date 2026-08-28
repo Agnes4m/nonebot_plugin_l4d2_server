@@ -15,7 +15,7 @@ from pathlib import Path
 
 from nonebot.log import logger
 
-import consts
+import nonebot_plugin_l4d2_server.consts as consts
 
 
 def _looks_like_url_map(payload: object) -> bool:
@@ -65,8 +65,10 @@ def _migrate_legacy_url_file() -> None:
 
 def _merge_url_map_into_pages(entries: dict) -> None:
     """Merge ``{tag: url}`` entries into ``sb_pages.json``."""
-    import aiofiles
-    from store.pages import PAGES_FILE, load_pages, save_pages
+    from nonebot_plugin_l4d2_server.store.pages import (
+        load_pages,
+        save_pages,
+    )
 
     async def go() -> None:
         pages = await load_pages()
@@ -77,6 +79,7 @@ def _merge_url_map_into_pages(entries: dict) -> None:
         await save_pages(pages)
 
     import asyncio
+
     asyncio.run(go())
     logger.success(f"已将 {len(entries)} 个 URL 映射合并到 sb_pages.json")
 

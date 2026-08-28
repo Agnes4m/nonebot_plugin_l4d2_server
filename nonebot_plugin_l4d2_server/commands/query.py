@@ -4,24 +4,26 @@ from __future__ import annotations
 
 from typing import Optional
 
+from nonebot import get_driver
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
-from nonebot.plugin import on_command, on_fullmatch
+from nonebot.plugin import on_command
 from nonebot_plugin_alconna import UniMessage
 
-from config import config
-from messages import Gm, Sm
-from registry import registry
-from render import build_help_image
-from services import server_query
+from nonebot_plugin_l4d2_server.config import config
+from nonebot_plugin_l4d2_server.messages import Gm, Sm
+from nonebot_plugin_l4d2_server.registry import registry
+from nonebot_plugin_l4d2_server.render import build_help_image
+from nonebot_plugin_l4d2_server.services import server_query
 
 l4_help = on_command("l4_help", aliases={"l4help", "l4d2帮助"})
 l4_list_all_servers = on_command("l4_all", aliases={"l4all", "l4全服"})
 l4_connect_server = on_command("l4_connect", aliases={"connect", "l4连接"})
 l4_find_player = on_command(
-    "l4_find_player", aliases={"l4find", "l4查找"},
+    "l4_find_player",
+    aliases={"l4find", "l4查找"},
 )
 
 
@@ -30,10 +32,20 @@ l4_request = on_command("anne", priority=10)
 
 
 def refresh_server_command_rule() -> None:
-    """Update ``l4_request`` rule so all known group tags are accepted."""
-    from nonebot.rule import command as command_rule
+    """Update ``l4_request`` rule so all known group tags are accepted.
 
-    l4_request.rule = command_rule(*registry.commands)
+    不用 ``rule.command()`` 重建：它每次都会把全部前缀重新插入全局 TrieRule，
+    对已存在的前缀触发 "Duplicated prefix rule" 告警。这里改为幂等写入前缀
+    树（同键覆盖，值相同），再挂 CommandRule，行为一致且无告警。
+    """
+    from nonebot.rule import TRIE_VALUE, CommandRule, Rule, TrieRule
+
+    starts = get_driver().config.command_start or {""}
+    cmds = [(c,) for c in registry.commands]
+    for cmd in cmds:
+        for start in starts:
+            TrieRule.prefix[f"{start}{cmd[0]}"] = TRIE_VALUE(start, cmd)
+    l4_request.rule = Rule(CommandRule(cmds))
 
 
 @l4_help.handle()

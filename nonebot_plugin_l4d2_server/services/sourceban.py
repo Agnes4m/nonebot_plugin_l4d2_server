@@ -1,6 +1,4 @@
-"""SourceBans++ refresh orchestration.
-
-Replaces ``server/ban/__init__.py`` business logic and the inline
+"""SourceBans++ refresh orchestration. business logic and the inline
 ``sync_sb_pages_groups`` from ``__main__.py``.
 """
 
@@ -10,10 +8,10 @@ from typing import List
 
 from nonebot.log import logger
 
-from api import L4API, SourceBansInfo
-from registry import registry
-from store import groups as groups_store
-from store import pages as pages_store
+from nonebot_plugin_l4d2_server.api import L4API, SourceBansInfo
+from nonebot_plugin_l4d2_server.registry import registry
+from nonebot_plugin_l4d2_server.store import groups as groups_store
+from nonebot_plugin_l4d2_server.store import pages as pages_store
 
 
 async def refresh_group_from_url(tag: str, url: str) -> List[SourceBansInfo]:

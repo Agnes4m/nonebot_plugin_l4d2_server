@@ -15,7 +15,7 @@ from nonebot.log import logger
 from nonebot.permission import SUPERUSER, Permission
 from pydantic import BaseModel, Field, field_validator
 
-from consts import DEFAULT_DATA_DIR
+from nonebot_plugin_l4d2_server.consts import DEFAULT_DATA_DIR
 
 
 class ConfigModel(BaseModel):

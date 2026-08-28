@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import logging
 import math
 import random
 from pathlib import Path
 from typing import Optional, Tuple, cast
 
-from PIL import Image
 from httpx import get
+from PIL import Image
 
-from consts import CUSTOM_BACKGROUNDS_PATH
+from nonebot_plugin_l4d2_server.consts import CUSTOM_BACKGROUNDS_PATH
 
 # Auto-create user's directory.
 CUSTOM_BACKGROUNDS_PATH.mkdir(parents=True, exist_ok=True)
@@ -43,8 +42,8 @@ def pick_background(
         chosen = random.choice(files)
         try:
             return Image.open(chosen).convert("RGBA")
-        except Exception:
-            logger.exception(f"打开自定义背景失败: {chosen.name}")
+        except Exception as exc:
+            print(f"打开自定义背景失败: {chosen.name}: {exc}")
 
     if width and height:
         return Image.new("RGBA", (width, height), (255, 255, 255, 255))

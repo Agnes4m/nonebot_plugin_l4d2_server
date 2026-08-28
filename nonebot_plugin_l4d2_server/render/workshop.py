@@ -1,7 +1,4 @@
-"""Workshop info-card HTML rendering.
-
-Replaces ``server/local/download.render_workshop_info``.
-"""
+"""Workshop info-card HTML rendering."""
 
 from __future__ import annotations
 
@@ -11,8 +8,9 @@ from pathlib import Path
 from nonebot_plugin_alconna import UniMessage
 from nonebot_plugin_htmlrender import template_to_pic as t2p
 
-from api import L4API
-from consts import RENDER_TEMPLATES_PATH
+from nonebot_plugin_l4d2_server.api import L4API
+from nonebot_plugin_l4d2_server.consts import RENDER_TEMPLATES_PATH
+
 from .images import convert_duration  # noqa: F401  (re-export for compat)
 
 
@@ -38,7 +36,8 @@ async def format_text_to_html(text: str) -> str:
                     list_items.append(f"<li>{line[2:].strip()}</li>")
                 elif line and list_items:
                     list_items[-1] = list_items[-1].replace(
-                        "</li>", f"<br>{line.strip()}</li>",
+                        "</li>",
+                        f"<br>{line.strip()}</li>",
                     )
             html_parts.append(f"<ul>{''.join(list_items)}</ul>")
             continue
@@ -56,6 +55,7 @@ async def format_text_to_html(text: str) -> str:
 
 async def _format_timestamp(ts: int) -> str:
     from datetime import datetime
+
     return datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
 
 
