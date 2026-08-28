@@ -1,12 +1,8 @@
-"""Server-list HTML rendering via nonebot_plugin_htmlrender.
-
-Replaces ``presentation/render/html_img.py``.
-"""
+"""Server-list HTML rendering via nonebot_plugin_htmlrender."""
 
 from __future__ import annotations
 
-import logging
-from functools import lru_cache
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -15,8 +11,13 @@ from jinja2 import Environment, FileSystemLoader
 from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
-from config import config  # injected at runtime
-from consts import RENDER_TEMPLATES_PATH, RENDER_BACKGROUNDS_PATH
+from nonebot_plugin_l4d2_server.config import config
+from nonebot_plugin_l4d2_server.consts import (
+    CUSTOM_BACKGROUNDS_PATH,
+    RENDER_BACKGROUNDS_PATH,
+    RENDER_TEMPLATES_PATH,
+)
+
 from .images import convert_duration
 
 _template_env: Environment | None = None
@@ -33,22 +34,37 @@ def _get_env() -> Environment:
     return _template_env
 
 
+def _resolve_background() -> Path:
+    """优先使用用户自定义背景（data/L4D2/custom_backgrounds/），否则用内置默认图。"""
+    if CUSTOM_BACKGROUNDS_PATH.is_dir():
+        for f in sorted(CUSTOM_BACKGROUNDS_PATH.iterdir()):
+            if f.is_file() and f.suffix.lower() in (".jpg", ".jpeg", ".png"):
+                return f
+    return RENDER_BACKGROUNDS_PATH / "background.jpg"
+
+
+def _prepare_back_img() -> str:
+    """把选中的背景复制到模板可达的 render/back_img/ 下，返回相对模板的文件名。"""
+    src = _resolve_background()
+    if not src.is_file():
+        return ""
+    back_dir = RENDER_TEMPLATES_PATH.parent / "back_img"
+    back_dir.mkdir(parents=True, exist_ok=True)
+    dst = back_dir / f"bg{src.suffix.lower()}"
+    if not dst.is_file() or dst.stat().st_mtime < src.stat().st_mtime:
+        shutil.copy2(src, dst)
+    return f"back_img/{dst.name}"
+
+
 async def _build_html(server_dict: list[dict]) -> str:
     env = _get_env()
     template_name = "normal.html" if config.l4_style == "default" else "normal_old.html"
     template = env.get_template(template_name)
 
-    bg_dir = RENDER_BACKGROUNDS_PATH
-    bg_files = [
-        f.name for f in bg_dir.iterdir()
-        if f.suffix.lower() in (".jpg", ".jpeg", ".png")
-    ]
-    bg_filename = f"back_img/{bg_files[0]}" if bg_files else "background.jpg"
-
     return await template.render_async(
         servers=server_dict,
         max_count=config.l4_players,
-        bg_filename=bg_filename,
+        bg_filename=_prepare_back_img(),
     )
 
 
@@ -64,14 +80,11 @@ async def render_server_list(server_dict: list[dict]) -> Optional[bytes]:
                 key=lambda p: p.score,
                 reverse=True,
             )[: config.l4_players]
-            max_duration = (
-                max(
-                    len(str(await convert_duration(p.duration)))
-                    for p in sorted_players
-                )
-                if sorted_players
-                else 1
-            )
+            # async 推导需先物化为列表，max() 不能直接消费 async 生成器
+            durations = [
+                len(str(await convert_duration(p.duration))) for p in sorted_players
+            ]
+            max_duration = max(durations) if durations else 1
             for p in sorted_players:
                 dur = "{:^{}}".format(await convert_duration(p.duration), max_duration)
                 p.name = f"{p.name} | {dur}"

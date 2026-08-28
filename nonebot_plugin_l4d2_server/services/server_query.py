@@ -9,12 +9,12 @@ from __future__ import annotations
 
 from typing import List, Optional, Tuple, cast
 
-from config import config  # injected at runtime
-from api import L4API, AllServer, OutServer
-from messages import Sm as MsgSm
-from registry import registry
-from render import render_server_card, render_server_list
-from http_helpers import split_maohao
+from nonebot_plugin_l4d2_server.api import L4API, AllServer, OutServer
+from nonebot_plugin_l4d2_server.config import config
+from nonebot_plugin_l4d2_server.http_helpers import split_maohao
+from nonebot_plugin_l4d2_server.messages import Sm as MsgSm
+from nonebot_plugin_l4d2_server.registry import registry
+from nonebot_plugin_l4d2_server.render import render_server_card, render_server_list
 
 
 async def query_group_servers(group_name: str) -> List[OutServer]:
@@ -23,14 +23,12 @@ async def query_group_servers(group_name: str) -> List[OutServer]:
     if not servers:
         return []
 
-    ip_list: List[Tuple[str, int]] = [
-        (s["host"], int(s["port"])) for s in servers
-    ]
+    ip_list: List[Tuple[str, int]] = [(s["host"], int(s["port"])) for s in servers]
     results = await L4API.a2s_info_batch(ip_list)
 
     # Pad missing entries with empty SourceInfo for stable indexing.
     out: List[OutServer] = []
-    for idx, ((server, players), srv) in enumerate(zip(results, servers)):
+    for (server, players), srv in zip(results, servers):
         out.append(
             cast(
                 OutServer,
@@ -112,7 +110,7 @@ async def get_server_detail(
 
 async def _render_group(
     command: str,
-    servers: list[dict],
+    _servers: list[dict],
     is_img: bool,
 ) -> bytes | list[OutServer]:
     out_servers = await query_group_servers(command)

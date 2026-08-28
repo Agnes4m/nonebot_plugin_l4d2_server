@@ -1,22 +1,17 @@
-"""Local L4D2 server: map listing / archive extraction / rename / delete.
-
-Replaces ``server/local/file.py`` + ``server/local/utils.py`` (excluding
+"""Local L4D2 server: map listing / archive extraction / rename / delete. + ``server/local/utils.py`` (excluding
 workshop download, which lives in ``services/workshop.py``).
 """
 
 from __future__ import annotations
 
-import io
 import zipfile
 from pathlib import Path
-from typing import List
-from zipfile import ZipFile
 
 from nonebot.log import logger
 from pyunpack import Archive
 
-from http_helpers import list_vpk, save_url_to_file
-from config import config  # injected at runtime
+from nonebot_plugin_l4d2_server.config import config
+from nonebot_plugin_l4d2_server.http_helpers import list_vpk, save_url_to_file
 
 SUPPORTED_EXTENSIONS = (".zip", ".7z", ".rar")
 
@@ -63,11 +58,10 @@ def list_vpks(server_index: int) -> list[str]:
 
     if not addons.is_dir():
         return []
-    files = sorted(
+    return sorted(
         (p.name for p in addons.iterdir() if p.is_file() and p.name.endswith(".vpk")),
         key=_sort_key,
     )
-    return files
 
 
 def has_local_paths() -> bool:
@@ -110,9 +104,7 @@ def _un7z(download: Path) -> None:
 _UNPACKERS = {
     ".zip": _unzip,
     ".7z": _un7z,
-    ".rar": lambda p: (
-        Archive(str(p)).extractall(str(p.parent)) or p.unlink(),
-    ),
+    ".rar": lambda p: (Archive(str(p)).extractall(str(p.parent)) or p.unlink(),),
 }
 
 
@@ -130,7 +122,9 @@ def extract_archive(download: Path, name: str) -> str | None:
 
 
 async def download_and_extract(
-    addons: Path, name: str, url: str
+    addons: Path,
+    name: str,
+    url: str,
 ) -> list[str] | None:
     """Download an archive, extract it, and return the new VPK filenames."""
     before = set(list_vpk(addons))
@@ -168,13 +162,14 @@ async def rename_vpk(addons: Path, old: str, new: str) -> bool:
             return False
         src.rename(dst)
         logger.info(f"文件 {old} 已重命名为 {new}")
-        return True
     except PermissionError:
         logger.error(f"没有权限重命名 {old}")
         return False
     except Exception as exc:
         logger.error(f"重命名 {old} 失败: {exc}")
         return False
+    else:
+        return True
 
 
 async def delete_vpk(addons: Path, name: str) -> bool:
@@ -185,10 +180,11 @@ async def delete_vpk(addons: Path, name: str) -> bool:
             return False
         target.unlink()
         logger.info(f"文件 {name} 已删除")
-        return True
     except PermissionError:
         logger.error(f"没有权限删除 {name}")
         return False
     except Exception as exc:
         logger.error(f"删除 {name} 失败: {exc}")
         return False
+    else:
+        return True

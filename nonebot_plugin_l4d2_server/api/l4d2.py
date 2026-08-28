@@ -10,20 +10,18 @@ from __future__ import annotations
 import asyncio
 import contextlib
 from copy import deepcopy
-from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
 
 import a2s
-import httpx
 from bs4 import BeautifulSoup, Tag
 from httpx import AsyncClient
 from nonebot.log import logger
 
-from http_helpers import split_maohao
+from nonebot_plugin_l4d2_server.http_helpers import split_maohao
+
 from .models import (
     AnnePlayer2,
     AnnePlayerDetail,
-    AnnePlayerError,
     AnnePlayerInf,
     AnnePlayerInfAvg,
     AnnePlayerInfo,
@@ -32,7 +30,7 @@ from .models import (
     SourceBansInfo,
     WorksopInfo,
 )
-from .sources import AnneSearchApi, AnnePlayerApi, WorkshopApi, anne_ban
+from .sources import AnnePlayerApi, AnneSearchApi, WorkshopApi, anne_ban
 
 
 class L4D2Api:
@@ -74,12 +72,12 @@ class L4D2Api:
         )
 
     async def a2s_info_single(
-        self, ip: Tuple[str, int]
+        self,
+        ip: Tuple[str, int],
     ) -> a2s.SourceInfo[str]:
         """Query a single server; fall back to empty SourceInfo on error."""
         try:
-            server = await a2s.ainfo(ip, timeout=3, encoding="utf8")
-            return server
+            return await a2s.ainfo(ip, timeout=3, encoding="utf8")
         except Exception:
             return self._empty_source_info()
 
@@ -105,10 +103,10 @@ class L4D2Api:
         return sorted(
             results,
             key=lambda pair: (
-                    getattr(pair[0], "steam_id", float("inf")) is None,
-                    getattr(pair[0], "steam_id", float("inf")),
-                ),
-            )
+                getattr(pair[0], "steam_id", float("inf")) is None,
+                getattr(pair[0], "steam_id", float("inf")),
+            ),
+        )
 
     async def _a2s_one(
         self,
@@ -167,6 +165,7 @@ class L4D2Api:
             text = resp.text
             try:
                 import ujson as json  # type: ignore[import-not-found]
+
                 raw = json.loads(text)
             except Exception:
                 raw = {"result": {"error_code": -999, "data": text}}
@@ -190,7 +189,7 @@ class L4D2Api:
 
     async def get_sourceban(
         self,
-        tag: str = "云",
+        _tag: str = "云",
         url: str = anne_ban,
     ) -> List[SourceBansInfo]:
         """Scrape a SourceBans++ page and return server info objects."""
@@ -287,34 +286,65 @@ class L4D2Api:
         def get_table_dict(table, keys):
             trs = table.select("tr")
             return {
-                key: trs[i].select("td")[1].text.strip()
-                for i, key in enumerate(keys)
+                key: trs[i].select("td")[1].text.strip() for i, key in enumerate(keys)
             }
 
         info_keys = ["name", "avatar", "steamid", "playtime", "lasttime"]
         detail_keys = [
-            "rank", "source", "avg_source", "kills", "kills_people",
-            "headshots", "avg_headshots", "map_play",
+            "rank",
+            "source",
+            "avg_source",
+            "kills",
+            "kills_people",
+            "headshots",
+            "avg_headshots",
+            "map_play",
         ]
         error_keys = [
-            "mistake_shout", "kill_friend", "down_friend", "abandon_friend",
-            "put_into", "agitate_witch",
+            "mistake_shout",
+            "kill_friend",
+            "down_friend",
+            "abandon_friend",
+            "put_into",
+            "agitate_witch",
         ]
         inf_avg_keys = [
-            "avg_smoker", "avg_boomer", "avg_hunter", "avg_charger",
-            "avg_spitter", "avg_jockey", "avg_tank",
+            "avg_smoker",
+            "avg_boomer",
+            "avg_hunter",
+            "avg_charger",
+            "avg_spitter",
+            "avg_jockey",
+            "avg_tank",
         ]
         sur_keys = [
-            "map_clear", "prefect_into", "get_oil", "ammo_arrange",
-            "adrenaline_give", "pills_give", "first_aid_give", "friend_up",
-            "diss_friend", "save_friend", "protect_friend",
-            "pro_from_smoker", "pro_from_hunter", "pro_from_charger",
-            "pro_from_jockey", "melee_charge", "tank_kill",
+            "map_clear",
+            "prefect_into",
+            "get_oil",
+            "ammo_arrange",
+            "adrenaline_give",
+            "pills_give",
+            "first_aid_give",
+            "friend_up",
+            "diss_friend",
+            "save_friend",
+            "protect_friend",
+            "pro_from_smoker",
+            "pro_from_hunter",
+            "pro_from_charger",
+            "pro_from_jockey",
+            "melee_charge",
+            "tank_kill",
             "witch_instantly_kill",
         ]
         inf_keys = [
-            "sur_ace", "sur_down", "boommer_hit", "hunter_prefect",
-            "hunter_success", "tank_damage", "charger_multiple",
+            "sur_ace",
+            "sur_down",
+            "boommer_hit",
+            "hunter_prefect",
+            "hunter_success",
+            "tank_damage",
+            "charger_multiple",
         ]
 
         info_dict = get_table_dict(tbody_tags[0], info_keys)

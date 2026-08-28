@@ -38,7 +38,8 @@ _registry.scan_commands()
 @driver.on_startup
 async def _on_startup() -> None:
     migrate.migrate_legacy_layout()
-    await sourceban.refresh_all_pages()
+    # 只从磁盘 JSON 加载，避免每次启动都重新抓取所有 SourceBans 页面；
+    # 需要更新缓存时使用 l4刷新组 命令。
     await sourceban.reload_registry()
     sourceban.register_anne_alias()
     from .commands.query import refresh_server_command_rule

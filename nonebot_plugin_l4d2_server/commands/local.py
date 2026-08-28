@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from nonebot.adapters import Event, Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
@@ -11,13 +9,14 @@ from nonebot.plugin import on_command
 from nonebot_plugin_alconna import File, UniMessage
 from nonebot_plugin_waiter import prompt
 
-from config import config
-from render.images import text2pic
-from services import local_server as svc_local
-from services.workshop import fetch_info, download_to_addons
+from nonebot_plugin_l4d2_server.config import config
+from nonebot_plugin_l4d2_server.render.images import text2pic
+from nonebot_plugin_l4d2_server.services import local_server as svc_local
+from nonebot_plugin_l4d2_server.services.workshop import download_to_addons, fetch_info
 
 if not config.l4_local:
     from nonebot.log import logger
+
     logger.warning(
         "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
     )
@@ -74,7 +73,7 @@ async def _() -> None:
     if files:
         url = files[0].url
         name = files[0].name
-    elif (text := msg.extract_plain_text().strip()):
+    elif text := msg.extract_plain_text().strip():
         if text.startswith(("http://", "https://")):
             url, name = text, text.split("/")[-1]
         else:
@@ -101,7 +100,10 @@ async def _() -> None:
 
 
 def _parse_change_args(
-    matcher: Matcher, raw: str, *, is_delete: bool
+    matcher: Matcher,
+    raw: str,
+    *,
+    is_delete: bool,
 ) -> tuple[int, str] | None:
     raw = raw.strip()
     if raw == "0":
@@ -109,8 +111,8 @@ def _parse_change_args(
     if not raw:
         prompt_text = (
             "请输入要删除的地图序号"
-        if is_delete else
-            "请输入修改的地图序号和地图名称，以空格隔开，回复0取消"
+            if is_delete
+            else "请输入修改的地图序号和地图名称，以空格隔开，回复0取消"
         )
         matcher.pause(prompt_text)
         return None

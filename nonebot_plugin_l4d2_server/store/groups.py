@@ -12,7 +12,7 @@ from typing import Iterable
 import aiofiles
 import ujson as json
 
-from consts import DEFAULT_DATA_DIR
+from nonebot_plugin_l4d2_server.consts import DEFAULT_DATA_DIR
 
 GROUPS_DIR = Path(DEFAULT_DATA_DIR)
 
@@ -66,9 +66,9 @@ async def get_group(tag: str) -> list[dict]:
         data = json.loads(text or "{}")
         if isinstance(data, dict):
             return data.get(str(tag), [])
-        return []
     except Exception:
         return []
+    return []
 
 
 async def remove_group(tag: str) -> bool:

@@ -11,13 +11,15 @@ from pathlib import Path
 from typing import Iterable
 
 import aiofiles
-from consts import LEGACY_GROUP_DIR, LEGACY_URL_FILE
-from http_helpers import split_maohao
 from nonebot.log import logger
+
+from nonebot_plugin_l4d2_server.consts import LEGACY_GROUP_DIR, LEGACY_URL_FILE
+from nonebot_plugin_l4d2_server.http_helpers import split_maohao
 
 # Old layout used these filenames as standalone single-file multi-group
 # containers. They are explicitly excluded from per-file scanning.
-_EXCLUDED_TOP_LEVEL_FILES = frozenset({LEGACY_URL_FILE.name})
+# sb_pages.json 是“组名→SourceBans URL”映射存储，不是服务器组数据。
+_EXCLUDED_TOP_LEVEL_FILES = frozenset({LEGACY_URL_FILE.name, "sb_pages.json"})
 
 
 def _iter_server_files() -> Iterable[tuple[Path, bool]]:
@@ -28,7 +30,8 @@ def _iter_server_files() -> Iterable[tuple[Path, bool]]:
     the JSON object has multiple group keys; otherwise each file holds one
     group's servers.
     """
-    from consts import DEFAULT_DATA_DIR
+    from nonebot_plugin_l4d2_server.consts import DEFAULT_DATA_DIR
+
     primary = Path(DEFAULT_DATA_DIR)
     if primary.is_dir():
         for item in primary.iterdir():
@@ -49,7 +52,8 @@ def _iter_server_files() -> Iterable[tuple[Path, bool]]:
 
 
 def _normalize_server_entry(
-    entry: object, idx: int
+    entry: object,
+    idx: int,
 ) -> dict | None:
     """Coerce a raw JSON entry to ``{id, ip, host, port}`` or skip it."""
     if isinstance(entry, str):
@@ -143,7 +147,7 @@ class ServerRegistry:
     def scan_commands(self) -> None:
         """Populate ``_commands`` from filenames only, no server data loaded."""
         self._commands.clear()
-        for path, is_single in _iter_server_files():
+        for path, _is_single in _iter_server_files():
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError) as exc:

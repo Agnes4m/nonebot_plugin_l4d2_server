@@ -9,15 +9,15 @@ from __future__ import annotations
 import random
 from typing import List, cast
 
-import a2s
 from a2s import SourceInfo
 from a2s.players import Player
 from nonebot.log import logger
 
-from api import L4API
-from consts import FILTER_MODES, DEFAULT_MAP_TYPES as MAP_TYPES_DEFAULT
-from messages import Sm as MsgSm
-from render.images import convert_duration
+from nonebot_plugin_l4d2_server.api import L4API
+from nonebot_plugin_l4d2_server.consts import DEFAULT_MAP_TYPES as MAP_TYPES_DEFAULT
+from nonebot_plugin_l4d2_server.consts import FILTER_MODES
+from nonebot_plugin_l4d2_server.messages import Sm as MsgSm
+from nonebot_plugin_l4d2_server.render.images import convert_duration
 
 
 def _is_tj_server(
@@ -112,9 +112,7 @@ async def _describe(server: dict) -> str:
     one_players: List[Player] = info[0][1]
 
     if one_players:
-        durations = [
-            await convert_duration(p.duration) for p in one_players
-        ]
+        durations = [await convert_duration(p.duration) for p in one_players]
         max_dur = max(len(d) for d in durations)
         max_score = max(len(str(p.score)) for p in one_players)
         player_lines = [

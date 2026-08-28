@@ -1,6 +1,4 @@
-"""Help-card image rendering.
-
-Replaces ``core/help/draw.py`` + ``core/help/__init__.py``. Reads
+"""Help-card image rendering. + ``core/help/__init__.py``. Reads
 ``render/help/Help.json`` and produces a help image with section grid.
 """
 
@@ -14,8 +12,13 @@ from typing import Callable, Dict, List, Optional, Tuple, cast
 import aiofiles
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from consts import HELP_DATA_PATH, HELP_ICONS_PATH, HELP_TEXTURES_PATH
-from version import __version__
+from nonebot_plugin_l4d2_server.consts import (
+    HELP_DATA_PATH,
+    HELP_ICONS_PATH,
+    HELP_TEXTURES_PATH,
+)
+from nonebot_plugin_l4d2_server.version import __version__
+
 from .fonts import core_font
 from .images import convert_img
 
@@ -82,7 +85,11 @@ async def render_help(
     title_draw = ImageDraw.Draw(title)
     title_draw.text((int(w / 2), 440), f"{name} 帮助", title_color, font(36), "mm")
     title_draw.text(
-        (int(w / 2), 520), sub_text, sub_title_color, font(26), "mm",
+        (int(w / 2), 520),
+        sub_text,
+        sub_title_color,
+        font(26),
+        "mm",
     )
 
     sv_img_list: List[Image.Image] = []
@@ -162,9 +169,22 @@ async def build_help_image() -> bytes | str:
     async with aiofiles.open(HELP_DATA_PATH, "r", encoding="utf-8") as f:
         help_data = json.loads(await f.read())
 
-    bg_out = Image.open(HELP_TEXTURES_PATH / "bg.jpg")
+    bg_file = HELP_TEXTURES_PATH / "bg.jpg"
+    if bg_file.is_file():
+        bg_out = Image.open(bg_file).convert("RGB")
+    else:  # 兜底：缺背景资源时生成浅色渐变，保证帮助图可用
+        bg_out = Image.new("RGB", (2200, 1500))
+        _d = ImageDraw.Draw(bg_out)
+        for _y in range(1500):
+            _t = _y / 1500
+            _c = tuple(
+                int(a + (b - a) * _t) for a, b in zip((224, 240, 248), (250, 252, 254))
+            )
+            _d.line([(0, _y), (2200, _y)], fill=_c)
     bg_new = Image.new(
-        "RGBA", (bg_out.width, bg_out.height), (255, 255, 255, 100),
+        "RGBA",
+        (bg_out.width, bg_out.height),
+        (255, 255, 255, 100),
     )
     bg_out.paste(bg_new, None, bg_new)
 

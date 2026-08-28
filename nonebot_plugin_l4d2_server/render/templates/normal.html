@@ -18,7 +18,7 @@
 <body>
     <div class="outer-frame">
         <div class="container">
-            <h1>已加载服务器 {{ servers[1].command }} (共 {{ servers|length }} 台)</h1>
+            <h1>已加载服务器 {{ servers[0].command if servers else '' }} (共 {{ servers|length }} 台)</h1>
 
             <div class="server-grid">
                 {% for server in servers %}
