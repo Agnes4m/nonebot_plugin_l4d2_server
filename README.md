@@ -137,6 +137,8 @@ conda install nonebot-plugin-l4d2-server
 
 ## [数据结构](./docs/standand.md)
 
+> 服务器组文件存放位置：`data/L4D2/<组名>.json`（旧版 `data/L4D2/l4d2/` 子目录会在启动时自动迁移）。
+
 ## env 设置
 
 ```bash

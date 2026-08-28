@@ -1,3 +1,11 @@
+"""Plugin configuration model.
+
+Pure config schema + ConfigManager; data layout / migration lives in
+``services/migrate.py``.
+"""
+
+from __future__ import annotations
+
 from pathlib import Path
 from typing import List
 
@@ -7,40 +15,11 @@ from nonebot.log import logger
 from nonebot.permission import SUPERUSER, Permission
 from pydantic import BaseModel, Field, field_validator
 
-# 常量
-DATAPATH = Path(__file__).parent.joinpath("data")
-DEFAULT_DATA_DIR = "data/L4D2"
-DEFAULT_FONT = str(Path(__file__).parent.joinpath("data/font/loli.ttf"))
-
-_DATA_INITIALIZED = False
-
-
-def _ensure_data_dir() -> None:
-    global _DATA_INITIALIZED
-    if _DATA_INITIALIZED:
-        return
-    data_dir = Path(DEFAULT_DATA_DIR)
-    data_dir.mkdir(parents=True, exist_ok=True)
-    json_file = data_dir / "l4d2.json"
-    if not json_file.is_file():
-        logger.info(f"文件 {json_file.name} 不存在，已创建并初始化为 {{}}")
-        json_file.write_text("{}", encoding="utf-8")
-    (data_dir / "l4d2").mkdir(parents=True, exist_ok=True)
-    _DATA_INITIALIZED = True
-
-
-def get_server_all_path() -> Path:
-    _ensure_data_dir()
-    return Path(DEFAULT_DATA_DIR) / "l4d2"
-
-
-DATAOUT = Path(DEFAULT_DATA_DIR)
-server_all_path = Path(DEFAULT_DATA_DIR) / "l4d2"
-ICONPATH = DATAPATH / "icon"
+from consts import DEFAULT_DATA_DIR
 
 
 class ConfigModel(BaseModel):
-    """插件配置模型"""
+    """User-tunable configuration."""
 
     l4_enable: bool = Field(default=True, description="是否全局启用求生功能")
     l4_image: bool = Field(default=True, description="是否启用图片")
@@ -48,7 +27,7 @@ class ConfigModel(BaseModel):
     l4_path: str = Field(default=DEFAULT_DATA_DIR, description="插件数据路径")
     l4_players: int = Field(default=4, ge=1, description="查询总图时展示的用户数量")
     l4_style: str = Field(default="default", description="图片风格")
-    l4_font: str = Field(default=DEFAULT_FONT, description="字体文件路径")
+    l4_font: str = Field(default="", description="字体文件路径")
     l4_show_ip: bool = Field(
         default=True,
         description="单服务器查询时是否展示ip直连地址",
@@ -74,20 +53,13 @@ class ConfigModel(BaseModel):
     @classmethod
     def validate_local_paths(cls, v):
         if isinstance(v, list):
-            validated_paths = []
+            validated: list[str] = []
             for path in v:
-                path_obj = Path(path)
-                if not (path_obj / "steam_appid.txt").exists():
+                if not (Path(path) / "steam_appid.txt").exists():
                     raise ValueError(f"路径 {path} 下缺少 steam_appid.txt 文件")
-                validated_paths.append(str(path_obj.resolve()))
-            return validated_paths
+                validated.append(str(Path(path).resolve()))
+            return validated
         return v
-
-    def update_map_index(self, index: int) -> None:
-        """更新地图索引配置"""
-        if index < 0:
-            raise ValueError("地图索引不能小于0")
-        self.l4_map_index = index
 
     @property
     def l4_permission_set(self) -> Permission:
@@ -104,7 +76,9 @@ config = get_plugin_config(ConfigModel)
 
 
 class ConfigManager:
-    def __init__(self):
+    """Runtime config toggle helpers."""
+
+    def __init__(self) -> None:
         self._config = config
 
     def update_image_config(self, enabled: bool) -> None:
@@ -114,21 +88,6 @@ class ConfigManager:
         if not isinstance(style, str):
             raise TypeError("style必须是字符串")
         self._config.l4_style = style
-
-    def update(self, **kwargs) -> None:
-        valid_keys = ConfigModel.model_fields.keys()
-        for key, value in kwargs.items():
-            if key not in valid_keys:
-                raise ValueError(f"无效的配置项: {key}")
-            field_info = ConfigModel.model_fields[key]
-            field_type = field_info.annotation
-            if field_type and not isinstance(value, field_type):
-                raise TypeError(f"{key} 必须是 {field_type.__name__} 类型")
-            setattr(self._config, key, value)
-        try:
-            self._config = ConfigModel(**self._config.model_dump())
-        except ValueError as e:
-            logger.error(f"配置更新失败: {e!s}")
 
 
 config_manager = ConfigManager()
