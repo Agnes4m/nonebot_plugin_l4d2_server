@@ -15,7 +15,7 @@ from pathlib import Path
 
 from nonebot.log import logger
 
-import nonebot_plugin_l4d2_server.consts as consts
+from .. import consts as consts
 
 
 def _looks_like_url_map(payload: object) -> bool:
@@ -65,7 +65,7 @@ def _migrate_legacy_url_file() -> None:
 
 def _merge_url_map_into_pages(entries: dict) -> None:
     """Merge ``{tag: url}`` entries into ``sb_pages.json``."""
-    from nonebot_plugin_l4d2_server.store.pages import (
+    from ..store.pages import (
         load_pages,
         save_pages,
     )

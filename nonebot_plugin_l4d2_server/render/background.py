@@ -10,7 +10,7 @@ from typing import Optional, Tuple, cast
 from httpx import get
 from PIL import Image
 
-from nonebot_plugin_l4d2_server.consts import CUSTOM_BACKGROUNDS_PATH
+from ..consts import CUSTOM_BACKGROUNDS_PATH
 
 # Auto-create user's directory.
 CUSTOM_BACKGROUNDS_PATH.mkdir(parents=True, exist_ok=True)

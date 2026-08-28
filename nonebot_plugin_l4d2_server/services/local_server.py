@@ -10,8 +10,8 @@ from pathlib import Path
 from nonebot.log import logger
 from pyunpack import Archive
 
-from nonebot_plugin_l4d2_server.config import config
-from nonebot_plugin_l4d2_server.http_helpers import list_vpk, save_url_to_file
+from ..config import config
+from ..http_helpers import list_vpk, save_url_to_file
 
 SUPPORTED_EXTENSIONS = (".zip", ".7z", ".rar")
 

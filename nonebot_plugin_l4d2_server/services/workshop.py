@@ -12,11 +12,11 @@ import aiofiles
 from nonebot.log import logger
 from nonebot_plugin_alconna import UniMessage
 
-from nonebot_plugin_l4d2_server.api import WorksopInfo
-from nonebot_plugin_l4d2_server.config import config
-from nonebot_plugin_l4d2_server.http_helpers import url_to_byte
-from nonebot_plugin_l4d2_server.render.workshop import render_workshop_card
-from nonebot_plugin_l4d2_server.services.local_server import addons_dir
+from ..api import WorksopInfo
+from ..config import config
+from ..http_helpers import url_to_byte
+from ..render.workshop import render_workshop_card
+from ..services.local_server import addons_dir
 
 
 def parse_workshop_id(input_str: str) -> str:

@@ -13,8 +13,8 @@ from typing import Iterable
 import aiofiles
 from nonebot.log import logger
 
-from nonebot_plugin_l4d2_server.consts import LEGACY_GROUP_DIR, LEGACY_URL_FILE
-from nonebot_plugin_l4d2_server.http_helpers import split_maohao
+from .consts import LEGACY_GROUP_DIR, LEGACY_URL_FILE
+from .http_helpers import split_maohao
 
 # Old layout used these filenames as standalone single-file multi-group
 # containers. They are explicitly excluded from per-file scanning.
@@ -30,7 +30,7 @@ def _iter_server_files() -> Iterable[tuple[Path, bool]]:
     the JSON object has multiple group keys; otherwise each file holds one
     group's servers.
     """
-    from nonebot_plugin_l4d2_server.consts import DEFAULT_DATA_DIR
+    from .consts import DEFAULT_DATA_DIR
 
     primary = Path(DEFAULT_DATA_DIR)
     if primary.is_dir():

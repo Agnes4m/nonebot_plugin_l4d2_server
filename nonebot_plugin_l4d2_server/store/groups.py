@@ -12,7 +12,7 @@ from typing import Iterable
 import aiofiles
 import ujson as json
 
-from nonebot_plugin_l4d2_server.consts import DEFAULT_DATA_DIR
+from ..consts import DEFAULT_DATA_DIR
 
 GROUPS_DIR = Path(DEFAULT_DATA_DIR)
 

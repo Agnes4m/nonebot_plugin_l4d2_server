@@ -9,12 +9,12 @@ from __future__ import annotations
 
 from typing import List, Optional, Tuple, cast
 
-from nonebot_plugin_l4d2_server.api import L4API, AllServer, OutServer
-from nonebot_plugin_l4d2_server.config import config
-from nonebot_plugin_l4d2_server.http_helpers import split_maohao
-from nonebot_plugin_l4d2_server.messages import Sm as MsgSm
-from nonebot_plugin_l4d2_server.registry import registry
-from nonebot_plugin_l4d2_server.render import render_server_card, render_server_list
+from ..api import L4API, AllServer, OutServer
+from ..config import config
+from ..http_helpers import split_maohao
+from ..messages import Sm as MsgSm
+from ..registry import registry
+from ..render import render_server_card, render_server_list
 
 
 async def query_group_servers(group_name: str) -> List[OutServer]:

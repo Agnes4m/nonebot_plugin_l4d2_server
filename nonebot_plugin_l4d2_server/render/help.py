@@ -12,13 +12,12 @@ from typing import Callable, Dict, List, Optional, Tuple, cast
 import aiofiles
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from nonebot_plugin_l4d2_server.consts import (
+from ..consts import (
     HELP_DATA_PATH,
     HELP_ICONS_PATH,
     HELP_TEXTURES_PATH,
 )
-from nonebot_plugin_l4d2_server.version import __version__
-
+from ..version import __version__
 from .fonts import core_font
 from .images import convert_img
 
