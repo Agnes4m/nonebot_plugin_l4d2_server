@@ -134,6 +134,17 @@ def _find_endpoint(servers: list[dict], server_id: str) -> Optional[Tuple[str, i
     return None
 
 
+def find_endpoint(command: str, server_id: str) -> Optional[Tuple[str, int]]:
+    """Look up ``(host, port)`` for a specific server id in ``command`` group.
+
+    返回 ``None`` 表示该组不存在或组里没有匹配 ``server_id`` 的服务器。
+    """
+    servers = registry.get(command)
+    if not servers:
+        return None
+    return _find_endpoint(servers, server_id)
+
+
 async def get_ip_server(ip: str) -> bytes | str:
     """Render a server by raw ``host:port``."""
     host, port = split_maohao(ip)

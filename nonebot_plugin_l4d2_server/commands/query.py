@@ -6,10 +6,12 @@ from typing import Optional
 
 from nonebot import get_driver
 from nonebot.adapters import Message
+from nonebot.consts import CMD_ARG_KEY, CMD_KEY, PREFIX_KEY
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, CommandStart, RawCommand
 from nonebot.plugin import on_command
+from nonebot.typing import T_State
 from nonebot_plugin_alconna import UniMessage
 
 from ..config import config
@@ -31,12 +33,31 @@ l4_find_player = on_command(
 l4_request = on_command("anne", priority=10)
 
 
+async def _server_command_filter(state: T_State) -> bool:
+    """规则层过滤：服务器组指令后只能为空或纯数字。
+
+    比如「云」「云1」「云12」通过；「云云」「云abc」「云1a」拒绝，
+    不会进入 ``l4_request`` handler。配合 ``CommandRule`` 一起使用。
+    """
+    prefix_info = state.get(PREFIX_KEY)
+    if not prefix_info:
+        return False
+    if prefix_info.get(CMD_KEY) is None:
+        return False
+    cmd_arg = prefix_info.get(CMD_ARG_KEY)
+    if cmd_arg is None:
+        return True
+    arg_text = cmd_arg.extract_plain_text().strip()
+    return not arg_text or arg_text.isdigit()
+
+
 def refresh_server_command_rule() -> None:
     """Update ``l4_request`` rule so all known group tags are accepted.
 
     不用 ``rule.command()`` 重建：它每次都会把全部前缀重新插入全局 TrieRule，
     对已存在的前缀触发 "Duplicated prefix rule" 告警。这里改为幂等写入前缀
-    树（同键覆盖，值相同），再挂 CommandRule，行为一致且无告警。
+    树（同键覆盖，值相同），再挂 ``CommandRule`` + 数字后缀过滤，行为一致
+    且无告警。
     """
     from nonebot.rule import TRIE_VALUE, CommandRule, Rule, TrieRule
 
@@ -45,7 +66,7 @@ def refresh_server_command_rule() -> None:
     for cmd in cmds:
         for start in starts:
             TrieRule.prefix[f"{start}{cmd[0]}"] = TRIE_VALUE(start, cmd)
-    l4_request.rule = Rule(CommandRule(cmds))
+    l4_request.rule = Rule(CommandRule(cmds), _server_command_filter)
 
 
 @l4_help.handle()
@@ -88,6 +109,12 @@ async def _server_query_handler(
         await UniMessage.image(raw=msg).send()
     else:
         await UniMessage.text(str(msg)).send()
+
+    if server_id is not None and config.l4_connect:
+        endpoint = server_query.find_endpoint(command, server_id)
+        if endpoint is not None:
+            host, port = endpoint
+            await UniMessage.text(f"\nconnect {host}:{port}").send()
 
 
 @l4_list_all_servers.handle()
