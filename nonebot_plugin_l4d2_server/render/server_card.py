@@ -13,10 +13,38 @@ from nonebot.log import logger
 from PIL import Image, ImageDraw, ImageFont
 
 from ..config import config
+from ..consts import CUSTOM_BACKGROUNDS_PATH
 from ..messages import Sm as MsgSm
 
-# Background image bundled inside the plugin.
-BG_PATH = Path(__file__).parent / "backgrounds" / "anne" / "back.png"
+# 单张图片的目标最大宽度（像素）。长于此宽度的行会被自动换行，
+# 避免在 800px 硬上限下文字被背景裁断。
+MAX_CARD_WIDTH = 760
+MARGIN = 20
+
+# 单服务器卡默认底色（找不到自定义背景时使用）。
+DEFAULT_CARD_BG_COLOR = (73, 109, 137)
+
+
+def _resolve_card_background(img_w: int, img_h: int) -> Image.Image:
+    """查找单服务器卡的背景图，找不到则使用默认底色。
+
+    优先 ``data/L4D2/custom_backgrounds/`` 下按文件名排序的第一张图，
+    这样用户可以单独为单服务器卡准备一张图。
+    """
+    if CUSTOM_BACKGROUNDS_PATH.is_dir():
+        for bg_path in sorted(CUSTOM_BACKGROUNDS_PATH.iterdir()):
+            if bg_path.is_file() and bg_path.suffix.lower() in (
+                ".png",
+                ".jpg",
+                ".jpeg",
+            ):
+                try:
+                    with Image.open(bg_path) as src:
+                        return src.convert("RGB").resize((img_w, img_h))
+                except Exception as exc:
+                    logger.warning(f"加载自定义背景 {bg_path.name} 失败: {exc}")
+                    break
+    return Image.new("RGB", (img_w, img_h), DEFAULT_CARD_BG_COLOR)
 
 
 @lru_cache(maxsize=16)
@@ -62,6 +90,54 @@ def _format_dur(seconds: float) -> str:
     return out + f"{s}s"
 
 
+def _measure(font: ImageFont.FreeTypeFont, text: str) -> int:
+    """Return rendered pixel width of ``text``."""
+    bbox = font.getbbox(text)
+    return bbox[2] - bbox[0]
+
+
+def _wrap_line(line: str, font: ImageFont.FreeTypeFont, max_width: int) -> list[str]:
+    """按像素宽度将一行文字拆成多行。
+
+    单个字符宽度超过 ``max_width`` 时也会被保留为单字符一行，避免死循环。
+    """
+    if not line:
+        return [""]
+    if _measure(font, line) <= max_width:
+        return [line]
+
+    chunks: list[str] = []
+    pos = 0
+    n = len(line)
+    while pos < n:
+        best = pos
+        end = best + 1
+        while end <= n:
+            w = _measure(font, line[pos:end])
+            if w > max_width:
+                break
+            best = end
+            end += 1
+        if best == pos:
+            # 当前单个字符就超宽；强行保留单字符避免死循环
+            best = pos + 1
+        chunks.append(line[pos:best])
+        pos = best
+    return chunks
+
+
+def _wrap_lines(
+    lines: list[str],
+    font: ImageFont.FreeTypeFont,
+    max_width: int,
+) -> list[str]:
+    """对一组行做按像素宽度的换行，返回新的扁平行列表。"""
+    out: list[str] = []
+    for line in lines:
+        out.extend(_wrap_line(line, font, max_width))
+    return out
+
+
 def _build_text_message(server, host: str, port: int) -> str:
     """Plain-text server description (no image)."""
     vac = "启用" if server.vac_enabled else "禁用"
@@ -79,7 +155,11 @@ def _build_text_message(server, host: str, port: int) -> str:
 
 
 def _render_server_image(server, players, host, port) -> bytes | None:
-    """Render a styled PIL card. Returns JPEG bytes or ``None`` on bg failure."""
+    """Render a styled PIL card. Returns JPEG bytes or ``None`` on bg failure.
+
+    长内容（服务器名、connect IP 等）会按 ``MAX_CARD_WIDTH - 2 * MARGIN``
+    的像素宽度自动换行，避免被 800px 背景裁断。
+    """
     font = _load_font(18)
     vac_status = "启用" if server.vac_enabled else "禁用"
     player_info = _format_player_lines(players)
@@ -96,50 +176,54 @@ def _render_server_image(server, players, host, port) -> bytes | None:
     if config.l4_show_ip:
         text += f"\nconnect {host}:{port}"
 
-    lines = text.split("\n")
-    title = lines[0]
-    content = "\n".join(lines[1:]) if len(lines) > 1 else ""
+    raw_lines = text.split("\n")
+    raw_title = raw_lines[0]
+    raw_content = raw_lines[1:]
 
-    title_bbox = font.getbbox(title)
-    title_w = title_bbox[2] - title_bbox[0]
-    title_h = title_bbox[3] - title_bbox[1]
+    text_max_w = MAX_CARD_WIDTH - 2 * MARGIN
+    title_lines = _wrap_line(raw_title, font, text_max_w)
+    content_lines = _wrap_lines(raw_content, font, text_max_w)
 
-    margin = 20
     line_spacing = 7
     line_height = font.getbbox("A")[3] - font.getbbox("A")[1]
-    content_lines = content.split("\n") if content else []
-    content_height = len(content_lines) * line_height if content_lines else 0
-    content_width = (
-        max(font.getbbox(line)[2] - font.getbbox(line)[0] for line in content_lines)
+    title_heights = [
+        font.getbbox(line)[3] - font.getbbox(line)[1] for line in title_lines
+    ]
+    title_total_h = sum(title_heights) + line_spacing * max(0, len(title_lines) - 1)
+    title_widths = [_measure(font, line) for line in title_lines]
+    content_height = (
+        len(content_lines) * (line_height + line_spacing) - line_spacing
         if content_lines
         else 0
     )
 
-    img_w = max(title_w, content_width) + 2 * margin
+    img_w = MAX_CARD_WIDTH
     img_h = max(
-        title_h
+        MARGIN
+        + title_total_h
+        + (MARGIN if content_lines else 0)
         + content_height
-        + (line_spacing + 1) * max(0, len(content_lines) - 1)
-        + 2 * margin,
+        + MARGIN,
         300,
     )
 
-    title_x = (img_w - title_w) // 2
-    title_y = margin
-    content_y = title_y + title_h + margin if content else 0
-    content_x = margin
+    bg = _resolve_card_background(img_w, int(img_h))
+    draw = ImageDraw.Draw(bg)
 
-    try:
-        bg = Image.open(BG_PATH).resize(
-            (min(img_w, 800), int(img_h)),
+    # 标题：多行居中
+    title_y = MARGIN
+    for idx, line in enumerate(title_lines):
+        line_w = title_widths[idx]
+        draw.text(
+            ((img_w - line_w) // 2, title_y),
+            line,
+            font=font,
+            fill=(255, 255, 255),
         )
-        draw = ImageDraw.Draw(bg)
-    except Exception as exc:
-        logger.error(f"加载背景图片失败: {exc}")
-        bg = Image.new("RGB", (img_w, img_h), (73, 109, 137))
-        draw = ImageDraw.Draw(bg)
+        title_y += title_heights[idx] + line_spacing
 
-    draw.text((title_x, title_y), title, font=font, fill=(255, 255, 255))
+    content_y = title_y + (MARGIN if content_lines else 0) - line_spacing
+    content_x = MARGIN
 
     value_colors = {
         "游戏: ": (200, 180, 255),
@@ -149,53 +233,51 @@ def _render_server_image(server, players, host, port) -> bytes | None:
         "类型: ": (180, 220, 255),
         "密码: ": (255, 255, 255),
     }
-    if content:
-        current_y = content_y
-        for line in content_lines:
-            colored = False
-            for prefix, color in value_colors.items():
-                if line.startswith(prefix):
-                    prefix_w = font.getbbox(prefix)[2] - font.getbbox(prefix)[0]
-                    draw.text(
-                        (content_x, current_y),
-                        prefix,
-                        font=font,
-                        fill=(255, 255, 255),
-                    )
-                    draw.text(
-                        (content_x + prefix_w, current_y),
-                        line[len(prefix) :].strip(),
-                        font=font,
-                        fill=color,
-                    )
-                    colored = True
-                    break
-            if not colored and line.startswith("VAC :"):
-                prefix = "VAC : "
-                prefix_w = font.getbbox(prefix)[2] - font.getbbox(prefix)[0]
+    for line in content_lines:
+        colored = False
+        for prefix, color in value_colors.items():
+            if line.startswith(prefix):
+                prefix_w = _measure(font, prefix)
                 draw.text(
-                    (content_x, current_y),
+                    (content_x, content_y),
                     prefix,
                     font=font,
                     fill=(255, 255, 255),
                 )
-                vac_value = line[len(prefix) :].strip()
-                vac_color = (70, 209, 110) if vac_value == "启用" else (255, 90, 90)
                 draw.text(
-                    (content_x + prefix_w, current_y),
-                    vac_value,
+                    (content_x + prefix_w, content_y),
+                    line[len(prefix) :].strip(),
                     font=font,
-                    fill=vac_color,
+                    fill=color,
                 )
                 colored = True
-            if not colored:
-                draw.text(
-                    (content_x, current_y),
-                    line,
-                    font=font,
-                    fill=(255, 255, 255),
-                )
-            current_y += line_height + line_spacing
+                break
+        if not colored and line.startswith("VAC :"):
+            prefix = "VAC : "
+            prefix_w = _measure(font, prefix)
+            draw.text(
+                (content_x, content_y),
+                prefix,
+                font=font,
+                fill=(255, 255, 255),
+            )
+            vac_value = line[len(prefix) :].strip()
+            vac_color = (70, 209, 110) if vac_value == "启用" else (255, 90, 90)
+            draw.text(
+                (content_x + prefix_w, content_y),
+                vac_value,
+                font=font,
+                fill=vac_color,
+            )
+            colored = True
+        if not colored:
+            draw.text(
+                (content_x, content_y),
+                line,
+                font=font,
+                fill=(255, 255, 255),
+            )
+        content_y += line_height + line_spacing
 
     buf = io.BytesIO()
     bg.save(buf, format="PNG")
