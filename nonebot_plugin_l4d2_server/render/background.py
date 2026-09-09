@@ -1,28 +1,51 @@
-"""Background image selection: custom user PNGs/JPGs or pure-white fallback."""
+"""Background image selection from user's custom_backgrounds directory."""
 
 from __future__ import annotations
 
-import math
 import random
 from pathlib import Path
-from typing import Optional, Tuple, cast
+from typing import Optional
 
 from httpx import get
+from nonebot.log import logger
 from PIL import Image
 
-from ..consts import CUSTOM_BACKGROUNDS_PATH
+from ..config import config
 
-# Auto-create user's directory.
-CUSTOM_BACKGROUNDS_PATH.mkdir(parents=True, exist_ok=True)
+_IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg")
 
 
-def _list_custom_backgrounds() -> list[Path]:
-    """All user-placed backgrounds (PNG/JPG/JPEG)."""
-    return (
-        list(CUSTOM_BACKGROUNDS_PATH.glob("*.png"))
-        + list(CUSTOM_BACKGROUNDS_PATH.glob("*.jpg"))
-        + list(CUSTOM_BACKGROUNDS_PATH.glob("*.jpeg"))
-    )
+def user_background_dir() -> Path:
+    """根据 ``l4_path`` 配置解析用户自定义背景目录。"""
+    return Path(config.l4_path) / "custom_backgrounds"
+
+
+def list_image_files(directory: Path) -> list[Path]:
+    """``directory`` 下的所有图片文件（按文件名排序）；目录不存在或不可读返回空列表。"""
+    if not directory.is_dir():
+        return []
+    try:
+        return sorted(
+            p
+            for p in directory.iterdir()
+            if p.is_file() and p.suffix.lower() in _IMAGE_SUFFIXES
+        )
+    except OSError as exc:
+        logger.warning(f"读取背景目录 {directory} 失败: {exc}")
+        return []
+
+
+def pick_random_user_background() -> Optional[Path]:
+    """从用户背景目录随机抽一张；空则返回 None。"""
+    files = list_image_files(user_background_dir())
+    return random.choice(files) if files else None
+
+
+def ensure_user_background_dir() -> Path:
+    """确保用户背景目录存在（按 ``l4_path`` 解析），返回该目录。"""
+    directory = user_background_dir()
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory
 
 
 def pick_background(
@@ -30,14 +53,11 @@ def pick_background(
     width: Optional[int] = None,
     height: Optional[int] = None,
 ) -> Image.Image:
-    """Return a background image, optionally sized to fit.
-
-    Priority: explicit URL > random user background > pure white.
-    """
+    """通用背景图选择器（公开 API，供外部插件复用）。"""
     if url:
         return Image.open(get(url).content).convert("RGBA")
 
-    files = _list_custom_backgrounds()
+    files = list_image_files(user_background_dir())
     if files:
         chosen = random.choice(files)
         try:
@@ -47,28 +67,4 @@ def pick_background(
 
     if width and height:
         return Image.new("RGBA", (width, height), (255, 255, 255, 255))
-
     return Image.new("RGBA", (1, 1), (255, 255, 255, 255))
-
-
-def crop_to(img: Image.Image, w: int, h: int) -> Image.Image:
-    """Crop ``img`` to ``w x h`` keeping aspect ratio (centered)."""
-    based_scale = "%.3f" % (w / h)
-    img_w, img_h = img.size
-    scale_f = "%.3f" % (img_w / img_h)
-    new_w = math.ceil(h * float(scale_f))
-    new_h = math.ceil(w / float(scale_f))
-    if scale_f > based_scale:
-        resized = img.resize((new_w, h), Image.Resampling.LANCZOS)
-        x1 = int(new_w / 2 - w / 2)
-        return resized.crop((x1, 0, x1 + w, h))
-    resized = img.resize((w, new_h), Image.Resampling.LANCZOS)
-    y1 = int(new_h / 2 - h / 2)
-    return resized.crop((0, y1, w, y1 + h))
-
-
-def dominant_color(img: Image.Image) -> Tuple[int, int, int]:
-    """Sample the most common color in ``img`` (after quantize)."""
-    small = img.copy().convert("RGBA").resize((1, 1), resample=0)
-    pixel = small.getpixel((0, 0))
-    return cast(Tuple[int, int, int], pixel[:3])

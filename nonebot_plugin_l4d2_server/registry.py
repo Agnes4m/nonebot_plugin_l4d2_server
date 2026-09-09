@@ -13,26 +13,28 @@ from typing import Iterable
 import aiofiles
 from nonebot.log import logger
 
-from .consts import LEGACY_GROUP_DIR, LEGACY_URL_FILE
+from .consts import LEGACY_GROUP_SUBDIR, LEGACY_URL_FILENAME, SB_PAGES_FILENAME
 from .http_helpers import split_maohao
 
 # Old layout used these filenames as standalone single-file multi-group
 # containers. They are explicitly excluded from per-file scanning.
-# sb_pages.json 是“组名→SourceBans URL”映射存储，不是服务器组数据。
-_EXCLUDED_TOP_LEVEL_FILES = frozenset({LEGACY_URL_FILE.name, "sb_pages.json"})
+# sb_pages.json 是"组名→SourceBans URL"映射存储，不是服务器组数据。
+_EXCLUDED_TOP_LEVEL_FILES = frozenset({LEGACY_URL_FILENAME, SB_PAGES_FILENAME})
 
 
 def _iter_server_files() -> Iterable[tuple[Path, bool]]:
     """Yield ``(path, is_single_file_multi_group)`` for each loadable JSON.
 
-    Scans: primary flat directory → legacy subdirectory → legacy URL file.
-    ``is_single_file`` is True only for the legacy single-file format where
-    the JSON object has multiple group keys; otherwise each file holds one
-    group's servers.
+    Scans: primary flat directory (config.data_dir) → legacy subdirectory
+    → legacy URL file. ``is_single_file`` is True only for the legacy
+    single-file format where the JSON object has multiple group keys.
     """
-    from .consts import DEFAULT_DATA_DIR
+    from .config import config
 
-    primary = Path(DEFAULT_DATA_DIR)
+    primary = config.data_dir
+    legacy_group = primary / LEGACY_GROUP_SUBDIR
+    legacy_url = primary / LEGACY_URL_FILENAME
+
     if primary.is_dir():
         for item in primary.iterdir():
             if (
@@ -42,13 +44,13 @@ def _iter_server_files() -> Iterable[tuple[Path, bool]]:
             ):
                 yield item, False
 
-    if LEGACY_GROUP_DIR.is_dir() and LEGACY_GROUP_DIR.resolve() != primary.resolve():
-        for item in LEGACY_GROUP_DIR.iterdir():
+    if legacy_group.is_dir() and legacy_group.resolve() != primary.resolve():
+        for item in legacy_group.iterdir():
             if item.is_file() and item.suffix == ".json":
                 yield item, False
 
-    if LEGACY_URL_FILE.is_file():
-        yield LEGACY_URL_FILE, True
+    if legacy_url.is_file():
+        yield legacy_url, True
 
 
 def _normalize_server_entry(

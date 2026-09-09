@@ -52,14 +52,18 @@ class ConfigModel(BaseModel):
     @field_validator("l4_local", mode="before")
     @classmethod
     def validate_local_paths(cls, v):
-        if isinstance(v, list):
-            validated: list[str] = []
-            for path in v:
-                if not (Path(path) / "steam_appid.txt").exists():
-                    raise ValueError(f"路径 {path} 下缺少 steam_appid.txt 文件")
-                validated.append(str(Path(path).resolve()))
-            return validated
-        return v
+        if not isinstance(v, list):
+            return v
+        validated: list[str] = []
+        for path in v:
+            if not (Path(path) / "steam_appid.txt").exists():
+                # 软警告：缺少 steam_appid.txt 的路径会被跳过，不阻塞插件加载。
+                logger.warning(
+                    f"l4_local 路径 {path} 下缺少 steam_appid.txt，已忽略",
+                )
+                continue
+            validated.append(str(Path(path).resolve()))
+        return validated
 
     @property
     def l4_permission_set(self) -> Permission:
@@ -70,6 +74,11 @@ class ConfigModel(BaseModel):
             4: SUPERUSER | GROUP_OWNER | GROUP_ADMIN | GROUP_MEMBER,
         }
         return permissions[self.l4_permission]
+
+    @property
+    def data_dir(self) -> Path:
+        """数据根目录（解析 ``l4_path``），所有数据文件都在它下面。"""
+        return Path(self.l4_path)
 
 
 config = get_plugin_config(ConfigModel)
