@@ -45,7 +45,7 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]
-version = {attr = "nonebot_plugin_l4d2_server.core.help.__version__"}
+version = {attr = "nonebot_plugin_l4d2_server.version.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["nonebot_plugin_l4d2_server*"]
