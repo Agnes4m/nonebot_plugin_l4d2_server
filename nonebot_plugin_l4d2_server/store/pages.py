@@ -1,6 +1,7 @@
 """Persistence for SourceBans URL map (``sb_pages.json``).
 
-Single source of truth: ``data/L4D2/sb_pages.json`` with content
+Single source of truth: ``<l4_path>/sb_pages.json`` (default
+``data/L4D2/sb_pages.json``) with content
 ``{"组名": "https://sb.example.com/"}``.
 """
 
@@ -11,21 +12,26 @@ from pathlib import Path
 import aiofiles
 import ujson as json
 
-from ..consts import DEFAULT_DATA_DIR
+from ..config import config
+from ..consts import SB_PAGES_FILENAME
 
-PAGES_FILE = Path(DEFAULT_DATA_DIR) / "sb_pages.json"
+
+def pages_file() -> Path:
+    """运行时权威的 sb_pages.json 路径（来自 ``config.l4_path``）。"""
+    return config.data_dir / SB_PAGES_FILENAME
 
 
 async def _ensure_parent() -> None:
-    PAGES_FILE.parent.mkdir(parents=True, exist_ok=True)
+    pages_file().parent.mkdir(parents=True, exist_ok=True)
 
 
 async def load_pages() -> dict[str, str]:
     """Return the full URL map, or ``{}`` if missing/invalid."""
     await _ensure_parent()
-    if not PAGES_FILE.is_file():
+    target = pages_file()
+    if not target.is_file():
         return {}
-    async with aiofiles.open(PAGES_FILE, "r", encoding="utf-8") as f:
+    async with aiofiles.open(target, "r", encoding="utf-8") as f:
         text = await f.read()
     try:
         data = json.loads(text or "{}")
@@ -38,7 +44,7 @@ async def save_pages(pages: dict[str, str]) -> None:
     """Overwrite the URL map."""
     await _ensure_parent()
     text = json.dumps(pages, ensure_ascii=False, indent=4)
-    async with aiofiles.open(PAGES_FILE, "w", encoding="utf-8") as f:
+    async with aiofiles.open(pages_file(), "w", encoding="utf-8") as f:
         await f.write(text + "\n")
 
 

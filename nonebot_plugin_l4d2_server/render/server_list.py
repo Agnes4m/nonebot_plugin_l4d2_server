@@ -12,11 +12,8 @@ from nonebot.log import logger
 from nonebot_plugin_htmlrender import html_to_pic
 
 from ..config import config
-from ..consts import (
-    CUSTOM_BACKGROUNDS_PATH,
-    RENDER_BACKGROUNDS_PATH,
-    RENDER_TEMPLATES_PATH,
-)
+from ..consts import RENDER_BACKGROUNDS_PATH, RENDER_TEMPLATES_PATH
+from .background import pick_random_user_background
 from .images import convert_duration
 
 _template_env: Environment | None = None
@@ -34,24 +31,22 @@ def _get_env() -> Environment:
 
 
 def _resolve_background() -> Path:
-    """优先使用用户自定义背景（data/L4D2/custom_backgrounds/），否则用内置默认图。"""
-    if CUSTOM_BACKGROUNDS_PATH.is_dir():
-        for f in sorted(CUSTOM_BACKGROUNDS_PATH.iterdir()):
-            if f.is_file() and f.suffix.lower() in (".jpg", ".jpeg", ".png"):
-                return f
-    return RENDER_BACKGROUNDS_PATH / "background.jpg"
+    """从 ``custom_backgrounds/`` 根目录随机抽一张；空则回退到内置 ``background.jpg``。"""
+    return pick_random_user_background() or RENDER_BACKGROUNDS_PATH / "background.jpg"
 
 
 def _prepare_back_img() -> str:
-    """把选中的背景复制到模板可达的 render/back_img/ 下，返回相对模板的文件名。"""
+    """把选中的背景复制到模板可达的 ``render/back_img/`` 下。
+
+    每次都重新复制，避开 mtime 缓存的「缓存比源还新」死锁。
+    """
     src = _resolve_background()
     if not src.is_file():
         return ""
     back_dir = RENDER_TEMPLATES_PATH.parent / "back_img"
     back_dir.mkdir(parents=True, exist_ok=True)
     dst = back_dir / f"bg{src.suffix.lower()}"
-    if not dst.is_file() or dst.stat().st_mtime < src.stat().st_mtime:
-        shutil.copy2(src, dst)
+    shutil.copy2(src, dst)
     return f"back_img/{dst.name}"
 
 

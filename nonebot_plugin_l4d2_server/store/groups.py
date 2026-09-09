@@ -1,7 +1,7 @@
 """Persistence for per-tag server group JSON files.
 
-Each group lives at ``data/L4D2/<tag>.json`` with content
-``{"<tag>": [{"id": "1", "ip": "host:port"}, ...]}``.
+Each group lives at ``<l4_path>/<tag>.json`` (default ``data/L4D2/<tag>.json``)
+with content ``{"<tag>": [{"id": "1", "ip": "host:port"}, ...]}``.
 """
 
 from __future__ import annotations
@@ -12,13 +12,16 @@ from typing import Iterable
 import aiofiles
 import ujson as json
 
-from ..consts import DEFAULT_DATA_DIR
+from ..config import config
 
-GROUPS_DIR = Path(DEFAULT_DATA_DIR)
+
+def groups_dir() -> Path:
+    """运行时权威的组文件目录（来自 ``config.l4_path``）。"""
+    return config.data_dir
 
 
 async def _ensure_dir() -> None:
-    GROUPS_DIR.mkdir(parents=True, exist_ok=True)
+    groups_dir().mkdir(parents=True, exist_ok=True)
 
 
 def _normalize(servers: Iterable) -> list[dict]:
@@ -43,12 +46,12 @@ def _normalize(servers: Iterable) -> list[dict]:
 
 
 async def set_group(tag: str, servers: Iterable) -> Path:
-    """Write ``tag``'s servers to ``data/L4D2/<tag>.json``."""
+    """Write ``tag``'s servers to ``<l4_path>/<tag>.json``."""
     await _ensure_dir()
     tag = str(tag).strip()
     items = _normalize(servers)
     content = json.dumps({tag: items}, ensure_ascii=False, indent=4)
-    path = GROUPS_DIR / f"{tag}.json"
+    path = groups_dir() / f"{tag}.json"
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(content + "\n")
     return path
@@ -57,7 +60,7 @@ async def set_group(tag: str, servers: Iterable) -> Path:
 async def get_group(tag: str) -> list[dict]:
     """Read ``tag``'s servers, or ``[]`` if missing."""
     await _ensure_dir()
-    path = GROUPS_DIR / f"{str(tag).strip()}.json"
+    path = groups_dir() / f"{str(tag).strip()}.json"
     if not path.is_file():
         return []
     async with aiofiles.open(path, "r", encoding="utf-8") as f:
@@ -74,7 +77,7 @@ async def get_group(tag: str) -> list[dict]:
 async def remove_group(tag: str) -> bool:
     """Delete the per-tag JSON. Returns True if it existed."""
     await _ensure_dir()
-    path = GROUPS_DIR / f"{str(tag).strip()}.json"
+    path = groups_dir() / f"{str(tag).strip()}.json"
     if path.is_file():
         path.unlink()
         return True
@@ -85,7 +88,7 @@ async def list_groups() -> list[str]:
     """All group names (filenames without extension)."""
     await _ensure_dir()
     names: list[str] = []
-    for p in GROUPS_DIR.glob("*.json"):
+    for p in groups_dir().glob("*.json"):
         if p.is_file():
             names.append(p.stem)
     names.sort()

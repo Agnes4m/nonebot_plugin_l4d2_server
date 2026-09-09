@@ -106,15 +106,17 @@ async def _server_query_handler(
     logger.info(logger_info, is_connect=config.l4_image)
 
     if isinstance(msg, bytes):
-        await UniMessage.image(raw=msg).send()
+        out = UniMessage.image(raw=msg)
     else:
-        await UniMessage.text(str(msg)).send()
+        out = UniMessage.text(str(msg))
 
     if server_id is not None and config.l4_connect:
         endpoint = server_query.find_endpoint(command, server_id)
         if endpoint is not None:
             host, port = endpoint
-            await UniMessage.text(f"\nconnect {host}:{port}").send()
+            out += UniMessage.text(f"\nconnect {host}:{port}")
+
+    await out.send()
 
 
 @l4_list_all_servers.handle()

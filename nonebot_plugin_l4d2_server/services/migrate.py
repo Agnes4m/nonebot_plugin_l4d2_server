@@ -1,9 +1,9 @@
 """Legacy layout migration (runs once at startup).
 
-Handles three old shapes:
-1. ``data/L4D2/l4d2/<tag>.json`` → moved up to ``data/L4D2/<tag>.json``
-2. ``data/L4D2/l4d2.json`` with server data (list values) → split into per-tag files
-3. ``data/L4D2/l4d2.json`` with URL map (string values) → merged into ``sb_pages.json``
+Handles three old shapes under ``config.data_dir``:
+1. ``<data>/l4d2/<tag>.json`` → moved up to ``<data>/<tag>.json``
+2. ``<data>/l4d2.json`` with server data (list values) → split into per-tag files
+3. ``<data>/l4d2.json`` with URL map (string values) → merged into ``sb_pages.json``
 
 URL maps and server data are distinguished by inspecting the value types.
 """
@@ -15,7 +15,7 @@ from pathlib import Path
 
 from nonebot.log import logger
 
-from .. import consts as consts
+from ..consts import LEGACY_GROUP_SUBDIR, LEGACY_URL_FILENAME
 
 
 def _looks_like_url_map(payload: object) -> bool:
@@ -33,7 +33,17 @@ def _looks_like_servers(payload: object) -> bool:
 
 
 def _primary_dir() -> Path:
-    return Path(consts.DEFAULT_DATA_DIR)
+    from ..config import config
+
+    return config.data_dir
+
+
+def _legacy_url_file() -> Path:
+    return _primary_dir() / LEGACY_URL_FILENAME
+
+
+def _legacy_group_dir() -> Path:
+    return _primary_dir() / LEGACY_GROUP_SUBDIR
 
 
 def migrate_legacy_layout() -> None:
@@ -43,24 +53,25 @@ def migrate_legacy_layout() -> None:
 
 
 def _migrate_legacy_url_file() -> None:
-    if not consts.LEGACY_URL_FILE.is_file():
+    legacy_url = _legacy_url_file()
+    if not legacy_url.is_file():
         return
 
     try:
-        payload = json.loads(consts.LEGACY_URL_FILE.read_text("utf-8") or "{}")
+        payload = json.loads(legacy_url.read_text("utf-8") or "{}")
     except (json.JSONDecodeError, OSError) as exc:
-        logger.warning(f"旧版 {consts.LEGACY_URL_FILE.name} 解析失败: {exc}")
+        logger.warning(f"旧版 {legacy_url.name} 解析失败: {exc}")
         return
 
     if _looks_like_url_map(payload):
         _merge_url_map_into_pages(payload)
-        _rename_to_backup(consts.LEGACY_URL_FILE)
+        _rename_to_backup(legacy_url)
         return
 
     if _looks_like_servers(payload):
         assert isinstance(payload, dict)
         _split_servers_into_per_tag_files(payload)
-        _rename_to_backup(consts.LEGACY_URL_FILE)
+        _rename_to_backup(legacy_url)
 
 
 def _merge_url_map_into_pages(entries: dict) -> None:
@@ -112,11 +123,12 @@ def _split_servers_into_per_tag_files(entries: dict) -> None:
 
 
 def _migrate_legacy_group_dir() -> None:
-    if not consts.LEGACY_GROUP_DIR.is_dir():
+    legacy_group = _legacy_group_dir()
+    if not legacy_group.is_dir():
         return
     primary = _primary_dir()
     moved = 0
-    for old_file in consts.LEGACY_GROUP_DIR.glob("*.json"):
+    for old_file in legacy_group.glob("*.json"):
         target = primary / old_file.name
         if target.exists():
             continue
@@ -128,8 +140,8 @@ def _migrate_legacy_group_dir() -> None:
     if moved:
         logger.success(f"已从旧版 l4d2/ 目录迁移 {moved} 个文件")
     try:
-        if not any(consts.LEGACY_GROUP_DIR.iterdir()):
-            consts.LEGACY_GROUP_DIR.rmdir()
+        if not any(legacy_group.iterdir()):
+            legacy_group.rmdir()
     except OSError:
         pass
 

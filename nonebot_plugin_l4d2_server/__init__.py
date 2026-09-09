@@ -37,6 +37,11 @@ _registry.scan_commands()
 
 @driver.on_startup
 async def _on_startup() -> None:
+    from .config import config
+    from .render.background import ensure_user_background_dir
+
+    # 确保 l4_path 指向的数据根目录存在；之后再做迁移 / 加载 / 后台目录建好。
+    config.data_dir.mkdir(parents=True, exist_ok=True)
     migrate.migrate_legacy_layout()
     # 只从磁盘 JSON 加载，避免每次启动都重新抓取所有 SourceBans 页面；
     # 需要更新缓存时使用 l4刷新组 命令。
@@ -45,6 +50,7 @@ async def _on_startup() -> None:
     from .commands.query import refresh_server_command_rule
 
     refresh_server_command_rule()
+    ensure_user_background_dir()
 
 
 __plugin_meta__ = PluginMetadata(
