@@ -15,8 +15,6 @@ from nonebot.log import logger
 from nonebot.permission import SUPERUSER, Permission
 from pydantic import BaseModel, Field, field_validator
 
-from .consts import DEFAULT_DATA_DIR, LOCALSTORE_SUBDIR
-
 
 class ConfigModel(BaseModel):
     """User-tunable configuration."""
@@ -24,15 +22,6 @@ class ConfigModel(BaseModel):
     l4_enable: bool = Field(default=True, description="是否全局启用求生功能")
     l4_image: bool = Field(default=True, description="是否启用图片")
     l4_connect: bool = Field(default=True, description="是否在查服命令后加入connect ip")
-    l4_path: str = Field(default=DEFAULT_DATA_DIR, description="插件数据路径（l4_use_localstore=False 时生效）")
-    l4_use_localstore: bool = Field(
-        default=True,
-        description="是否用 nonebot-plugin-localstore 自动生成插件同名数据目录",
-    )
-    l4_localstore_subdir: str = Field(
-        default=LOCALSTORE_SUBDIR,
-        description="localstore 数据根下的子目录名",
-    )
     l4_players: int = Field(default=4, ge=1, description="查询总图时展示的用户数量")
     l4_style: str = Field(default="default", description="图片风格")
     l4_font: str = Field(default="", description="字体文件路径")
@@ -101,11 +90,10 @@ class ConfigModel(BaseModel):
 
     @property
     def data_dir(self) -> Path:
-        """数据根目录（统一走 ``services.path_resolver``，无需在这里决策）。"""
-        # 延迟导入：避免循环（path_resolver 会读 config）。
-        from .services.path_resolver import resolve_data_dir
+        """数据根目录：localstore 管理的插件目录。"""
+        from .services.path_resolver import data_dir as resolve
 
-        return resolve_data_dir()
+        return resolve()
 
 
 config = get_plugin_config(ConfigModel)

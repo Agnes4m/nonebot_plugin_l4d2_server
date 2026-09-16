@@ -1,8 +1,6 @@
-"""Persistence for SourceBans URL map (``sb_pages.json``).
+"""SourceBans URL map 持久化（``sb_pages.json``）。
 
-Single source of truth: ``<l4_path>/sb_pages.json`` (default
-``data/L4D2/sb_pages.json``) with content
-``{"组名": "https://sb.example.com/"}``.
+``config.data_dir / sb_pages.json``，内容 ``{"组名": "https://sb.example.com/"}``。
 """
 
 from __future__ import annotations
@@ -17,7 +15,7 @@ from ..consts import SB_PAGES_FILENAME
 
 
 def pages_file() -> Path:
-    """运行时权威的 sb_pages.json 路径（来自 ``config.l4_path``）。"""
+    """sb_pages.json 路径：``config.data_dir / SB_PAGES_FILENAME``。"""
     return config.data_dir / SB_PAGES_FILENAME
 
 

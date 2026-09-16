@@ -16,8 +16,8 @@ _IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg")
 
 
 def user_background_dir() -> Path:
-    """根据 ``l4_path`` 配置解析用户自定义背景目录。"""
-    return Path(config.l4_path) / "custom_backgrounds"
+    """用户自定义背景目录：``config.data_dir / custom_backgrounds``。"""
+    return config.data_dir / "custom_backgrounds"
 
 
 def list_image_files(directory: Path) -> list[Path]:
@@ -42,7 +42,7 @@ def pick_random_user_background() -> Optional[Path]:
 
 
 def ensure_user_background_dir() -> Path:
-    """确保用户背景目录存在（按 ``l4_path`` 解析），返回该目录。"""
+    """确保用户背景目录存在，返回该目录。"""
     directory = user_background_dir()
     directory.mkdir(parents=True, exist_ok=True)
     return directory
