@@ -84,7 +84,7 @@ async def fetch_info(workshop_input: str) -> WorksopInfo:
 
 
 def _target_path(server_index: int, info: WorksopInfo) -> Path:
-    addons = addons_dir(server_index) or (Path(config.l4_path) / "addons")
+    addons = addons_dir(server_index) or (config.data_dir / "addons")
     addons.mkdir(parents=True, exist_ok=True)
     return addons / info["filename"]
 

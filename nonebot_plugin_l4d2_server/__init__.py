@@ -46,18 +46,15 @@ async def _on_startup() -> None:
     from .config import config
     from .render.background import ensure_user_background_dir
     from .services.favorite import init_favorite_scheduler
-    from .services.path_resolver import migrate_legacy_to_localstore
+    from .services.path_resolver import migrate_legacy
 
-    # v1.4.0：先确定 data 根（localstore or legacy），再做一次性迁移。
-    migrate_legacy_to_localstore()
-    config.data_dir.mkdir(parents=True, exist_ok=True)
+    config.data_dir  # 触发 localstore 目录创建
+    migrate_legacy()  # 首次启动把插件根 data/L4D2/ 复制过去
     migrate.migrate_legacy_layout()
-    # 只从磁盘 JSON 加载，避免每次启动都重新抓取所有 SourceBans 页面；
-    # 需要更新缓存时使用 l4刷新组 命令。
     await sourceban.reload_registry()
     sourceban.register_anne_alias()
     refresh_server_command_rule()
-    register_picker_handlers()  # tj / zl / kl（必须等 registry.commands 填好）
+    register_picker_handlers()
     ensure_user_background_dir()
     await init_favorite_scheduler()
 

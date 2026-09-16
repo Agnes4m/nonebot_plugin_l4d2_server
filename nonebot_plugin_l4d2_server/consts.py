@@ -4,19 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-# ``l4_path`` 默认值：插件根目录下的 ``data/L4D2/``（与 cwd 无关）。
-# ``Path(__file__)`` 是包内 ``__init__.py``，往上两层是插件根
-# （带 ``pyproject.toml`` / ``README.md`` 的目录）。
-# 运行时权威值在 ``config.data_dir``（由 ``services.path_resolver.resolve_data_dir`` 决定）。
-DEFAULT_DATA_DIR = str(Path(__file__).parent.parent / "data" / "L4D2")
-
-# localstore 模式下插件数据目录的子目录名（运行时权威值在 ``config.l4_localstore_subdir``）。
-LOCALSTORE_SUBDIR = "l4d2"
-
-# 收藏 / 订阅相关持久化文件名。
+# 收藏 / 订阅 / 黑名单相关持久化文件名（位于 localstore 管理的 data 根目录下）。
 FAVORITES_FILENAME = "favorites.json"
 NOTIFY_STATE_FILENAME = "notify_state.json"
-# 预留给将来的黑名单 / 关键词屏蔽（本期不实现）。
 BLOCKLIST_FILENAME = "blocklist.json"
 
 # 包内资源路径
