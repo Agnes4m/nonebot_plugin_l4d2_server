@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-# ``l4_path`` 默认值：直接指向插件自带的 ``data/L4D2/``，避免依赖 bot cwd。
+# ``l4_path`` 默认值：插件根目录下的 ``data/L4D2/``（与 cwd 无关）。
+# ``Path(__file__)`` 是包内 ``__init__.py``，往上两层是插件根
+# （带 ``pyproject.toml`` / ``README.md`` 的目录）。
 # 运行时权威值在 ``config.data_dir``（由 ``services.path_resolver.resolve_data_dir`` 决定）。
-DEFAULT_DATA_DIR = str(Path(__file__).parent / "data" / "L4D2")
+DEFAULT_DATA_DIR = str(Path(__file__).parent.parent / "data" / "L4D2")
 
 # localstore 模式下插件数据目录的子目录名（运行时权威值在 ``config.l4_localstore_subdir``）。
 LOCALSTORE_SUBDIR = "l4d2"
