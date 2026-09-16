@@ -48,7 +48,11 @@ class ConfigModel(BaseModel):
         le=4,
         description="上传地图权限",
     )
-    l4_a2s_concurrency: int = Field(default=8, ge=1, le=64, description="A2S 并发上限")
+    l4_a2s_concurrency: int = Field(
+        default=0, ge=0, le=64,
+        description="A2S 并发上限；0=不限（旧版行为：所有服一次性 asyncio.gather），"
+        "其他值走 asyncio.Semaphore 节流",
+    )
     l4_a2s_timeout: float = Field(default=2.5, gt=0, description="A2S 单次超时秒")
     l4_a2s_cache_ttl: int = Field(default=15, ge=0, description="A2S 结果缓存秒；0=不缓存")
     l4_favorite_check_interval: int = Field(

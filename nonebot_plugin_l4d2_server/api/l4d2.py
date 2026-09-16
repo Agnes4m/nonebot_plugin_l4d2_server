@@ -89,7 +89,12 @@ class L4D2Api:
     _CACHE_SWEEP_INTERVAL = 60
 
     def __init__(self) -> None:
-        self._sem = asyncio.Semaphore(config.l4_a2s_concurrency)
+        # concurrency=0 → 不限并发（旧版行为，所有服一次性 asyncio.gather）。
+        # 只有显式给 >0 时才走 Semaphore，避免无意义的 await。
+        n = int(config.l4_a2s_concurrency)
+        self._sem: asyncio.Semaphore | None = (
+            asyncio.Semaphore(n) if n > 0 else None
+        )
         self._timeout = float(config.l4_a2s_timeout)
         self._ttl = int(config.l4_a2s_cache_ttl)
         # key=(host, port) -> (expire_at_monotonic, (server, players))
@@ -214,7 +219,14 @@ class L4D2Api:
                 server.steam_id = index  # type: ignore[attr-defined]
                 return server, (players if want_players else [])
 
-        async with self._sem:
+        # 并发 = 0（不限）时直接走裸 await，不引入 Semaphore 的额外等待开销。
+        ainfo_cm: contextlib.AbstractAsyncContextManager[Any]
+        if self._sem is not None:
+            ainfo_cm = self._sem
+        else:
+            ainfo_cm = contextlib.AsyncExitStack()
+
+        async with ainfo_cm:
             try:
                 server = await a2s.ainfo(
                     ip, timeout=self._timeout, encoding="utf8",
