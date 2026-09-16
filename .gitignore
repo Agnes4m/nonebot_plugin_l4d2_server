@@ -159,3 +159,11 @@ plans/
 
 # 运行时背景缓存
 nonebot_plugin_l4d2_server/render/back_img/
+
+# 用户运行时数据：服务器组 / 收藏 / 通知状态 / 黑名单（按需）— 不进仓。
+# l4d2.json / sb_pages.json 仅作占位用仓库内已有，仍保留示例即可。
+data/L4D2/*.json
+data/L4D2/favorites.json
+data/L4D2/notify_state.json
+data/L4D2/blocklist.json
+data/L4D2/custom_backgrounds/
