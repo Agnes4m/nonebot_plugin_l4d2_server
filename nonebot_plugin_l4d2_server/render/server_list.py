@@ -50,7 +50,10 @@ def _prepare_back_img() -> str:
     return f"back_img/{dst.name}"
 
 
-async def _build_html(server_dict: list[dict]) -> str:
+async def _build_html(
+    server_dict: list[dict],
+    offline_ids: list[str] | None = None,
+) -> str:
     env = _get_env()
     template_name = "normal.html" if config.l4_style == "default" else "normal_old.html"
     template = env.get_template(template_name)
@@ -59,11 +62,20 @@ async def _build_html(server_dict: list[dict]) -> str:
         servers=server_dict,
         max_count=config.l4_players,
         bg_filename=_prepare_back_img(),
+        offline_ids=list(offline_ids or []),
     )
 
 
-async def render_server_list(server_dict: list[dict]) -> Optional[bytes]:
-    """Render the list of servers as an HTML image (bytes)."""
+async def render_server_list(
+    server_dict: list[dict],
+    *,
+    offline_ids: list[str] | None = None,
+) -> Optional[bytes]:
+    """Render the list of servers as an HTML image (bytes).
+
+    ``server_dict`` 应只包含在线条目；调用方负责过滤。
+    ``offline_ids`` 在图片底部以文字区块展示（见 ``templates/normal.html``）。
+    """
     for server_info in server_dict:
         server = server_info["server"]
         server.player_count = server.player_count or 0
@@ -87,7 +99,7 @@ async def render_server_list(server_dict: list[dict]) -> Optional[bytes]:
             server_info["player"] = []
 
     try:
-        content = await _build_html(server_dict)
+        content = await _build_html(server_dict, offline_ids=offline_ids)
         return await html_to_pic(
             content,
             wait=0,
