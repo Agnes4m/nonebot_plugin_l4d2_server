@@ -39,7 +39,13 @@ def _iter_server_files() -> Iterable[tuple[Path, bool]]:
     if legacy_group.is_dir() and legacy_group.resolve() != primary.resolve():
         roots.append(legacy_group)
     for root in roots:
-        for item in root.iterdir():
+        # 目录尚未创建（首次启动 / 用户清空）—— 静默跳过，_on_startup 会 mkdir。
+        try:
+            entries = list(root.iterdir())
+        except FileNotFoundError:
+            logger.debug(f"数据目录不存在，跳过扫描: {root}")
+            continue
+        for item in entries:
             if not (item.is_file() and item.suffix == ".json"):
                 continue
             if item.stat().st_size == 0:
