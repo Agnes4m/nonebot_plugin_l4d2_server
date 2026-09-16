@@ -7,6 +7,15 @@ from pathlib import Path
 # ``l4_path`` 默认值（相对 bot 工作目录）；运行时权威值在 ``config.data_dir``。
 DEFAULT_DATA_DIR = "data/L4D2"
 
+# localstore 模式下插件数据目录的子目录名（运行时权威值在 ``config.l4_localstore_subdir``）。
+LOCALSTORE_SUBDIR = "l4d2"
+
+# 收藏 / 订阅相关持久化文件名。
+FAVORITES_FILENAME = "favorites.json"
+NOTIFY_STATE_FILENAME = "notify_state.json"
+# 预留给将来的黑名单 / 关键词屏蔽（本期不实现）。
+BLOCKLIST_FILENAME = "blocklist.json"
+
 # 包内资源路径
 FONT_PATH = Path(__file__).parent / "render" / "fonts" / "loli.ttf"
 HELP_DATA_PATH = Path(__file__).parent / "render" / "help" / "Help.json"
