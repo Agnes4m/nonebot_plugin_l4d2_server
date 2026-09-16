@@ -1,9 +1,4 @@
-"""Server query service: A2S queries, single-server output, group summaries.
-
-Replaces the ``get_server_detail`` / ``get_group_detail`` /
-``get_all_server_detail`` / ``get_ip_server`` functions previously in
-``server/query/__init__.py``.
-"""
+"""Server query service: A2S queries, single-server output, group summaries."""
 
 from __future__ import annotations
 
@@ -115,7 +110,14 @@ async def _render_group(
 ) -> bytes | list[OutServer]:
     out_servers = await query_group_servers(command)
     if is_img:
-        return await render_server_list(out_servers)
+        # A2S 失败时 ``server.max_players == 0`` 作 sentinel：在线画卡片，离线写文字区。
+        online = [s for s in out_servers if s["server"].max_players != 0]
+        offline_ids = [
+            f"{s['command']}{s['id_']}"
+            for s in out_servers
+            if s["server"].max_players == 0
+        ]
+        return await render_server_list(online, offline_ids=offline_ids)
     return out_servers
 
 

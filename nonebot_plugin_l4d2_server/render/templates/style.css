@@ -234,3 +234,33 @@ h1 {
     background-color: #67eb6c;
     color: white;
 }
+
+/* 不在线列表（normal.html 底部文字区块） */
+.offline-section {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.78);
+    border-left: 4px solid #d9534f;
+    border-radius: 4px;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.offline-title {
+    color: #d9534f;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.offline-list {
+    word-break: break-all;
+    color: #555;
+}
+.offline-id {
+    display: inline-block;
+    padding: 1px 6px;
+    margin: 1px 2px;
+    background: rgba(217, 83, 79, 0.12);
+    border-radius: 3px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #a94442;
+}

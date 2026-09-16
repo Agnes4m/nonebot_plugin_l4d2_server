@@ -1,8 +1,4 @@
-"""Server registry: single source of truth for loaded server groups.
-
-Replaces the legacy module-level ``ALLHOST`` dict and ``COMMAND`` set in
-``server/query/typing.py``. Centralizes loading, normalization, and access.
-"""
+"""Server registry: load, normalize, and look up server groups."""
 
 from __future__ import annotations
 
@@ -16,9 +12,7 @@ from nonebot.log import logger
 from .consts import LEGACY_GROUP_SUBDIR, LEGACY_URL_FILENAME, SB_PAGES_FILENAME
 from .http_helpers import split_maohao
 
-# Old layout used these filenames as standalone single-file multi-group
-# containers. They are explicitly excluded from per-file scanning.
-# sb_pages.json 是"组名→SourceBans URL"映射存储，不是服务器组数据。
+# 旧版单文件多组容器和 sb_pages.json（SourceBans 映射）都不算服务器组数据。
 _EXCLUDED_TOP_LEVEL_FILES = frozenset({LEGACY_URL_FILENAME, SB_PAGES_FILENAME})
 
 
@@ -35,21 +29,21 @@ def _iter_server_files() -> Iterable[tuple[Path, bool]]:
     legacy_group = primary / LEGACY_GROUP_SUBDIR
     legacy_url = primary / LEGACY_URL_FILENAME
 
-    if primary.is_dir():
-        for item in primary.iterdir():
-            if (
-                item.is_file()
-                and item.suffix == ".json"
-                and item.name not in _EXCLUDED_TOP_LEVEL_FILES
-            ):
-                yield item, False
-
+    roots = [primary]
     if legacy_group.is_dir() and legacy_group.resolve() != primary.resolve():
-        for item in legacy_group.iterdir():
-            if item.is_file() and item.suffix == ".json":
-                yield item, False
+        roots.append(legacy_group)
+    for root in roots:
+        for item in root.iterdir():
+            if not (item.is_file() and item.suffix == ".json"):
+                continue
+            if item.stat().st_size == 0:
+                logger.debug(f"跳过空文件 {item}")
+                continue
+            if root is primary and item.name in _EXCLUDED_TOP_LEVEL_FILES:
+                continue
+            yield item, False
 
-    if legacy_url.is_file():
+    if legacy_url.is_file() and legacy_url.stat().st_size > 0:
         yield legacy_url, True
 
 
