@@ -4,11 +4,13 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import List
 
 from nonebot.log import logger
 
 from ..api import L4API, SourceBansInfo
+from ..config import config
 from ..registry import registry
 from ..store import groups as groups_store
 from ..store import pages as pages_store
@@ -25,19 +27,30 @@ async def refresh_group_from_url(tag: str, url: str) -> List[SourceBansInfo]:
 
 
 async def refresh_all_pages() -> tuple[int, list[str]]:
-    """Re-fetch every URL stored in ``sb_pages.json``.
+    """并发刷新 ``sb_pages.json`` 里所有 URL。
 
-    Returns ``(success_count, failures)``.
+    并发上限复用 ``config.l4_a2s_concurrency``（语义一致：都是对外部 HTTP 抓取
+    限流）。单个组失败不阻塞其他组，失败信息汇总到返回列表。
     """
     pages = await pages_store.load_pages()
-    ok = 0
-    failures: list[str] = []
-    for tag, url in pages.items():
-        try:
-            await refresh_group_from_url(tag, url)
-            ok += 1
-        except Exception as exc:
-            failures.append(f"{tag}: {exc}")
+    if not pages:
+        return 0, []
+
+    sem = asyncio.Semaphore(max(1, int(config.l4_a2s_concurrency)))
+
+    async def _one(tag: str, url: str) -> tuple[str, str | None]:
+        async with sem:
+            try:
+                await refresh_group_from_url(tag, url)
+            except Exception as exc:
+                logger.warning(f"SourceBans 刷新失败 [{tag}]: {exc}")
+                return tag, f"{tag}: {exc}"
+            else:
+                return tag, None
+
+    results = await asyncio.gather(*[_one(t, u) for t, u in pages.items()])
+    failures = [m for _, m in results if m is not None]
+    ok = sum(1 for _, m in results if m is None)
     return ok, failures
 
 

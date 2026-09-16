@@ -79,8 +79,15 @@ async def _(args: Message = CommandArg()) -> None:
         await UniMessage.text("重载ip完成").send()
 
 
-# tj / zl / kl pickers, registered only when "云" group is known.
-if "云" in registry.commands:
+# tj / zl / kl pickers: ``register_picker_handlers`` 在 ``_on_startup`` 中
+# 显式调用，避开旧版"导入时 registry 还没填"的 bug。
+def register_picker_handlers() -> None:
+    """注册「云」组存在时的三个 fullmatch：tj / zl / kl。"""
+    if "云" not in registry.commands:
+        return
+    if getattr(register_picker_handlers, "_registered", False):
+        return
+
     ld_tj = on_fullmatch("tj")
     ld_zl = on_fullmatch("zl")
     ld_kl = on_fullmatch("kl")
@@ -102,3 +109,5 @@ if "云" in registry.commands:
         await matcher.send("正在寻找牢房信息")
         out = await svc_filter.pick_filtered(registry.get("云") or [], "kl")
         await matcher.finish(out)
+
+    register_picker_handlers._registered = True  # noqa: SLF001

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import contextlib
+
 from nonebot.adapters import Event, Message
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg
@@ -10,9 +12,14 @@ from nonebot_plugin_alconna import File, UniMessage
 from nonebot_plugin_waiter import prompt
 
 from ..config import config
+from ..messages import Wm
 from ..render.images import text2pic
 from ..services import local_server as svc_local
-from ..services.workshop import download_to_addons, fetch_info
+from ..services.workshop import (
+    WorkshopTaskResult,
+    download_many,
+    parse_workshop_ids,
+)
 
 if not config.l4_local:
     from nonebot.log import logger
@@ -189,22 +196,66 @@ ws_download = on_command(
 )
 
 
+_STATUS_EMOJI = {
+    "ok": "✅",
+    "duplicate": "♻️",
+    "invalid": "⚠️",
+    "download_failed": "❌",
+}
+
+
 @ws_download.handle()
 async def _(args: Message = CommandArg()) -> None:
+    """批量创意工坊下载。
+
+    用法：
+      - 命令后直接跟多个 ID 或 URL，逗号/空格/换行分隔，例如
+        ``l4创意工坊 123,456 789`` 或 ``l4创意工坊 https://...id=123 456``
+      - 不带参数时走 waiter 提示一次输入
+    """
     arg = args.extract_plain_text().strip()
     if not arg:
-        arg_msg = await prompt("请输入创意工坊id或者url", timeout=60)
+        arg_msg = await prompt(
+            "请输入创意工坊id/url，支持多个（逗号/空格/换行分隔）",
+            timeout=60,
+        )
         if arg_msg is None:
             await UniMessage.text("操作已超时，已取消").finish()
         arg = arg_msg.extract_plain_text().strip()
 
-    try:
-        info = await fetch_info(arg)
-    except ValueError:
-        await UniMessage.text("无效的steam链接，请输入工坊ID或完整URL").finish()
-        return
+    ids = parse_workshop_ids(arg)
+    if not ids:
+        await UniMessage.text("未解析到任何有效 id").finish()
 
-    confirm = await prompt("是否下载该地图？(是/否)", timeout=60)
-    if confirm is None or confirm.extract_plain_text().strip() != "是":
-        await UniMessage.text("已取消下载").finish()
-    await download_to_addons(info, config.l4_map_index)
+    await UniMessage.text(
+        f"开始下载 {len(ids)} 个地图，并发={config.l4_workshop_concurrency}",
+    ).send()
+
+    async def _report(r: WorkshopTaskResult) -> None:
+        emoji = _STATUS_EMOJI.get(r.status, "❓")
+        title = f" {r.title}" if r.title else ""
+        err = f" ({r.error})" if r.error else ""
+        await UniMessage.text(f"{emoji} {r.item_id}{title} {r.status}{err}").send()
+
+    results = await download_many(
+        ids, config.l4_map_index, on_progress=_report,
+    )
+
+    ok = sum(1 for r in results if r.status == "ok")
+    duplicate = sum(1 for r in results if r.status == "duplicate")
+    failed = sum(1 for r in results if r.status in ("download_failed", "invalid"))
+
+    summary = Wm.workshop_summary.format(
+        total=len(results),
+        ok=ok,
+        duplicate=duplicate,
+        failed=failed,
+    )
+    await UniMessage.text(summary).send()
+
+    # 成功项逐个发送文件
+    for r in results:
+        if r.status == "ok" and r.path is not None and r.title:
+            with contextlib.suppress(Exception):
+                await UniMessage.file(path=r.path, name=f"{r.title}.vpk").send()
+

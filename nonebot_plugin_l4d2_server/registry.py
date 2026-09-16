@@ -1,7 +1,13 @@
-"""Server registry: load, normalize, and look up server groups."""
+"""Server registry: load, normalize, and look up server groups.
+
+v1.4.0 起 ``_normalize_server_entry`` 保留已有 ``id``（避免 ``云1`` 这类后缀
+指令失效），并提供 ``add_server`` / ``remove_server`` / ``update_server``
+内存接口，底层走 ``store/groups.py`` 持久化，再回灌内存。
+"""
 
 from __future__ import annotations
 
+import contextlib
 import json
 from pathlib import Path
 from typing import Iterable
@@ -47,37 +53,61 @@ def _iter_server_files() -> Iterable[tuple[Path, bool]]:
         yield legacy_url, True
 
 
+def _coerce_ip(entry: object) -> str:
+    """从任意条目抽 ip 字符串；无法解析返回空串。"""
+    if isinstance(entry, str):
+        return entry.strip()
+    if isinstance(entry, dict):
+        ip = entry.get("ip")
+        if isinstance(ip, str) and ip.strip():
+            return ip.strip()
+    host = getattr(entry, "host", None)
+    port = getattr(entry, "port", None)
+    if host and port:
+        return f"{host}:{port}"
+    return ""
+
+
 def _normalize_server_entry(
     entry: object,
     idx: int,
+    *,
+    max_existing_id: int = 0,
 ) -> dict | None:
-    """Coerce a raw JSON entry to ``{id, ip, host, port}`` or skip it."""
+    """把原始条目归一为 ``{id, ip, host, port}``。
+
+    优先保留已有 ``id``；缺失时按 ``max(max_existing_id, idx)`` 续号。
+    """
     if isinstance(entry, str):
         ip = entry.strip()
         if not ip:
             return None
-        one = {"id": str(idx), "ip": ip}
-    elif isinstance(entry, dict):
-        one = dict(entry)
-        one.setdefault("id", str(idx))
-    else:
-        logger.warning(f"跳过无法识别的服务器条目: {entry!r}")
-        return None
+        new_id = max(max_existing_id, idx)
+        host, port = split_maohao(ip)
+        return {"id": str(new_id), "ip": ip, "host": host, "port": port}
 
-    if one.get("ip"):
-        if one.get("host") and not one.get("port"):
-            one["port"] = 20715
-        if not one.get("host"):
-            host, port = split_maohao(one["ip"])
-            one["host"], one["port"] = host, port
-    else:
-        if one.get("host") and one.get("port"):
-            one["ip"] = f"{one['host']}:{one['port']}"
-        elif one.get("host") and not one.get("port"):
-            one["ip"] = f"{one['host']}:20715"
-        else:
+    if isinstance(entry, dict):
+        one = dict(entry)
+        ip = _coerce_ip(entry)
+        if not ip:
             logger.warning(f"{one} 没有ip")
-    return one
+            return None
+        one["ip"] = ip
+        try:
+            existing_id = int(one.get("id", 0))
+        except (TypeError, ValueError):
+            existing_id = 0
+        if existing_id <= 0:
+            existing_id = max(max_existing_id, idx)
+        one["id"] = str(existing_id)
+        if not one.get("host") or not one.get("port"):
+            host, port = split_maohao(ip)
+            one["host"] = one.get("host") or host
+            one["port"] = one.get("port") or port
+        return one
+
+    logger.warning(f"跳过无法识别的服务器条目: {entry!r}")
+    return None
 
 
 class ServerRegistry:
@@ -106,12 +136,28 @@ class ServerRegistry:
         return iter(self._groups)
 
     def set_group(self, name: str, servers: list[dict]) -> None:
-        """Replace the entries for ``name`` (each entry is normalised in place)."""
+        """Replace the entries for ``name`` while preserving existing ids.
+
+        旧版本会把 id 强制重排成 1..N；现在按 ``_normalize_server_entry`` 续号，
+        保证 ``云1`` 这类后缀指令的引用稳定。
+        """
+        max_id = 0
+        for e in self._groups.get(name, []):
+            with contextlib.suppress(TypeError, ValueError):
+                max_id = max(max_id, int(e.get("id", 0)))
         normalised: list[dict] = []
         for idx, raw in enumerate(servers, start=1):
-            entry = _normalize_server_entry(raw, idx)
-            if entry is not None:
-                normalised.append(entry)
+            entry = _normalize_server_entry(
+                raw, idx, max_existing_id=max_id,
+            )
+            if entry is None:
+                continue
+            try:
+                cur_id = int(entry.get("id", 0))
+            except (TypeError, ValueError):
+                cur_id = 0
+            max_id = max(max_id, cur_id)
+            normalised.append(entry)
         self._groups[name] = normalised
         self._commands.add(name)
 
@@ -125,6 +171,56 @@ class ServerRegistry:
             del self._groups[name]
         self._commands.discard(name)
         return name in self._commands
+
+    def get_server(self, name: str, identifier: str | int) -> dict | None:
+        """按 id 或 ip 查组内单服；找不到返回 None。"""
+        servers = self._groups.get(name)
+        if not servers:
+            return None
+        if isinstance(identifier, int) or (
+            isinstance(identifier, str) and identifier.isdigit()
+        ):
+            target = str(int(identifier))
+            for e in servers:
+                if str(e.get("id", "")) == target:
+                    return e
+            return None
+        target_ip = identifier.strip() if isinstance(identifier, str) else ""
+        for e in servers:
+            if e.get("ip") == target_ip:
+                return e
+        return None
+
+    async def add_server(self, tag: str, ip: str) -> dict:
+        """新增单服：底层走 store/groups.add_server，再 reload_all。"""
+        from .store import groups as groups_store
+
+        entry = await groups_store.add_server(tag, ip)
+        await self.load_all()
+        return entry
+
+    async def remove_server(self, tag: str, identifier: str | int) -> bool:
+        """删除单服：底层走 store/groups.remove_server，再 reload_all。"""
+        from .store import groups as groups_store
+
+        ok = await groups_store.remove_server(tag, identifier)
+        if ok:
+            await self.load_all()
+        return ok
+
+    async def update_server(
+        self,
+        tag: str,
+        identifier: str | int,
+        new_ip: str,
+    ) -> dict | None:
+        """修改单服：底层走 store/groups.update_server，再 reload_all。"""
+        from .store import groups as groups_store
+
+        entry = await groups_store.update_server(tag, identifier, new_ip)
+        if entry is not None:
+            await self.load_all()
+        return entry
 
     def all_json_filenames(self) -> list[str]:
         """Filenames (without .json) of all per-group files (excludes legacy)."""
@@ -178,10 +274,19 @@ class ServerRegistry:
             for group, entries in groups.items():
                 normalised: list[dict] = []
                 if isinstance(entries, list):
+                    max_id = 0
                     for idx, raw_entry in enumerate(entries, start=1):
-                        norm = _normalize_server_entry(raw_entry, idx)
-                        if norm is not None:
-                            normalised.append(norm)
+                        norm = _normalize_server_entry(
+                            raw_entry, idx, max_existing_id=max_id,
+                        )
+                        if norm is None:
+                            continue
+                        try:
+                            cur_id = int(norm.get("id", 0))
+                        except (TypeError, ValueError):
+                            cur_id = 0
+                        max_id = max(max_id, cur_id)
+                        normalised.append(norm)
                 self._groups[group] = normalised
                 self._commands.add(group)
                 logger.success(

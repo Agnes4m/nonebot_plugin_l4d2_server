@@ -7,7 +7,7 @@
 
 <div align="center">
 
-# nonebot_plugin_l4d2_server 1.3.0
+# nonebot_plugin_l4d2_server 1.4.0
 
 _✨Nonebot & Left 4 Dead 2 server 操作 ✨_
 
@@ -158,12 +158,84 @@ conda install nonebot-plugin-l4d2-server
 - [x] 批量查询指定 ip 服务器状态和玩家
 - [x] connect 指令直接呼出服务器信息
 - [x] 根据用户名，在已知服务器搜索玩家信息
+- [x] **服务器订阅 / 收藏 + 定时推送**（v1.4.0）：上线 / 离线 / 玩家数突变时自动通知群
+- [x] **单服 CRUD 指令**（v1.4.0）：不用手动编辑 JSON
+- [x] **创意工坊批量并发下载**（v1.4.0）：流式写入 + 进度回报
+
+## 新指令速览（v1.4.0）
+
+| 指令 | 别名 | 权限 | 用途 |
+|---|---|---|---|
+| `l4收藏 <组> <id>` | `l4fav`、`l4_favorite` | — | 在群聊触发，自动记住本群为推送目标 |
+| `l4取关 <组> <id>` | `l4unfav`、`l4_unfavorite` | — | 取消本群订阅（不影响其他群） |
+| `l4收藏列表` | `l4favlist`、`l4_list_favorites` | — | 列出本群订阅 |
+| `l4通知目标 <组> <id> <群号>` | `l4notifytarget` | SUPERUSER | 把订阅的推送目标改成别的群 |
+| `l4添加服务器 <组> host:port` | `l4_add_server`、`l4addserver` | SUPERUSER | 新增单服到指定组 |
+| `l4删除服务器 <组> <id或ip>` | `l4_del_server`、`l4delserver` | SUPERUSER | 删除组内单服 |
+| `l4修改服务器 <组> <id> <新ip>` | `l4_edit_server`、`l4editserver` | SUPERUSER | 改单服 ip |
+| `l4查看组 <组>` | `l4showgroup`、`l4列服务器` | SUPERUSER | 列组成员 + 在线状态 |
+| `l4创意工坊 id1,id2 id3` | — | `l4_permission_set` | 批量并发下载（逗号/空格/换行分隔） |
+
+## 数据目录（localstore 默认开启）
+
+v1.4.0 起，默认用 `nonebot-plugin-localstore` 自动生成插件同名数据目录，
+典型路径：`./data/nonebot_plugin_l4d2_server/l4d2/`（受 `LOCALSTORE_USE_CWD`
+和 `l4_localstore_subdir` 影响）。首次启动时若新目录为空且旧的
+`./data/L4D2/` 仍有内容，会一次性复制过去（旧目录保留以便手动清理）。
+
+不想用 localstore：在 `.env` 里设 `L4_USE_LOCALSTORE=false`，回到老的
+相对 `l4_path` 模式。
+
+新增 `.env` 字段：
+
+```dotenv
+# 路径
+L4_USE_LOCALSTORE=true           # 是否走 localstore 自动路径
+L4_LOCALSTORE_SUBDIR=l4d2        # localstore 下的子目录名
+
+# A2S 性能
+L4_A2S_CONCURRENCY=8             # 同时最多几台服务器在查（信号量上限）
+L4_A2S_TIMEOUT=2.5               # 单次 ainfo / aplayers 超时秒
+L4_A2S_CACHE_TTL=15              # 结果缓存秒；0=不缓存
+
+# 订阅 / 巡检
+L4_FAVORITE_CHECK_INTERVAL=300   # 巡检间隔秒（≥30）
+L4_FAVORITE_PLAYER_DELTA=5       # 玩家数变化超过此值才推送
+
+# 工坊
+L4_WORKSHOP_CONCURRENCY=3        # 批量下载并发上限（1~8）
+```
+
+## 屏蔽与关键词 — 实现思路（v1.4.0 未实现，仅文档）
+
+下面四种思路由浅入深，可按需选一种或叠加：
+
+1. **SourceBans 自动同步**：定时拉 SourceBans banlist 落到本地
+   `<data_dir>/blocklist.json`；A2S 查服后过滤掉已在 banlist 的 IP，
+   渲染层不再展示这些服。
+2. **本地 JSON 黑名单**：管理员 `l4黑名单 add <ip>` 写入
+   `<data_dir>/blocklist.json`；查询结果按黑名单过滤。
+3. **SourceMod HTTP 聊天镜像**：服务器装 SM 插件暴露 HTTP 接口，
+   机器人拉聊天记录后正则匹配违规词，命中后通过 RCON 自动 kick。
+4. **关键词正则匹配**：新增配置 `l4_block_keywords: list[str]`；
+   玩家名或服务器名命中则过滤。配合方案 1 自动入库效果最佳。
+
+四类方案都需要新增一个 `services/blocklist.py` + `commands/blocklist.py`
++ `services/filters.py`（在 A2S 结果与渲染之间插入过滤器）。当前
+v1.4.0 已预留 `consts.BLOCKLIST_FILENAME` 常量，避免后续硬编码。
 
 ## [数据结构](./docs/standand.md)
 
-> 服务器组文件存放位置：`<l4_path>/<组名>.json`（默认 `data/L4D2/<组名>.json`），旧版 `<l4_path>/l4d2/` 子目录会在启动时自动迁移。
->
-> 所有数据路径（组文件、sb_pages、自定义背景图、迁移脚本）都跟着 `l4_path` 配置走，CWD 在哪都无所谓。改 `l4_path` 一处生效。
+> 服务器组文件存放位置：`<data_dir>/<组名>.json`。
+> `<data_dir>` 默认 `data/L4D2`；开启 localstore 后变为
+> `<localstore>/nonebot_plugin_l4d2_server/l4d2/`。
+> 旧版 `<data_dir>/l4d2/` 子目录与 `<data_dir>/l4d2.json` 单文件
+> 都会在启动时自动迁移。
+
+收藏相关数据：
+
+- `<data_dir>/favorites.json` — 收藏条目列表
+- `<data_dir>/notify_state.json` — 上次推送状态（避免抖动刷屏）
 
 ## env 设置
 
@@ -174,13 +246,29 @@ conda install nonebot-plugin-l4d2-server
     """是否启用图片"""
     l4_connect = True
     """是否在查服命令后加入connect ip"""
+    l4_use_localstore = True
+    """是否走 nonebot-plugin-localstore 自动生成插件同名数据目录"""
+    l4_localstore_subdir = "l4d2"
+    """localstore 下的子目录名"""
     l4_path = "data/L4D2"
-    """插件数据根目录。组 JSON / sb_pages / 自定义背景图 / 迁移脚本都从这里派生。"""
+    """l4_use_localstore=False 时使用的相对路径"""
     l4_players = 4
     """查询总图的时候展示的用户数量"""
     l4_style = "default"
     """图片风格，可选包括以下
     - 简洁
+    l4_a2s_concurrency = 8
+    """A2S 并发上限（信号量）"""
+    l4_a2s_timeout = 2.5
+    """A2S 单次超时秒"""
+    l4_a2s_cache_ttl = 15
+    """A2S 结果缓存秒；0=不缓存"""
+    l4_favorite_check_interval = 300
+    """收藏巡检间隔秒"""
+    l4_favorite_player_delta = 5
+    """玩家数变化超过此值才推送"""
+    l4_workshop_concurrency = 3
+    """创意工坊批量下载并发上限"""
 ```
 
 ## 和 0.x.x 更改部分
@@ -191,6 +279,30 @@ conda install nonebot-plugin-l4d2-server
 - **服务器列表（`云`）地图名溢出处理**：`.map-name` CSS 增加 `text-overflow: ellipsis`，超长地图名以省略号截断，不再撑破卡片；
 - **查服背景图按渲染类型拆分目录**（后续调整）：`/云`（服务器列表）从 `<l4_path>/custom_backgrounds/` 根目录的所有图片中随机抽一张，目录为空时回退到内置 `background.jpg`；`/云1`（单服务器卡）固定使用深蓝灰纯色，不加载任何图片。详见「自定义服务器列表背景图片」；
 - **数据路径统一从 `l4_path` 派生**：组文件、sb_pages、自定义背景图、迁移脚本都跟着 `l4_path` 配置走，不再各自写死相对路径。`.env` 里改 `L4_PATH` 一处即生效，不用再管 bot 启动 CWD。
+
+## v1.4.0 相对 v1.3.x 的变化
+
+- **localstore 路径**：默认用 `nonebot-plugin-localstore` 自动生成
+  插件同名数据目录；可通过 `L4_USE_LOCALSTORE=false` 退回旧路径。
+- **A2S 性能**：批量查询加 `asyncio.Semaphore` 上限
+  （`l4_a2s_concurrency`），单次超时可配（`l4_a2s_timeout`），
+  结果缓存 `l4_a2s_cache_ttl` 秒（deepcopy 防止下游 mutate）；
+  SourceBans `refresh_all_pages` 改并发。
+- **收藏 / 订阅**：新增 `l4收藏` / `l4取关` / `l4收藏列表` /
+  `l4通知目标`；scheduler 周期巡检（`l4_favorite_check_interval`），
+  上线 / 离线 / 玩家数突变时按群推送。
+- **单服 CRUD**：新增 `l4添加服务器` / `l4删除服务器` / `l4修改服务器` /
+  `l4查看组`，ID 稳定不再重排。
+- **创意工坊批量**：`l4创意工坊 123,456 789` 并发下载
+  （`l4_workshop_concurrency`），流式写入 + 进度回报。
+- **`tj` / `zl` / `kl` 注册时序 bug**：改为在 `_on_startup` 内调用
+  `register_picker_handlers()`，避免导入时 `registry.commands` 还没填。
+- **统一异常类型**：`services/errors.py` 提供 `L4Error` / `L4ServerUnreachableError` /
+  `L4TimeoutError` / `L4InvalidInputError` / `L4NotFoundError` / `L4HTTPError`，
+  后续 handler 收敛 `except L4Error`。
+- **`http_helpers.save_url_to_file` dead code** 修复；
+  新增 `stream_download` 流式下载接口。
+- **`http_helpers.STREAM_CHUNK_SIZE` / `STREAM_TIMEOUT`** 新常量。
 
 ## 其他
 

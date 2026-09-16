@@ -18,7 +18,7 @@
 <body>
     <div class="outer-frame">
         <div class="container">
-            <h1>已加载服务器 {{ servers[0].command if servers else '' }} (在线 {{ servers|length }}/{{ (servers|length) + (offline_ids|length) }} 台)</h1>
+<h1>已加载服务器 {{ servers[0].command if servers else '' }} (在线 {{ servers|length }}/{{ (servers|length) + (offline_ids|length) }} 台)</h1>
 
             <div class="server-grid">
                 {% for server in servers %}
@@ -112,7 +112,7 @@
         {% endif %}
 
         <div class="footer">
-            @Anges Digital & Nonebot2
+            @Anges Digital &amp; Nonebot2
         </div>
     </div>
     </div>

@@ -15,7 +15,7 @@ from nonebot.log import logger
 from nonebot.permission import SUPERUSER, Permission
 from pydantic import BaseModel, Field, field_validator
 
-from .consts import DEFAULT_DATA_DIR
+from .consts import DEFAULT_DATA_DIR, LOCALSTORE_SUBDIR
 
 
 class ConfigModel(BaseModel):
@@ -24,7 +24,15 @@ class ConfigModel(BaseModel):
     l4_enable: bool = Field(default=True, description="是否全局启用求生功能")
     l4_image: bool = Field(default=True, description="是否启用图片")
     l4_connect: bool = Field(default=True, description="是否在查服命令后加入connect ip")
-    l4_path: str = Field(default=DEFAULT_DATA_DIR, description="插件数据路径")
+    l4_path: str = Field(default=DEFAULT_DATA_DIR, description="插件数据路径（l4_use_localstore=False 时生效）")
+    l4_use_localstore: bool = Field(
+        default=True,
+        description="是否用 nonebot-plugin-localstore 自动生成插件同名数据目录",
+    )
+    l4_localstore_subdir: str = Field(
+        default=LOCALSTORE_SUBDIR,
+        description="localstore 数据根下的子目录名",
+    )
     l4_players: int = Field(default=4, ge=1, description="查询总图时展示的用户数量")
     l4_style: str = Field(default="default", description="图片风格")
     l4_font: str = Field(default="", description="字体文件路径")
@@ -39,6 +47,18 @@ class ConfigModel(BaseModel):
         ge=1,
         le=4,
         description="上传地图权限",
+    )
+    l4_a2s_concurrency: int = Field(default=8, ge=1, le=64, description="A2S 并发上限")
+    l4_a2s_timeout: float = Field(default=2.5, gt=0, description="A2S 单次超时秒")
+    l4_a2s_cache_ttl: int = Field(default=15, ge=0, description="A2S 结果缓存秒；0=不缓存")
+    l4_favorite_check_interval: int = Field(
+        default=300, ge=30, description="收藏巡检间隔秒",
+    )
+    l4_favorite_player_delta: int = Field(
+        default=5, ge=1, description="玩家数变化超过此值才推送",
+    )
+    l4_workshop_concurrency: int = Field(
+        default=3, ge=1, le=8, description="创意工坊并发下载数",
     )
 
     @field_validator("l4_players")
@@ -77,8 +97,11 @@ class ConfigModel(BaseModel):
 
     @property
     def data_dir(self) -> Path:
-        """数据根目录（解析 ``l4_path``），所有数据文件都在它下面。"""
-        return Path(self.l4_path)
+        """数据根目录（统一走 ``services.path_resolver``，无需在这里决策）。"""
+        # 延迟导入：避免循环（path_resolver 会读 config）。
+        from .services.path_resolver import resolve_data_dir
+
+        return resolve_data_dir()
 
 
 config = get_plugin_config(ConfigModel)
