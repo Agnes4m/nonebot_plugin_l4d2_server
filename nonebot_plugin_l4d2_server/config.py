@@ -102,18 +102,10 @@ class ConfigModel(BaseModel):
 
     @property
     def data_dir(self) -> Path:
-        """数据根目录：localstore 管理的插件目录。"""
+        """数据根目录：``<cwd>/data/nonebot_plugin_l4d2_server/``。"""
         from .services.path_resolver import data_dir as resolve
 
-        d = resolve()
-        # 临时 debug，定位远端 cwd / data_dir 不匹配问题；下个 commit 删
-        from nonebot.log import logger
-        try:
-            contents = sorted(p.name for p in d.iterdir()) if d.is_dir() else "N/A"
-        except Exception as exc:
-            contents = f"ERR {exc}"
-        logger.warning(f"[l4 DEBUG] cwd={Path.cwd()} data_dir={d} contents={contents}")
-        return d
+        return resolve()
 
 
 config = get_plugin_config(ConfigModel)
