@@ -7,7 +7,7 @@ Pure config schema + ConfigManager; data layout / migration lives in
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
+from typing import List  # noqa: F401
 
 from nonebot import get_plugin_config
 from nonebot.adapters.onebot.v11 import GROUP_ADMIN, GROUP_MEMBER, GROUP_OWNER
@@ -105,7 +105,15 @@ class ConfigModel(BaseModel):
         """数据根目录：localstore 管理的插件目录。"""
         from .services.path_resolver import data_dir as resolve
 
-        return resolve()
+        d = resolve()
+        # 临时 debug，定位远端 cwd / data_dir 不匹配问题；下个 commit 删
+        from nonebot.log import logger
+        try:
+            contents = sorted(p.name for p in d.iterdir()) if d.is_dir() else "N/A"
+        except Exception as exc:
+            contents = f"ERR {exc}"
+        logger.warning(f"[l4 DEBUG] cwd={Path.cwd()} data_dir={d} contents={contents}")
+        return d
 
 
 config = get_plugin_config(ConfigModel)
