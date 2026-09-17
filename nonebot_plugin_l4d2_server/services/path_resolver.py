@@ -1,7 +1,11 @@
 """插件数据目录：唯一规定路径是 localstore 管理的目录。
 
-首次启动时若 localstore 空、且插件根自带 ``data/L4D2/`` 有内容，
-``migrate_legacy()`` 会把后者复制过来。后续永远走 localstore。
+首次启动时若 localstore 空，且下列任一旧位置有内容，``migrate_legacy()``
+会复制过来：
+- 插件根自带 ``data/L4D2/``（手工 / 旧版布局）
+- ``localstore 子目录 services/``（v1.4.0 之前的 LOCALSTORE_SUBDIR 残留）
+
+后续永远走 localstore 根目录。
 """
 
 from __future__ import annotations
@@ -28,26 +32,38 @@ def data_dir() -> Path:
 
 
 def migrate_legacy() -> bool:
-    """首次启动把插件根的 ``data/L4D2/`` 复制到 localstore。
+    """首次启动把旧位置的组 JSON 复制到 localstore。
 
-    旧目录保留供用户手动删除。
+    候选源（按优先级）：
+    1. 插件根 ``data/L4D2/``（手工 / 旧版布局）
+    2. localstore 子目录 ``services/``（v1.4.0 之前 LOCALSTORE_SUBDIR="l4d2"
+       的残留；插件作为 ``services`` 子插件加载时 ``_get_plugin_path`` 自动
+       在 ``data/nonebot_plugin_l4d2_server/`` 下加了 ``services`` 一层）。
+
+    旧位置保留供用户手动确认后删除。
     """
     target = data_dir()
     if any(target.iterdir()):
         return False
-    legacy = _PLUGIN_ROOT / "data" / "L4D2"
-    if not legacy.is_dir() or not any(legacy.iterdir()):
-        return False
-    moved = 0
-    for item in legacy.iterdir():
-        dest = target / item.name
-        try:
-            if item.is_dir():
-                shutil.copytree(item, dest)
-            else:
-                shutil.copy2(item, dest)
-            moved += 1
-        except OSError as exc:
-            logger.warning(f"[l4] 迁移 {item} 失败: {exc}")
-    logger.success(f"[l4] 迁移 {moved} 项：{legacy} → {target}")
-    return moved > 0
+
+    candidates = [
+        _PLUGIN_ROOT / "data" / "L4D2",
+        target / "services",  # v1.4.0 之前 LOCALSTORE_SUBDIR 残留
+    ]
+    for legacy in candidates:
+        if not legacy.is_dir() or not any(legacy.iterdir()):
+            continue
+        moved = 0
+        for item in legacy.iterdir():
+            dest = target / item.name
+            try:
+                if item.is_dir():
+                    shutil.copytree(item, dest)
+                else:
+                    shutil.copy2(item, dest)
+                moved += 1
+            except OSError as exc:
+                logger.warning(f"[l4] 迁移 {item} 失败: {exc}")
+        logger.success(f"[l4] 迁移 {moved} 项：{legacy} → {target}")
+        return moved > 0
+    return False
