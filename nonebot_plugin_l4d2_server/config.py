@@ -57,6 +57,14 @@ class ConfigModel(BaseModel):
         default=15.0, gt=0,
         description="htmlrender 单次出图硬上限秒；超时/失败/空字节 fallback 到文字",
     )
+    l4_history_interval: int = Field(
+        default=300, ge=60,
+        description="A2S 历史记录周期秒；用于热力图 / Wipe 检测 / 阈值通知",
+    )
+    l4_history_retention_days: int = Field(
+        default=30, ge=1,
+        description="A2S 历史保留天数；启动时清理过期记录",
+    )
 
     @field_validator("l4_players")
     @classmethod

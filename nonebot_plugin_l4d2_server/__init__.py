@@ -15,7 +15,10 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import asyncio
+
 from nonebot import get_driver, require
+from nonebot.log import logger
 from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
 # 依赖插件声明 必须在导入其它插件模块之前执行。
@@ -46,6 +49,7 @@ async def _on_startup() -> None:
     from .config import config
     from .render.background import ensure_user_background_dir
     from .services.favorite import init_favorite_scheduler
+    from .services.history import purge_older_than, record
     from .services.path_resolver import migrate_legacy
 
     config.data_dir  # 触发 localstore 目录创建
@@ -57,6 +61,56 @@ async def _on_startup() -> None:
     register_picker_handlers()
     ensure_user_background_dir()
     await init_favorite_scheduler()
+    # 启动后台 A2S 历史记录任务 + 清过期记录
+    await _start_history_recorder()
+    await asyncio.to_thread(
+        purge_older_than, int(config.l4_history_retention_days),
+    )
+
+
+async def _start_history_recorder() -> None:
+    """apscheduler 注册 interval 任务，周期 ``config.l4_history_interval`` 秒。
+
+    任务对 ``registry.group_names`` 内每个组的每台服跑一次 ``record``。
+    收藏巡检的 ``run_favorite_check`` 已经会写历史，本任务只覆盖**未被收藏**
+    的服，避免「你只查不收藏的服没历史」。
+    """
+    from nonebot_plugin_apscheduler import scheduler
+
+    async def _record_all() -> None:
+        from .api import L4API
+        from .registry import registry
+
+        ips: list[tuple[str, int]] = []
+        for tag in registry.group_names:
+            for entry in registry.get(tag) or []:
+                ips.append((entry["host"], int(entry["port"])))
+        if not ips:
+            return
+        try:
+            results = await L4API.a2s_info_batch(ips, want_players=False)
+        except Exception as exc:
+            logger.warning(f"[l4] 历史记录批量失败: {exc}")
+            return
+        for (server, _), ip in zip(results, ips):
+            record(
+                host=ip[0],
+                port=ip[1],
+                server_name=str(getattr(server, "server_name", "") or ""),
+                map_name=str(getattr(server, "map_name", "") or ""),
+                player_count=int(getattr(server, "player_count", 0) or 0),
+                max_players=int(getattr(server, "max_players", 0) or 0),
+                ping=int(getattr(server, "ping", 0) or 0) or None,
+            )
+
+    try:
+        scheduler.add_job(
+            _record_all, "interval",
+            seconds=int(config.l4_history_interval),
+            id="l4_history_record", replace_existing=True,
+        )
+    except Exception as exc:
+        logger.warning(f"[l4] 注册历史记录任务失败: {exc}")
 
 
 __plugin_meta__ = PluginMetadata(

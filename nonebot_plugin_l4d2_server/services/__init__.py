@@ -4,6 +4,7 @@ from . import filter as filter_service
 from . import (
     errors,
     favorite,
+    history,
     local_server,
     migrate,
     path_resolver,
@@ -16,6 +17,7 @@ __all__ = [
     "errors",
     "favorite",
     "filter_service",
+    "history",
     "local_server",
     "migrate",
     "path_resolver",
