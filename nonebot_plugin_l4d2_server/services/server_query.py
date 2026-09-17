@@ -123,6 +123,14 @@ async def _render_group(
             for s in out_servers
             if s["server"].max_players == 0
         ]
+        # 按服务器数硬阈值跳走图片，避免 Chromium 在大组上拖死轻量服务器。
+        max_servers = int(config.l4_image_max_servers)
+        if max_servers > 0 and len(out_servers) > max_servers:
+            logger.info(
+                f"[l4] {command} 组查询：{len(out_servers)} 服 > "
+                f"l4_image_max_servers={max_servers}，跳过图片走文字"
+            )
+            return _format_group_text(command, out_servers)
         pic = await render_server_list(online, offline_ids=offline_ids)
         render_ms = (time.perf_counter() - t_after_a2s) * 1000
         total_ms = (time.perf_counter() - t_total) * 1000
