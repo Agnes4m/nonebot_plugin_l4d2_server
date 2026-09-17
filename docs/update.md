@@ -2,6 +2,30 @@
 
 ## 更新记录
 
+### 1.4.1
+
+#### A2S 历史 + 跨服模糊查人 + 收藏阈值/Wipe 推送
+
+借鉴 `rust-stats` / `7dtd-watch` / `SzDiscordBot` / `left-for-bot` / `kitasoda_server_bot` 的设计，一次提供三个能力。
+
+- 新增 `services/history.py`（SQLite，Python 3.12+ 自带 `sqlite3`，零新依赖）：
+  - `record()` 落 `<data_dir>/history.db`，主键 `(host, port, timestamp)`。
+  - `heatmap(host, port, days=7)` 返回 `[(weekday, hour, avg, sample_count)]`；样本 < 3 的格子 `avg` 置 0 避免误导。
+  - `detect_wipe(host, port, current_map)` 与上次记录的 `map_name` 对比，变化时返回 `"old → new"`，配合收藏推送给订阅者。
+  - `purge_older_than(days)` 启动时清过期记录。
+- 新增 `commands/history.py`：
+  - `l4热力图 <组> <id或ip> [天数]` — 输出 7×24 ASCII 条形热力图。
+- 新增 `commands/fuzzy_search.py`：
+  - `l4查人 <玩家名>` — 跨所有组并发查 A2S，用 `difflib` 模糊匹配（容忍空格 / 全角符号 / tag），命中 ≤ 4 直接列，> 4 给精简菜单。
+- `services/favorite.py` `run_favorite_check` 升级：
+  - 每条 A2S 结果顺带 `history.record()`。
+  - **Wipe / 章节切换检测**：`map_name` 与 `notify_state[host:port].last_map` 不一致时推 `🔄 标签N 名称 地图变化 old → new`。
+  - **阈值智能通知**：每条 favorite 可独立挂 `thresholds: [int]`，向上跨过阈值才推 `📈 标签N 名称 已达 N 人`，掉回去后再次跨过才重推（避免横跳刷屏）；`notify_state` 加 `last_map` + `fired_thresholds` 字段。
+- `__init__.py` `_on_startup` 注册 apscheduler interval 任务 `l4_history_record`（周期 `config.l4_history_interval`，默认 300s），覆盖未被收藏的服；启动时 `purge_older_than(config.l4_history_retention_days)`。
+- 新增 config：
+  - `l4_history_interval`（int, ge=60, default 300）。
+  - `l4_history_retention_days`（int, ge=1, default 30）。
+
 ### 1.4.0
 
 #### 数据路径
