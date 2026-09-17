@@ -250,7 +250,8 @@ class L4D2Api:
                     )
 
         self._cache_put(key, (server, players))
-        return server, players
+        # 缓存存入的是 ``server`` 本身；返回前 deepcopy 一份防下游 mutate 直接污染缓存。
+        return deepcopy(server), players
 
     # ---------- HTTP ----------
 

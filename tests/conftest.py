@@ -12,7 +12,8 @@ import sys
 import types
 from pathlib import Path
 
-# Make the inner package importable as top-level modules for tests.
+# Make the inner package importable as a top-level package so ``import registry``
+# and ``from nonebot_plugin_l4d2_server.api.l4d2 import L4D2Api`` both work.
 INNER = Path(__file__).parent.parent / "nonebot_plugin_l4d2_server"
 sys.path.insert(0, str(INNER))
 
