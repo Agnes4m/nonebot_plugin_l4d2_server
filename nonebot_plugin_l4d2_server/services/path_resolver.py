@@ -6,6 +6,12 @@
 - ``localstore 子目录 services/``（v1.4.0 之前的 LOCALSTORE_SUBDIR 残留）
 
 后续永远走 localstore 根目录。
+
+注意：``get_plugin_data_dir()`` 用调用栈反推 ``plugin.id_``，本插件作为
+``from . import services`` 子插件加载时，它会把数据写到
+``<base>/<plugin>/services/``，导致组 JSON 不在根目录。所以 ``data_dir()``
+直接用 localstore 的 ``BASE_DATA_DIR`` 拼 ``nonebot_plugin_l4d2_server``，
+绕过 caller-plugin 解析。
 """
 
 from __future__ import annotations
@@ -14,7 +20,7 @@ import shutil
 from pathlib import Path
 
 from nonebot.log import logger
-from nonebot_plugin_localstore import get_plugin_data_dir
+from nonebot_plugin_localstore import BASE_DATA_DIR
 
 # 插件根（带 ``pyproject.toml`` 的目录），用于定位待迁移的旧数据。
 _PLUGIN_ROOT = Path(__file__).parent.parent.parent
@@ -23,10 +29,14 @@ _data_dir: Path | None = None
 
 
 def data_dir() -> Path:
-    """唯一规定路径：localstore 管理的插件数据目录。"""
+    """唯一规定路径：``<localstore base>/nonebot_plugin_l4d2_server/``。
+
+    直接拼 BASE_DATA_DIR，跳过 ``get_plugin_data_dir()`` 的 caller-plugin
+    解析（否则被 ``services`` 子插件上下文污染到 ``services/`` 子目录）。
+    """
     global _data_dir
     if _data_dir is None:
-        _data_dir = get_plugin_data_dir()
+        _data_dir = BASE_DATA_DIR / "nonebot_plugin_l4d2_server"
         _data_dir.mkdir(parents=True, exist_ok=True)
     return _data_dir
 
