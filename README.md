@@ -152,6 +152,36 @@ conda install nonebot-plugin-l4d2-server
 </details>
 </details>
 
+### 额外依赖：Playwright 浏览器内核
+
+本插件出图走 `nonebot-plugin-htmlrender` → Playwright，需要 Chromium 内核。
+直接 `pip / pdm / poetry add` 装出来的 playwright 不会自动下载浏览器，
+启动时会报 `Executable doesn't exist ... chrome-win64/chrome.exe` 这类错。
+
+按你的包管理器二选一：
+
+```bash
+# uv（推荐，nonebot2 社区主流）
+uv tool install playwright
+uv run playwright install --with-deps chromium
+
+# 或 pipx（隔离环境装全局命令）
+pipx install playwright
+pipx run playwright install --with-deps chromium
+
+# 或直接 pip
+pip install playwright
+playwright install --with-deps chromium
+```
+
+> 如果你用 `uv` 跑 bot（即 `uv run` 启动 bot 进程），第一次启动 bot 自己会调
+> `playwright install chromium`，无需上面手工步骤；切到其他用户 / 全局
+> python 时才需要手动装。
+>
+> htmlrender `0.7+` 拆成了 provider 架构并强依赖 `nonebot-plugin-filehost`，
+> 0.6.x 仍提供 `html_to_pic`。本插件 `pyproject.toml` 锁定 `>=0.6.0,<0.7`，
+> 升级前先看 `#104`。
+
 ## 主要功能
 
 - [x] 求生服务器-本地多路径操作（传地图等）
