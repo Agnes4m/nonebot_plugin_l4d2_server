@@ -105,11 +105,11 @@ async def render_server_list(
         # 堵死导致 WS 心跳丢失。超时 / 异常 / 空字节统统走 None，让调用方 fallback 到文字。
         #
         # 渲染调参（轻量服务器 OOM 优化）：
-        # - ``wait_until="domcontentloaded"`` 比默认 ``networkidle`` 早返回
-        #   （networkidle 等所有网络静默 500ms，file:// 本地资源意义不大，
-        #   还可能因为模板里有 google-fonts CDN 之类永远等不到）
-        # - ``device_scale_factor=1`` 不做 2x 渲染，4x 内存省、4x 速度提
-        # - ``viewport`` 宽度给 100 让 htmlrender 自己撑
+        # - ``device_scale_factor=1`` 不做 2x 渲染，4x 内存省、4x 速度提，
+        #   对服务器卡片（色块 + 文字）肉眼几乎看不出区别。
+        # - ``viewport`` 宽度给 100 让 htmlrender自己撑。
+        # htmlrender 0.6.7 把 ``wait_until="networkidle"`` hardcode 在 set_content
+        # 里，外部无法传；这里能做的就这两个参数。
         pic = await asyncio.wait_for(
             html_to_pic(
                 content,
@@ -117,7 +117,6 @@ async def render_server_list(
                 viewport={"width": 100, "height": 100},
                 template_path=f"file://{RENDER_TEMPLATES_PATH.absolute()}",
                 device_scale_factor=1,
-                wait_until="domcontentloaded",
             ),
             timeout=float(config.l4_render_timeout),
         )
