@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import shutil
 from pathlib import Path
 from typing import Optional
@@ -100,12 +101,21 @@ async def render_server_list(
 
     try:
         content = await _build_html(server_dict, offline_ids=offline_ids)
-        return await html_to_pic(
-            content,
-            wait=0,
-            viewport={"width": 100, "height": 100},
-            template_path=f"file://{RENDER_TEMPLATES_PATH.absolute()}",
+        # ``wait_for`` 给 Chromium 一道硬上限，避免 50 服长页面把 asyncio 主循环
+        # 堵死导致 WS 心跳丢失。超时 / 异常 / 空字节统统走 None，让调用方 fallback 到文字。
+        pic = await asyncio.wait_for(
+            html_to_pic(
+                content,
+                wait=0,
+                viewport={"width": 100, "height": 100},
+                template_path=f"file://{RENDER_TEMPLATES_PATH.absolute()}",
+            ),
+            timeout=float(config.l4_render_timeout),
         )
+        if not pic:
+            logger.warning("渲染服务器列表返回空字节")
+            return None
+        return pic
     except Exception as exc:
         logger.warning(f"渲染服务器列表失败: {exc}")
         return None
