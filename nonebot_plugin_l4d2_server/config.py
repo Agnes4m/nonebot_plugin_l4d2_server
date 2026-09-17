@@ -53,6 +53,10 @@ class ConfigModel(BaseModel):
     l4_workshop_concurrency: int = Field(
         default=3, ge=1, le=8, description="创意工坊并发下载数",
     )
+    l4_render_timeout: float = Field(
+        default=15.0, gt=0,
+        description="htmlrender 单次出图硬上限秒；超时/失败/空字节 fallback 到文字",
+    )
 
     @field_validator("l4_players")
     @classmethod

@@ -107,7 +107,7 @@ async def _render_group(
     command: str,
     _servers: list[dict],
     is_img: bool,
-) -> bytes | list[OutServer]:
+) -> bytes | str:
     out_servers = await query_group_servers(command)
     if is_img:
         # A2S 失败时 ``server.max_players == 0`` 作 sentinel：在线画卡片，离线写文字区。
@@ -117,8 +117,30 @@ async def _render_group(
             for s in out_servers
             if s["server"].max_players == 0
         ]
-        return await render_server_list(online, offline_ids=offline_ids)
+        pic = await render_server_list(online, offline_ids=offline_ids)
+        if pic is not None:
+            return pic
+        # 出图超时 / 失败 / 空字节：退回文字汇总，避免 OneBot WS 心跳丢失后误判超时。
+        logger.warning(f"{command} 图片渲染失败，fallback 到文字输出")
+        return _format_group_text(command, out_servers)
     return out_servers
+
+
+def _format_group_text(command: str, out_servers: List[OutServer]) -> str:
+    """图片失败时的纯文字汇总：每行一台服，不带颜色 / 玩家名（避免刷屏）。"""
+    lines = [f"【{command}】服务器列表（图片渲染失败，转为文字）："]
+    for s in out_servers:
+        srv = s["server"]
+        if srv.max_players == 0:
+            lines.append(f"  {s['command']}{s['id_']}  离线")
+            continue
+        lines.append(
+            f"  {s['command']}{s['id_']}  "
+            f"{srv.server_name}  "
+            f"地图={srv.map_name}  "
+            f"玩家={srv.player_count}/{srv.max_players}"
+        )
+    return "\n".join(lines)
 
 
 async def _render_single(host: str, port: int, is_img: bool) -> bytes | str | None:
