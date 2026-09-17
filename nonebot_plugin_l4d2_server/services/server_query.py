@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import time
 from typing import List, Optional, Tuple, cast
+
+from nonebot.log import logger
 
 from ..api import L4API, AllServer, OutServer
 from ..config import config
@@ -108,7 +111,10 @@ async def _render_group(
     _servers: list[dict],
     is_img: bool,
 ) -> bytes | str:
+    t_total = time.perf_counter()
     out_servers = await query_group_servers(command)
+    t_after_a2s = time.perf_counter()
+    a2s_ms = (t_after_a2s - t_total) * 1000
     if is_img:
         # A2S 失败时 ``server.max_players == 0`` 作 sentinel：在线画卡片，离线写文字区。
         online = [s for s in out_servers if s["server"].max_players != 0]
@@ -118,11 +124,22 @@ async def _render_group(
             if s["server"].max_players == 0
         ]
         pic = await render_server_list(online, offline_ids=offline_ids)
+        render_ms = (time.perf_counter() - t_after_a2s) * 1000
+        total_ms = (time.perf_counter() - t_total) * 1000
+        logger.info(
+            f"[l4] {command} 组查询：{len(out_servers)} 服 / "
+            f"在线 {len(online)} / 不在线 {len(offline_ids)} | "
+            f"A2S {a2s_ms:.0f}ms + render {render_ms:.0f}ms = {total_ms:.0f}ms"
+        )
         if pic is not None:
             return pic
         # 出图超时 / 失败 / 空字节：退回文字汇总，避免 OneBot WS 心跳丢失后误判超时。
         logger.warning(f"{command} 图片渲染失败，fallback 到文字输出")
         return _format_group_text(command, out_servers)
+    logger.info(
+        f"[l4] {command} 组查询：{len(out_servers)} 服 / "
+        f"A2S {a2s_ms:.0f}ms（仅文字模式）"
+    )
     return out_servers
 
 
