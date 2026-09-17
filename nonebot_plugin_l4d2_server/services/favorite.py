@@ -7,9 +7,16 @@
 存储：
 
 - ``favorites.json`` — ``[{"tag", "server_id", "host", "port",
-  "target_group_id", "server_name_snapshot", "created_at"}]``
+  "target_group_id", "server_name_snapshot", "created_at",
+  "thresholds"?}]`` — 可选 ``thresholds: [int]``，跨过阈值（向上）才推
+  一次「已到 N 人」消息，掉回去后再次跨过会重推。
 - ``notify_state.json`` — ``{"host:port": {"online", "player_count",
-  "last_check_at", "last_alert_at"}}``
+  "last_check_at", "last_alert_at", "last_map", "fired_thresholds"}}``
+  — ``last_map`` 用于 Wipe / 章节切换检测，``fired_thresholds``
+  记录已经向上跨过的阈值（防止反复横跳刷屏）。
+
+历史：每条 A2S 结果顺带写入 ``services.history`` 的 SQLite，给热力图
+``l4热力图`` 命令和事后查询用。
 
 调度：``init_favorite_scheduler`` 在 ``_on_startup`` 注册一个 interval 任务，
 周期 = ``config.l4_favorite_check_interval``。scheduler 由
@@ -42,6 +49,8 @@ _STATE_DEFAULT: dict[str, Any] = {
     "player_count": 0,
     "last_check_at": 0,
     "last_alert_at": 0,
+    "last_map": "",
+    "fired_thresholds": [],
 }
 
 
@@ -255,7 +264,11 @@ async def run_favorite_check(bot: Any | None = None) -> None:
 
     使用 ``a2s_info_batch_ordered`` 拿保序结果，避免按 steam_id 排序后无法
     对齐 host:port；want_players=False（订阅只关心 online / player_count）。
+
+    顺带把每条结果落到 ``services.history``，给热力图 / Wipe 检测 / 阈值通知用。
     """
+    from . import history
+
     items = await _load_favorites()
     if not items:
         return
@@ -282,11 +295,30 @@ async def run_favorite_check(bot: Any | None = None) -> None:
     state_map: dict[str, dict[str, Any]] = {}
     for (host, port, server, _players) in ordered:
         online = not _is_empty_player_signal(server)
+        server_name = str(getattr(server, "server_name", "") or "")
+        map_name = str(getattr(server, "map_name", "") or "")
+        player_count = int(getattr(server, "player_count", 0) or 0)
+        max_players = int(getattr(server, "max_players", 0) or 0)
         state_map[f"{host}:{port}"] = {
             "online": online,
-            "player_count": int(getattr(server, "player_count", 0) or 0),
+            "player_count": player_count,
+            "server_name": server_name,
+            "map_name": map_name,
+            "max_players": max_players,
             "last_check_at": now_ts,
         }
+        # 顺带落 SQLite，给热力图 / Wipe 检测 / 阈值通知用
+        try:
+            history.record(
+                host=host, port=port,
+                server_name=server_name,
+                map_name=map_name,
+                player_count=player_count,
+                max_players=max_players,
+                ping=int(getattr(server, "ping", 0) or 0) or None,
+            )
+        except Exception as exc:
+            logger.debug(f"[l4] 写历史失败 {host}:{port}: {exc}")
 
     state = await _load_state()
     by_group: dict[int, list[str]] = {}
@@ -295,37 +327,87 @@ async def run_favorite_check(bot: Any | None = None) -> None:
         now = state_map.get(key, {"online": False, "player_count": 0})
         prev = state.get(key, _STATE_DEFAULT.copy())
 
-        # 30 分钟内同类事件不重复推送（避免上下线抖动刷屏）
         prev_online = bool(prev.get("online"))
         now_online = bool(now["online"])
+        prev_pc = int(prev.get("player_count", 0))
+        now_pc = int(now["player_count"])
+        prev_map = prev.get("last_map") or prev.get("map_name")
+        now_map = now.get("map_name")
+        prev_fired: set[int] = set(prev.get("fired_thresholds", []))
+
+        # 30 分钟内同类事件不重复推送（避免上下线抖动刷屏）
         if (
             (prev_online != now_online)
             and now_ts - int(prev.get("last_alert_at", 0)) < 1800
         ):
+            prev["online"] = now_online
+            prev["player_count"] = now_pc
+            prev["last_check_at"] = now_ts
+            state[key] = prev
             continue
 
-        line = _format_alert(
+        lines: list[str] = []
+
+        # Wipe / 章节切换检测
+        if (
+            prev_online and now_online
+            and prev_map and now_map and prev_map != now_map
+        ):
+            tag = it.get("tag")
+            sid = it.get("server_id")
+            name = it.get("server_name_snapshot") or f"{it.get('host')}:{it.get('port')}"
+            lines.append(
+                f"🔄 {tag}{sid} {name} 地图变化 {prev_map} → {now_map}",
+            )
+
+        # 阈值智能通知（每条 favorite 可独立配 thresholds）
+        thresholds = it.get("thresholds") or []
+        if prev_online and now_online and thresholds:
+            fired_now: set[int] = set()
+            for th in sorted(thresholds):
+                if now_pc >= th and th not in prev_fired:
+                    tag = it.get("tag")
+                    sid = it.get("server_id")
+                    name = it.get("server_name_snapshot") or f"{it.get('host')}:{it.get('port')}"
+                    lines.append(f"📈 {tag}{sid} {name} 已达 {th} 人")
+                    fired_now.add(th)
+                elif now_pc < th and th in prev_fired:
+                    # 跌破阈值，重置以便下次上升时再次触发
+                    prev_fired.discard(th)
+            prev_fired |= fired_now
+
+        # 上下线 / 人数变化通知（保留旧 l4_favorite_player_delta 行为）
+        basic_line = _format_alert(
             it,
             prev_online=prev_online,
-            prev_player_count=int(prev.get("player_count", 0)),
+            prev_player_count=prev_pc,
             now_online=now_online,
-            now_player_count=int(now["player_count"]),
+            now_player_count=now_pc,
         )
-        if line is None:
+        if basic_line is not None:
+            lines.append(basic_line)
+
+        if not lines:
+            prev["online"] = now_online
+            prev["player_count"] = now_pc
+            prev["last_check_at"] = now_ts
+            state[key] = prev
             continue
 
         # 更新 last_alert_at：仅在 online 翻转或人数变化 ≥ 阈值时
-        if prev_online != now_online or abs(
-            int(prev.get("player_count", 0)) - int(now["player_count"]),
-        ) >= int(config.l4_favorite_player_delta):
+        if prev_online != now_online or abs(prev_pc - now_pc) >= int(
+            config.l4_favorite_player_delta,
+        ):
             prev["last_alert_at"] = now_ts
         prev["online"] = now_online
-        prev["player_count"] = int(now["player_count"])
+        prev["player_count"] = now_pc
+        prev["last_map"] = now_map
         prev["last_check_at"] = now_ts
+        prev["fired_thresholds"] = sorted(prev_fired)
         state[key] = prev
 
         gid = int(it["target_group_id"])
-        by_group.setdefault(gid, []).append(line)
+        by_group.setdefault(gid, []).extend(lines)
 
     await _save_state(state)
 
