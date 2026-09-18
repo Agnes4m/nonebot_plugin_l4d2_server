@@ -66,9 +66,10 @@ class ConfigModel(BaseModel):
         description="A2S 历史保留天数；启动时清理过期记录",
     )
     l4_image_max_servers: int = Field(
-        default=20, ge=0,
+        default=0, ge=0,
         description="图片出图硬上限：组内服务器数超过此值直接走文字汇总，"
-        "不启 Chromium。0=不限。轻量服务器（2C2G）建议 15-20。",
+        "不启 Chromium。0=不限（默认，按熔断逻辑失败后走文字）。"
+        "轻量服务器（2C2G）建议显式设 15-20。",
     )
 
     @field_validator("l4_players")
