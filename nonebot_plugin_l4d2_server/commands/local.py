@@ -15,6 +15,11 @@ from ..config import config
 from ..messages import Wm
 from ..render.images import text2pic
 from ..services import local_server as svc_local
+from ..services.errors import (
+    L4Error,
+    L4InvalidInputError,
+    L4NotFoundError,
+)
 from ..services.workshop import (
     WorkshopTaskResult,
     download_many,
@@ -54,43 +59,86 @@ l4_map_delete = on_command(
 )
 
 
+# ---------- helpers ----------
+
+
+def _require_local_paths() -> None:
+    """未配置本地服务器路径时抛 ``L4InvalidInputError``。"""
+    if not svc_local.has_local_paths():
+        raise L4InvalidInputError(
+            "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
+        )
+
+
+def _require_addons() -> "Path":
+    """未配置 / ``l4_map_index`` 越界时抛 ``L4InvalidInputError``。"""
+    addons = svc_local.addons_dir(config.l4_map_index)
+    if addons is None:
+        raise L4InvalidInputError("未配置有效的本地服务器路径")
+    return addons
+
+
+def _resolve_vpk(addons: "Path", index: int, *, action: str) -> str:
+    """按序号拿 VPK 文件名；越界 / 空集抛 L4Error。
+
+    ``action`` 用于错误文案（"重命名" / "删除"）。
+    """
+    vpk_list = svc_local.list_vpk_files(addons)
+    if not vpk_list:
+        raise L4NotFoundError("未找到可用的VPK文件")
+    try:
+        return vpk_list[index - 1]
+    except IndexError as exc:
+        raise L4InvalidInputError(
+            f"输入的地图序号无效（1-{len(vpk_list)}）",
+        ) from exc
+
+
+async def _reply_error(exc: L4Error) -> None:
+    await UniMessage.text(str(exc)).finish()
+
+
+# ---------- handlers ----------
+
+
 @search_map.handle()
 async def _() -> None:
-    if not svc_local.has_local_paths():
-        await UniMessage.text(
-            "未填写本地服务器路径,如果想要使用本地服务器功能,请填写本地服务器路径",
-        ).finish()
-    vpk_list = svc_local.list_vpks(config.l4_map_index)
-    if not vpk_list:
-        await UniMessage.text("未找到可用的VPK文件").finish()
-    lines = "\n".join(f"{i + 1}、{name}" for i, name in enumerate(vpk_list))
-    img = await text2pic(f"服务器地图:\n{lines}")
+    try:
+        _require_local_paths()
+        vpk_list = svc_local.list_vpks(config.l4_map_index)
+        if not vpk_list:
+            raise L4NotFoundError("未找到可用的VPK文件")
+        lines = "\n".join(f"{i + 1}、{name}" for i, name in enumerate(vpk_list))
+        img = await text2pic(f"服务器地图:\n{lines}")
+    except L4Error as exc:
+        await _reply_error(exc)
+        return
     await UniMessage.image(raw=img).send()
 
 
 @l4_map_upload.handle()
 async def _() -> None:
-    if not svc_local.has_local_paths():
-        await UniMessage.text("未配置有效的本地服务器路径").finish()
-    msg = await prompt("请发送地图文件或下载链接", timeout=120)
-    if msg is None:
-        await UniMessage.text("操作已超时，已取消").finish()
+    try:
+        _require_local_paths()
+        msg = await prompt("请发送地图文件或下载链接", timeout=120)
+        if msg is None:
+            raise L4InvalidInputError("操作已超时，已取消")
 
-    files = msg.get(File)
-    if files:
-        url = files[0].url
-        name = files[0].name
-    elif text := msg.extract_plain_text().strip():
-        if text.startswith(("http://", "https://")):
-            url, name = text, text.split("/")[-1]
+        files = msg.get(File)
+        if files:
+            url = files[0].url
+            name = files[0].name
+        elif text := msg.extract_plain_text().strip():
+            if text.startswith(("http://", "https://")):
+                url, name = text, text.split("/")[-1]
+            else:
+                raise L4InvalidInputError("请输入有效的下载链接")
         else:
-            await UniMessage.text("请输入有效的下载链接").finish()
-    else:
-        await UniMessage.text("请发送文件或下载链接").finish()
+            raise L4InvalidInputError("请发送文件或下载链接")
 
-    addons = svc_local.addons_dir(config.l4_map_index)
-    if addons is None:
-        await UniMessage.text("未配置有效的本地服务器路径").finish()
+        addons = _require_addons()
+    except L4Error as exc:
+        await _reply_error(exc)
         return
 
     await l4_map_upload.send("已收到文件,开始下载")
@@ -141,22 +189,14 @@ async def _(matcher: Matcher, event: Event, args: Message = CommandArg()) -> Non
     if not parsed:
         return
     index, new_name = parsed
-
-    addons = svc_local.addons_dir(config.l4_map_index)
-    if addons is None:
-        await UniMessage.text("未配置有效的本地服务器路径").finish()
-        return
-
-    vpk_list = svc_local.list_vpk_files(addons)
-    if not vpk_list:
-        await UniMessage.text("未找到可用的VPK文件").finish()
-        return
     try:
-        old = vpk_list[index - 1]
-    except IndexError:
-        await UniMessage.text("输入的地图序号无效").finish()
+        _require_local_paths()
+        addons = _require_addons()
+        old = _resolve_vpk(addons, index, action="重命名")
+        success = await svc_local.rename_vpk(addons, old, new_name)
+    except L4Error as exc:
+        await _reply_error(exc)
         return
-    success = await svc_local.rename_vpk(addons, old, new_name)
     await UniMessage.text("重命名成功" if success else "重命名失败").finish()
 
 
@@ -167,22 +207,14 @@ async def _(matcher: Matcher, event: Event, args: Message = CommandArg()) -> Non
     if not parsed:
         return
     index, _ = parsed
-
-    addons = svc_local.addons_dir(config.l4_map_index)
-    if addons is None:
-        await UniMessage.text("未配置有效的本地服务器路径").finish()
-        return
-
-    vpk_list = svc_local.list_vpk_files(addons)
-    if not vpk_list:
-        await UniMessage.text("未找到可用的VPK文件").finish()
-        return
     try:
-        old = vpk_list[index - 1]
-    except IndexError:
-        await UniMessage.text("输入的地图序号无效").finish()
+        _require_local_paths()
+        addons = _require_addons()
+        old = _resolve_vpk(addons, index, action="删除")
+        success = await svc_local.delete_vpk(addons, old)
+    except L4Error as exc:
+        await _reply_error(exc)
         return
-    success = await svc_local.delete_vpk(addons, old)
     await UniMessage.text(
         f"已删除地图:{old}" if success else "删除失败",
     ).finish()
@@ -223,7 +255,11 @@ async def _(args: Message = CommandArg()) -> None:
             await UniMessage.text("操作已超时，已取消").finish()
         arg = arg_msg.extract_plain_text().strip()
 
-    ids = parse_workshop_ids(arg)
+    try:
+        ids = parse_workshop_ids(arg)
+    except L4Error as exc:
+        await _reply_error(exc)
+        return
     if not ids:
         await UniMessage.text("未解析到任何有效 id").finish()
 
@@ -258,4 +294,3 @@ async def _(args: Message = CommandArg()) -> None:
         if r.status == "ok" and r.path is not None and r.title:
             with contextlib.suppress(Exception):
                 await UniMessage.file(path=r.path, name=f"{r.title}.vpk").send()
-
