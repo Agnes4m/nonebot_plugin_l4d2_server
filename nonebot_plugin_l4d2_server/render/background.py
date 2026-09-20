@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import random
+from io import BytesIO
 from pathlib import Path
 from typing import Optional
 
-from httpx import get
+import httpx
 from nonebot.log import logger
 from PIL import Image
 
@@ -55,7 +56,11 @@ def pick_background(
 ) -> Image.Image:
     """通用背景图选择器（公开 API，供外部插件复用）。"""
     if url:
-        return Image.open(get(url).content).convert("RGBA")
+        # httpx 0.28+ 同步 ``get`` 已 deprecated；走 ``Client.get`` 保持向后兼容。
+        with httpx.Client() as client:
+            resp = client.get(url, timeout=10.0)
+            resp.raise_for_status()
+            return Image.open(BytesIO(resp.content)).convert("RGBA")
 
     files = list_image_files(user_background_dir())
     if files:
@@ -63,7 +68,7 @@ def pick_background(
         try:
             return Image.open(chosen).convert("RGBA")
         except Exception as exc:
-            print(f"打开自定义背景失败: {chosen.name}: {exc}")
+            logger.warning(f"打开自定义背景失败: {chosen.name}: {exc}")
 
     if width and height:
         return Image.new("RGBA", (width, height), (255, 255, 255, 255))

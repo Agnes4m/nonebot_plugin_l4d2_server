@@ -15,6 +15,7 @@ from nonebot_plugin_alconna import UniMessage
 
 from ..api import L4API
 from ..http_helpers import split_maohao
+from ..registry import registry
 from ..services.errors import L4Error, L4InvalidInputError, L4NotFoundError
 
 l4_add_server = on_command(
@@ -59,8 +60,6 @@ async def _(args: Message = CommandArg()) -> None:
         tag, ip = parts[0], parts[1]
         if split_maohao(ip)[1] == -1:
             raise L4InvalidInputError(f"无效的 ip：{ip}")
-        from ..registry import registry
-
         entry = await registry.add_server(tag, ip)
         from ..commands.query import refresh_server_command_rule
 
@@ -80,8 +79,6 @@ async def _(args: Message = CommandArg()) -> None:
         if parts is None:
             raise L4InvalidInputError("用法：l4删除服务器 <组名> <id或ip>")
         tag, identifier = parts[0], parts[1]
-        from ..registry import registry
-
         ok = await registry.remove_server(tag, identifier)
         if not ok:
             raise L4NotFoundError(f"未找到 {tag} 中的 {identifier}（id 或 ip）")
@@ -103,8 +100,6 @@ async def _(args: Message = CommandArg()) -> None:
         tag, identifier, new_ip = parts[0], parts[1], parts[2]
         if split_maohao(new_ip)[1] == -1:
             raise L4InvalidInputError(f"无效的新 ip：{new_ip}")
-        from ..registry import registry
-
         entry = await registry.update_server(tag, identifier, new_ip)
         if entry is None:
             raise L4NotFoundError(f"未找到 {tag} 中的 {identifier}")
@@ -128,8 +123,6 @@ async def _(args: Message = CommandArg()) -> None:
         if not parts:
             raise L4InvalidInputError("用法：l4查看组 <组名>")
         tag = parts[0]
-        from ..registry import registry
-
         servers = registry.get(tag)
         if not servers:
             raise L4NotFoundError(f"组「{tag}」不存在或为空")
