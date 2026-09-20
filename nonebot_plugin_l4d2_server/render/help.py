@@ -32,7 +32,6 @@ def _load_icon(name: str, icon_dir: Path) -> Optional[Image.Image]:
     for icon in icon_dir.glob("*.png"):
         if icon.stem in name:
             return Image.open(icon)
-            break
     return None
 
 
