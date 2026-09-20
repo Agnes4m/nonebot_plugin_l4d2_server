@@ -110,7 +110,7 @@ async def _render_group(
     command: str,
     _servers: list[dict],
     is_img: bool,
-) -> bytes | str:
+) -> bytes | str | None:
     t_total = time.perf_counter()
     out_servers = await query_group_servers(command)
     t_after_a2s = time.perf_counter()
@@ -123,14 +123,20 @@ async def _render_group(
             for s in out_servers
             if s["server"].max_players == 0
         ]
-        # 按服务器数硬阈值跳走图片，避免 Chromium 在大组上拖死轻量服务器。
+        # 按服务器数硬阈值跳走图片（光 server 可设 ``L4_IMAGE_MAX_SERVERS``
+        # 避免 Chromium OOM）。超过阈值时直接发简短提示，不出文字汇总——
+        # 用户场景就是看图，文字堆没意义。
         max_servers = int(config.l4_image_max_servers)
         if max_servers > 0 and len(out_servers) > max_servers:
             logger.info(
                 f"[l4] {command} 组查询：{len(out_servers)} 服 > "
-                f"l4_image_max_servers={max_servers}，跳过图片走文字"
+                f"l4_image_max_servers={max_servers}，跳过图片"
             )
-            return _format_group_text(command, out_servers)
+            return (
+                f"⚠️ 组「{command}」服务器数 {len(out_servers)} 超过 "
+                f"l4_image_max_servers={max_servers}，跳过图片。"
+                f"如需查看请用 l4 {command} <id> 单服务器查询。"
+            )
         pic = await render_server_list(online, offline_ids=offline_ids)
         render_ms = (time.perf_counter() - t_after_a2s) * 1000
         total_ms = (time.perf_counter() - t_total) * 1000
@@ -141,9 +147,10 @@ async def _render_group(
         )
         if pic is not None:
             return pic
-        # 出图超时 / 失败 / 空字节：退回文字汇总，避免 OneBot WS 心跳丢失后误判超时。
-        logger.warning(f"{command} 图片渲染失败，fallback 到文字输出")
-        return _format_group_text(command, out_servers)
+        # 出图超时 / 失败 / 空字节：不发文字汇总——用户要的是图，没图就别刷屏。
+        # commands/query.py 收到 None 后会发简短「超时」提示。
+        logger.warning(f"{command} 图片渲染失败")
+        return None
     logger.info(
         f"[l4] {command} 组查询：{len(out_servers)} 服 / "
         f"A2S {a2s_ms:.0f}ms（仅文字模式）"
