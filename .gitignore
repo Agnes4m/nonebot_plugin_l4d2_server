@@ -167,3 +167,8 @@ data/L4D2/favorites.json
 data/L4D2/notify_state.json
 data/L4D2/blocklist.json
 data/L4D2/custom_backgrounds/
+
+# 部署侧 / AI 辅助文档（不入 upstream）
+docs/HINDSIGHT.md
+docs/CONFIG.md
+tests/todo.md
