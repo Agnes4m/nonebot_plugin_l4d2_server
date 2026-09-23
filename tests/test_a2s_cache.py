@@ -23,6 +23,10 @@ INNER_DIR = Path(__file__).parent.parent / "nonebot_plugin_l4d2_server"
 
 
 def _load(name: str, path: Path) -> ModuleType:
+    # 其它测试文件先加载过就复用：重新执行会换掉 sys.modules 里的 config，
+    # 已导入的模块和之后的测试就不再指向同一个 config 对象，monkeypatch 失效。
+    if name in sys.modules:
+        return sys.modules[name]
     spec = importlib.util.spec_from_file_location(name, path)
     if spec is None or spec.loader is None:
         raise ImportError(f"无法加载 {name} from {path}")
@@ -33,9 +37,10 @@ def _load(name: str, path: Path) -> ModuleType:
 
 
 # 构造一个空的 nonebot_plugin_l4d2_server 包，避免子模块导入时找不到包。
-_pkg_root = ModuleType("nonebot_plugin_l4d2_server")
-_pkg_root.__path__ = [str(INNER_DIR)]
-sys.modules["nonebot_plugin_l4d2_server"] = _pkg_root
+if "nonebot_plugin_l4d2_server" not in sys.modules:
+    _pkg_root = ModuleType("nonebot_plugin_l4d2_server")
+    _pkg_root.__path__ = [str(INNER_DIR)]
+    sys.modules["nonebot_plugin_l4d2_server"] = _pkg_root
 
 # 按依赖顺序加载内部模块。
 _load("nonebot_plugin_l4d2_server.consts", INNER_DIR / "consts.py")
