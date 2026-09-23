@@ -426,7 +426,9 @@ async def test_empty_group_yields_nothing(monkeypatch):
             "Anne云服#57[普通药役][缺人][无MOD][8特20秒]",
             "[普通药役][缺人][无MOD][8特20秒]",
         ),
-        ("Anne Server #27[HT训练][2特0秒]", "[HT训练][2特0秒]"),
+        # 默认只认 Anne云服：l4d2-docker.sh 默认的 Anne Server # 等其他服名不动
+        ("Anne Server #27[HT训练][2特0秒]", "Anne Server #27[HT训练][2特0秒]"),
+        ("Anne电信服#3[普通药役]", "Anne电信服#3[普通药役]"),
         ("Anne云服#1", "Anne云服#1"),  # 只有前缀时保留原名
         ("[别家]Anne云服#3[普通药役]", "[别家]Anne云服#3[普通药役]"),  # 不在开头不动
         ("服务器无响应", "服务器无响应"),
@@ -439,7 +441,7 @@ def test_display_name_strips_anne_prefix(raw, shown):
 @pytest.mark.parametrize(
     ("pattern", "shown"),
     [
-        (r"^Anne[^#\[]*", "#57[普通药役]"),  # 只去 Anne云服、保留编号
+        ("^Anne云服", "#57[普通药役]"),  # 只去 Anne云服、保留编号
         ("", "Anne云服#57[普通药役]"),  # 留空不处理
         ("(", "Anne云服#57[普通药役]"),  # 非法正则：忽略，不抛异常
     ],

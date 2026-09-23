@@ -78,10 +78,10 @@ class ConfigModel(BaseModel):
         "单张长图超过 16384px（约 230 台）会被 Chromium 截断，也更容易超时 / OOM",
     )
     l4_name_strip_pattern: str = Field(
-        default=r"^Anne[^#\[]*#\d+",
-        description="组列表里显示服务器名时去掉的前缀（正则）。默认把 "
-        "Anne云服#57[普通药役] 显示成 [普通药役]（卡片前已有「云57:」）；"
-        "只去 Anne云服 保留编号可设 ^Anne[^#\\[]*；留空不处理",
+        default=r"^Anne云服#\d+",
+        description="组列表里显示服务器名时去掉的前缀（正则）。默认只匹配 Anne 云服，"
+        "把 Anne云服#57[普通药役] 显示成 [普通药役]（卡片前已有「云57:」），"
+        "其他服务器名不受影响；只去 Anne云服 保留编号可设 ^Anne云服；留空不处理",
     )
     l4_history_interval: int = Field(
         default=300,
