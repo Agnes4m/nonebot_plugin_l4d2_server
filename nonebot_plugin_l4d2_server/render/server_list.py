@@ -120,10 +120,10 @@ async def render_server_list(
             ),
             timeout=float(config.l4_render_timeout),
         )
-        if not pic:
-            logger.warning("渲染服务器列表返回空字节")
-            return None
-        return pic
     except Exception as exc:
         logger.warning(f"渲染服务器列表失败: {exc}")
         return None
+    if not pic:
+        logger.warning("渲染服务器列表返回空字节")
+        return None
+    return pic

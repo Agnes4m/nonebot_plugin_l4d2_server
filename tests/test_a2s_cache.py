@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import importlib.util
 import sys
 import time
@@ -92,10 +93,8 @@ class _Patch:
 
     def __exit__(self, *exc):
         if self.original is None:
-            try:
+            with contextlib.suppress(AttributeError):
                 delattr(self.obj, self.attr)
-            except AttributeError:
-                pass
         else:
             setattr(self.obj, self.attr, self.original)
 
@@ -234,7 +233,7 @@ def test_cache_expires_after_ttl():
 
         # 模拟过期：把 expire_at 改成过去
         key = api._cache_key(ips[0])
-        expire_at, value = api._cache[key]
+        _, value = api._cache[key]
         api._cache[key] = (time.monotonic() - 1, value)
 
         asyncio.run(api.a2s_info_batch(ips))
@@ -249,7 +248,7 @@ def test_batch_orders_results_by_steam_id():
     """
     api = _fresh_api()
 
-    async def fake_ainfo(ip, **kwargs):
+    async def fake_ainfo(ip, **_kwargs):
         # 服务端给的 steam_id 故意乱序，且与最终 steam_id 不一致——
         # 验证 ``_a2s_one`` 一定覆盖成 enumerate index。
         await asyncio.sleep(0)

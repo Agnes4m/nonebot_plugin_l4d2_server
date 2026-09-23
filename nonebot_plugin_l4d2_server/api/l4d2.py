@@ -221,11 +221,9 @@ class L4D2Api:
                 return server, (players if want_players else [])
 
         # 并发 = 0（不限）时直接走裸 await，不引入 Semaphore 的额外等待开销。
-        ainfo_cm: contextlib.AbstractAsyncContextManager[Any]
-        if self._sem is not None:
-            ainfo_cm = self._sem
-        else:
-            ainfo_cm = contextlib.AsyncExitStack()
+        ainfo_cm: contextlib.AbstractAsyncContextManager[Any] = (
+            self._sem if self._sem is not None else contextlib.AsyncExitStack()
+        )
 
         async with ainfo_cm:
             try:
