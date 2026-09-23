@@ -151,7 +151,7 @@ def test_cache_deepcopy_isolation():
     ):
         first = asyncio.run(api.a2s_info_batch(ips, want_players=False))[0]
         original_name = first[0].server_name
-        # 第一次返回的 server 已被 ``_a2s_one`` deepcopy 一次，和缓存条目独立；
+        # ``_a2s_one`` 往缓存里放的是 deepcopy，返回的 server 和缓存条目独立；
         # mutate 返回值不应影响缓存里的 server_name。
         first[0].server_name = "被改写过"
 
@@ -164,6 +164,66 @@ def test_cache_deepcopy_isolation():
         assert cached_server.server_name == original_name, (
             "缓存条目本身不应被污染"
         )
+
+
+def test_mutating_returned_players_keeps_cache_clean():
+    """出图会给 ``player.name`` 追加时长；缓存未命中路径返回的玩家也不能和缓存共用对象，
+    否则 TTL 内第二次查询会看到 ``名字 | 1h | 1h`` 这种重复后缀。"""
+    api = _fresh_api(ttl=15)
+    ainfo_mock = AsyncMock(return_value=_make_source_info())
+    aplayers_mock = AsyncMock(
+        return_value=[a2s.Player(index=0, name="p1", score=3, duration=60.0)],
+    )
+    ips = [("1.2.3.4", 27015)]
+
+    with patch.object(api_module.a2s, "ainfo", ainfo_mock), patch.object(
+        api_module.a2s, "aplayers", aplayers_mock
+    ):
+        first = asyncio.run(api.a2s_info_batch(ips, want_players=True))[0]
+        first[1][0].name += " | 1m 0s"
+
+        second = asyncio.run(api.a2s_info_batch(ips, want_players=True))[0]
+        assert aplayers_mock.await_count == 1, "第二次应命中缓存"
+        assert second[1][0].name == "p1", "缓存里的玩家名不应被下游修改污染"
+
+
+def test_players_not_fetched_do_not_satisfy_player_query():
+    """``want_players=False`` 写进缓存的条目没有玩家列表，之后要玩家的查询
+    必须重新查，不能拿到「没人」。"""
+    api = _fresh_api(ttl=15)
+    ainfo_mock = AsyncMock(return_value=_make_source_info())
+    aplayers_mock = AsyncMock(
+        return_value=[a2s.Player(index=0, name="p1", score=3, duration=60.0)],
+    )
+    ips = [("1.2.3.4", 27015)]
+
+    with patch.object(api_module.a2s, "ainfo", ainfo_mock), patch.object(
+        api_module.a2s, "aplayers", aplayers_mock
+    ):
+        asyncio.run(api.a2s_info_batch(ips, want_players=False))
+        assert aplayers_mock.await_count == 0
+
+        (_, players), = asyncio.run(api.a2s_info_batch(ips, want_players=True))
+        assert aplayers_mock.await_count == 1, "缓存条目没查过玩家，应重新查"
+        assert [p.name for p in players] == ["p1"]
+
+        # 查过玩家之后，不要玩家的查询照样命中缓存
+        asyncio.run(api.a2s_info_batch(ips, want_players=False))
+        assert ainfo_mock.await_count == 2
+
+
+def test_clear_cache_forces_requery():
+    api = _fresh_api(ttl=15)
+    ainfo_mock = AsyncMock(return_value=_make_source_info())
+    ips = [("1.2.3.4", 27015)]
+
+    with patch.object(api_module.a2s, "ainfo", ainfo_mock), patch.object(
+        api_module.a2s, "aplayers", AsyncMock(return_value=[])
+    ):
+        asyncio.run(api.a2s_info_batch(ips))
+        api.clear_cache()
+        asyncio.run(api.a2s_info_batch(ips))
+        assert ainfo_mock.await_count == 2, "clear_cache 之后应重新走网络"
 
 
 def test_concurrency_zero_uses_no_semaphore():
