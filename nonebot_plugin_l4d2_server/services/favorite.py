@@ -346,7 +346,7 @@ async def run_favorite_check(bot: Any | None = None) -> None:
 
         # 30 分钟内同类事件不重复推送（避免上下线抖动刷屏）
         if (prev_online != now_online) and now_ts - int(
-            prev.get("last_alert_at", 0)
+            prev.get("last_alert_at", 0),
         ) < 1800:
             prev["online"] = now_online
             prev["player_count"] = now_pc

@@ -116,7 +116,7 @@ async def _(args: Message = CommandArg()) -> None:
                             int(getattr(server, "player_count", 0) or 0),
                             int(getattr(server, "max_players", 0) or 0),
                             idx_in_group,
-                        )
+                        ),
                     )
     except Exception as exc:
         await UniMessage.text(f"❌ 查询失败：{exc}").finish()

@@ -60,7 +60,7 @@ _render_pkg.render_server_card = server_card.render_server_card  # type: ignore[
 _render_pkg.render_text_card = server_card.render_text_card  # type: ignore[attr-defined]
 _render_pkg.render_server_list = server_list.render_server_list  # type: ignore[attr-defined]
 server_query = importlib.import_module(
-    "nonebot_plugin_l4d2_server.services.server_query"
+    "nonebot_plugin_l4d2_server.services.server_query",
 )
 sourceban = importlib.import_module("nonebot_plugin_l4d2_server.services.sourceban")
 
@@ -194,7 +194,9 @@ async def test_refresh_all_pages_reloads_memory_once(data_dir: Path, reg, monkey
         for i in range(3)
     ]
     monkeypatch.setattr(
-        sourceban.L4API, "get_sourceban", AsyncMock(return_value=scraped)
+        sourceban.L4API,
+        "get_sourceban",
+        AsyncMock(return_value=scraped),
     )
     reg.add_command("anne")
     sourceban.L4API._cache[("5.6.7.8", 1)] = (float("inf"), (None, []))
@@ -288,7 +290,9 @@ def paging(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def _mock_query(monkeypatch: pytest.MonkeyPatch, servers: list[dict]) -> None:
     monkeypatch.setattr(
-        server_query, "query_group_servers", AsyncMock(return_value=servers)
+        server_query,
+        "query_group_servers",
+        AsyncMock(return_value=servers),
     )
 
 
@@ -317,7 +321,8 @@ async def test_show_all_lists_everything_split_into_pages(monkeypatch):
     """「云全」列出全部在线服（含没人的），按每页 30 台拆图，不在线列表只放最后一页。"""
     _mock_query(monkeypatch, _out(105, offline={7, 50}, empty=set(range(60, 106))))
     render = _mock_render(
-        monkeypatch, side_effect=lambda servers, **_kw: bytes(len(servers))
+        monkeypatch,
+        side_effect=lambda servers, **_kw: bytes(len(servers)),
     )
 
     parts = await _collect(show_all=True)
@@ -337,7 +342,8 @@ async def test_show_all_lists_everything_split_into_pages(monkeypatch):
 async def test_default_mode_also_splits_into_pages(monkeypatch):
     _mock_query(monkeypatch, _out(100, empty=set(range(71, 101))))
     render = _mock_render(
-        monkeypatch, side_effect=lambda servers, **_kw: bytes(len(servers))
+        monkeypatch,
+        side_effect=lambda servers, **_kw: bytes(len(servers)),
     )
 
     parts = await _collect()
@@ -546,11 +552,11 @@ def test_text_card_grows_with_content():
     short = Image.open(io.BytesIO(server_card.render_text_card("标题", ["一行"])))
     many = Image.open(
         io.BytesIO(
-            server_card.render_text_card("标题", [f"第 {i} 行" for i in range(40)])
+            server_card.render_text_card("标题", [f"第 {i} 行" for i in range(40)]),
         ),
     )
     wrapped = Image.open(
-        io.BytesIO(server_card.render_text_card("标题", ["很长" * 200]))
+        io.BytesIO(server_card.render_text_card("标题", ["很长" * 200])),
     )
     assert short.format == many.format == "JPEG"
     assert many.height > short.height

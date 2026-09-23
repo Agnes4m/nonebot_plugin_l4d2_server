@@ -149,7 +149,11 @@ def _cleanup_pending(now: float) -> None:
 
 
 async def _run(
-    user_id: int, group_id: int, target: str, command: str, action: str
+    user_id: int,
+    group_id: int,
+    target: str,
+    command: str,
+    action: str,
 ) -> tuple[int, str, str]:
     """异步执行 shell 命令，返回 ``(exit_code, stdout, stderr)``。"""
     try:
@@ -266,7 +270,7 @@ async def _(args: Message = CommandArg()) -> None:
     mine = [k for k in _pending if k[0] == user_id]
     if not mine:
         await UniMessage.text(
-            "❌ 没有待执行的操作；先发 ``l4停止 / l4重启 / l4执行``"
+            "❌ 没有待执行的操作；先发 ``l4停止 / l4重启 / l4执行``",
         ).finish()
         return
 

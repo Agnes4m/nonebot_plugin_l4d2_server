@@ -46,7 +46,9 @@ class ConfigModel(BaseModel):
     )
     l4_a2s_timeout: float = Field(default=2.5, gt=0, description="A2S 单次超时秒")
     l4_a2s_cache_ttl: int = Field(
-        default=15, ge=0, description="A2S 结果缓存秒；0=不缓存"
+        default=15,
+        ge=0,
+        description="A2S 结果缓存秒；0=不缓存",
     )
     l4_favorite_check_interval: int = Field(
         default=300,
