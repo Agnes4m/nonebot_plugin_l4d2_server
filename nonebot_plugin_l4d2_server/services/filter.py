@@ -19,6 +19,7 @@ from ..consts import DEFAULT_MAP_TYPES as MAP_TYPES_DEFAULT
 from ..consts import FILTER_MODES
 from ..messages import Sm as MsgSm
 from ..render.images import convert_duration
+from . import blocklist
 
 # 任意一个方括号里的「N特」：Anne云服#57[普通药役][缺人][无MOD][8特20秒] 的
 # 特感标签不在第一个方括号里，只看第一个方括号会一台都匹配不上。
@@ -72,7 +73,10 @@ async def filter_servers(
         if not info:
             continue
         server_data, players = info[0]
-        if server_data.map_name == "无":
+        # 被屏蔽的服不参与；筛选条件照样用真实玩家列表（被隐藏的玩家也在服里）
+        if server_data.map_name == "无" or blocklist.is_blocked(
+            server_data.server_name,
+        ):
             continue
 
         if (
@@ -117,7 +121,7 @@ async def _describe(server: dict) -> str:
     if not info:
         return MsgSm.no_get
     one_server = cast(SourceInfo, info[0][0])
-    one_players: List[Player] = info[0][1]
+    one_players: List[Player] = blocklist.visible_players(info[0][1])
 
     if one_players:
         durations = [await convert_duration(p.duration) for p in one_players]

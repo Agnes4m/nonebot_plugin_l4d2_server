@@ -83,6 +83,12 @@ class ConfigModel(BaseModel):
         "把 Anne云服#57[普通药役] 显示成 [普通药役]（卡片前已有「云57:」），"
         "其他服务器名不受影响；只去 Anne云服 保留编号可设 ^Anne云服；留空不处理",
     )
+    l4_block_keywords: List[str] = Field(
+        default=[],
+        description="屏蔽关键词（正则，不区分大小写）：服务器名命中则整台隐藏，"
+        "玩家名命中只隐藏该玩家。.env 里写 JSON 列表，"
+        '如 L4_BLOCK_KEYWORDS=\'["广告", "外挂"]\'',
+    )
     l4_history_interval: int = Field(
         default=300,
         ge=60,

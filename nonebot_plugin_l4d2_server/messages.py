@@ -45,6 +45,7 @@ class Sm:
     server_not_found = "未找到该服务器"
     server_mistake = "服务器错误"
     server_outtime = "服务器无响应"
+    server_blocked = "该服务器已被屏蔽"
     no_group_search = "未设置组，正在全服查找，时间较长"
     no_player = "未找到玩家"
     searching = "正在搜索"

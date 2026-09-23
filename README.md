@@ -240,25 +240,39 @@ L4_WORKSHOP_CONCURRENCY=3        # 批量下载并发上限（1~8）
 L4_IMAGE_PAGE_SIZE=30            # 组查询每张图最多几台服，超出自动分多张发送（1~200）
 L4_RENDER_TIMEOUT=15             # 单页出图超时秒；超时 / 浏览器崩溃时改用简易图
 L4_NAME_STRIP_PATTERN='^Anne云服#\d+'  # 列表里去掉的服务器名前缀（正则），默认只匹配 Anne 云服：Anne云服#57[普通药役] → [普通药役]；留空不处理
+
+# 屏蔽
+L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'  # 关键词正则列表（不区分大小写），见下文「屏蔽与关键词」
 ```
 
-## 屏蔽与关键词 — 实现思路（v1.4.0 未实现，仅文档）
+## 屏蔽与关键词
 
-下面四种思路由浅入深，可按需选一种或叠加：
+### 关键词过滤（已实现）
+
+在 `.env` 里用 JSON 列表配置正则，不区分大小写：
+
+```dotenv
+L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
+```
+
+- **服务器名命中**：整台服务器不出现在 `云` / `云全` / `l4全服` / `l4查找` / `l4查人` / `tj` / `zl` / `kl` 的结果里；`云5`、`connect <ip>` 这类单服查询只回「该服务器已被屏蔽」。
+- **玩家名命中**：只隐藏这个玩家（列表卡片、单服查询、查人），服务器照常显示，人数仍按 A2S 上报；`tj` / `zl` / `kl` 的判断仍按真实玩家列表。
+- 非法正则会记一条警告并跳过，不影响其它关键词。收藏推送和历史记录不受影响。
+
+过滤在 `services/blocklist.py`，接在 A2S 结果和输出之间。
+
+### 其它思路（未实现）
 
 1. **SourceBans 自动同步**：定时拉 SourceBans banlist 落到本地
-   `<data_dir>/blocklist.json`；A2S 查服后过滤掉已在 banlist 的 IP，
-   渲染层不再展示这些服。
+   `<data_dir>/blocklist.json`。注意 A2S 只返回玩家名，拿不到 SteamID，
+   只能按名字匹配被封玩家。
 2. **本地 JSON 黑名单**：管理员 `l4黑名单 add <ip>` 写入
    `<data_dir>/blocklist.json`；查询结果按黑名单过滤。
 3. **SourceMod HTTP 聊天镜像**：服务器装 SM 插件暴露 HTTP 接口，
    机器人拉聊天记录后正则匹配违规词，命中后通过 RCON 自动 kick。
-4. **关键词正则匹配**：新增配置 `l4_block_keywords: list[str]`；
-   玩家名或服务器名命中则过滤。配合方案 1 自动入库效果最佳。
 
-四类方案都需要新增一个 `services/blocklist.py` + `commands/blocklist.py`
-+ `services/filters.py`（在 A2S 结果与渲染之间插入过滤器）。当前
-v1.4.0 已预留 `consts.BLOCKLIST_FILENAME` 常量，避免后续硬编码。
+这几种如要实现，可以复用 `services/blocklist.py` 的过滤入口；
+`consts.BLOCKLIST_FILENAME` 已预留给本地黑名单文件。
 
 ## [数据结构](./docs/standand.md)
 

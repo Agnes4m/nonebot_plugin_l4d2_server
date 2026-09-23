@@ -16,10 +16,14 @@ from ..messages import Sm as MsgSm
 from ..messages import split_message
 from ..registry import registry
 from ..render import render_server_card, render_server_list, render_text_card
+from . import blocklist
 
 
 async def query_group_servers(group_name: str) -> List[OutServer]:
-    """Query A2S info for every server in ``group_name``."""
+    """Query A2S info for every server in ``group_name``.
+
+    服务器名命中 ``l4_block_keywords`` 的整台去掉，玩家名命中的只去掉该玩家。
+    """
     servers = registry.get(group_name)
     if not servers:
         return []
@@ -30,12 +34,14 @@ async def query_group_servers(group_name: str) -> List[OutServer]:
     # Pad missing entries with empty SourceInfo for stable indexing.
     out: List[OutServer] = []
     for (server, players), srv in zip(results, servers):
+        if blocklist.is_blocked(server.server_name):
+            continue
         out.append(
             cast(
                 OutServer,
                 {
                     "server": server,
-                    "player": players,
+                    "player": blocklist.visible_players(players),
                     "host": srv["host"],
                     "port": srv["port"],
                     "command": group_name,
@@ -254,12 +260,20 @@ def _plain_page(
     return render_text_card(f"{title}（简易图）", lines or ["（没有在线的服务器）"])
 
 
-async def _render_single(host: str, port: int, is_img: bool) -> bytes | str | None:
+async def _render_single(host: str, port: int, is_img: bool) -> bytes | str:
     info = await L4API.a2s_info_batch([(host, port)])
     if not info or info[0][0].max_players == 0:
         return MsgSm.server_outtime
     server, players = info[0]
-    return await render_server_card(server, players, host, port, is_img=is_img)
+    if blocklist.is_blocked(server.server_name):
+        return MsgSm.server_blocked
+    return await render_server_card(
+        server,
+        blocklist.visible_players(players),
+        host,
+        port,
+        is_img=is_img,
+    )
 
 
 def _find_endpoint(servers: list[dict], server_id: str) -> Optional[Tuple[str, int]]:
@@ -283,8 +297,4 @@ def find_endpoint(command: str, server_id: str) -> Optional[Tuple[str, int]]:
 async def get_ip_server(ip: str) -> bytes | str:
     """Render a server by raw ``host:port``."""
     host, port = split_maohao(ip)
-    info = await L4API.a2s_info_batch([(host, port)])
-    if not info or info[0][0].max_players == 0:
-        return MsgSm.server_outtime
-    server, players = info[0]
-    return await render_server_card(server, players, host, port, is_img=config.l4_image)
+    return await _render_single(host, port, config.l4_image)
