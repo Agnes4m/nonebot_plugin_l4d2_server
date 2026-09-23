@@ -192,7 +192,6 @@ async def _run(
 async def _handle(
     matcher: Matcher,
     user_id: int,
-    group_id: int,
     args: Message,
     action: str,
     extra: str = "",
@@ -243,11 +242,10 @@ async def _(args: Message = CommandArg()) -> None:
 
 
 async def _handle_stub(matcher: Matcher, args: Message, action: str) -> None:
-    """从事件里取 user_id / group_id 后委派给 ``_handle``。"""
+    """从事件里取 user_id 后委派给 ``_handle``。"""
     event = current_event.get()
     user_id = int(getattr(event, "user_id", 0) or 0)
-    group_id = int(getattr(event, "group_id", 0) or 0)
-    await _handle(matcher, user_id, group_id, args, action)
+    await _handle(matcher, user_id, args, action)
 
 
 @l4_confirm.handle()
@@ -276,8 +274,8 @@ async def _(args: Message = CommandArg()) -> None:
 
     # 取最早过期的（即最久的等待）
     payload_key = min(mine, key=lambda k: _pending[k])
-    user_id_k, payload = payload_key
-    _, target, action, extra, cmd = payload.split("|", 4)
+    _, payload = payload_key
+    _, target, action, _extra, cmd = payload.split("|", 4)
     _pending.pop(payload_key, None)
 
     await UniMessage.text(f"▶ 正在执行 {action} {target} ...").send()

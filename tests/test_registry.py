@@ -56,7 +56,7 @@ def test_normalize_empty_string_returns_none():
     assert _normalize_server_entry("   ", 2) is None
 
 
-def test_registry_load_all_with_tempdir(tmp_path):
+def test_registry_load_all_with_tempdir():
     """End-to-end: write JSON files, load, verify state."""
     with tempfile.TemporaryDirectory() as td:
         primary = Path(td) / "data" / "L4D2"

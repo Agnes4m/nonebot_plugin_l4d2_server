@@ -23,16 +23,12 @@ def _ensure_nonebot() -> None:
     if "nonebot" not in sys.modules:
         return
     import nonebot  # type: ignore[import-not-found]
+    from nonebot import get_driver  # type: ignore[import-not-found]
 
     try:
-        from nonebot import get_driver  # type: ignore[import-not-found]
-
         get_driver()
-        return
     except ValueError:
-        pass
-
-    nonebot.init(env=types.SimpleNamespace(), _env_file=None)
+        nonebot.init(env=types.SimpleNamespace(), _env_file=None)
 
 
 # Run at import time (before any test collection).

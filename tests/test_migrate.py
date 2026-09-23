@@ -39,8 +39,8 @@ def test_split_server_data_into_per_tag(tmp_path):
     )
 
     with (
-        _patch(consts, "DEFAULT_DATA_DIR", str(primary)),
-        _patch(
+        _Patch(consts, "DEFAULT_DATA_DIR", str(primary)),
+        _Patch(
             consts,
             "LEGACY_URL_FILE",
             primary / "l4d2.json",
@@ -69,13 +69,13 @@ def test_url_map_merged_into_pages(tmp_path):
     expected_pages_path = primary / "sb_pages.json"
 
     with (
-        _patch(consts, "DEFAULT_DATA_DIR", str(primary)),
-        _patch(
+        _Patch(consts, "DEFAULT_DATA_DIR", str(primary)),
+        _Patch(
             consts,
             "LEGACY_URL_FILE",
             primary / "l4d2.json",
         ),
-        _patch(pages_store, "PAGES_FILE", expected_pages_path),
+        _Patch(pages_store, "PAGES_FILE", expected_pages_path),
     ):
         migrate_mod.migrate_legacy_layout()
 
@@ -95,8 +95,8 @@ def test_legacy_subdir_migrated_up(tmp_path):
     )
 
     with (
-        _patch(consts, "DEFAULT_DATA_DIR", str(primary)),
-        _patch(
+        _Patch(consts, "DEFAULT_DATA_DIR", str(primary)),
+        _Patch(
             consts,
             "LEGACY_GROUP_DIR",
             legacy,
@@ -116,8 +116,8 @@ def test_idempotent(tmp_path):
         encoding="utf-8",
     )
     ctx = [
-        _patch(consts, "DEFAULT_DATA_DIR", str(primary)),
-        _patch(consts, "LEGACY_URL_FILE", primary / "l4d2.json"),
+        _Patch(consts, "DEFAULT_DATA_DIR", str(primary)),
+        _Patch(consts, "LEGACY_URL_FILE", primary / "l4d2.json"),
     ]
     with ctx[0], ctx[1]:
         migrate_mod.migrate_legacy_layout()
@@ -128,7 +128,7 @@ def test_idempotent(tmp_path):
     assert not (primary / "l4d2.json").exists()
 
 
-class _patch:
+class _Patch:
     """Tiny context manager: temporarily override a module attribute."""
 
     def __init__(self, module, attr: str, value) -> None:

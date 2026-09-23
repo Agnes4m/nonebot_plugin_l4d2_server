@@ -136,6 +136,10 @@ anyio==4.13.0 \
     #   nonebot2
     #   starlette
     #   watchfiles
+apscheduler==3.11.3 \
+    --hash=sha256:bbeb2ec02d23d3c06a6c07ed7f0f3939ada6680eb121fae809a69bb42c537a30 \
+    --hash=sha256:cd2fcc9330039a81a5893472ad49facf23a6d5604cbe1d918c835c6de7834d5a
+    # via nonebot-plugin-apscheduler
 arclet-alconna==1.8.44 \
     --hash=sha256:96a7e33da17df4befdd5068a52aa4923267bc47439067cd96ddefd06985a5e6f \
     --hash=sha256:9bf30c35eab42e27a6b10dc8ce8a76b6f8824d9cca6875e39122739c3b7b5363
@@ -848,9 +852,17 @@ nonebot-plugin-alconna==0.61.1 \
     --hash=sha256:188f7a2eb3d4d1a485755e519094b478f698ab6294c246985895af90f2417073 \
     --hash=sha256:6b30008b1dd10f895f8af8206009ece2a7657cb9877913bbc92f86c507f78082
     # via nonebot-plugin-l4d2-server
+nonebot-plugin-apscheduler==0.5.0 \
+    --hash=sha256:6c0230e99765f275dc83d6639ff33bd6f71203fa10cd1b8a204b0f95530cda86 \
+    --hash=sha256:8b99b5ee60c4bc195d4df2fd27dab3d6963691e3332f6cee31a06eb4277c307f
+    # via nonebot-plugin-l4d2-server
 nonebot-plugin-htmlrender==0.6.7 \
     --hash=sha256:968b06bdfef10e06ad64c9d945c89000b1eaa82a89d5bae71a0647a3a6271c38 \
     --hash=sha256:d782f20dbfd7573944ccd3e4dff2c69daaee8aa5e6f78443ef94057d4126e252
+    # via nonebot-plugin-l4d2-server
+nonebot-plugin-localstore==0.7.4 \
+    --hash=sha256:3b08030878eadcdd8b9ce3d079da0dc2d0e41dc91f0b2d8cf7fa862a27de9090 \
+    --hash=sha256:85ddc13814bfcd484ab311306823651390020bf44f4fb4733b343a58e72723ce
     # via nonebot-plugin-l4d2-server
 nonebot-plugin-waiter==0.8.1 \
     --hash=sha256:3e1afc8f134496d3a4ecefd9c3a2a98d6ef28a5318268cb22b99a0ef61a44080 \
@@ -862,9 +874,15 @@ nonebot2==2.5.0 \
     # via
     #   nonebot-adapter-onebot
     #   nonebot-plugin-alconna
+    #   nonebot-plugin-apscheduler
     #   nonebot-plugin-htmlrender
     #   nonebot-plugin-l4d2-server
+    #   nonebot-plugin-localstore
     #   nonebot-plugin-waiter
+nonestorage==0.1.0 \
+    --hash=sha256:35811adf67c680c272bcb71fa9d6c3613cc2d1bb79f5bfc7d83c4412a79537cb \
+    --hash=sha256:818232236455c79cabbb69e716f73aa1b9c21d579f1c1fcbdba273b60bac72d9
+    # via nonebot-plugin-localstore
 pillow==12.2.0 \
     --hash=sha256:00a2865911330191c0b818c59103b58a5e697cae67042366970a6b6f1b20b7f9 \
     --hash=sha256:01afa7cf67f74f09523699b4e88c73fb55c13346d212a59a2db1f86b0a63e8c5 \
@@ -1087,6 +1105,8 @@ pydantic==2.12.5 \
     # via
     #   fastapi
     #   nonebot-adapter-onebot
+    #   nonebot-plugin-apscheduler
+    #   nonebot-plugin-localstore
     #   nonebot2
 pydantic-core==2.41.5 \
     --hash=sha256:0177272f88ab8312479336e1d777f6b124537d47f2123f89cb37e0accea97f90 \
@@ -1293,14 +1313,6 @@ pyyaml==6.0.3 \
     # via
     #   pymdown-extensions
     #   uvicorn
-rarfile==4.2 \
-    --hash=sha256:8757e1e3757e32962e229cab2432efc1f15f210823cc96ccba0f6a39d17370c9 \
-    --hash=sha256:8e1c8e72d0845ad2b32a47ab11a719bc2e41165ec101fd4d3fe9e92aa3f469ef
-    # via nonebot-plugin-l4d2-server
-rcon==2.4.9 \
-    --hash=sha256:c0d2477070f189a6b49774133c412473ece40bb452473f160c7373b162dc8929 \
-    --hash=sha256:d41a8311dc13352da35163f46a3cc13eb20f5cde1297b75b56e7645ef76d0a48
-    # via nonebot-plugin-l4d2-server
 soupsieve==2.8.3 \
     --hash=sha256:3267f1eeea4251fb42728b6dfb746edc9acaffc4a45b27e19450b676586e8349 \
     --hash=sha256:ed64f2ba4eebeab06cc4962affce381647455978ffc1e36bb79a545b91f45a95
@@ -1468,6 +1480,7 @@ typing-extensions==4.15.0 \
     #   multidict
     #   nepattern
     #   nonebot-adapter-onebot
+    #   nonebot-plugin-localstore
     #   nonebot2
     #   pydantic
     #   pydantic-core
@@ -1482,6 +1495,14 @@ typing-inspection==0.4.2 \
     # via
     #   fastapi
     #   pydantic
+tzdata==2026.4 ; sys_platform == 'win32' \
+    --hash=sha256:c2169a8b0a7a5e9674da5a135ccdfb2b3e671b333ed9fed17b41f73c34476e81 \
+    --hash=sha256:f1b8bd365d8d210c55353f4d7f8d6d8561c0ba50d704b700d195a9424bba0d79
+    # via tzlocal
+tzlocal==5.4.4 \
+    --hash=sha256:8dbb8660838688a7b6ba4fed31d18dedf842afb4d47ca050d6d891c2c15f3be4 \
+    --hash=sha256:aae09f0126a8a86fa736be266eb4a471380d26a0de3bc14844e7821fee3e2a15
+    # via apscheduler
 ujson==5.12.0 \
     --hash=sha256:006428d3813b87477d72d306c40c09f898a41b968e57b15a7d88454ecc42a3fb \
     --hash=sha256:02f93da7a4115e24f886b04fd56df1ee8741c2ce4ea491b7ab3152f744ad8f8e \
