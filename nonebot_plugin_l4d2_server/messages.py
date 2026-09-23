@@ -38,4 +38,6 @@ class Sm:
 class Wm:
     """Workshop (创意工坊) messages."""
 
-    workshop_summary = "工坊批量下载完成：共 {total} 个，成功 {ok}，重复 {duplicate}，失败 {failed}"
+    workshop_summary = (
+        "工坊批量下载完成：共 {total} 个，成功 {ok}，重复 {duplicate}，失败 {failed}"
+    )

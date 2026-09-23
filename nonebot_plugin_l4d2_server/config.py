@@ -38,35 +38,52 @@ class ConfigModel(BaseModel):
         description="上传地图权限",
     )
     l4_a2s_concurrency: int = Field(
-        default=0, ge=0, le=64,
+        default=0,
+        ge=0,
+        le=64,
         description="A2S 并发上限；0=不限（旧版行为：所有服一次性 asyncio.gather），"
         "其他值走 asyncio.Semaphore 节流",
     )
     l4_a2s_timeout: float = Field(default=2.5, gt=0, description="A2S 单次超时秒")
-    l4_a2s_cache_ttl: int = Field(default=15, ge=0, description="A2S 结果缓存秒；0=不缓存")
+    l4_a2s_cache_ttl: int = Field(
+        default=15,
+        ge=0,
+        description="A2S 结果缓存秒；0=不缓存",
+    )
     l4_favorite_check_interval: int = Field(
-        default=300, ge=30, description="收藏巡检间隔秒",
+        default=300,
+        ge=30,
+        description="收藏巡检间隔秒",
     )
     l4_favorite_player_delta: int = Field(
-        default=5, ge=1, description="玩家数变化超过此值才推送",
+        default=5,
+        ge=1,
+        description="玩家数变化超过此值才推送",
     )
     l4_workshop_concurrency: int = Field(
-        default=3, ge=1, le=8, description="创意工坊并发下载数",
+        default=3,
+        ge=1,
+        le=8,
+        description="创意工坊并发下载数",
     )
     l4_render_timeout: float = Field(
-        default=15.0, gt=0,
+        default=15.0,
+        gt=0,
         description="htmlrender 单次出图硬上限秒；超时/失败/空字节 fallback 到文字",
     )
     l4_history_interval: int = Field(
-        default=300, ge=60,
+        default=300,
+        ge=60,
         description="A2S 历史记录周期秒；用于热力图 / Wipe 检测 / 阈值通知",
     )
     l4_history_retention_days: int = Field(
-        default=30, ge=1,
+        default=30,
+        ge=1,
         description="A2S 历史保留天数；启动时清理过期记录",
     )
     l4_image_max_servers: int = Field(
-        default=0, ge=0,
+        default=0,
+        ge=0,
         description="图片出图硬上限：组内服务器数超过此值直接走文字汇总，"
         "不启 Chromium。0=不限（默认，按熔断逻辑失败后走文字）。"
         "轻量服务器（2C2G）建议显式设 15-20。",

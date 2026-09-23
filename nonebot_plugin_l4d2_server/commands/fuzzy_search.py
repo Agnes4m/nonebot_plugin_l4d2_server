@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import difflib
 from typing import Iterable
 
@@ -24,7 +23,9 @@ from ..registry import registry
 from ..services.errors import L4Error, L4InvalidInputError
 
 l4_find_player = on_command(
-    "l4查人", aliases={"l4_findplayer", "l4findplayer"}, permission=SUPERUSER,
+    "l4查人",
+    aliases={"l4_findplayer", "l4findplayer"},
+    permission=SUPERUSER,
 )
 
 # 模糊匹配阈值：1.0 = 完全相等；<0.6 通常是噪声
@@ -56,9 +57,7 @@ def _match_score(query: str, candidate: str) -> float:
 
 async def _collect(server_dict: list[dict]) -> Iterable[tuple[dict, list[Player]]]:
     """并发查 ``server_dict`` 内所有服，返回 ``(server_meta, players)`` 流。"""
-    ips: list[tuple[str, int]] = [
-        (s["host"], int(s["port"])) for s in server_dict
-    ]
+    ips: list[tuple[str, int]] = [(s["host"], int(s["port"])) for s in server_dict]
     if not ips:
         return
     results = await L4API.a2s_info_batch(ips, want_players=True)
@@ -73,8 +72,7 @@ def _format_hits(query: str, hits: list[tuple[dict, str, int, int, int]]) -> str
         tag = entry.get("tag")
         sid = entry.get("id")
         lines.append(
-            f"  [{tag}{sid}] {entry.get('ip')}  "
-            f"{server_name}  {pc}/{mp}",
+            f"  [{tag}{sid}] {entry.get('ip')}  {server_name}  {pc}/{mp}",
         )
     lines.append("")
     lines.append("查看详情：``l4 <组> <id>`` 或 ``l4 <组>``")
@@ -111,13 +109,15 @@ async def _(args: Message = CommandArg()) -> None:
             for idx_in_group, p in enumerate(players):
                 score = _match_score(query, p.name)
                 if score >= FUZZY_THRESHOLD:
-                    hits.append((
-                        entry,
-                        str(getattr(server, "server_name", "") or ""),
-                        int(getattr(server, "player_count", 0) or 0),
-                        int(getattr(server, "max_players", 0) or 0),
-                        idx_in_group,
-                    ))
+                    hits.append(
+                        (
+                            entry,
+                            str(getattr(server, "server_name", "") or ""),
+                            int(getattr(server, "player_count", 0) or 0),
+                            int(getattr(server, "max_players", 0) or 0),
+                            idx_in_group,
+                        ),
+                    )
     except Exception as exc:
         await UniMessage.text(f"❌ 查询失败：{exc}").finish()
         return

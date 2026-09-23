@@ -154,7 +154,9 @@ class ServerRegistry:
         normalised: list[dict] = []
         for idx, raw in enumerate(servers, start=1):
             entry = _normalize_server_entry(
-                raw, idx, max_existing_id=max_id,
+                raw,
+                idx,
+                max_existing_id=max_id,
             )
             if entry is None:
                 continue
@@ -283,7 +285,9 @@ class ServerRegistry:
                     max_id = 0
                     for idx, raw_entry in enumerate(entries, start=1):
                         norm = _normalize_server_entry(
-                            raw_entry, idx, max_existing_id=max_id,
+                            raw_entry,
+                            idx,
+                            max_existing_id=max_id,
                         )
                         if norm is None:
                             continue

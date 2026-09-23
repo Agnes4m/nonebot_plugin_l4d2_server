@@ -190,6 +190,18 @@ wheels = [
 ]
 
 [[package]]
+name = "apscheduler"
+version = "3.11.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tzlocal" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8c/6b/eeff360196bb20b312c9e762a820fd1b2c6d809466c755ef57863478e454/apscheduler-3.11.3.tar.gz", hash = "sha256:cd2fcc9330039a81a5893472ad49facf23a6d5604cbe1d918c835c6de7834d5a", size = 110312, upload-time = "2026-06-28T19:39:22.493Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/42/c9/8638db32514dbb9157b3d82680c6faea89283523edf9ed2415ea3884f2ae/apscheduler-3.11.3-py3-none-any.whl", hash = "sha256:bbeb2ec02d23d3c06a6c07ed7f0f3939ada6680eb121fae809a69bb42c537a30", size = 66024, upload-time = "2026-06-28T19:39:20.982Z" },
+]
+
+[[package]]
 name = "arclet-alconna"
 version = "1.8.44"
 source = { registry = "https://pypi.org/simple" }
@@ -1094,6 +1106,20 @@ wheels = [
 ]
 
 [[package]]
+name = "nonebot-plugin-apscheduler"
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "apscheduler" },
+    { name = "nonebot2" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d6/53/019bfea58c506c0166d8ef77959fd8676019469d0d3d8e135ae8f1a4b772/nonebot_plugin_apscheduler-0.5.0.tar.gz", hash = "sha256:6c0230e99765f275dc83d6639ff33bd6f71203fa10cd1b8a204b0f95530cda86", size = 3816, upload-time = "2024-06-28T13:17:10.57Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fb/f4/8a3334dcd91e368d2f4e2b21f4805ac70b5dd8a1f9dac94fea5269e82bd3/nonebot_plugin_apscheduler-0.5.0-py3-none-any.whl", hash = "sha256:8b99b5ee60c4bc195d4df2fd27dab3d6963691e3332f6cee31a06eb4277c307f", size = 4307, upload-time = "2024-06-28T13:17:09.593Z" },
+]
+
+[[package]]
 name = "nonebot-plugin-htmlrender"
 version = "0.6.7"
 source = { registry = "https://pypi.org/simple" }
@@ -1124,14 +1150,14 @@ dependencies = [
     { name = "lxml" },
     { name = "nonebot-adapter-onebot" },
     { name = "nonebot-plugin-alconna" },
+    { name = "nonebot-plugin-apscheduler" },
     { name = "nonebot-plugin-htmlrender" },
+    { name = "nonebot-plugin-localstore" },
     { name = "nonebot2", extra = ["fastapi"] },
     { name = "pillow" },
     { name = "playwright" },
     { name = "python-a2s" },
     { name = "pyunpack" },
-    { name = "rarfile" },
-    { name = "rcon" },
     { name = "ujson" },
 ]
 
@@ -1145,16 +1171,31 @@ requires-dist = [
     { name = "lxml", specifier = ">=6.0.2" },
     { name = "nonebot-adapter-onebot", specifier = ">=2.4.4" },
     { name = "nonebot-plugin-alconna", specifier = ">=0.50.0" },
+    { name = "nonebot-plugin-apscheduler", specifier = ">=0.5.0" },
     { name = "nonebot-plugin-htmlrender", specifier = ">=0.3.0" },
+    { name = "nonebot-plugin-localstore", specifier = ">=0.7.0" },
     { name = "nonebot2", specifier = ">=2.1.0" },
     { name = "nonebot2", extras = ["fastapi"], specifier = ">=2.3.3" },
     { name = "pillow", specifier = ">10.0.0" },
     { name = "playwright", specifier = ">=1.61.0" },
     { name = "python-a2s", specifier = ">=1.4.1" },
     { name = "pyunpack", specifier = ">=0.3" },
-    { name = "rarfile", specifier = ">=4.2" },
-    { name = "rcon", specifier = ">=2.1.0" },
     { name = "ujson", specifier = ">=5.10.0" },
+]
+
+[[package]]
+name = "nonebot-plugin-localstore"
+version = "0.7.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nonebot2" },
+    { name = "nonestorage" },
+    { name = "pydantic" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/63/22/67ec1e604c0385729bf2d71db406c032de9015363588785617113dfb76ac/nonebot_plugin_localstore-0.7.4.tar.gz", hash = "sha256:85ddc13814bfcd484ab311306823651390020bf44f4fb4733b343a58e72723ce", size = 5535, upload-time = "2025-03-01T12:54:04.077Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7b/c8/0fcb2c6d994579e53342cbf11bf9326ddfab010d1a8063e1fc0cc19c13bf/nonebot_plugin_localstore-0.7.4-py3-none-any.whl", hash = "sha256:3b08030878eadcdd8b9ce3d079da0dc2d0e41dc91f0b2d8cf7fa862a27de9090", size = 6963, upload-time = "2025-03-01T12:54:02.137Z" },
 ]
 
 [[package]]
@@ -1193,6 +1234,15 @@ wheels = [
 fastapi = [
     { name = "fastapi" },
     { name = "uvicorn", extra = ["standard"] },
+]
+
+[[package]]
+name = "nonestorage"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2b/58/04676895dc6aa4fa6b6bfb069692d1469bfeb175bf6c25ea071762d2b006/nonestorage-0.1.0.tar.gz", hash = "sha256:818232236455c79cabbb69e716f73aa1b9c21d579f1c1fcbdba273b60bac72d9", size = 19257, upload-time = "2024-12-21T08:35:18.1Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/30/54/7c796d764ef0c53d94862b1cfe55fcc383a0ba7c2764c0ce40307438a052/nonestorage-0.1.0-py3-none-any.whl", hash = "sha256:35811adf67c680c272bcb71fa9d6c3613cc2d1bb79f5bfc7d83c4412a79537cb", size = 4127, upload-time = "2024-12-21T08:35:15.732Z" },
 ]
 
 [[package]]
@@ -1710,24 +1760,6 @@ wheels = [
 ]
 
 [[package]]
-name = "rarfile"
-version = "4.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/26/3f/3118a797444e7e30e784921c4bfafb6500fb288a0c84cb8c32ed15853c16/rarfile-4.2.tar.gz", hash = "sha256:8e1c8e72d0845ad2b32a47ab11a719bc2e41165ec101fd4d3fe9e92aa3f469ef", size = 153476, upload-time = "2024-04-03T17:10:53.798Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/62/fc/ab37559419ca36dd8dd317c3a98395ed4dcee2beeb28bf6059b972906727/rarfile-4.2-py3-none-any.whl", hash = "sha256:8757e1e3757e32962e229cab2432efc1f15f210823cc96ccba0f6a39d17370c9", size = 29052, upload-time = "2024-04-03T17:10:52.632Z" },
-]
-
-[[package]]
-name = "rcon"
-version = "2.4.9"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e4/45/edde086b16cd38591794d328ef62c47f089ac04f32a63b4fcab0981d349a/rcon-2.4.9.tar.gz", hash = "sha256:d41a8311dc13352da35163f46a3cc13eb20f5cde1297b75b56e7645ef76d0a48", size = 45220, upload-time = "2024-11-05T18:26:59.783Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/69/d3/2668a6e6bd6d66046ebe811f3fac65402620762e31f80b8f88661a7f3e42/rcon-2.4.9-py3-none-any.whl", hash = "sha256:c0d2477070f189a6b49774133c412473ece40bb452473f160c7373b162dc8929", size = 31129, upload-time = "2024-11-05T18:26:57.945Z" },
-]
-
-[[package]]
 name = "soupsieve"
 version = "2.8.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1924,6 +1956,27 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/55/e3/70399cb7dd41c10ac53367ae42139cf4b1ca5f36bb3dc6c9d33acdb43655/typing_inspection-0.4.2.tar.gz", hash = "sha256:ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464", size = 75949, upload-time = "2025-10-01T02:14:41.687Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dc/9b/47798a6c91d8bdb567fe2698fe81e0c6b7cb7ef4d13da4114b41d239f65d/typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7", size = 14611, upload-time = "2025-10-01T02:14:40.154Z" },
+]
+
+[[package]]
+name = "tzdata"
+version = "2026.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/31/3d74fa778a63b98b7374323befcc0be5ab3bd94afd4096a0124e7379152c/tzdata-2026.4.tar.gz", hash = "sha256:f1b8bd365d8d210c55353f4d7f8d6d8561c0ba50d704b700d195a9424bba0d79", size = 199350, upload-time = "2026-09-12T12:56:03.251Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f9/bc/8737e8d54cf51106118039b83f485a4783112fab49ea9d044b234978a46e/tzdata-2026.4-py2.py3-none-any.whl", hash = "sha256:c2169a8b0a7a5e9674da5a135ccdfb2b3e671b333ed9fed17b41f73c34476e81", size = 347494, upload-time = "2026-09-12T12:56:01.67Z" },
+]
+
+[[package]]
+name = "tzlocal"
+version = "5.4.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tzdata", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/81/5b/879b2f932adfa7a053c360d50bc896c977fa6426109185f7c12ebdd0cb9d/tzlocal-5.4.4.tar.gz", hash = "sha256:8dbb8660838688a7b6ba4fed31d18dedf842afb4d47ca050d6d891c2c15f3be4", size = 31170, upload-time = "2026-06-29T08:03:40.026Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9e/a4/017a7a6cbe387d961a688ec31364ae60a5c4e22c96ae9921b79a947c855d/tzlocal-5.4.4-py3-none-any.whl", hash = "sha256:aae09f0126a8a86fa736be266eb4a471380d26a0de3bc14844e7821fee3e2a15", size = 18115, upload-time = "2026-06-29T08:03:38.666Z" },
 ]
 
 [[package]]

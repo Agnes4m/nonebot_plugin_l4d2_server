@@ -41,12 +41,14 @@ sys.modules["nonebot_plugin_l4d2_server"] = _pkg_root
 _load("nonebot_plugin_l4d2_server.consts", INNER_DIR / "consts.py")
 _load("nonebot_plugin_l4d2_server.http_helpers", INNER_DIR / "http_helpers.py")
 config_module = _load(
-    "nonebot_plugin_l4d2_server.config", INNER_DIR / "config.py",
+    "nonebot_plugin_l4d2_server.config",
+    INNER_DIR / "config.py",
 )
 _load("nonebot_plugin_l4d2_server.api.models", INNER_DIR / "api" / "models.py")
 _load("nonebot_plugin_l4d2_server.api.sources", INNER_DIR / "api" / "sources.py")
 api_module = _load(
-    "nonebot_plugin_l4d2_server.api.l4d2", INNER_DIR / "api" / "l4d2.py",
+    "nonebot_plugin_l4d2_server.api.l4d2",
+    INNER_DIR / "api" / "l4d2.py",
 )
 
 L4D2Api = api_module.L4D2Api
@@ -99,9 +101,15 @@ class _Patch:
 
 
 def _fresh_api(ttl: int = 15, concurrency: int = 0, timeout: float = 2.5) -> L4D2Api:
-    with _Patch(config_module.config, "l4_a2s_cache_ttl", ttl), _Patch(
-        config_module.config, "l4_a2s_concurrency", concurrency
-    ), _Patch(config_module.config, "l4_a2s_timeout", timeout):
+    with (
+        _Patch(config_module.config, "l4_a2s_cache_ttl", ttl),
+        _Patch(
+            config_module.config,
+            "l4_a2s_concurrency",
+            concurrency,
+        ),
+        _Patch(config_module.config, "l4_a2s_timeout", timeout),
+    ):
         return L4D2Api()
 
 
@@ -112,8 +120,13 @@ def test_cache_hit_skips_udp_call():
     aplayers_mock = AsyncMock(return_value=[])
     ips = [("1.2.3.4", 27015)]
 
-    with patch.object(api_module.a2s, "ainfo", ainfo_mock), patch.object(
-        api_module.a2s, "aplayers", aplayers_mock
+    with (
+        patch.object(api_module.a2s, "ainfo", ainfo_mock),
+        patch.object(
+            api_module.a2s,
+            "aplayers",
+            aplayers_mock,
+        ),
     ):
         asyncio.run(api.a2s_info_batch(ips, want_players=True))
         assert ainfo_mock.await_count == 1
@@ -130,8 +143,13 @@ def test_cache_disabled_when_ttl_zero():
     aplayers_mock = AsyncMock(return_value=[])
     ips = [("1.2.3.4", 27015)]
 
-    with patch.object(api_module.a2s, "ainfo", ainfo_mock), patch.object(
-        api_module.a2s, "aplayers", aplayers_mock
+    with (
+        patch.object(api_module.a2s, "ainfo", ainfo_mock),
+        patch.object(
+            api_module.a2s,
+            "aplayers",
+            aplayers_mock,
+        ),
     ):
         asyncio.run(api.a2s_info_batch(ips))
         asyncio.run(api.a2s_info_batch(ips))
@@ -146,8 +164,13 @@ def test_cache_deepcopy_isolation():
     aplayers_mock = AsyncMock(return_value=[])
     ips = [("1.2.3.4", 27015)]
 
-    with patch.object(api_module.a2s, "ainfo", ainfo_mock), patch.object(
-        api_module.a2s, "aplayers", aplayers_mock
+    with (
+        patch.object(api_module.a2s, "ainfo", ainfo_mock),
+        patch.object(
+            api_module.a2s,
+            "aplayers",
+            aplayers_mock,
+        ),
     ):
         first = asyncio.run(api.a2s_info_batch(ips, want_players=False))[0]
         original_name = first[0].server_name
@@ -156,14 +179,10 @@ def test_cache_deepcopy_isolation():
         first[0].server_name = "被改写过"
 
         second = asyncio.run(api.a2s_info_batch(ips, want_players=False))[0]
-        assert second[0].server_name == original_name, (
-            "第二次读取应来自未污染的缓存"
-        )
+        assert second[0].server_name == original_name, "第二次读取应来自未污染的缓存"
         # 缓存里的 server_name 也不应被影响
         cached_server = api._cache[api._cache_key(ips[0])][1][0]
-        assert cached_server.server_name == original_name, (
-            "缓存条目本身不应被污染"
-        )
+        assert cached_server.server_name == original_name, "缓存条目本身不应被污染"
 
 
 def test_concurrency_zero_uses_no_semaphore():
@@ -182,8 +201,13 @@ def test_ainfo_failure_skips_aplayers():
     aplayers_mock = AsyncMock(return_value=[])
     ips = [("1.2.3.4", 27015)]
 
-    with patch.object(api_module.a2s, "ainfo", ainfo_mock), patch.object(
-        api_module.a2s, "aplayers", aplayers_mock
+    with (
+        patch.object(api_module.a2s, "ainfo", ainfo_mock),
+        patch.object(
+            api_module.a2s,
+            "aplayers",
+            aplayers_mock,
+        ),
     ):
         results = asyncio.run(api.a2s_info_batch(ips, want_players=True))
         assert ainfo_mock.await_count == 1
@@ -197,8 +221,13 @@ def test_cache_expires_after_ttl():
     aplayers_mock = AsyncMock(return_value=[])
     ips = [("1.2.3.4", 27015)]
 
-    with patch.object(api_module.a2s, "ainfo", ainfo_mock), patch.object(
-        api_module.a2s, "aplayers", aplayers_mock
+    with (
+        patch.object(api_module.a2s, "ainfo", ainfo_mock),
+        patch.object(
+            api_module.a2s,
+            "aplayers",
+            aplayers_mock,
+        ),
     ):
         asyncio.run(api.a2s_info_batch(ips))
         assert ainfo_mock.await_count == 1
@@ -234,14 +263,19 @@ def test_batch_orders_results_by_steam_id():
         return info
 
     aplayers_mock = AsyncMock(return_value=[])
-    with patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo), patch.object(
-        api_module.a2s, "aplayers", aplayers_mock
+    with (
+        patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo),
+        patch.object(
+            api_module.a2s,
+            "aplayers",
+            aplayers_mock,
+        ),
     ):
         results = asyncio.run(
             api.a2s_info_batch(
                 [("1.1.1.1", 27015), ("2.2.2.2", 27015), ("3.3.3.3", 27015)],
                 want_players=False,
-            )
+            ),
         )
 
     steam_ids = [r[0].steam_id for r in results]

@@ -270,9 +270,8 @@ async def update_server(
     updated: dict | None = None
     new_items: list[dict] = []
     for entry in existing:
-        match = (
-            (kind == "id" and str(entry.get("id", "")) == str(value))
-            or (kind == "ip" and entry.get("ip") == value)
+        match = (kind == "id" and str(entry.get("id", "")) == str(value)) or (
+            kind == "ip" and entry.get("ip") == value
         )
         if match and updated is None:
             host, port = split_maohao(new_ip)

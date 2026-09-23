@@ -15,7 +15,11 @@ import services.migrate as migrate_mod  # noqa: E402
 
 
 def run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro) if False else asyncio.run(coro)
+    return (
+        asyncio.get_event_loop().run_until_complete(coro)
+        if False
+        else asyncio.run(coro)
+    )
 
 
 def test_split_server_data_into_per_tag(tmp_path):
@@ -34,8 +38,13 @@ def test_split_server_data_into_per_tag(tmp_path):
         encoding="utf-8",
     )
 
-    with _patch(consts, "DEFAULT_DATA_DIR", str(primary)), _patch(
-        consts, "LEGACY_URL_FILE", primary / "l4d2.json"
+    with (
+        _patch(consts, "DEFAULT_DATA_DIR", str(primary)),
+        _patch(
+            consts,
+            "LEGACY_URL_FILE",
+            primary / "l4d2.json",
+        ),
     ):
         migrate_mod.migrate_legacy_layout()
 
@@ -56,11 +65,18 @@ def test_url_map_merged_into_pages(tmp_path):
     )
 
     import store.pages as pages_store
+
     expected_pages_path = primary / "sb_pages.json"
 
-    with _patch(consts, "DEFAULT_DATA_DIR", str(primary)), _patch(
-        consts, "LEGACY_URL_FILE", primary / "l4d2.json"
-    ), _patch(pages_store, "PAGES_FILE", expected_pages_path):
+    with (
+        _patch(consts, "DEFAULT_DATA_DIR", str(primary)),
+        _patch(
+            consts,
+            "LEGACY_URL_FILE",
+            primary / "l4d2.json",
+        ),
+        _patch(pages_store, "PAGES_FILE", expected_pages_path),
+    ):
         migrate_mod.migrate_legacy_layout()
 
     assert expected_pages_path.is_file()
@@ -78,8 +94,13 @@ def test_legacy_subdir_migrated_up(tmp_path):
         encoding="utf-8",
     )
 
-    with _patch(consts, "DEFAULT_DATA_DIR", str(primary)), _patch(
-        consts, "LEGACY_GROUP_DIR", legacy
+    with (
+        _patch(consts, "DEFAULT_DATA_DIR", str(primary)),
+        _patch(
+            consts,
+            "LEGACY_GROUP_DIR",
+            legacy,
+        ),
     ):
         migrate_mod.migrate_legacy_layout()
 

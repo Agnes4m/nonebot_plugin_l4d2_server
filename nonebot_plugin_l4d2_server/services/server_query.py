@@ -130,7 +130,7 @@ async def _render_group(
         if max_servers > 0 and len(out_servers) > max_servers:
             logger.info(
                 f"[l4] {command} 组查询：{len(out_servers)} 服 > "
-                f"l4_image_max_servers={max_servers}，跳过图片"
+                f"l4_image_max_servers={max_servers}，跳过图片",
             )
             return (
                 f"⚠️ 组「{command}」服务器数 {len(out_servers)} 超过 "
@@ -143,7 +143,7 @@ async def _render_group(
         logger.info(
             f"[l4] {command} 组查询：{len(out_servers)} 服 / "
             f"在线 {len(online)} / 不在线 {len(offline_ids)} | "
-            f"A2S {a2s_ms:.0f}ms + render {render_ms:.0f}ms = {total_ms:.0f}ms"
+            f"A2S {a2s_ms:.0f}ms + render {render_ms:.0f}ms = {total_ms:.0f}ms",
         )
         if pic is not None:
             return pic
@@ -153,7 +153,7 @@ async def _render_group(
         return None
     logger.info(
         f"[l4] {command} 组查询：{len(out_servers)} 服 / "
-        f"A2S {a2s_ms:.0f}ms（仅文字模式）"
+        f"A2S {a2s_ms:.0f}ms（仅文字模式）",
     )
     return out_servers
 
@@ -170,7 +170,7 @@ def _format_group_text(command: str, out_servers: List[OutServer]) -> str:
             f"  {s['command']}{s['id_']}  "
             f"{srv.server_name}  "
             f"地图={srv.map_name}  "
-            f"玩家={srv.player_count}/{srv.max_players}"
+            f"玩家={srv.player_count}/{srv.max_players}",
         )
     return "\n".join(lines)
 

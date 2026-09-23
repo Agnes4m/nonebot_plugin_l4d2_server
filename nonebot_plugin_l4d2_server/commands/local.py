@@ -274,7 +274,9 @@ async def _(args: Message = CommandArg()) -> None:
         await UniMessage.text(f"{emoji} {r.item_id}{title} {r.status}{err}").send()
 
     results = await download_many(
-        ids, config.l4_map_index, on_progress=_report,
+        ids,
+        config.l4_map_index,
+        on_progress=_report,
     )
 
     ok = sum(1 for r in results if r.status == "ok")
