@@ -14,6 +14,7 @@ from ..config import config
 from ..registry import registry
 from ..store import groups as groups_store
 from ..store import pages as pages_store
+from . import blocklist
 from .errors import L4NotFoundError
 
 
@@ -71,10 +72,11 @@ async def refresh_all_pages() -> tuple[int, list[str]]:
 async def reload_registry() -> None:
     """Re-scan server JSON files into the in-memory registry.
 
-    顺带清空 A2S 结果缓存，刷新后的第一次查询直接拿最新状态。
+    顺带清空 A2S 结果缓存、重新读取屏蔽词表，刷新后的第一次查询直接拿最新状态。
     """
     await registry.load_all()
     L4API.clear_cache()
+    blocklist.reload_words()
 
 
 def register_anne_alias() -> None:

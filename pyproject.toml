@@ -61,6 +61,7 @@ nonebot_plugin_l4d2_server = [
     "render/fonts/*",
     "render/templates/*",
     "render/backgrounds/*",
+    "block_words/*",
 ]
 
 [tool.pytest.ini_options]

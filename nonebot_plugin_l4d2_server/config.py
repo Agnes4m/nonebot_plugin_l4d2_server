@@ -91,6 +91,12 @@ class ConfigModel(BaseModel):
         "玩家名命中只隐藏该玩家。.env 里写 JSON 列表，"
         '如 L4_BLOCK_KEYWORDS=\'["广告", "外挂"]\'',
     )
+    l4_block_builtin_words: bool = Field(
+        default=False,
+        description="启用内置中文敏感词库（konsheng/Sensitive-lexicon 精选分类，约 2100 词，"
+        "MIT）：服务器名 / 玩家名里命中的词替换成 *，不隐藏；"
+        "<data_dir>/block_words/*.txt 里的词表（每行一个词）总会加载",
+    )
     l4_history_interval: int = Field(
         default=300,
         ge=60,

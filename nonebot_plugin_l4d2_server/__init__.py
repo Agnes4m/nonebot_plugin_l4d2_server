@@ -48,6 +48,7 @@ async def _on_startup() -> None:
     from .commands.query import refresh_server_command_rule
     from .config import config
     from .render.background import ensure_user_background_dir
+    from .services.blocklist import ensure_user_words_dir
     from .services.favorite import init_favorite_scheduler
     from .services.history import purge_older_than, record
     from .services.path_resolver import migrate_legacy
@@ -60,6 +61,7 @@ async def _on_startup() -> None:
     refresh_server_command_rule()
     register_picker_handlers()
     ensure_user_background_dir()
+    ensure_user_words_dir()
     await init_favorite_scheduler()
     # 启动后台 A2S 历史记录任务 + 清过期记录
     await _start_history_recorder()

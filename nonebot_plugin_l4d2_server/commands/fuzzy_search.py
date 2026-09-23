@@ -117,7 +117,9 @@ async def _(args: Message = CommandArg()) -> None:
                     hits.append(
                         (
                             entry,
-                            str(getattr(server, "server_name", "") or ""),
+                            blocklist.mask(
+                                str(getattr(server, "server_name", "") or ""),
+                            ),
                             int(getattr(server, "player_count", 0) or 0),
                             int(getattr(server, "max_players", 0) or 0),
                             idx_in_group,

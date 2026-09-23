@@ -22,7 +22,8 @@ from . import blocklist
 async def query_group_servers(group_name: str) -> List[OutServer]:
     """Query A2S info for every server in ``group_name``.
 
-    服务器名命中 ``l4_block_keywords`` 的整台去掉，玩家名命中的只去掉该玩家。
+    服务器名命中 ``l4_block_keywords`` 的整台去掉，玩家名命中的只去掉该玩家；
+    敏感词库命中的词在显示名 / 玩家名里替换成 ``*``。
     """
     servers = registry.get(group_name)
     if not servers:
@@ -34,8 +35,12 @@ async def query_group_servers(group_name: str) -> List[OutServer]:
     # Pad missing entries with empty SourceInfo for stable indexing.
     out: List[OutServer] = []
     for (server, players), srv in zip(results, servers):
-        if blocklist.is_blocked(server.server_name):
-            continue
+        name = display_name(server.server_name)
+        # 不在线的服名字是占位的「服务器无响应」，不参与屏蔽 / 打码，照常进不在线列表
+        if server.max_players != 0:
+            if blocklist.is_blocked(server.server_name):
+                continue
+            name = blocklist.mask(name)
         out.append(
             cast(
                 OutServer,
@@ -46,7 +51,7 @@ async def query_group_servers(group_name: str) -> List[OutServer]:
                     "port": srv["port"],
                     "command": group_name,
                     "id_": srv["id"],
-                    "name": display_name(server.server_name),
+                    "name": name,
                 },
             ),
         )
@@ -267,6 +272,8 @@ async def _render_single(host: str, port: int, is_img: bool) -> bytes | str:
     server, players = info[0]
     if blocklist.is_blocked(server.server_name):
         return MsgSm.server_blocked
+    # A2S 结果是独立拷贝（缓存里另存一份），可以直接改名字打码
+    server.server_name = blocklist.mask(server.server_name)
     return await render_server_card(
         server,
         blocklist.visible_players(players),

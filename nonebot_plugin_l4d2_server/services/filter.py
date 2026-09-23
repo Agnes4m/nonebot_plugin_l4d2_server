@@ -136,7 +136,7 @@ async def _describe(server: dict) -> str:
         player_msg = random.choice(MsgSm.no_player_info)
 
     parts = [
-        f"*{one_server.server_name}*",
+        f"*{blocklist.mask(one_server.server_name)}*",
         f"游戏: {one_server.folder}",
         f"地图: {one_server.map_name}",
         f"人数: {one_server.player_count}/{one_server.max_players}",

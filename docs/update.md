@@ -10,6 +10,8 @@
 - 过滤逻辑在 `services/blocklist.py`，接在 A2S 结果和输出之间；非法正则记警告后跳过。收藏推送、历史记录不受影响。
 - `connect` 查询改为复用单服查询逻辑（`get_ip_server` → `_render_single`）。
 - 测试：`tests/test_a2s_cache.py` 加载模块时复用已加载的模块，测试文件之间不再依赖执行顺序。
+- 敏感词库（打码，不隐藏）：命中的词在服务器名、玩家名里替换成 `*`，服务器和玩家照常显示。新增配置 `l4_block_builtin_words`（默认关闭），打开后加载包内 `block_words/`（[konsheng/Sensitive-lexicon](https://github.com/konsheng/Sensitive-lexicon) 的 8 个分类，约 2100 词，MIT，已删掉和 L4D2 用语、常见昵称冲突的词）；`<data_dir>/block_words/*.txt` 的自定义词表总会加载，`l4刷新` 重新读取。
+- 词库匹配：逐字 NFKC + 小写后，中文按子串、纯字母数字按整词匹配，少于 2 个字的词不加载；5 万词加载约 30ms，500 个名字匹配约 10ms。不在线服的占位名「服务器无响应」不打码。
 
 #### 组查询默认只看有人的服务器 + `云全` + 去掉 `Anne云服#N` 前缀
 
