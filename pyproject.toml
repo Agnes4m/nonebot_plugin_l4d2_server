@@ -114,3 +114,7 @@ select = [
     "SLOT",
     "TRY",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+# 测试需要直接检查私有缓存 / 私有辅助函数
+"tests/*" = ["SLF001"]

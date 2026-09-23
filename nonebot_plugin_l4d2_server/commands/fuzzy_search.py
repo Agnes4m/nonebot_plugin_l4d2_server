@@ -69,7 +69,7 @@ async def _collect(server_dict: list[dict]) -> Iterable[tuple[dict, list[Player]
 def _format_hits(query: str, hits: list[tuple[dict, str, int, int, int]]) -> str:
     """``hits`` = [(server_entry, server_name, player_count, max_players, idx_in_group)]."""
     lines = [f"「{query}」找到 {len(hits)} 处："]
-    for entry, server_name, pc, mp, idx in hits:
+    for entry, server_name, pc, mp, _idx in hits:
         tag = entry.get("tag")
         sid = entry.get("id")
         lines.append(
