@@ -59,7 +59,9 @@ server_list = importlib.import_module("nonebot_plugin_l4d2_server.render.server_
 _render_pkg.render_server_card = server_card.render_server_card  # type: ignore[attr-defined]
 _render_pkg.render_text_card = server_card.render_text_card  # type: ignore[attr-defined]
 _render_pkg.render_server_list = server_list.render_server_list  # type: ignore[attr-defined]
-server_query = importlib.import_module("nonebot_plugin_l4d2_server.services.server_query")
+server_query = importlib.import_module(
+    "nonebot_plugin_l4d2_server.services.server_query"
+)
 sourceban = importlib.import_module("nonebot_plugin_l4d2_server.services.sourceban")
 
 config = config_mod.config
@@ -141,7 +143,9 @@ async def test_tag_file_wins_over_stale_duplicates(data_dir: Path):
     _write(data_dir / "云.json", {"云": _servers(5)})
     reg = ServerRegistry()
     await reg.load_all()
-    assert [e["ip"] for e in reg.get("云")] == [f"10.0.0.{i}:27015" for i in range(1, 6)]
+    assert [e["ip"] for e in reg.get("云")] == [
+        f"10.0.0.{i}:27015" for i in range(1, 6)
+    ]
     assert reg.get("呆呆") is not None
 
 
@@ -181,11 +185,17 @@ async def test_empty_scrape_keeps_group(data_dir: Path, reg, monkeypatch):
 
 
 async def test_refresh_all_pages_reloads_memory_once(data_dir: Path, reg, monkeypatch):
-    _write(data_dir / "sb_pages.json", {"云": "https://a.invalid/", "呆呆": "https://b.invalid/"})
+    _write(
+        data_dir / "sb_pages.json",
+        {"云": "https://a.invalid/", "呆呆": "https://b.invalid/"},
+    )
     scraped = [
-        sourceban.SourceBansInfo(index=i, host="1.2.3.4", port=27015 + i) for i in range(3)
+        sourceban.SourceBansInfo(index=i, host="1.2.3.4", port=27015 + i)
+        for i in range(3)
     ]
-    monkeypatch.setattr(sourceban.L4API, "get_sourceban", AsyncMock(return_value=scraped))
+    monkeypatch.setattr(
+        sourceban.L4API, "get_sourceban", AsyncMock(return_value=scraped)
+    )
     reg.add_command("anne")
     sourceban.L4API._cache[("5.6.7.8", 1)] = (float("inf"), (None, []))
     real_load = reg.load_all
@@ -202,7 +212,9 @@ async def test_refresh_all_pages_reloads_memory_once(data_dir: Path, reg, monkey
 
     assert (ok, fails) == (2, [])
     assert load_calls == 1, "两个组都写完盘后只重载一次"
-    assert [e["ip"] for e in reg.get("云")] == [f"1.2.3.4:{27015 + i}" for i in range(3)]
+    assert [e["ip"] for e in reg.get("云")] == [
+        f"1.2.3.4:{27015 + i}" for i in range(3)
+    ]
     assert "anne" in reg.commands
     assert not sourceban.L4API._cache, "刷新后 A2S 缓存应被清空"
 
@@ -261,7 +273,9 @@ async def _collect(
     return [
         part
         async for part in server_query.iter_group_output(
-            command, is_img=is_img, show_all=show_all,
+            command,
+            is_img=is_img,
+            show_all=show_all,
         )
     ]
 
@@ -273,7 +287,9 @@ def paging(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def _mock_query(monkeypatch: pytest.MonkeyPatch, servers: list[dict]) -> None:
-    monkeypatch.setattr(server_query, "query_group_servers", AsyncMock(return_value=servers))
+    monkeypatch.setattr(
+        server_query, "query_group_servers", AsyncMock(return_value=servers)
+    )
 
 
 def _mock_render(monkeypatch: pytest.MonkeyPatch, **kwargs) -> AsyncMock:
@@ -300,11 +316,15 @@ async def test_default_shows_only_servers_with_players(monkeypatch):
 async def test_show_all_lists_everything_split_into_pages(monkeypatch):
     """「云全」列出全部在线服（含没人的），按每页 30 台拆图，不在线列表只放最后一页。"""
     _mock_query(monkeypatch, _out(105, offline={7, 50}, empty=set(range(60, 106))))
-    render = _mock_render(monkeypatch, side_effect=lambda servers, **_kw: bytes(len(servers)))
+    render = _mock_render(
+        monkeypatch, side_effect=lambda servers, **_kw: bytes(len(servers))
+    )
 
     parts = await _collect(show_all=True)
 
-    assert [len(p) for p in parts] == [30, 30, 30, 13], "103 台在线 → 30/30/30/13 四张图"
+    assert [len(p) for p in parts] == [30, 30, 30, 13], (
+        "103 台在线 → 30/30/30/13 四张图"
+    )
     calls = render.await_args_list
     assert [c.kwargs["heading"] for c in calls] == [
         f"已加载服务器 云 (在线 103/105 台) · 第 {n}/4 页" for n in range(1, 5)
@@ -316,7 +336,9 @@ async def test_show_all_lists_everything_split_into_pages(monkeypatch):
 @pytest.mark.usefixtures("paging")
 async def test_default_mode_also_splits_into_pages(monkeypatch):
     _mock_query(monkeypatch, _out(100, empty=set(range(71, 101))))
-    render = _mock_render(monkeypatch, side_effect=lambda servers, **_kw: bytes(len(servers)))
+    render = _mock_render(
+        monkeypatch, side_effect=lambda servers, **_kw: bytes(len(servers))
+    )
 
     parts = await _collect()
 
@@ -335,7 +357,11 @@ async def test_no_one_playing_replies_with_hint(monkeypatch):
 
     render.assert_not_awaited()
     assert len(parts) == 1 and isinstance(parts[0], str)
-    assert "没有有人的服务器" in parts[0] and "在线 4/5 台" in parts[0] and "云全" in parts[0]
+    assert (
+        "没有有人的服务器" in parts[0]
+        and "在线 4/5 台" in parts[0]
+        and "云全" in parts[0]
+    )
     assert await _collect(show_all=True) == [b"img"], "云全 照样出图"
 
 
@@ -377,7 +403,11 @@ async def test_text_mode_follows_the_same_filter(monkeypatch):
     assert len(parts) > 1
     assert all(isinstance(p, str) and len(p) <= messages.MAX_TEXT_CHARS for p in parts)
     everything = "\n".join(parts)
-    assert "云9  离线" in everything and "云10  0/8" in everything and "云150  3/8" in everything
+    assert (
+        "云9  离线" in everything
+        and "云10  0/8" in everything
+        and "云150  3/8" in everything
+    )
 
 
 async def test_empty_group_yields_nothing(monkeypatch):
@@ -392,7 +422,10 @@ async def test_empty_group_yields_nothing(monkeypatch):
 @pytest.mark.parametrize(
     ("raw", "shown"),
     [
-        ("Anne云服#57[普通药役][缺人][无MOD][8特20秒]", "[普通药役][缺人][无MOD][8特20秒]"),
+        (
+            "Anne云服#57[普通药役][缺人][无MOD][8特20秒]",
+            "[普通药役][缺人][无MOD][8特20秒]",
+        ),
         ("Anne Server #27[HT训练][2特0秒]", "[HT训练][2特0秒]"),
         ("Anne云服#1", "Anne云服#1"),  # 只有前缀时保留原名
         ("[别家]Anne云服#3[普通药役]", "[别家]Anne云服#3[普通药役]"),  # 不在开头不动
@@ -421,7 +454,9 @@ async def test_query_group_servers_fills_display_name(monkeypatch):
     reg.set_group("云", [{"id": "57", "ip": "10.0.0.1:27015"}])
     monkeypatch.setattr(server_query, "registry", reg)
     monkeypatch.setattr(
-        server_query.L4API, "a2s_info_batch", AsyncMock(return_value=[(_info(57), [])]),
+        server_query.L4API,
+        "a2s_info_batch",
+        AsyncMock(return_value=[(_info(57), [])]),
     )
 
     (out,) = await server_query.query_group_servers("云")
@@ -508,9 +543,13 @@ async def test_page_html_has_heading_names_and_background(style, monkeypatch):
 def test_text_card_grows_with_content():
     short = Image.open(io.BytesIO(server_card.render_text_card("标题", ["一行"])))
     many = Image.open(
-        io.BytesIO(server_card.render_text_card("标题", [f"第 {i} 行" for i in range(40)])),
+        io.BytesIO(
+            server_card.render_text_card("标题", [f"第 {i} 行" for i in range(40)])
+        ),
     )
-    wrapped = Image.open(io.BytesIO(server_card.render_text_card("标题", ["很长" * 200])))
+    wrapped = Image.open(
+        io.BytesIO(server_card.render_text_card("标题", ["很长" * 200]))
+    )
     assert short.format == many.format == "JPEG"
     assert many.height > short.height
     assert wrapped.height > short.height, "超宽的行要换行而不是被裁掉"

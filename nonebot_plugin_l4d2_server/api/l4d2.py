@@ -94,9 +94,7 @@ class L4D2Api:
         # concurrency=0 → 不限并发（旧版行为，所有服一次性 asyncio.gather）。
         # 只有显式给 >0 时才走 Semaphore，避免无意义的 await。
         n = int(config.l4_a2s_concurrency)
-        self._sem: asyncio.Semaphore | None = (
-            asyncio.Semaphore(n) if n > 0 else None
-        )
+        self._sem: asyncio.Semaphore | None = asyncio.Semaphore(n) if n > 0 else None
         self._timeout = float(config.l4_a2s_timeout)
         self._ttl = int(config.l4_a2s_cache_ttl)
         # key=(host, port) -> (expire_at_monotonic, (server, players))
@@ -241,7 +239,9 @@ class L4D2Api:
             players: Optional[List[a2s.Player]] = None
             try:
                 server = await a2s.ainfo(
-                    ip, timeout=self._timeout, encoding="utf8",
+                    ip,
+                    timeout=self._timeout,
+                    encoding="utf8",
                 )
                 if server is not None:
                     server.steam_id = index  # type: ignore[attr-defined]
@@ -258,7 +258,9 @@ class L4D2Api:
                 players = []
                 with contextlib.suppress(Exception):
                     players = await a2s.aplayers(
-                        ip, timeout=self._timeout, encoding="utf8",
+                        ip,
+                        timeout=self._timeout,
+                        encoding="utf8",
                     )
 
         # 缓存里放独立拷贝：返回的 server / players 下游随便改（出图会改

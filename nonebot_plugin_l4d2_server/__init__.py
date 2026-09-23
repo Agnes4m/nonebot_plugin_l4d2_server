@@ -64,7 +64,8 @@ async def _on_startup() -> None:
     # 启动后台 A2S 历史记录任务 + 清过期记录
     await _start_history_recorder()
     await asyncio.to_thread(
-        purge_older_than, int(config.l4_history_retention_days),
+        purge_older_than,
+        int(config.l4_history_retention_days),
     )
 
 
@@ -105,9 +106,11 @@ async def _start_history_recorder() -> None:
 
     try:
         scheduler.add_job(
-            _record_all, "interval",
+            _record_all,
+            "interval",
             seconds=int(config.l4_history_interval),
-            id="l4_history_record", replace_existing=True,
+            id="l4_history_record",
+            replace_existing=True,
         )
     except Exception as exc:
         logger.warning(f"[l4] 注册历史记录任务失败: {exc}")

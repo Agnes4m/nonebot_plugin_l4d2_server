@@ -20,8 +20,8 @@ from ..api import WorksopInfo
 from ..config import config
 from ..http_helpers import stream_download, url_to_byte
 from ..render.workshop import render_workshop_card
-from .errors import L4Error, L4InvalidInputError
 from ..services.local_server import addons_dir
+from .errors import L4Error, L4InvalidInputError
 
 ProgressCb = Callable[["WorkshopTaskResult"], Awaitable[None]]
 
@@ -104,13 +104,19 @@ async def _download_one(
             return WorkshopTaskResult(item_id, None, "download_failed", error=str(exc))
         except Exception as exc:  # 网络异常等
             return WorkshopTaskResult(
-                item_id, None, "download_failed", error=str(exc),
+                item_id,
+                None,
+                "download_failed",
+                error=str(exc),
             )
 
         target = _target_path(server_index, info)
         if target.is_file():
             result = WorkshopTaskResult(
-                item_id, info["title"], "duplicate", path=target,
+                item_id,
+                info["title"],
+                "duplicate",
+                path=target,
             )
             if on_progress is not None:
                 await on_progress(result)
@@ -121,11 +127,17 @@ async def _download_one(
         except Exception as exc:
             logger.warning(f"工坊下载失败 [{item_id}]: {exc}")
             result = WorkshopTaskResult(
-                item_id, info["title"], "download_failed", error=str(exc),
+                item_id,
+                info["title"],
+                "download_failed",
+                error=str(exc),
             )
         else:
             result = WorkshopTaskResult(
-                item_id, info["title"], "ok", path=target,
+                item_id,
+                info["title"],
+                "ok",
+                path=target,
             )
 
         if on_progress is not None:

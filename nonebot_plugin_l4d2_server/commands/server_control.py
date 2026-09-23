@@ -29,20 +29,28 @@ from ..services.errors import L4Error, L4InvalidInputError, L4NotFoundError
 
 # 命令名（l4停止 / l4重启 / l4执行 / l4确认）
 l4_stop = on_command(
-    "l4停止", aliases={"l4_stop", "l4stop"}, permission=SUPERUSER,
+    "l4停止",
+    aliases={"l4_stop", "l4stop"},
+    permission=SUPERUSER,
 )
 l4_restart = on_command(
-    "l4重启", aliases={"l4_restart", "l4restart"}, permission=SUPERUSER,
+    "l4重启",
+    aliases={"l4_restart", "l4restart"},
+    permission=SUPERUSER,
 )
 l4_runscript = on_command(
-    "l4执行", aliases={"l4_runcmd", "l4runcmd"}, permission=SUPERUSER,
+    "l4执行",
+    aliases={"l4_runcmd", "l4runcmd"},
+    permission=SUPERUSER,
 )
 l4_confirm = on_command(
-    "l4确认", aliases={"l4_confirm", "l4confirm"}, permission=SUPERUSER,
+    "l4确认",
+    aliases={"l4_confirm", "l4confirm"},
+    permission=SUPERUSER,
 )
 
 CONFIRM_WINDOW_SEC = 60  # 二次确认窗口：60 秒内有效
-RUN_TIMEOUT_SEC = 60      # 单条命令超时
+RUN_TIMEOUT_SEC = 60  # 单条命令超时
 
 # 待确认操作：``(user_id, command_payload) -> expire_at``
 _pending: dict[tuple[int, str], float] = {}
@@ -55,8 +63,14 @@ def _audit_path() -> Path:
     return config.data_dir / "audit.log"
 
 
-def _audit(user_id: int, group_id: int, action: str, target: str,
-           command: str, exit_code: int | None) -> None:
+def _audit(
+    user_id: int,
+    group_id: int,
+    action: str,
+    target: str,
+    command: str,
+    exit_code: int | None,
+) -> None:
     """追加一行 JSON 到 ``audit.log``；失败不抛，避免审计写入影响主流程。"""
     line = (
         f"{datetime.now().isoformat(timespec='seconds')}\t"
@@ -134,8 +148,9 @@ def _cleanup_pending(now: float) -> None:
         _pending.pop(k, None)
 
 
-async def _run(user_id: int, group_id: int, target: str, command: str,
-               action: str) -> tuple[int, str, str]:
+async def _run(
+    user_id: int, group_id: int, target: str, command: str, action: str
+) -> tuple[int, str, str]:
     """异步执行 shell 命令，返回 ``(exit_code, stdout, stderr)``。"""
     try:
         proc = await asyncio.create_subprocess_shell(
@@ -147,7 +162,8 @@ async def _run(user_id: int, group_id: int, target: str, command: str,
         return -1, "", f"启动进程失败：{exc}"
     try:
         stdout, stderr = await asyncio.wait_for(
-            proc.communicate(), timeout=RUN_TIMEOUT_SEC,
+            proc.communicate(),
+            timeout=RUN_TIMEOUT_SEC,
         )
     except asyncio.TimeoutError:
         proc.kill()
@@ -155,11 +171,18 @@ async def _run(user_id: int, group_id: int, target: str, command: str,
         return -1, "", f"命令超时（>{RUN_TIMEOUT_SEC}s）已 kill"
     exit_code = proc.returncode if proc.returncode is not None else -1
     _audit(
-        user_id=user_id, group_id=group_id, action=action,
-        target=target, command=command, exit_code=exit_code,
+        user_id=user_id,
+        group_id=group_id,
+        action=action,
+        target=target,
+        command=command,
+        exit_code=exit_code,
     )
-    return exit_code, stdout.decode(errors="replace").strip(), \
-        stderr.decode(errors="replace").strip()
+    return (
+        exit_code,
+        stdout.decode(errors="replace").strip(),
+        stderr.decode(errors="replace").strip(),
+    )
 
 
 async def _handle(
@@ -175,9 +198,11 @@ async def _handle(
         parts = text.split(None, 2 if action == "run" else 1)
         if len(parts) < 2:
             raise L4InvalidInputError(
-                {"stop": "用法：l4停止 <组名> <id或ip>",
-                 "restart": "用法：l4重启 <组名> <id或ip>",
-                 "run": "用法：l4执行 <组名> <id或ip> <命令片段>"}[action],
+                {
+                    "stop": "用法：l4停止 <组名> <id或ip>",
+                    "restart": "用法：l4重启 <组名> <id或ip>",
+                    "run": "用法：l4执行 <组名> <id或ip> <命令片段>",
+                }[action],
             )
         tag = parts[0]
         identifier = parts[1]
@@ -191,7 +216,9 @@ async def _handle(
 
     payload = f"{user_id}|{target}|{action}|{extra}|{cmd}"
     await _request_confirm(
-        matcher, user_id, payload,
+        matcher,
+        user_id,
+        payload,
         preview=f"操作：{label} {target}\n命令：{cmd}",
     )
 
@@ -238,7 +265,9 @@ async def _(args: Message = CommandArg()) -> None:
     # 找这个用户最近的 pending（payload 包含 user_id 前缀）
     mine = [k for k in _pending if k[0] == user_id]
     if not mine:
-        await UniMessage.text("❌ 没有待执行的操作；先发 ``l4停止 / l4重启 / l4执行``").finish()
+        await UniMessage.text(
+            "❌ 没有待执行的操作；先发 ``l4停止 / l4重启 / l4执行``"
+        ).finish()
         return
 
     # 取最早过期的（即最久的等待）
@@ -249,7 +278,11 @@ async def _(args: Message = CommandArg()) -> None:
 
     await UniMessage.text(f"▶ 正在执行 {action} {target} ...").send()
     exit_code, stdout, stderr = await _run(
-        user_id, group_id, target, cmd, action,
+        user_id,
+        group_id,
+        target,
+        cmd,
+        action,
     )
 
     lines = [

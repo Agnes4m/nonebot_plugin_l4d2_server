@@ -83,8 +83,14 @@ def record(
                 "player_count, max_players, ping) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (
-                    timestamp, host, port, server_name, map_name,
-                    player_count, max_players, ping,
+                    timestamp,
+                    host,
+                    port,
+                    server_name,
+                    map_name,
+                    player_count,
+                    max_players,
+                    ping,
                 ),
             )
             conn.commit()
@@ -161,7 +167,8 @@ def purge_older_than(days: int) -> int:
     with _lock:
         conn = _conn_lazy()
         cur = conn.execute(
-            "DELETE FROM a2s_history WHERE timestamp<?", (cutoff,),
+            "DELETE FROM a2s_history WHERE timestamp<?",
+            (cutoff,),
         )
         conn.commit()
         return cur.rowcount

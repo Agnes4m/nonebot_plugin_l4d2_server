@@ -80,12 +80,18 @@ def test_tj_matches_when_top_scores_exceed_threshold():
     """特感数 × 50 < 前 4 名分数和 才算 tj；阈值来自任意方括号里的「N特」。"""
     server = _info("Anne云服#57[普通药役][缺人][无MOD][8特20秒]")
     assert filter_mod._is_tj_server(server, _players(150, 150, 101), ["普通药役"])
-    assert not filter_mod._is_tj_server(server, _players(100, 100, 100, 100), ["普通药役"])
+    assert not filter_mod._is_tj_server(
+        server, _players(100, 100, 100, 100), ["普通药役"]
+    )
 
 
 def test_tj_rejects_other_modes_and_servers_without_si_tag():
     lots = _players(500, 500, 500, 500)
     assert not filter_mod._is_tj_server(
-        _info("Anne云服#17[HT训练][2特0秒]"), lots, ["普通药役"],
+        _info("Anne云服#17[HT训练][2特0秒]"),
+        lots,
+        ["普通药役"],
     )
-    assert not filter_mod._is_tj_server(_info("Anne云服#1[普通药役]"), lots, ["普通药役"])
+    assert not filter_mod._is_tj_server(
+        _info("Anne云服#1[普通药役]"), lots, ["普通药役"]
+    )

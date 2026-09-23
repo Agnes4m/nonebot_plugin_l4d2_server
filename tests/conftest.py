@@ -26,6 +26,7 @@ def _ensure_nonebot() -> None:
 
     try:
         from nonebot import get_driver  # type: ignore[import-not-found]
+
         get_driver()
         return
     except ValueError:
@@ -41,4 +42,3 @@ logging.getLogger("nonebot").setLevel(logging.CRITICAL)
 
 def pytest_configure(config):
     """Reset driver config so sub-tests with patched paths still work."""
-    pass
