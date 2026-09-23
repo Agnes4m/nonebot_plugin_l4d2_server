@@ -12,8 +12,16 @@
       },
       {
         "name": "(组)",
-        "desc": "返回一个组的服务器信息",
+        "desc": "返回组内有人的服务器",
         "eg": "云",
+        "need_ck": false,
+        "need_sk": false,
+        "need_admin": false
+      },
+      {
+        "name": "(组)全",
+        "desc": "返回组内全部服务器",
+        "eg": "云全",
         "need_ck": false,
         "need_sk": false,
         "need_admin": false

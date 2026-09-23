@@ -2,7 +2,31 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import ClassVar, Iterable
+
+# QQ 等平台单条文字消息过长会直接发送失败；长列表按行切成多条，留足余量。
+MAX_TEXT_CHARS = 2000
+
+
+def split_message(lines: Iterable[str], max_chars: int = MAX_TEXT_CHARS) -> list[str]:
+    """把多行文本按行打包成若干条消息，每条不超过 ``max_chars`` 字符。
+
+    单行本身就超长时按长度硬切，保证每条都发得出去。没有内容返回空列表。
+    """
+    chunks: list[str] = []
+    buf: list[str] = []
+    size = 0
+    for line in lines:
+        pieces = [line[i : i + max_chars] for i in range(0, len(line), max_chars)]
+        for piece in pieces or [""]:
+            if buf and size + 1 + len(piece) > max_chars:
+                chunks.append("\n".join(buf))
+                buf, size = [], 0
+            size += len(piece) + (1 if buf else 0)
+            buf.append(piece)
+    if buf:
+        chunks.append("\n".join(buf))
+    return chunks
 
 
 class Gm:
