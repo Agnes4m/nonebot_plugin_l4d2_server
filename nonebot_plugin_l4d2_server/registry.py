@@ -316,11 +316,11 @@ class ServerRegistry:
                     if group in ranks:
                         if ranks[group] <= rank:
                             logger.warning(
-                                f"组「{group}」在多个文件中重复定义，忽略 {path}"
+                                f"组「{group}」在多个文件中重复定义，忽略 {path}",
                             )
                             continue
                         logger.warning(
-                            f"组「{group}」在多个文件中重复定义，以 {path} 为准"
+                            f"组「{group}」在多个文件中重复定义，以 {path} 为准",
                         )
                     normalised: list[dict] = []
                     if isinstance(entries, list):
