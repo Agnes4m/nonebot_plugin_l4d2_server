@@ -19,7 +19,9 @@ from ..services import history
 from ..services.errors import L4Error, L4InvalidInputError, L4NotFoundError
 
 l4_heatmap = on_command(
-    "l4热力图", aliases={"l4_heatmap", "l4heatmap"}, permission=SUPERUSER,
+    "l4热力图",
+    aliases={"l4_heatmap", "l4heatmap"},
+    permission=SUPERUSER,
 )
 
 _WEEKDAY = ["一", "二", "三", "四", "五", "六", "日"]
@@ -57,7 +59,7 @@ def _format_heatmap(
     lines.append("")
     lines.append("样本数（避免误导：<3 样本的格子置 0）：")
     for wd in range(7):
-        sample_count = sum(c[3] for c in cells[wd * 24:(wd + 1) * 24])
+        sample_count = sum(c[3] for c in cells[wd * 24 : (wd + 1) * 24])
         if sample_count == 0:
             continue
         lines.append(f"  周{_WEEKDAY[wd]}: {sample_count}")

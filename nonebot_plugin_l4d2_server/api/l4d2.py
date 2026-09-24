@@ -9,8 +9,10 @@ A2S 性能要点：
 - 单批并发上限 ``config.l4_a2s_concurrency``（默认 8），通过 ``asyncio.Semaphore``
   在 ``_a2s_one`` 入口统一收敛。
 - 单服结果按 ``(host, port)`` 缓存 ``config.l4_a2s_cache_ttl`` 秒（默认 15），
-  避免群里短时间内重复 /云 触发 N 次 UDP；缓存命中时 ``deepcopy`` 返回防止
-  下游 mutate 污染条目。
+  避免群里短时间内重复 /云 触发 N 次 UDP；缓存里存独立拷贝、命中时再
+  ``deepcopy`` 返回，下游 mutate（出图会改 ``player.name``）不会污染条目。
+  ``want_players=False`` 查到的条目玩家列表记为 ``None``，不会冒充「没人」
+  返回给要玩家列表的调用方。``clear_cache()`` 供重载指令强制刷新。
 - ainfo / aplayers 超时统一从 ``config.l4_a2s_timeout`` 取，不再硬编码 3 秒。
 - ``_empty_source_info`` 改为模块级常量 + deepcopy，每次返回独立对象。
 - 仅在 ainfo 抛异常时跳过 aplayers；``player_count == 0`` 不跳过——
@@ -92,13 +94,15 @@ class L4D2Api:
         # concurrency=0 → 不限并发（旧版行为，所有服一次性 asyncio.gather）。
         # 只有显式给 >0 时才走 Semaphore，避免无意义的 await。
         n = int(config.l4_a2s_concurrency)
-        self._sem: asyncio.Semaphore | None = (
-            asyncio.Semaphore(n) if n > 0 else None
-        )
+        self._sem: asyncio.Semaphore | None = asyncio.Semaphore(n) if n > 0 else None
         self._timeout = float(config.l4_a2s_timeout)
         self._ttl = int(config.l4_a2s_cache_ttl)
         # key=(host, port) -> (expire_at_monotonic, (server, players))
-        self._cache: dict[tuple[str, int], tuple[float, tuple[a2s.SourceInfo, list[a2s.Player]]]] = {}
+        # players 为 None 表示当时没查玩家列表（want_players=False）。
+        self._cache: dict[
+            tuple[str, int],
+            tuple[float, tuple[a2s.SourceInfo, Optional[list[a2s.Player]]]],
+        ] = {}
         self._last_sweep = time.monotonic()
 
     def _cache_key(self, ip: Tuple[str, int]) -> tuple[str, int]:
@@ -107,7 +111,7 @@ class L4D2Api:
     def _cache_get(
         self,
         key: tuple[str, int],
-    ) -> Optional[tuple[a2s.SourceInfo, list[a2s.Player]]]:
+    ) -> Optional[tuple[a2s.SourceInfo, Optional[list[a2s.Player]]]]:
         item = self._cache.get(key)
         if item is None:
             return None
@@ -120,11 +124,15 @@ class L4D2Api:
     def _cache_put(
         self,
         key: tuple[str, int],
-        value: tuple[a2s.SourceInfo, list[a2s.Player]],
+        value: tuple[a2s.SourceInfo, Optional[list[a2s.Player]]],
     ) -> None:
         if self._ttl <= 0:
             return
         self._cache[key] = (time.monotonic() + self._ttl, value)
+
+    def clear_cache(self) -> None:
+        """清空 A2S 结果缓存，下一次查询直接走 UDP（重载指令用）。"""
+        self._cache.clear()
 
     def _sweep_cache_if_needed(self) -> None:
         now = time.monotonic()
@@ -211,25 +219,27 @@ class L4D2Api:
     ) -> Tuple[a2s.SourceInfo, List[a2s.Player]]:
         key = self._cache_key(ip)
 
-        # 缓存命中：deepcopy 防止下游 mutate 污染条目。
+        # 缓存命中：deepcopy 防止下游 mutate 污染条目。条目没查过玩家列表
+        # （players 为 None）而这次要玩家时，按未命中处理重新查。
         if self._ttl > 0:
             cached = self._cache_get(key)
-            if cached is not None:
+            if cached is not None and not (want_players and cached[1] is None):
                 server, players = deepcopy(cached)
                 server.steam_id = index  # type: ignore[attr-defined]
-                return server, (players if want_players else [])
+                return server, (players or []) if want_players else []
 
         # 并发 = 0（不限）时直接走裸 await，不引入 Semaphore 的额外等待开销。
-        ainfo_cm: contextlib.AbstractAsyncContextManager[Any]
-        if self._sem is not None:
-            ainfo_cm = self._sem
-        else:
-            ainfo_cm = contextlib.AsyncExitStack()
+        ainfo_cm: contextlib.AbstractAsyncContextManager[Any] = (
+            self._sem if self._sem is not None else contextlib.AsyncExitStack()
+        )
 
         async with ainfo_cm:
+            players: Optional[List[a2s.Player]] = None
             try:
                 server = await a2s.ainfo(
-                    ip, timeout=self._timeout, encoding="utf8",
+                    ip,
+                    timeout=self._timeout,
+                    encoding="utf8",
                 )
                 if server is not None:
                     server.steam_id = index  # type: ignore[attr-defined]
@@ -240,18 +250,21 @@ class L4D2Api:
                 logger.debug(f"A2S 单服超时/失败 {ip}: {exc}")
                 server = _empty_source_info()
                 server.steam_id = index  # type: ignore[attr-defined]
-                want_players = False
+                players = []  # 离线：玩家列表确定为空，不再调 aplayers
 
-            players: List[a2s.Player] = []
-            if want_players:
+            if want_players and players is None:
+                players = []
                 with contextlib.suppress(Exception):
                     players = await a2s.aplayers(
-                        ip, timeout=self._timeout, encoding="utf8",
+                        ip,
+                        timeout=self._timeout,
+                        encoding="utf8",
                     )
 
-        self._cache_put(key, (server, players))
-        # 缓存存入的是 ``server`` 本身；返回前 deepcopy 一份防下游 mutate 直接污染缓存。
-        return deepcopy(server), players
+        # 缓存里放独立拷贝：返回的 server / players 下游随便改（出图会改
+        # player.name），不会把缓存条目也改掉。
+        self._cache_put(key, deepcopy((server, players)))
+        return server, (players or []) if want_players else []
 
     # ---------- HTTP ----------
 

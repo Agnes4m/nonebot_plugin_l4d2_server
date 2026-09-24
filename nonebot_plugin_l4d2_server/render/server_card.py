@@ -262,6 +262,40 @@ def _render_server_image(server, players, host, port) -> bytes | None:
     return buf.getvalue()
 
 
+TEXT_CARD_WIDTH = 900
+
+
+def render_text_card(title: str, lines: list[str]) -> bytes:
+    """纯 PIL 画「标题 + 多行文字」的 JPEG，不依赖浏览器。
+
+    组查询出图时 Chromium 超时 / 崩溃的兜底：保证仍然回图而不是刷一屏文字。
+    超宽的行按像素宽度自动换行。
+    """
+    font = _load_font(FONT_SIZE)
+    title_font = _load_font(FONT_SIZE + 4)
+    text_max_w = TEXT_CARD_WIDTH - 2 * MARGIN
+    title_lines = _wrap_line(title, title_font, text_max_w)
+    body_lines = _wrap_lines(lines, font, text_max_w)
+    title_h = FONT_SIZE + 4 + LINE_SPACING
+    line_h = FONT_SIZE + LINE_SPACING
+
+    img_h = MARGIN * 3 + title_h * len(title_lines) + line_h * len(body_lines)
+    img = _resolve_card_background(TEXT_CARD_WIDTH, img_h)
+    draw = ImageDraw.Draw(img)
+    y = MARGIN
+    for line in title_lines:
+        draw.text((MARGIN, y), line, font=title_font, fill=(255, 255, 255))
+        y += title_h
+    y += MARGIN
+    for line in body_lines:
+        draw.text((MARGIN, y), line, font=font, fill=(235, 240, 245))
+        y += line_h
+
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=90)
+    return buf.getvalue()
+
+
 async def render_server_card(
     server,
     players: list[Player],

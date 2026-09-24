@@ -38,36 +38,67 @@ class ConfigModel(BaseModel):
         description="上传地图权限",
     )
     l4_a2s_concurrency: int = Field(
-        default=0, ge=0, le=64,
+        default=0,
+        ge=0,
+        le=64,
         description="A2S 并发上限；0=不限（旧版行为：所有服一次性 asyncio.gather），"
         "其他值走 asyncio.Semaphore 节流",
     )
     l4_a2s_timeout: float = Field(default=2.5, gt=0, description="A2S 单次超时秒")
-    l4_a2s_cache_ttl: int = Field(default=15, ge=0, description="A2S 结果缓存秒；0=不缓存")
+    l4_a2s_cache_ttl: int = Field(
+        default=15,
+        ge=0,
+        description="A2S 结果缓存秒；0=不缓存",
+    )
     l4_favorite_check_interval: int = Field(
-        default=300, ge=30, description="收藏巡检间隔秒",
+        default=300,
+        ge=30,
+        description="收藏巡检间隔秒",
     )
     l4_favorite_player_delta: int = Field(
-        default=5, ge=1, description="玩家数变化超过此值才推送",
+        default=5,
+        ge=1,
+        description="玩家数变化超过此值才推送",
     )
     l4_workshop_concurrency: int = Field(
-        default=3, ge=1, le=8, description="创意工坊并发下载数",
+        default=3,
+        ge=1,
+        le=8,
+        description="创意工坊并发下载数",
     )
     l4_render_timeout: float = Field(
-        default=15.0, gt=0,
-        description="htmlrender 单次出图硬上限秒；超时/失败/空字节 fallback 到文字",
+        default=15.0,
+        gt=0,
+        description="htmlrender 单页出图硬上限秒；超时/失败/空字节时该页（及同次查询"
+        "后续各页）改用纯 PIL 简易图",
+    )
+    l4_image_page_size: int = Field(
+        default=30,
+        ge=1,
+        le=200,
+        description="组查询出图时每张图最多放多少台服，超出自动分成多张图逐条发送。"
+        "单张长图超过 16384px（约 230 台）会被 Chromium 截断，也更容易超时 / OOM",
+    )
+    l4_name_strip_pattern: str = Field(
+        default=r"^Anne云服#\d+",
+        description="组列表里显示服务器名时去掉的前缀（正则）。默认只匹配 Anne 云服，"
+        "把 Anne云服#57[普通药役] 显示成 [普通药役]（卡片前已有「云57:」），"
+        "其他服务器名不受影响；只去 Anne云服 保留编号可设 ^Anne云服；留空不处理",
     )
     l4_history_interval: int = Field(
-        default=300, ge=60,
+        default=300,
+        ge=60,
         description="A2S 历史记录周期秒；用于热力图 / Wipe 检测 / 阈值通知",
     )
     l4_history_retention_days: int = Field(
-        default=30, ge=1,
+        default=30,
+        ge=1,
         description="A2S 历史保留天数；启动时清理过期记录",
     )
     l4_image_max_servers: int = Field(
-        default=0, ge=0,
-        description="图片出图硬上限：组内服务器数超过此值直接走文字汇总，"
+        default=0,
+        ge=0,
+        description="图片出图硬上限：一次查询要显示的服务器数超过此值直接回提示，"
         "不启 Chromium。0=不限（默认，按熔断逻辑失败后走文字）。"
         "轻量服务器（2C2G）建议显式设 15-20。",
     )

@@ -49,10 +49,10 @@ async def _on_startup() -> None:
     from .config import config
     from .render.background import ensure_user_background_dir
     from .services.favorite import init_favorite_scheduler
-    from .services.history import purge_older_than, record
+    from .services.history import purge_older_than
     from .services.path_resolver import migrate_legacy
 
-    config.data_dir  # 触发 localstore 目录创建
+    config.data_dir.mkdir(parents=True, exist_ok=True)  # 确保数据目录存在
     migrate_legacy()  # 首次启动把插件根 data/L4D2/ 复制过去
     migrate.migrate_legacy_layout()
     await sourceban.reload_registry()
@@ -64,7 +64,8 @@ async def _on_startup() -> None:
     # 启动后台 A2S 历史记录任务 + 清过期记录
     await _start_history_recorder()
     await asyncio.to_thread(
-        purge_older_than, int(config.l4_history_retention_days),
+        purge_older_than,
+        int(config.l4_history_retention_days),
     )
 
 
@@ -76,6 +77,9 @@ async def _start_history_recorder() -> None:
     的服，避免「你只查不收藏的服没历史」。
     """
     from nonebot_plugin_apscheduler import scheduler
+
+    from .config import config
+    from .services.history import record
 
     async def _record_all() -> None:
         from .api import L4API
@@ -105,9 +109,11 @@ async def _start_history_recorder() -> None:
 
     try:
         scheduler.add_job(
-            _record_all, "interval",
+            _record_all,
+            "interval",
             seconds=int(config.l4_history_interval),
-            id="l4_history_record", replace_existing=True,
+            id="l4_history_record",
+            replace_existing=True,
         )
     except Exception as exc:
         logger.warning(f"[l4] 注册历史记录任务失败: {exc}")
