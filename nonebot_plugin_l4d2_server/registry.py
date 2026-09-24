@@ -3,15 +3,10 @@
 v1.4.0 起 ``_normalize_server_entry`` 保留已有 ``id``（避免 ``云1`` 这类后缀
 指令失效），并提供 ``add_server`` / ``remove_server`` / ``update_server``
 内存接口，底层走 ``store/groups.py`` 持久化，再回灌内存。
-
-``load_all`` 是所有刷新指令（l4reload / l4reloadsb / l4addban / 单服 CRUD）
-共用的内存刷新入口：新表建好后一次性替换，``add_command`` 注册的别名
-（如 ``anne``）重载后仍然保留。
 """
 
 from __future__ import annotations
 
-import asyncio
 import contextlib
 import json
 from pathlib import Path
@@ -20,8 +15,11 @@ from typing import Iterable
 import aiofiles
 from nonebot.log import logger
 
-from .consts import LEGACY_GROUP_SUBDIR, LEGACY_URL_FILENAME, NON_GROUP_FILENAMES
+from .consts import LEGACY_GROUP_SUBDIR, LEGACY_URL_FILENAME, SB_PAGES_FILENAME
 from .http_helpers import split_maohao
+
+# 旧版单文件多组容器和 sb_pages.json（SourceBans 映射）都不算服务器组数据。
+_EXCLUDED_TOP_LEVEL_FILES = frozenset({LEGACY_URL_FILENAME, SB_PAGES_FILENAME})
 
 
 def _iter_server_files() -> Iterable[tuple[Path, bool]]:
@@ -53,28 +51,12 @@ def _iter_server_files() -> Iterable[tuple[Path, bool]]:
             if item.stat().st_size == 0:
                 logger.debug(f"跳过空文件 {item}")
                 continue
-            if root is primary and item.name in NON_GROUP_FILENAMES:
+            if root is primary and item.name in _EXCLUDED_TOP_LEVEL_FILES:
                 continue
             yield item, False
 
     if legacy_url.is_file() and legacy_url.stat().st_size > 0:
         yield legacy_url, True
-
-
-def _source_rank(path: Path, group: str, *, is_single: bool) -> int:
-    """同名组出现在多个文件里时的优先级，越小越优先。
-
-    ``<组名>.json`` 是 l4addban / l4reloadsb / 单服 CRUD 的写入目标，必须压过
-    多组合并文件、旧版 ``l4d2/`` 子目录、旧版 ``l4d2.json`` 里的同名旧数据，
-    否则刷新写盘之后内存里仍是旧列表。
-    """
-    from .config import config
-
-    if is_single:
-        return 3
-    if path.parent != config.data_dir:
-        return 2
-    return 0 if path.stem == group else 1
 
 
 def _coerce_ip(entry: object) -> str:
@@ -140,9 +122,6 @@ class ServerRegistry:
     def __init__(self) -> None:
         self._groups: dict[str, list[dict]] = {}
         self._commands: set[str] = set()
-        # add_command 注册的纯别名（如 anne），重建指令表时要带上。
-        self._aliases: set[str] = set()
-        self._load_lock = asyncio.Lock()
 
     @property
     def commands(self) -> set[str]:
@@ -191,11 +170,7 @@ class ServerRegistry:
         self._commands.add(name)
 
     def add_command(self, name: str) -> None:
-        """Register ``name`` as a known command without servers (e.g. anne).
-
-        别名单独记一份，``load_all`` / ``scan_commands`` 重建指令表后仍然有效。
-        """
-        self._aliases.add(name)
+        """Register ``name`` as a known command without servers (e.g. anne)."""
         self._commands.add(name)
 
     def remove_group(self, name: str) -> bool:
@@ -203,7 +178,6 @@ class ServerRegistry:
         if name in self._groups:
             del self._groups[name]
         self._commands.discard(name)
-        self._aliases.discard(name)
         return name in self._commands
 
     def get_server(self, name: str, identifier: str | int) -> dict | None:
@@ -272,7 +246,7 @@ class ServerRegistry:
 
     def scan_commands(self) -> None:
         """Populate ``_commands`` from filenames only, no server data loaded."""
-        found: set[str] = set()
+        self._commands.clear()
         for path, _is_single in _iter_server_files():
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
@@ -281,71 +255,53 @@ class ServerRegistry:
                 continue
             if not isinstance(data, dict):
                 continue
-            found.update(k for k in data if isinstance(k, str))
-        self._commands = found | self._aliases
+            self._commands.update(k for k in data if isinstance(k, str))
         logger.debug(f"扫描到组名: {self._commands}")
 
     async def load_all(self) -> None:
-        """Reload all groups from disk, normalising every entry.
+        """Reload all groups from disk, normalising every entry."""
+        self._groups.clear()
+        self._commands.clear()
+        for path, is_single in _iter_server_files():
+            try:
+                async with aiofiles.open(path, "r", encoding="utf-8") as f:
+                    raw_text = await f.read()
+                raw = json.loads(raw_text)
+            except (json.JSONDecodeError, OSError) as exc:
+                logger.warning(f"读取 {path} 失败: {exc}")
+                continue
+            if not isinstance(raw, dict):
+                logger.warning(f"{path} 顶层不是字典, 跳过")
+                continue
 
-        新表先建在局部变量里，读完再一次性替换：重载途中进来的查询看到的是
-        旧数据而不是被清空的中间态。加锁串行化，避免并发重载互相覆盖。
-        """
-        async with self._load_lock:
-            groups: dict[str, list[dict]] = {}
-            ranks: dict[str, int] = {}
-            for path, is_single in _iter_server_files():
-                try:
-                    async with aiofiles.open(path, "r", encoding="utf-8") as f:
-                        raw_text = await f.read()
-                    raw = json.loads(raw_text)
-                except (json.JSONDecodeError, OSError) as exc:
-                    logger.warning(f"读取 {path} 失败: {exc}")
-                    continue
-                if not isinstance(raw, dict):
-                    logger.warning(f"{path} 顶层不是字典, 跳过")
-                    continue
+            if is_single:
+                groups = {k: v for k, v in raw.items() if isinstance(v, list)}
+            else:
+                groups = raw
 
-                if is_single:
-                    file_groups = {k: v for k, v in raw.items() if isinstance(v, list)}
-                else:
-                    file_groups = raw
-
-                for group, entries in file_groups.items():
-                    rank = _source_rank(path, group, is_single=is_single)
-                    if group in ranks:
-                        if ranks[group] <= rank:
-                            logger.warning(
-                                f"组「{group}」在多个文件中重复定义，忽略 {path}",
-                            )
-                            continue
-                        logger.warning(
-                            f"组「{group}」在多个文件中重复定义，以 {path} 为准",
+            for group, entries in groups.items():
+                normalised: list[dict] = []
+                if isinstance(entries, list):
+                    max_id = 0
+                    for idx, raw_entry in enumerate(entries, start=1):
+                        norm = _normalize_server_entry(
+                            raw_entry,
+                            idx,
+                            max_existing_id=max_id,
                         )
-                    normalised: list[dict] = []
-                    if isinstance(entries, list):
-                        max_id = 0
-                        for idx, raw_entry in enumerate(entries, start=1):
-                            norm = _normalize_server_entry(
-                                raw_entry,
-                                idx,
-                                max_existing_id=max_id,
-                            )
-                            if norm is None:
-                                continue
-                            try:
-                                cur_id = int(norm.get("id", 0))
-                            except (TypeError, ValueError):
-                                cur_id = 0
-                            max_id = max(max_id, cur_id)
-                            normalised.append(norm)
-                    groups[group] = normalised
-                    ranks[group] = rank
-                    logger.success(
-                        f"成功加载 {path.name.split('.')[0]} {len(normalised)}个",
-                    )
-            self._groups = groups
-            self._commands = set(groups) | self._aliases
+                        if norm is None:
+                            continue
+                        try:
+                            cur_id = int(norm.get("id", 0))
+                        except (TypeError, ValueError):
+                            cur_id = 0
+                        max_id = max(max_id, cur_id)
+                        normalised.append(norm)
+                self._groups[group] = normalised
+                self._commands.add(group)
+                logger.success(
+                    f"成功加载 {path.name.split('.')[0]} {len(normalised)}个",
+                )
 
 
 # Module-level singleton.

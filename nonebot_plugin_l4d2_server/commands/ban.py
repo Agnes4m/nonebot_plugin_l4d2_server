@@ -11,7 +11,6 @@ from nonebot_plugin_alconna import UniMessage
 from ..commands.query import (
     refresh_server_command_rule,
 )
-from ..messages import split_message
 from ..services import sourceban
 from ..store import groups as groups_store
 from ..store import pages as pages_store
@@ -60,10 +59,7 @@ async def _(args: Message = CommandArg()) -> None:
         await UniMessage.text(
             f"未在 sb_pages.json 找到组「{tag}」的 URL；请执行：l4addban {tag} <URL>",
         ).finish()
-    try:
-        servers = await sourceban.refresh_group_from_url(tag, page)
-    except Exception as exc:
-        await UniMessage.text(f"❌ {tag} 刷新失败：{exc}").finish()
+    servers = await sourceban.refresh_group_from_url(tag, page)
     refresh_server_command_rule()
     await UniMessage.text(
         f"✅ 已更新（{tag}，共 {len(servers)} 台）",
@@ -90,12 +86,11 @@ async def _() -> None:
     names = await groups_store.list_groups()
     if not names:
         await UniMessage.text("暂无服务器组。").finish()
-    lines = ["现有服务器组："]
+    lines = []
     for name in names:
         items = await groups_store.get_group(name)
         lines.append(f"{name}（{len(items)}）")
-    for chunk in split_message(lines):
-        await UniMessage.text(chunk).send()
+    await UniMessage.text("现有服务器组：\n" + "\n".join(lines)).finish()
 
 
 @l4_remove_group.handle()
@@ -108,16 +103,13 @@ async def _(args: Message = CommandArg()) -> None:
     if not group_deleted and not page_deleted:
         await UniMessage.text("未找到该组文件或 URL 记录").finish()
         return
-    if group_deleted:
-        # 文件删了内存里还留着的话，这个组指令会一直能查到直到重启
-        await sourceban.reload_registry()
-        refresh_server_command_rule()
     parts = []
     if group_deleted:
         parts.append("服务器组文件")
     if page_deleted:
         parts.append("SourceBans URL")
     await UniMessage.text("✅ 已删除 " + "、".join(parts)).send()
+    refresh_server_command_rule()
 
 
 @l4_remove_page.handle()
@@ -129,22 +121,6 @@ async def _(args: Message = CommandArg()) -> None:
     await UniMessage.text("✅ 已删除" if ok else "未找到该组的 URL").finish()
 
 
-def _export_lines(data: dict[str, list[dict]]) -> list[str]:
-    """导出用 JSON，一台服一行：上百台时按行切成多条消息也不会把条目切断。"""
-    lines = ["{"]
-    for gi, (tag, items) in enumerate(data.items()):
-        lines.append(f"{json.dumps(tag, ensure_ascii=False)}: [")
-        lines.extend(
-            "    "
-            + json.dumps(item, ensure_ascii=False)
-            + ("," if i < len(items) - 1 else "")
-            for i, item in enumerate(items)
-        )
-        lines.append("]," if gi < len(data) - 1 else "]")
-    lines.append("}")
-    return lines
-
-
 @l4_export_group.handle()
 async def _(args: Message = CommandArg()) -> None:
     tag = args.extract_plain_text().strip()
@@ -153,8 +129,10 @@ async def _(args: Message = CommandArg()) -> None:
     items = await groups_store.get_group(tag)
     if not items:
         await UniMessage.text("未找到该组。").finish()
-    for chunk in split_message(_export_lines({tag: items})):
-        await UniMessage.text(chunk).send()
+    data = {tag: items}
+    await UniMessage.text(
+        json.dumps(data, ensure_ascii=False, indent=4),
+    ).finish()
 
 
 @l4_export_groups.handle()
@@ -162,5 +140,6 @@ async def _() -> None:
     data = await groups_store.export_all()
     if not data:
         await UniMessage.text("暂无服务器组。").finish()
-    for chunk in split_message(_export_lines(data)):
-        await UniMessage.text(chunk).send()
+    await UniMessage.text(
+        json.dumps(data, ensure_ascii=False, indent=4),
+    ).finish()
