@@ -15,6 +15,7 @@ from nonebot_plugin_alconna import UniMessage
 
 from ..api import L4API
 from ..http_helpers import split_maohao
+from ..messages import split_message
 from ..registry import registry
 from ..services.errors import L4Error, L4InvalidInputError, L4NotFoundError
 
@@ -153,4 +154,6 @@ async def _(args: Message = CommandArg()) -> None:
     except L4Error as exc:
         await _reply_error(exc)
         return
-    await UniMessage.text("\n".join(lines)).finish(reply=True)
+    # 上百台时一条消息会超长发不出去，按行切成多条
+    for chunk in split_message(lines):
+        await UniMessage.text(chunk).send()

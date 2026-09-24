@@ -1,6 +1,5 @@
 """Pure business logic, no NoneBot framework dependencies."""
 
-from . import filter as filter_service
 from . import (
     errors,
     favorite,
@@ -12,6 +11,7 @@ from . import (
     sourceban,
     workshop,
 )
+from . import filter as filter_service
 
 __all__ = [
     "errors",

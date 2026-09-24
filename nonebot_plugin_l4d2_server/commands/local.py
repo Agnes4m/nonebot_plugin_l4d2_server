@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+from pathlib import Path
 
 from nonebot.adapters import Event, Message
 from nonebot.matcher import Matcher
@@ -85,12 +86,12 @@ def _resolve_vpk(addons: "Path", index: int, *, action: str) -> str:
     """
     vpk_list = svc_local.list_vpk_files(addons)
     if not vpk_list:
-        raise L4NotFoundError("未找到可用的VPK文件")
+        raise L4NotFoundError(f"未找到可{action}的VPK文件")
     try:
         return vpk_list[index - 1]
     except IndexError as exc:
         raise L4InvalidInputError(
-            f"输入的地图序号无效（1-{len(vpk_list)}）",
+            f"{action}失败：输入的地图序号无效（1-{len(vpk_list)}）",
         ) from exc
 
 
@@ -274,7 +275,9 @@ async def _(args: Message = CommandArg()) -> None:
         await UniMessage.text(f"{emoji} {r.item_id}{title} {r.status}{err}").send()
 
     results = await download_many(
-        ids, config.l4_map_index, on_progress=_report,
+        ids,
+        config.l4_map_index,
+        on_progress=_report,
     )
 
     ok = sum(1 for r in results if r.status == "ok")

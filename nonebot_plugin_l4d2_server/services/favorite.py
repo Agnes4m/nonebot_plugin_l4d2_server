@@ -56,6 +56,7 @@ _STATE_DEFAULT: dict[str, Any] = {
 
 # ---------------- 存储路径 ----------------
 
+
 def _favorites_path() -> Path:
     return config.data_dir / FAVORITES_FILENAME
 
@@ -69,6 +70,7 @@ async def _ensure_parent(path: Path) -> None:
 
 
 # ---------------- favorites.json ----------------
+
 
 async def _load_favorites() -> list[dict]:
     await _ensure_parent(_favorites_path())
@@ -93,6 +95,7 @@ async def _save_favorites(items: list[dict]) -> None:
 
 # ---------------- notify_state.json ----------------
 
+
 async def _load_state() -> dict[str, dict]:
     await _ensure_parent(_state_path())
     p = _state_path()
@@ -115,6 +118,7 @@ async def _save_state(state: dict[str, dict]) -> None:
 
 
 # ---------------- 公开接口 ----------------
+
 
 async def add_favorite(
     tag: str,
@@ -188,7 +192,9 @@ async def list_favorites(target_group_id: int | None = None) -> list[dict]:
     items = await _load_favorites()
     if target_group_id is None:
         return items
-    return [it for it in items if int(it.get("target_group_id", 0)) == int(target_group_id)]
+    return [
+        it for it in items if int(it.get("target_group_id", 0)) == int(target_group_id)
+    ]
 
 
 async def update_notify_target(
@@ -215,6 +221,7 @@ async def update_notify_target(
 
 
 # ---------------- 巡检 + 推送 ----------------
+
 
 def _is_empty_player_signal(server: Any) -> bool:
     """服务器可达但 sentinel（无响应）状态。"""
@@ -254,6 +261,7 @@ async def _send_to_group(group_id: int, text: str, bot: Any) -> None:
     """向指定群发文本。失败只记 ERROR，不抛。"""
     try:
         from nonebot.adapters.onebot.v11 import Message  # 局部导入
+
         await bot.send_group_msg(group_id=int(group_id), message=Message(text))
     except Exception as exc:
         logger.error(f"[l4] 推送失败 group={group_id}: {exc}")
@@ -293,7 +301,7 @@ async def run_favorite_check(bot: Any | None = None) -> None:
     ordered = await L4API.a2s_info_batch_ordered(deduped, want_players=False)
     now_ts = int(time.time())
     state_map: dict[str, dict[str, Any]] = {}
-    for (host, port, server, _players) in ordered:
+    for host, port, server, _players in ordered:
         online = not _is_empty_player_signal(server)
         server_name = str(getattr(server, "server_name", "") or "")
         map_name = str(getattr(server, "map_name", "") or "")
@@ -310,7 +318,8 @@ async def run_favorite_check(bot: Any | None = None) -> None:
         # 顺带落 SQLite，给热力图 / Wipe 检测 / 阈值通知用
         try:
             history.record(
-                host=host, port=port,
+                host=host,
+                port=port,
                 server_name=server_name,
                 map_name=map_name,
                 player_count=player_count,
@@ -336,10 +345,9 @@ async def run_favorite_check(bot: Any | None = None) -> None:
         prev_fired: set[int] = set(prev.get("fired_thresholds", []))
 
         # 30 分钟内同类事件不重复推送（避免上下线抖动刷屏）
-        if (
-            (prev_online != now_online)
-            and now_ts - int(prev.get("last_alert_at", 0)) < 1800
-        ):
+        if (prev_online != now_online) and now_ts - int(
+            prev.get("last_alert_at", 0),
+        ) < 1800:
             prev["online"] = now_online
             prev["player_count"] = now_pc
             prev["last_check_at"] = now_ts
@@ -349,13 +357,12 @@ async def run_favorite_check(bot: Any | None = None) -> None:
         lines: list[str] = []
 
         # Wipe / 章节切换检测
-        if (
-            prev_online and now_online
-            and prev_map and now_map and prev_map != now_map
-        ):
+        if prev_online and now_online and prev_map and now_map and prev_map != now_map:
             tag = it.get("tag")
             sid = it.get("server_id")
-            name = it.get("server_name_snapshot") or f"{it.get('host')}:{it.get('port')}"
+            name = (
+                it.get("server_name_snapshot") or f"{it.get('host')}:{it.get('port')}"
+            )
             lines.append(
                 f"🔄 {tag}{sid} {name} 地图变化 {prev_map} → {now_map}",
             )
@@ -368,7 +375,10 @@ async def run_favorite_check(bot: Any | None = None) -> None:
                 if now_pc >= th and th not in prev_fired:
                     tag = it.get("tag")
                     sid = it.get("server_id")
-                    name = it.get("server_name_snapshot") or f"{it.get('host')}:{it.get('port')}"
+                    name = (
+                        it.get("server_name_snapshot")
+                        or f"{it.get('host')}:{it.get('port')}"
+                    )
                     lines.append(f"📈 {tag}{sid} {name} 已达 {th} 人")
                     fired_now.add(th)
                 elif now_pc < th and th in prev_fired:
@@ -418,6 +428,7 @@ async def run_favorite_check(bot: Any | None = None) -> None:
 
 
 # ---------------- scheduler 接入 ----------------
+
 
 async def _scheduled_check() -> None:
     await run_favorite_check()

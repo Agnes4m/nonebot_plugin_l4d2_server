@@ -13,7 +13,6 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT / "nonebot_plugin_l4d2_server"))
 
 import consts  # noqa: E402
-import registry as registry_module  # noqa: E402
 from registry import ServerRegistry, _normalize_server_entry  # noqa: E402
 
 
@@ -57,7 +56,7 @@ def test_normalize_empty_string_returns_none():
     assert _normalize_server_entry("   ", 2) is None
 
 
-def test_registry_load_all_with_tempdir(tmp_path):
+def test_registry_load_all_with_tempdir():
     """End-to-end: write JSON files, load, verify state."""
     with tempfile.TemporaryDirectory() as td:
         primary = Path(td) / "data" / "L4D2"
@@ -79,7 +78,6 @@ def test_registry_load_all_with_tempdir(tmp_path):
         consts.LEGACY_GROUP_DIR = primary / "l4d2"
         try:
             # Also patch the const so iter uses our tempdir.
-            from consts import DEFAULT_DATA_DIR
             original_data_dir = consts.DEFAULT_DATA_DIR
             consts.DEFAULT_DATA_DIR = str(primary)
             try:
@@ -122,6 +120,7 @@ def test_registry_add_command_only():
 def test_registry_load_all_empty():
     """load_all on an empty directory yields empty state without error."""
     import asyncio
+
     with tempfile.TemporaryDirectory() as td:
         consts.DEFAULT_DATA_DIR = str(Path(td) / "data" / "L4D2")
         Path(consts.DEFAULT_DATA_DIR).mkdir(parents=True)

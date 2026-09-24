@@ -83,8 +83,14 @@ def record(
                 "player_count, max_players, ping) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (
-                    timestamp, host, port, server_name, map_name,
-                    player_count, max_players, ping,
+                    timestamp,
+                    host,
+                    port,
+                    server_name,
+                    map_name,
+                    player_count,
+                    max_players,
+                    ping,
                 ),
             )
             conn.commit()
@@ -147,10 +153,8 @@ def heatmap(
     for wd in range(7):
         for h in range(24):
             samples = buckets.get((wd, h), [])
-            if len(samples) >= 3:
-                avg = sum(samples) / len(samples)
-            else:
-                avg = 0.0
+            # 样本不足 3 个的格子置 0，避免个别采样误导
+            avg = sum(samples) / len(samples) if len(samples) >= 3 else 0.0
             out.append((wd, h, avg, len(samples)))
     return out
 
@@ -161,7 +165,8 @@ def purge_older_than(days: int) -> int:
     with _lock:
         conn = _conn_lazy()
         cur = conn.execute(
-            "DELETE FROM a2s_history WHERE timestamp<?", (cutoff,),
+            "DELETE FROM a2s_history WHERE timestamp<?",
+            (cutoff,),
         )
         conn.commit()
         return cur.rowcount
