@@ -186,6 +186,7 @@ playwright install --with-deps chromium
 
 - [x] 求生服务器-本地多路径操作（传地图等）
 - [x] 批量查询指定 ip 服务器状态和玩家
+- [x] 组查询（如 `云`）默认只列有人的服务器，`云全` 列出全部（含没人 / 不在线）；上百台自动拆成多张图
 - [x] connect 指令直接呼出服务器信息
 - [x] 根据用户名，在已知服务器搜索玩家信息
 - [x] **服务器订阅 / 收藏 + 定时推送**（v1.4.0）：上线 / 离线 / 玩家数突变时自动通知群
@@ -234,25 +235,55 @@ L4_FAVORITE_PLAYER_DELTA=5       # 玩家数变化超过此值才推送
 
 # 工坊
 L4_WORKSHOP_CONCURRENCY=3        # 批量下载并发上限（1~8）
+
+# 出图
+L4_IMAGE_PAGE_SIZE=30            # 组查询每张图最多几台服，超出自动分多张发送（1~200）
+L4_RENDER_TIMEOUT=15             # 单页出图超时秒；超时 / 浏览器崩溃时改用简易图
+L4_NAME_STRIP_PATTERN='^Anne云服#\d+'  # 列表里去掉的服务器名前缀（正则），默认只匹配 Anne 云服：Anne云服#57[普通药役] → [普通药役]；留空不处理
+
+# 屏蔽
+L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'  # 关键词正则列表（不区分大小写），见下文「屏蔽与关键词」
+L4_BLOCK_BUILTIN_WORDS=false     # 启用内置中文敏感词库（约 2100 词，命中的词打码成 *，默认关闭）
 ```
 
-## 屏蔽与关键词 — 实现思路（v1.4.0 未实现，仅文档）
+## 屏蔽与关键词
 
-下面四种思路由浅入深，可按需选一种或叠加：
+### 关键词过滤（已实现）
+
+在 `.env` 里用 JSON 列表配置正则，不区分大小写：
+
+```dotenv
+L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
+```
+
+- **服务器名命中**：整台服务器不出现在 `云` / `云全` / `l4全服` / `l4查找` / `l4查人` / `tj` / `zl` / `kl` 的结果里；`云5`、`connect <ip>` 这类单服查询只回「该服务器已被屏蔽」。
+- **玩家名命中**：只隐藏这个玩家（列表卡片、单服查询、查人），服务器照常显示，人数仍按 A2S 上报；`tj` / `zl` / `kl` 的判断仍按真实玩家列表。
+- 非法正则会记一条警告并跳过，不影响其它关键词。收藏推送和历史记录不受影响。
+
+过滤在 `services/blocklist.py`，接在 A2S 结果和输出之间。
+
+### 敏感词库（打码）
+
+和上面的关键词不同，敏感词库**只打码不隐藏**：服务器名、玩家名里命中的词替换成 `*`（如 `出售按摩棒` → `出售***`），服务器和玩家照常显示。几千到几万个词的词表难免混着常用词，打码比整台隐藏温和。
+
+- **内置词库**：`.env` 设 `L4_BLOCK_BUILTIN_WORDS=true` 打开。收录 [konsheng/Sensitive-lexicon](https://github.com/konsheng/Sensitive-lexicon)（MIT）的政治、反动、暴恐、涉枪涉爆、色情、贪腐等 8 个分类，约 2100 个词，已删掉和 L4D2 用语、常见昵称冲突的词；来源、删改和没收录的分类见 `nonebot_plugin_l4d2_server/block_words/README.md`。
+- **自定义词表**：把 `.txt` 放到 `<data_dir>/block_words/`（启动时自动创建），每行一个词，`#` 开头是注释，发 `l4刷新` 生效。不管内置词库开没开都会加载。
+- 少于 2 个字的词不加载；中文按子串匹配，纯字母数字的词（如 `xjp`）按整词匹配，不会误伤 `SirPlease` 这种英文名；全角字符按半角算。不在线服的占位名「服务器无响应」不打码。
+
+> 同一仓库的 GFW补充词库、零时-Tencent 等大词表包含手枪、冲锋枪、炸弹、电击器、燃烧瓶、嗑药、服务器等 L4D2 常用词，直接放进 `block_words/` 会把正常的服务器名和玩家名打码，建议先删掉这些词再用。
+
+### 其它思路（未实现）
 
 1. **SourceBans 自动同步**：定时拉 SourceBans banlist 落到本地
-   `<data_dir>/blocklist.json`；A2S 查服后过滤掉已在 banlist 的 IP，
-   渲染层不再展示这些服。
+   `<data_dir>/blocklist.json`。注意 A2S 只返回玩家名，拿不到 SteamID，
+   只能按名字匹配被封玩家。
 2. **本地 JSON 黑名单**：管理员 `l4黑名单 add <ip>` 写入
    `<data_dir>/blocklist.json`；查询结果按黑名单过滤。
 3. **SourceMod HTTP 聊天镜像**：服务器装 SM 插件暴露 HTTP 接口，
    机器人拉聊天记录后正则匹配违规词，命中后通过 RCON 自动 kick。
-4. **关键词正则匹配**：新增配置 `l4_block_keywords: list[str]`；
-   玩家名或服务器名命中则过滤。配合方案 1 自动入库效果最佳。
 
-四类方案都需要新增一个 `services/blocklist.py` + `commands/blocklist.py`
-+ `services/filters.py`（在 A2S 结果与渲染之间插入过滤器）。当前
-v1.4.0 已预留 `consts.BLOCKLIST_FILENAME` 常量，避免后续硬编码。
+这几种如要实现，可以复用 `services/blocklist.py` 的过滤入口；
+`consts.BLOCKLIST_FILENAME` 已预留给本地黑名单文件。
 
 ## [数据结构](./docs/standand.md)
 

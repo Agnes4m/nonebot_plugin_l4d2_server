@@ -31,6 +31,8 @@ class OutServer(TypedDict):
     port: int
     command: str
     id_: int
+    name: str
+    """列表里显示的服务器名（已去掉 ``l4_name_strip_pattern`` 前缀）"""
 
 
 class AnnePlayer(TypedDict):

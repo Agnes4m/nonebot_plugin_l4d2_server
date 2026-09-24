@@ -20,6 +20,7 @@ from nonebot_plugin_alconna import UniMessage
 
 from ..api import L4API
 from ..registry import registry
+from ..services import blocklist
 from ..services.errors import L4Error, L4InvalidInputError
 
 l4_find_player = on_command(
@@ -103,7 +104,11 @@ async def _(args: Message = CommandArg()) -> None:
 
     hits: list[tuple[dict, str, int, int, int]] = []
     try:
-        async for entry, server, players in _collect(all_servers):
+        async for entry, server, all_players in _collect(all_servers):
+            # 屏蔽的服整台跳过；屏蔽名字的玩家查不到
+            if blocklist.is_blocked(getattr(server, "server_name", "")):
+                continue
+            players = blocklist.visible_players(all_players)
             if not players:
                 continue
             for idx_in_group, p in enumerate(players):
@@ -112,7 +117,9 @@ async def _(args: Message = CommandArg()) -> None:
                     hits.append(
                         (
                             entry,
-                            str(getattr(server, "server_name", "") or ""),
+                            blocklist.mask(
+                                str(getattr(server, "server_name", "") or ""),
+                            ),
                             int(getattr(server, "player_count", 0) or 0),
                             int(getattr(server, "max_players", 0) or 0),
                             idx_in_group,
