@@ -69,7 +69,33 @@ class ConfigModel(BaseModel):
     l4_render_timeout: float = Field(
         default=15.0,
         gt=0,
-        description="htmlrender 单次出图硬上限秒；超时/失败/空字节 fallback 到文字",
+        description="htmlrender 单页出图硬上限秒；超时/失败/空字节时该页（及同次查询"
+        "后续各页）改用纯 PIL 简易图",
+    )
+    l4_image_page_size: int = Field(
+        default=30,
+        ge=1,
+        le=200,
+        description="组查询出图时每张图最多放多少台服，超出自动分成多张图逐条发送。"
+        "单张长图超过 16384px（约 230 台）会被 Chromium 截断，也更容易超时 / OOM",
+    )
+    l4_name_strip_pattern: str = Field(
+        default=r"^Anne云服#\d+",
+        description="组列表里显示服务器名时去掉的前缀（正则）。默认只匹配 Anne 云服，"
+        "把 Anne云服#57[普通药役] 显示成 [普通药役]（卡片前已有「云57:」），"
+        "其他服务器名不受影响；只去 Anne云服 保留编号可设 ^Anne云服；留空不处理",
+    )
+    l4_block_keywords: List[str] = Field(
+        default=[],
+        description="屏蔽关键词（正则，不区分大小写）：服务器名命中则整台隐藏，"
+        "玩家名命中只隐藏该玩家。.env 里写 JSON 列表，"
+        '如 L4_BLOCK_KEYWORDS=\'["广告", "外挂"]\'',
+    )
+    l4_block_builtin_words: bool = Field(
+        default=False,
+        description="启用内置中文敏感词库（konsheng/Sensitive-lexicon 精选分类，约 2100 词，"
+        "MIT）：服务器名 / 玩家名里命中的词替换成 *，不隐藏；"
+        "<data_dir>/block_words/*.txt 里的词表（每行一个词）总会加载",
     )
     l4_history_interval: int = Field(
         default=300,
@@ -84,7 +110,7 @@ class ConfigModel(BaseModel):
     l4_image_max_servers: int = Field(
         default=0,
         ge=0,
-        description="图片出图硬上限：组内服务器数超过此值直接走文字汇总，"
+        description="图片出图硬上限：一次查询要显示的服务器数超过此值直接回提示，"
         "不启 Chromium。0=不限（默认，按熔断逻辑失败后走文字）。"
         "轻量服务器（2C2G）建议显式设 15-20。",
     )

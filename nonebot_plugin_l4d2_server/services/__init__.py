@@ -1,6 +1,7 @@
 """Pure business logic, no NoneBot framework dependencies."""
 
 from . import (
+    blocklist,
     errors,
     favorite,
     history,
@@ -14,6 +15,7 @@ from . import (
 from . import filter as filter_service
 
 __all__ = [
+    "blocklist",
     "errors",
     "favorite",
     "filter_service",

@@ -31,3 +31,15 @@ DEFAULT_MAP_TYPES = ("普通药役", "硬核药役")
 LEGACY_URL_FILENAME = "l4d2.json"
 LEGACY_GROUP_SUBDIR = "l4d2"
 SB_PAGES_FILENAME = "sb_pages.json"
+
+# data 根目录下这些 JSON 不是服务器组：registry 扫描、l4列组 / 导出都要跳过，
+# 否则 notify_state.json 的 "host:port" 键会被当成组名注册成指令。
+NON_GROUP_FILENAMES = frozenset(
+    {
+        FAVORITES_FILENAME,
+        NOTIFY_STATE_FILENAME,
+        BLOCKLIST_FILENAME,
+        LEGACY_URL_FILENAME,
+        SB_PAGES_FILENAME,
+    },
+)

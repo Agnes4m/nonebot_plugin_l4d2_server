@@ -26,6 +26,7 @@ import aiofiles
 import ujson as json
 
 from ..config import config
+from ..consts import NON_GROUP_FILENAMES
 from ..http_helpers import split_maohao
 
 
@@ -306,11 +307,11 @@ async def remove_group(tag: str) -> bool:
 
 
 async def list_groups() -> list[str]:
-    """所有组名（文件名去掉 .json）。"""
+    """所有组名（文件名去掉 .json；收藏 / 通知状态 / sb_pages 等不算）。"""
     await _ensure_dir()
     names: list[str] = []
     for p in groups_dir().glob("*.json"):
-        if p.is_file():
+        if p.is_file() and p.name not in NON_GROUP_FILENAMES:
             names.append(p.stem)
     names.sort()
     return names
