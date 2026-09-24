@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import shutil
+from pathlib import Path
 from typing import Optional
 
 from a2s.players import Player
@@ -17,10 +19,6 @@ from .images import convert_duration
 
 _template_env: Environment | None = None
 
-# 同一时刻只让 Chromium 出一张图：多人同时查大组时并发开页面，
-# 小内存机器上 Chromium 会被 OOM killer 杀掉。
-_render_lock = asyncio.Lock()
-
 
 def _get_env() -> Environment:
     global _template_env
@@ -33,22 +31,29 @@ def _get_env() -> Environment:
     return _template_env
 
 
-def _background_uri() -> str:
-    """背景图的 ``file://`` URI：``custom_backgrounds/`` 随机一张，空则用内置图。
+def _resolve_background() -> Path:
+    """从 ``custom_backgrounds/`` 根目录随机抽一张；空则回退到内置 ``background.jpg``。"""
+    return pick_random_user_background() or RENDER_BACKGROUNDS_PATH / "background.jpg"
 
-    直接引用原文件，不再复制进包目录——插件装在只读位置（Docker 非 root、
-    系统 site-packages）时复制会抛 PermissionError，导致每次出图都失败。
+
+def _prepare_back_img() -> str:
+    """把选中的背景复制到模板可达的 ``render/back_img/`` 下。
+
+    每次都重新复制，避开 mtime 缓存的「缓存比源还新」死锁。
     """
-    src = pick_random_user_background() or RENDER_BACKGROUNDS_PATH / "background.jpg"
-    return src.resolve().as_uri() if src.is_file() else ""
+    src = _resolve_background()
+    if not src.is_file():
+        return ""
+    back_dir = RENDER_TEMPLATES_PATH.parent / "back_img"
+    back_dir.mkdir(parents=True, exist_ok=True)
+    dst = back_dir / f"bg{src.suffix.lower()}"
+    shutil.copy2(src, dst)
+    return f"back_img/{dst.name}"
 
 
 async def _build_html(
     server_dict: list[dict],
-    *,
-    heading: str,
-    hint: str,
-    offline_ids: list[str],
+    offline_ids: list[str] | None = None,
 ) -> str:
     env = _get_env()
     template_name = "normal.html" if config.l4_style == "default" else "normal_old.html"
@@ -57,65 +62,20 @@ async def _build_html(
     return await template.render_async(
         servers=server_dict,
         max_count=config.l4_players,
-        bg_url=_background_uri(),
-        heading=heading,
-        hint=hint,
-        offline_ids=offline_ids,
+        bg_filename=_prepare_back_img(),
+        offline_ids=list(offline_ids or []),
     )
-
-
-async def _screenshot(content: str) -> Optional[bytes]:
-    """Chromium 出图；超时直接放弃，其它异常重试一次。
-
-    异常多半是 Chromium 被 OOM 杀掉 / 断开连接，htmlrender 下一次
-    ``get_browser`` 发现断开会自动重启浏览器，所以值得再试一次；超时说明
-    机器本身扛不住，再等一轮只会让用户多等 ``l4_render_timeout`` 秒。
-    """
-    timeout = float(config.l4_render_timeout)
-    for attempt in (1, 2):
-        try:
-            async with _render_lock:
-                # ``device_scale_factor=1``：不做 2x 渲染，省 4 倍内存；JPEG 体积约为
-                # PNG 的 1/3，发到 QQ 更不容易上传失败。htmlrender 0.6.7 把
-                # ``wait_until="networkidle"`` 写死在 set_content 里，外部无法传。
-                pic = await asyncio.wait_for(
-                    html_to_pic(
-                        content,
-                        wait=0,
-                        type="jpeg",
-                        quality=90,
-                        viewport={"width": 100, "height": 100},
-                        template_path=f"file://{RENDER_TEMPLATES_PATH.absolute()}",
-                        device_scale_factor=1,
-                    ),
-                    timeout=timeout,
-                )
-        except asyncio.TimeoutError:
-            logger.warning(f"渲染服务器列表超时（>{timeout:g}s）")
-            return None
-        except Exception as exc:
-            logger.warning(f"渲染服务器列表失败（第 {attempt} 次）: {exc!r}")
-            continue
-        if pic:
-            return pic
-        logger.warning(f"渲染服务器列表返回空字节（第 {attempt} 次）")
-    return None
 
 
 async def render_server_list(
     server_dict: list[dict],
     *,
-    heading: str,
-    hint: str = "",
     offline_ids: list[str] | None = None,
 ) -> Optional[bytes]:
-    """Render one page of the server list as an HTML image (bytes).
+    """Render the list of servers as an HTML image (bytes).
 
-    ``server_dict`` 应只包含本页要画卡片的在线条目；调用方负责过滤和分页。
-    卡片上的服务器名取条目的 ``name``（缺省用 A2S 原名）。``heading`` /
-    ``hint`` 是标题和标题下的小字提示。``offline_ids`` 在图片底部以文字区块
-    展示（见 ``templates/normal.html``），分页时只传给最后一页。
-    失败 / 超时返回 ``None``，由调用方兜底。
+    ``server_dict`` 应只包含在线条目；调用方负责过滤。
+    ``offline_ids`` 在图片底部以文字区块展示（见 ``templates/normal.html``）。
     """
     for server_info in server_dict:
         server = server_info["server"]
@@ -140,13 +100,30 @@ async def render_server_list(
             server_info["player"] = []
 
     try:
-        content = await _build_html(
-            server_dict,
-            heading=heading,
-            hint=hint,
-            offline_ids=list(offline_ids or []),
+        content = await _build_html(server_dict, offline_ids=offline_ids)
+        # ``wait_for`` 给 Chromium 一道硬上限，避免 50 服长页面把 asyncio 主循环
+        # 堵死导致 WS 心跳丢失。超时 / 异常 / 空字节统统走 None，让调用方 fallback 到文字。
+        #
+        # 渲染调参（轻量服务器 OOM 优化）：
+        # - ``device_scale_factor=1`` 不做 2x 渲染，4x 内存省、4x 速度提，
+        #   对服务器卡片（色块 + 文字）肉眼几乎看不出区别。
+        # - ``viewport`` 宽度给 100 让 htmlrender自己撑。
+        # htmlrender 0.6.7 把 ``wait_until="networkidle"`` hardcode 在 set_content
+        # 里，外部无法传；这里能做的就这两个参数。
+        pic = await asyncio.wait_for(
+            html_to_pic(
+                content,
+                wait=0,
+                viewport={"width": 100, "height": 100},
+                template_path=f"file://{RENDER_TEMPLATES_PATH.absolute()}",
+                device_scale_factor=1,
+            ),
+            timeout=float(config.l4_render_timeout),
         )
     except Exception as exc:
-        logger.warning(f"生成服务器列表 HTML 失败: {exc!r}")
+        logger.warning(f"渲染服务器列表失败: {exc}")
         return None
-    return await _screenshot(content)
+    if not pic:
+        logger.warning("渲染服务器列表返回空字节")
+        return None
+    return pic

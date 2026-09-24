@@ -37,14 +37,6 @@ h1 {
     font-weight: bold;
 }
 
-/* h1 下面的小字提示（默认模式：只显示有人的服务器） */
-.hint {
-    text-align: center;
-    color: #34495e;
-    font-size: 14px;
-    margin: -10px 0 16px 0;
-}
-
 .server-grid {
     display: grid;
     grid-template-columns: repeat(3, 280px);

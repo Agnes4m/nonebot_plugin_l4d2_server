@@ -168,15 +168,15 @@
 <body>
   <div class="image">
     <div class="head">
-      <span><b>{{ heading }}</b></span>
-      <span>{% if hint %}{{ hint }}{% else %}发送 “<b>查询指令+序号</b>” 查看详情{% endif %}</span>
+      <span><b>已加载服务器</b></span>
+      <span>发送 “<b>查询指令+序号</b>” 查看详情</span>
     </div>
     <div class="plugins">
       {% for plugin in servers %}
       <div class="plugin">
         <div class="plugin_meta">
           <div class="plugin_meta_line1">
-            <div class="plugin_name">{{ plugin.command }}{{ plugin.id_ }}:{{ plugin.name | default(plugin.server.server_name) }}</div>
+            <div class="plugin_name">{{ plugin.command }}{{ plugin.id_ }}:{{ plugin.server.server_name }}</div>
             <div class="plugin_status">
               <label class="switch">
                 <input class="checkbox" type="checkbox" {% if plugin.enabled %} checked {% endif %} />
