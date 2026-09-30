@@ -837,9 +837,9 @@ multidict==6.7.1 \
     # via
     #   aiohttp
     #   yarl
-nepattern==0.7.7 \
-    --hash=sha256:2d66f964333f42df7971390da4fb98dfed1e8b769236f305c28a83c0bcda849a \
-    --hash=sha256:6667f888457e78937998f9412eb70ad16d220464d2d77850dd2b05e9ecfb3207
+nepattern==1.1.0 \
+    --hash=sha256:7acac32210fae682574d9d9a12717d7dccddbaf7cc76b4a668f36435c0a39a87 \
+    --hash=sha256:e8809fc82a9c230672117f625b804c9e60891ddeec9481caaa0ebf12ed66e7b8
     # via
     #   arclet-alconna
     #   arclet-alconna-tools
