@@ -19,6 +19,7 @@ from unittest.mock import AsyncMock
 
 import a2s
 import pytest
+from bs4 import BeautifulSoup
 from PIL import Image
 
 INNER_DIR = Path(__file__).parent.parent / "nonebot_plugin_l4d2_server"
@@ -219,6 +220,138 @@ async def test_refresh_all_pages_reloads_memory_once(data_dir: Path, reg, monkey
     ]
     assert "anne" in reg.commands
     assert not sourceban.L4API._cache, "刷新后 A2S 缓存应被清空"
+
+
+async def test_json_refresh_uses_source_ids_after_address_changes(
+    data_dir: Path,
+    reg,
+    monkeypatch,
+):
+    old = _servers(88)
+    old[0]["id"] = "129"
+    _write(data_dir / "云.json", {"云": old})
+    current = [*_servers(16, "10.1.0"), *old[16:]]
+    monkeypatch.setattr(
+        sourceban.L4API,
+        "_request",
+        AsyncMock(return_value=BeautifulSoup(json.dumps({"Anne": current}), "lxml")),
+    )
+    monkeypatch.setattr(server_query, "registry", reg)
+    monkeypatch.setattr(
+        sourceban.L4API,
+        "a2s_info_batch",
+        AsyncMock(return_value=[(_info(i), []) for i in range(1, 89)]),
+    )
+
+    for _ in range(2):
+        await sourceban.refresh_group_from_url(
+            "云",
+            "https://example.invalid/?format=json",
+        )
+        stored = await groups_store.get_group("云")
+        assert [{"id": s["id"], "ip": s["ip"]} for s in stored] == current
+        assert len(reg.get("云")) == 88
+        assert server_query.find_endpoint("云", "1") == ("10.1.0.1", 27015)
+        assert server_query.find_endpoint("云", "89") is None
+        assert server_query.find_endpoint("云", "129") is None
+        out = await server_query.query_group_servers("云")
+        assert [s["id_"] for s in out] == [str(i) for i in range(1, 89)]
+        assert all(
+            server_query.find_endpoint("云", s["id_"]) == (s["host"], s["port"])
+            for s in out
+        ), "云全的卡片编号和单服命令必须指向相同地址"
+        for show_all in (False, True):
+            text = "\n".join(await _collect(is_img=False, show_all=show_all))
+            listed_ids = [
+                line.split()[0]
+                for line in text.splitlines()
+                if line.startswith("云") and line.split()[0][1:].isdigit()
+            ]
+            assert listed_ids == [f"云{i}" for i in range(1, 89)]
+
+
+@pytest.mark.parametrize("group", ["Anne", "云", None])
+async def test_sourceban_json_preserves_explicit_ids(group, monkeypatch):
+    entries = [
+        {"id": "57", "ip": "10.0.0.1:27015"},
+        {"id": "2", "ip": "10.0.0.2:27015"},
+        {"id": "3", "ip": "10.0.0.2:27015"},
+    ]
+    payload = entries if group is None else {group: entries}
+    if group == "云":
+        payload["other"] = [{"id": "1", "ip": "10.9.0.1:27015"}]
+    monkeypatch.setattr(
+        sourceban.L4API,
+        "_request",
+        AsyncMock(return_value=BeautifulSoup(json.dumps(payload), "lxml")),
+    )
+
+    servers = await sourceban.L4API.get_sourceban("云", "https://example.invalid/")
+
+    assert [(s.id, s.host, s.port) for s in servers] == [
+        ("57", "10.0.0.1", 27015),
+        ("2", "10.0.0.2", 27015),
+    ]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        '{"Anne":',
+        '{"Anne": [{"id": "0", "ip": "10.0.0.1:27015"}]}',
+        '{"Anne": [{"id": "1", "ip": "bad-address"}]}',
+        '{"Anne": [{"id": "1", "ip": "10.0.0.1:27015"},'
+        '{"id": "1", "ip": "10.0.0.2:27015"}]}',
+    ],
+)
+async def test_invalid_json_refresh_keeps_old_group(
+    text,
+    data_dir: Path,
+    reg,
+    monkeypatch,
+):
+    _write(data_dir / "云.json", {"云": _servers(4)})
+    _write(data_dir / "sb_pages.json", {"云": "https://example.invalid/"})
+    original = (data_dir / "云.json").read_bytes()
+    monkeypatch.setattr(
+        sourceban.L4API,
+        "_request",
+        AsyncMock(return_value=BeautifulSoup(text, "lxml")),
+    )
+
+    ok, failures = await sourceban.refresh_all_pages()
+
+    assert ok == 0 and len(failures) == 1
+    assert (data_dir / "云.json").read_bytes() == original
+    assert len(reg.get("云")) == 4
+
+
+async def test_html_refresh_and_manual_edits_keep_local_ids(
+    data_dir: Path,
+    reg,
+    monkeypatch,
+):
+    _write(data_dir / "云.json", {"云": [{"id": "57", "ip": "10.0.0.1:27015"}]})
+    html = (
+        "<table><tbody>"
+        + "".join(
+            f"<tr><td></td><td></td><td></td><td></td><td>{ip}</td></tr>"
+            for ip in ["10.0.0.1:27015", "10.0.0.2:27015"]
+        )
+        + "</tbody></table>"
+    )
+    monkeypatch.setattr(
+        sourceban.L4API,
+        "_request",
+        AsyncMock(return_value=BeautifulSoup(html, "lxml")),
+    )
+
+    await sourceban.refresh_group_from_url("云", "https://example.invalid/")
+    assert [s["id"] for s in reg.get("云")] == ["57", "58"]
+    added = await groups_store.add_server("云", "10.0.0.3:27015")
+    updated = await groups_store.update_server("云", "57", "10.1.0.1:27015")
+    assert added["id"] == "59"
+    assert updated["id"] == "57"
 
 
 # ---------------- 组查询分页 ----------------
