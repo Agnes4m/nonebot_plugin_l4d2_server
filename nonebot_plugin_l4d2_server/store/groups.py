@@ -6,6 +6,7 @@ Each group lives at ``config.data_dir/<tag>.json``（默认经
 
 ID 稳定策略：
 
+- 来源明确提供 ``id``（如 SourceBans JSON）时，以来源编号为准。
 - 已存在的 ``{id, ip}`` 条目按 ``ip`` 去重保留原 id（不在原列表里的 ip 才会被
   加进去；SourceBans 抓取时按 ip 去重，避免重复出现）。
 - 新条目 id = ``max(existing_ids, default=0) + 1``。
@@ -61,6 +62,7 @@ def _normalize_with_existing(
     """稳定 ID 的归一化。
 
     - 已存在的 ``ip`` 沿用原 id 与原 ``host``/``port``（若有）；不重复添加。
+    - 来源明确提供的 ``id`` 优先于本地旧编号。
     - 新 ip 接 ``max(existing_ids, default=0) + 1`` 续号。
     - 不传 ``existing`` 时退化为按出现顺序 1..N 重排（旧行为，SourceBans 刷新场景
       如果传入了新解析结果、希望完全覆盖时仍可用）。
@@ -88,7 +90,15 @@ def _normalize_with_existing(
                 continue
             seen_ip.add(ip)
             existing_entry = ip_to_entry.pop(ip, None)
-            if existing_entry is not None:
+            source_id = (
+                raw.get("id") if isinstance(raw, dict) else getattr(raw, "id", None)
+            )
+            if source_id is not None:
+                host, port = split_maohao(ip)
+                items.append(
+                    {"id": str(source_id), "ip": ip, "host": host, "port": port},
+                )
+            elif existing_entry is not None:
                 items.append(existing_entry)
             else:
                 max_id += 1
@@ -121,7 +131,7 @@ def _normalize(servers: Iterable) -> list[dict]:
 async def set_group(tag: str, servers: Iterable) -> Path:
     """写入整组（SourceBans 刷新场景）。
 
-    稳定 ID：已存在的 ip 沿用原 id，新增 ip 接 max+1。
+    来源有 ID 时沿用来源编号；否则已存在的 ip 沿用原 id，新增 ip 接 max+1。
     """
     await _ensure_dir()
     tag = str(tag).strip()

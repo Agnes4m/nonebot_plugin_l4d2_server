@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import json
 import time
 from copy import deepcopy
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
@@ -328,7 +329,7 @@ class L4D2Api:
         _tag: str = "云",
         url: str = anne_ban,
     ) -> List[SourceBansInfo]:
-        """Scrape a SourceBans++ page and return server info objects."""
+        """Read a SourceBans++ HTML page or grouped JSON server list."""
         if not url.startswith(("http://", "https://")):
             url = "http://" + url
         resp = await self._request(url=url, expect_json=False)
@@ -336,6 +337,41 @@ class L4D2Api:
             return []
 
         servers: List[SourceBansInfo] = []
+        text = resp.get_text().strip()
+        if text.startswith(("{", "[")):
+            payload = json.loads(text)
+            if isinstance(payload, dict):
+                if _tag in payload:
+                    payload = payload[_tag]
+                elif len(payload) == 1:
+                    # The remote group may be named Anne while the local tag is 云.
+                    payload = next(iter(payload.values()))
+            if not isinstance(payload, list):
+                return []
+            seen_ips: set[str] = set()
+            seen_ids: set[int] = set()
+            for entry in payload:
+                server_id = int(entry["id"])
+                ip = entry["ip"].strip()
+                host, port = split_maohao(ip)
+                if server_id <= 0 or not host or not 0 < port <= 65535:
+                    raise ValueError("SourceBans JSON 包含无效的服务器编号或地址")
+                if ip in seen_ips:
+                    continue
+                if server_id in seen_ids:
+                    raise ValueError("SourceBans JSON 包含重复的服务器编号")
+                seen_ips.add(ip)
+                seen_ids.add(server_id)
+                servers.append(
+                    SourceBansInfo(
+                        index=len(servers),
+                        host=host,
+                        port=port,
+                        id=str(server_id),
+                    ),
+                )
+            return servers
+
         tbody = resp.select_one("tbody")
         if tbody is None:
             return []

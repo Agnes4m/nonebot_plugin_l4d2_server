@@ -14,6 +14,7 @@ class SourceBansInfo(BaseModel):
     index: int
     host: str
     port: int
+    id: Optional[str] = None
 
 
 class NserverOut(TypedDict):
