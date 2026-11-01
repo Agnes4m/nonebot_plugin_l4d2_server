@@ -75,11 +75,20 @@ async def _start_history_recorder() -> None:
     任务对 ``registry.group_names`` 内每个组的每台服跑一次 ``record``。
     收藏巡检的 ``run_favorite_check`` 已经会写历史，本任务只覆盖**未被收藏**
     的服，避免「你只查不收藏的服没历史」。
+
+    周期为 0 表示不注册：插件不再自己发 A2S 请求，只有收到查服指令时才查。
     """
     from nonebot_plugin_apscheduler import scheduler
 
     from .config import config
     from .services.history import record
+
+    interval = int(config.l4_history_interval)
+    if interval <= 0:
+        logger.info(
+            "[l4] 历史记录巡检已关闭（l4_history_interval=0），仅在查服指令时请求",
+        )
+        return
 
     async def _record_all() -> None:
         from .api import L4API
@@ -111,7 +120,7 @@ async def _start_history_recorder() -> None:
         scheduler.add_job(
             _record_all,
             "interval",
-            seconds=int(config.l4_history_interval),
+            seconds=interval,
             id="l4_history_record",
             replace_existing=True,
         )

@@ -441,13 +441,20 @@ async def init_favorite_scheduler() -> None:
     except Exception as exc:
         logger.warning(f"[l4] apscheduler 未安装，收藏巡检不会自动运行: {exc}")
         return
-    interval = max(30, int(config.l4_favorite_check_interval))
+    interval = int(config.l4_favorite_check_interval)
+    if interval <= 0:
+        logger.info(
+            "[l4] 收藏巡检已关闭（l4_favorite_check_interval=0），仅在查服指令时请求",
+        )
+        return
     scheduler.add_job(
         _scheduled_check,
         "interval",
         seconds=interval,
         id="l4_favorite_check",
         replace_existing=True,
-        next_run_time=None,  # 启动后第一轮不立即触发，避免和 on_startup 抢资源
+        # IntervalTrigger 的首轮本身就是 now + interval，不会在启动瞬间触发；
+        # 不要传 next_run_time=None —— APScheduler 3.x 里那等于「以暂停状态添加」，
+        # 任务会永远不执行。
     )
     logger.success(f"[l4] 收藏巡检已注册：每 {interval} 秒")

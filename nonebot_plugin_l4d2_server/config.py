@@ -52,8 +52,9 @@ class ConfigModel(BaseModel):
     )
     l4_favorite_check_interval: int = Field(
         default=300,
-        ge=30,
-        description="收藏巡检间隔秒",
+        ge=0,
+        description="收藏巡检间隔秒；0=不注册后台巡检，只在收到查服指令时请求"
+        "（上下线 / 人数阈值 / 地图变化通知会一并失效）",
     )
     l4_favorite_player_delta: int = Field(
         default=5,
@@ -99,8 +100,9 @@ class ConfigModel(BaseModel):
     )
     l4_history_interval: int = Field(
         default=300,
-        ge=60,
-        description="A2S 历史记录周期秒；用于热力图 / Wipe 检测 / 阈值通知",
+        ge=0,
+        description="A2S 历史记录周期秒；0=不注册后台巡检，只在收到查服指令时请求"
+        "（热力图随之没有数据）",
     )
     l4_history_retention_days: int = Field(
         default=30,

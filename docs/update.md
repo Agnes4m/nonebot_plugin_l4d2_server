@@ -4,6 +4,11 @@
 
 ### 未发布
 
+#### 后台巡检可关闭：只在查服指令时请求
+
+- `l4_history_interval` / `l4_favorite_check_interval` 的下限从 60 / 30 放宽到 **0**。设 0 时不再注册对应的 apscheduler 任务，插件不会自己定期发 A2S 请求，只有收到查服指令时才查。代价：`l4热力图` 没有数据，收藏的上下线 / 人数阈值 / 地图变化通知不再触发。
+- 修复：收藏巡检不再用 `next_run_time=None` 注册。APScheduler 3.x 里这个参数表示「以暂停状态添加」，任务会永远不执行——此前 `l4_favorite_check` 实际从未跑过。
+
 #### 出图改用 nonebot-plugin-htmlkit（litehtml），去掉 Playwright / Chromium
 
 - 出图依赖从 `nonebot-plugin-htmlrender` + Chromium 换成 `nonebot-plugin-htmlkit`（litehtml，纯 C++ 本地渲染）：不用 `playwright install`，不留浏览器进程，Windows / Linux 都有预编译 wheel。`playwright`、`nonebot-plugin-htmlrender` 连同只服务于它的传递依赖（`pyee`、`greenlet`、`python-markdown-math`）已从 `pyproject.toml` / `uv.lock` / `requirements.txt` 移除。

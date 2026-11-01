@@ -221,8 +221,9 @@ L4_A2S_TIMEOUT=2.5               # 单次 ainfo / aplayers 超时秒
 L4_A2S_CACHE_TTL=15              # 结果缓存秒；0=不缓存
 
 # 订阅 / 巡检
-L4_FAVORITE_CHECK_INTERVAL=300   # 巡检间隔秒（≥30）
+L4_FAVORITE_CHECK_INTERVAL=300   # 收藏巡检间隔秒；0=关闭后台巡检，只在查服指令时请求
 L4_FAVORITE_PLAYER_DELTA=5       # 玩家数变化超过此值才推送
+L4_HISTORY_INTERVAL=300          # 历史记录周期秒；0=关闭（同上，热力图会没有数据）
 
 # 工坊
 L4_WORKSHOP_CONCURRENCY=3        # 批量下载并发上限（1~8）
@@ -309,7 +310,7 @@ L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
     l4_a2s_cache_ttl = 15
     """A2S 结果缓存秒；0=不缓存"""
     l4_favorite_check_interval = 300
-    """收藏巡检间隔秒"""
+    """收藏巡检间隔秒；0=不注册后台巡检，只在查服指令时请求"""
     l4_favorite_player_delta = 5
     """玩家数变化超过此值才推送"""
     l4_workshop_concurrency = 3
