@@ -376,12 +376,21 @@ class L4D2Api:
         if tbody is None:
             return []
 
-        for index, tr in enumerate(tbody.select("tr")):
+        seen_ips = set()
+        for tr in tbody.select("tr"):
             td_tags = tr.find_all("td")
             if len(td_tags) < 5:
                 continue
-            host, port = split_maohao(td_tags[4].text)
-            servers.append(SourceBansInfo(index=index, host=host, port=port))
+            host, port = split_maohao(td_tags[4].text.strip())
+            ip = f"{host}:{port}"
+            if not host or not 0 < port <= 65535 or ip in seen_ips:
+                continue
+            seen_ips.add(ip)
+            # HTML has no explicit display ID: number the current unique rows.
+            index = len(servers)
+            servers.append(
+                SourceBansInfo(index=index, host=host, port=port, id=str(index + 1)),
+            )
         return servers
 
     # ---------- Anne (电信服) ----------

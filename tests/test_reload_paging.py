@@ -18,6 +18,7 @@ from types import ModuleType
 from unittest.mock import AsyncMock
 
 import a2s
+import httpx
 import pytest
 from bs4 import BeautifulSoup
 from PIL import Image
@@ -326,31 +327,88 @@ async def test_invalid_json_refresh_keeps_old_group(
     assert len(reg.get("云")) == 4
 
 
-async def test_html_refresh_and_manual_edits_keep_local_ids(
+@pytest.mark.parametrize("source_format", ["json", "html"])
+async def test_refresh_replaces_ids_after_reordering_and_removal(
+    source_format,
     data_dir: Path,
     reg,
     monkeypatch,
 ):
-    _write(data_dir / "云.json", {"云": [{"id": "57", "ip": "10.0.0.1:27015"}]})
-    html = (
-        "<table><tbody>"
-        + "".join(
-            f"<tr><td></td><td></td><td></td><td></td><td>{ip}</td></tr>"
-            for ip in ["10.0.0.1:27015", "10.0.0.2:27015"]
-        )
-        + "</tbody></table>"
-    )
-    monkeypatch.setattr(
-        sourceban.L4API,
-        "_request",
-        AsyncMock(return_value=BeautifulSoup(html, "lxml")),
-    )
+    old = [{**s, "id": str(129 + i)} for i, s in enumerate(_servers(3))]
+    _write(data_dir / "云.json", {"云": old})
+    _write(data_dir / "l4d2" / "云.json", {"云": old})
+    _write(data_dir / "sb_pages.json", {"云": "https://example.invalid/"})
+    await reg.load_all()
+    monkeypatch.setattr(server_query, "registry", reg)
+    api_module = importlib.import_module("nonebot_plugin_l4d2_server.api.l4d2")
+    current = []
 
-    await sourceban.refresh_group_from_url("云", "https://example.invalid/")
-    assert [s["id"] for s in reg.get("云")] == ["57", "58"]
-    added = await groups_store.add_server("云", "10.0.0.3:27015")
+    def respond(_request):
+        if source_format == "json":
+            return httpx.Response(200, json={"Anne": current})
+        rows = "".join(
+            f'<tr id="server_{900 + i}"><td></td><td></td><td></td><td></td>'
+            f"<td>{item['ip']}</td></tr>"
+            for i, item in enumerate([*current, current[0]])
+        )
+        return httpx.Response(200, text=f"<table><tbody>{rows}</tbody></table>")
+
+    def client(**kwargs):
+        return httpx.AsyncClient(transport=httpx.MockTransport(respond), **kwargs)
+
+    async def ainfo(ip, **_kwargs):
+        info = _info(1)
+        info.server_name = f"endpoint={ip[0]}:{ip[1]}"
+        return info
+
+    monkeypatch.setattr(api_module, "AsyncClient", client)
+    monkeypatch.setattr(a2s, "ainfo", ainfo)
+    monkeypatch.setattr(a2s, "aplayers", AsyncMock(return_value=[]))
+    snapshots = [
+        [
+            {"id": "7", "ip": "10.0.0.2:27015"},
+            {"id": "2", "ip": "10.0.0.1:27015"},
+            {"id": "57", "ip": "10.1.0.1:27015"},
+        ],
+        [{"id": "57", "ip": "10.1.0.1:27015"}, {"id": "7", "ip": "10.0.0.2:27015"}],
+        [{"id": "1", "ip": "10.2.0.1:27015"}],
+    ]
+    for current in snapshots:
+        expected = [
+            {**s, "id": str(i) if source_format == "html" else s["id"]}
+            for i, s in enumerate(current, start=1)
+        ]
+        assert await sourceban.refresh_all_pages() == (1, [])
+        for entries in (await groups_store.get_group("云"), reg.get("云")):
+            assert [{"id": s["id"], "ip": s["ip"]} for s in entries] == expected
+        out = await server_query.query_group_servers("云")
+        assert [s["id_"] for s in out] == [s["id"] for s in expected]
+        text = "\n".join(await _collect(is_img=False, show_all=True))
+        html = await server_list._build_html(
+            out,
+            heading="云全",
+            hint="",
+            offline_ids=[],
+        )
+        for item in expected:
+            assert f"云{item['id']}  " in text
+            assert f"云{item['id']}:" in html
+            detail = await server_query.get_server_detail(
+                "云",
+                item["id"],
+                is_img=False,
+            )
+            assert f"endpoint={item['ip']}" in detail
+        assert server_query.find_endpoint("云", "129") is None
+        await reg.load_all()
+        assert [{"id": s["id"], "ip": s["ip"]} for s in reg.get("云")] == expected
+
+
+async def test_manual_edits_keep_local_ids(data_dir: Path):
+    _write(data_dir / "云.json", {"云": [{"id": "57", "ip": "10.0.0.1:27015"}]})
+    added = await groups_store.add_server("云", "10.0.0.2:27015")
     updated = await groups_store.update_server("云", "57", "10.1.0.1:27015")
-    assert added["id"] == "59"
+    assert added["id"] == "58"
     assert updated["id"] == "57"
 
 
