@@ -1,4 +1,4 @@
-"""Server-list HTML rendering via nonebot_plugin_htmlrender."""
+"""Server-list HTML rendering via nonebot_plugin_htmlkit (litehtml)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Optional
 from a2s.players import Player
 from jinja2 import Environment, FileSystemLoader
 from nonebot.log import logger
-from nonebot_plugin_htmlrender import html_to_pic
+from nonebot_plugin_htmlkit import html_to_pic
 
 from ..config import config
 from ..consts import RENDER_BACKGROUNDS_PATH, RENDER_TEMPLATES_PATH
@@ -17,8 +17,7 @@ from .images import convert_duration
 
 _template_env: Environment | None = None
 
-# 同一时刻只让 Chromium 出一张图：多人同时查大组时并发开页面，
-# 小内存机器上 Chromium 会被 OOM killer 杀掉。
+# litehtml 在 C 层同步渲染且占住 GIL，并发出图只会互相拖慢。
 _render_lock = asyncio.Lock()
 
 
@@ -36,11 +35,12 @@ def _get_env() -> Environment:
 def _background_uri() -> str:
     """背景图的 ``file://`` URI：``custom_backgrounds/`` 随机一张，空则用内置图。
 
-    直接引用原文件，不再复制进包目录——插件装在只读位置（Docker 非 root、
-    系统 site-packages）时复制会抛 PermissionError，导致每次出图都失败。
+    直接引用原文件，不复制进包目录——插件装在只读位置时复制会抛 PermissionError。
     """
     src = pick_random_user_background() or RENDER_BACKGROUNDS_PATH / "background.jpg"
-    return src.resolve().as_uri() if src.is_file() else ""
+    # 同 base_url：htmlkit 只认 ``file:// + 绝对路径``，``as_uri()`` 的三斜杠
+    # 在 Windows 上会变成 ``/E:/...`` 读不到文件。
+    return f"file://{src.as_posix()}" if src.is_file() else ""
 
 
 async def _build_html(
@@ -65,28 +65,22 @@ async def _build_html(
 
 
 async def _screenshot(content: str) -> Optional[bytes]:
-    """Chromium 出图；超时直接放弃，其它异常重试一次。
-
-    异常多半是 Chromium 被 OOM 杀掉 / 断开连接，htmlrender 下一次
-    ``get_browser`` 发现断开会自动重启浏览器，所以值得再试一次；超时说明
-    机器本身扛不住，再等一轮只会让用户多等 ``l4_render_timeout`` 秒。
-    """
+    """litehtml 出图；超时直接放弃，其它异常重试一次（防字体缓存、图片解码偶发失败）。"""
     timeout = float(config.l4_render_timeout)
     for attempt in (1, 2):
         try:
             async with _render_lock:
-                # ``device_scale_factor=1``：不做 2x 渲染，省 4 倍内存；JPEG 体积约为
-                # PNG 的 1/3，发到 QQ 更不容易上传失败。htmlrender 0.6.7 把
-                # ``wait_until="networkidle"`` 写死在 set_content 里，外部无法传。
+                # JPEG 体积约为 PNG 的 1/3，发到 QQ 更不容易失败；max_width 要略大于
+                # 模板的 900px，否则 allow_refit 会把整页等比压缩。base_url 只能写
+                # ``file://`` + as_posix()：三斜杠会在 Windows 上拼成 /E:/...。
                 pic = await asyncio.wait_for(
                     html_to_pic(
                         content,
-                        wait=0,
-                        type="jpeg",
-                        quality=90,
-                        viewport={"width": 100, "height": 100},
-                        template_path=f"file://{RENDER_TEMPLATES_PATH.absolute()}",
-                        device_scale_factor=1,
+                        base_url=f"file://{RENDER_TEMPLATES_PATH.as_posix()}/",
+                        image_format="jpeg",
+                        jpeg_quality=90,
+                        max_width=920,
+                        allow_refit=True,
                     ),
                     timeout=timeout,
                 )

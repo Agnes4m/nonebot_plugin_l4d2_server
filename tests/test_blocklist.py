@@ -1,7 +1,7 @@
 """关键词屏蔽（``l4_block_keywords``）和敏感词库打码的回归测试。
 
 包上下文的构造方式同 ``test_reload_paging.py``：``services`` / ``render`` 包不执行
-``__init__.py``，``nonebot_plugin_htmlrender`` 用假模块顶替。
+``__init__.py``，``nonebot_plugin_htmlkit`` 用假模块顶替。
 """
 
 from __future__ import annotations
@@ -31,14 +31,18 @@ def _pkg(name: str, path: Path) -> ModuleType:
 _pkg("nonebot_plugin_l4d2_server", INNER_DIR)
 _pkg("nonebot_plugin_l4d2_server.services", INNER_DIR / "services")
 _render_pkg = _pkg("nonebot_plugin_l4d2_server.render", INNER_DIR / "render")
-if "nonebot_plugin_htmlrender" not in sys.modules:
-    _fake_htmlrender = ModuleType("nonebot_plugin_htmlrender")
+if "nonebot_plugin_htmlkit" not in sys.modules:
+    _fake_htmlkit = ModuleType("nonebot_plugin_htmlkit")
 
     async def _unpatched_html_to_pic(*_args, **_kwargs) -> bytes:
         raise RuntimeError("html_to_pic 未在用例里 monkeypatch")
 
-    _fake_htmlrender.html_to_pic = _unpatched_html_to_pic  # type: ignore[attr-defined]
-    sys.modules["nonebot_plugin_htmlrender"] = _fake_htmlrender
+    async def _unpatched_template_to_pic(*_args, **_kwargs) -> bytes:
+        raise RuntimeError("template_to_pic 未在用例里 monkeypatch")
+
+    _fake_htmlkit.html_to_pic = _unpatched_html_to_pic  # type: ignore[attr-defined]
+    _fake_htmlkit.template_to_pic = _unpatched_template_to_pic  # type: ignore[attr-defined]
+    sys.modules["nonebot_plugin_htmlkit"] = _fake_htmlkit
 
 config = importlib.import_module("nonebot_plugin_l4d2_server.config").config
 messages = importlib.import_module("nonebot_plugin_l4d2_server.messages")

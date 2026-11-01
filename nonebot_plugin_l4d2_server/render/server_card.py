@@ -268,7 +268,7 @@ TEXT_CARD_WIDTH = 900
 def render_text_card(title: str, lines: list[str]) -> bytes:
     """纯 PIL 画「标题 + 多行文字」的 JPEG，不依赖浏览器。
 
-    组查询出图时 Chromium 超时 / 崩溃的兜底：保证仍然回图而不是刷一屏文字。
+    组查询出图时 HTML 渲染超时 / 失败的兜底：保证仍然回图而不是刷一屏文字。
     超宽的行按像素宽度自动换行。
     """
     font = _load_font(FONT_SIZE)

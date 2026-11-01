@@ -5,7 +5,7 @@ aiofiles==25.1.0 \
     --hash=sha256:a8d728f0a29de45dc521f18f07297428d56992a742f0cd2701ba86e44d23d5b2 \
     --hash=sha256:abe311e527c862958650f9438e859c1fa7568a141b22abcd015e120e86a85695
     # via
-    #   nonebot-plugin-htmlrender
+    #   nonebot-plugin-htmlkit
     #   nonebot-plugin-l4d2-server
 aiohappyeyeballs==2.6.1 \
     --hash=sha256:c3f9d0113123803ccadfdf3f0faa505bc78e6a72d1cc4806cbd719826e943558 \
@@ -315,61 +315,6 @@ frozenlist==1.8.0 \
     # via
     #   aiohttp
     #   aiosignal
-greenlet==3.3.2 \
-    --hash=sha256:02b0a8682aecd4d3c6c18edf52bc8e51eacdd75c8eac52a790a210b06aa295fd \
-    --hash=sha256:18cb1b7337bca281915b3c5d5ae19f4e76d35e1df80f4ad3c1a7be91fadf1082 \
-    --hash=sha256:1a9172f5bf6bd88e6ba5a84e0a68afeac9dc7b6b412b245dd64f52d83c81e55b \
-    --hash=sha256:1e692b2dae4cc7077cbb11b47d258533b48c8fde69a33d0d8a82e2fe8d8531d5 \
-    --hash=sha256:1ebd458fa8285960f382841da585e02201b53a5ec2bac6b156fc623b5ce4499f \
-    --hash=sha256:1fb39a11ee2e4d94be9a76671482be9398560955c9e568550de0224e41104727 \
-    --hash=sha256:20154044d9085151bc309e7689d6f7ba10027f8f5a8c0676ad398b951913d89e \
-    --hash=sha256:2eaf067fc6d886931c7962e8c6bede15d2f01965560f3359b27c80bde2d151f2 \
-    --hash=sha256:34308836d8370bddadb41f5a7ce96879b72e2fdfb4e87729330c6ab52376409f \
-    --hash=sha256:394ead29063ee3515b4e775216cb756b2e3b4a7e55ae8fd884f17fa579e6b327 \
-    --hash=sha256:3ceec72030dae6ac0c8ed7591b96b70410a8be370b6a477b1dbc072856ad02bd \
-    --hash=sha256:4375a58e49522698d3e70cc0b801c19433021b5c37686f7ce9c65b0d5c8677d2 \
-    --hash=sha256:43e99d1749147ac21dde49b99c9abffcbc1e2d55c67501465ef0930d6e78e070 \
-    --hash=sha256:442b6057453c8cb29b4fb36a2ac689382fc71112273726e2423f7f17dc73bf99 \
-    --hash=sha256:45abe8eb6339518180d5a7fa47fa01945414d7cca5ecb745346fc6a87d2750be \
-    --hash=sha256:4c956a19350e2c37f2c48b336a3afb4bff120b36076d9d7fb68cb44e05d95b79 \
-    --hash=sha256:508c7f01f1791fbc8e011bd508f6794cb95397fdb198a46cb6635eb5b78d85a7 \
-    --hash=sha256:527fec58dc9f90efd594b9b700662ed3fb2493c2122067ac9c740d98080a620e \
-    --hash=sha256:59b3e2c40f6706b05a9cd299c836c6aa2378cabe25d021acd80f13abf81181cf \
-    --hash=sha256:5d0e35379f93a6d0222de929a25ab47b5eb35b5ef4721c2b9cbcc4036129ff1f \
-    --hash=sha256:63d10328839d1973e5ba35e98cccbca71b232b14051fd957b6f8b6e8e80d0506 \
-    --hash=sha256:64970c33a50551c7c50491671265d8954046cb6e8e2999aacdd60e439b70418a \
-    --hash=sha256:6c6f8ba97d17a1e7d664151284cb3315fc5f8353e75221ed4324f84eb162b395 \
-    --hash=sha256:8b466dff7a4ffda6ca975979bab80bdadde979e29fc947ac3be4451428d8b0e4 \
-    --hash=sha256:8c1fdd7d1b309ff0da81d60a9688a8bd044ac4e18b250320a96fc68d31c209ca \
-    --hash=sha256:8c4dd0f3997cf2512f7601563cc90dfb8957c0cff1e3a1b23991d4ea1776c492 \
-    --hash=sha256:8d1658d7291f9859beed69a776c10822a0a799bc4bfe1bd4272bb60e62507dab \
-    --hash=sha256:8e2cd90d413acbf5e77ae41e5d3c9b3ac1d011a756d7284d7f3f2b806bbd6358 \
-    --hash=sha256:8e4ab3cfb02993c8cc248ea73d7dae6cec0253e9afa311c9b37e603ca9fad2ce \
-    --hash=sha256:94ad81f0fd3c0c0681a018a976e5c2bd2ca2d9d94895f23e7bb1af4e8af4e2d5 \
-    --hash=sha256:97245cc10e5515dbc8c3104b2928f7f02b6813002770cfaffaf9a6e0fc2b94ef \
-    --hash=sha256:9bc885b89709d901859cf95179ec9f6bb67a3d2bb1f0e88456461bd4b7f8fd0d \
-    --hash=sha256:a2a5be83a45ce6188c045bcc44b0ee037d6a518978de9a5d97438548b953a1ac \
-    --hash=sha256:a443358b33c4ec7b05b79a7c8b466f5d275025e750298be7340f8fc63dff2a55 \
-    --hash=sha256:a7945dd0eab63ded0a48e4dcade82939783c172290a7903ebde9e184333ca124 \
-    --hash=sha256:aa6ac98bdfd716a749b84d4034486863fd81c3abde9aa3cf8eff9127981a4ae4 \
-    --hash=sha256:ab0c7e7901a00bc0a7284907273dc165b32e0d109a6713babd04471327ff7986 \
-    --hash=sha256:ac8d61d4343b799d1e526db579833d72f23759c71e07181c2d2944e429eb09cd \
-    --hash=sha256:ad0c8917dd42a819fe77e6bdfcb84e3379c0de956469301d9fd36427a1ca501f \
-    --hash=sha256:ae9e21c84035c490506c17002f5c8ab25f980205c3e61ddb3a2a2a2e6c411fcb \
-    --hash=sha256:b26b0f4428b871a751968285a1ac9648944cea09807177ac639b030bddebcea4 \
-    --hash=sha256:b568183cf65b94919be4438dc28416b234b678c608cafac8874dfeeb2a9bbe13 \
-    --hash=sha256:b6997d360a4e6a4e936c0f9625b1c20416b8a0ea18a8e19cabbefc712e7397ab \
-    --hash=sha256:b8bddc5b73c9720bea487b3bffdb1840fe4e3656fba3bd40aa1489e9f37877ff \
-    --hash=sha256:c04c5e06ec3e022cbfe2cd4a846e1d4e50087444f875ff6d2c2ad8445495cf1a \
-    --hash=sha256:c2e47408e8ce1c6f1ceea0dffcdf6ebb85cc09e55c7af407c99f1112016e45e9 \
-    --hash=sha256:c56692189a7d1c7606cb794be0a8381470d95c57ce5be03fb3d0ef57c7853b86 \
-    --hash=sha256:ccd21bb86944ca9be6d967cf7691e658e43417782bce90b5d2faeda0ff78a7dd \
-    --hash=sha256:cd6f9e2bbd46321ba3bbb4c8a15794d32960e3b0ae2cc4d49a1a53d314805d71 \
-    --hash=sha256:d248d8c23c67d2291ffd47af766e2a3aa9fa1c6703155c099feb11f526c63a92 \
-    --hash=sha256:d3a62fa76a32b462a97198e4c9e99afb9ab375115e74e9a83ce180e7a496f643 \
-    --hash=sha256:e26e72bec7ab387ac80caa7496e0f908ff954f31065b0ffc1f8ecb1338b11b54 \
-    --hash=sha256:e3cb43ce200f59483eb82949bf1835a99cf43d7571e900d7c8d5c62cdf25d2f9
-    # via playwright
 h11==0.16.0 \
     --hash=sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1 \
     --hash=sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86
@@ -437,7 +382,7 @@ jinja2==3.1.6 \
     --hash=sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d \
     --hash=sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67
     # via
-    #   nonebot-plugin-htmlrender
+    #   nonebot-plugin-htmlkit
     #   nonebot-plugin-l4d2-server
 loguru==0.7.3 \
     --hash=sha256:19480589e77d47b8d85b2c827ad95d49bf31b0dcde16593892eb51dd18706eb6 \
@@ -566,9 +511,8 @@ markdown==3.10.2 \
     --hash=sha256:994d51325d25ad8aa7ce4ebaec003febcce822c3f8c911e3b17c52f7f589f950 \
     --hash=sha256:e91464b71ae3ee7afd3017d9f358ef0baf158fd9a298db92f1d4761133824c36
     # via
-    #   nonebot-plugin-htmlrender
+    #   nonebot-plugin-htmlkit
     #   pymdown-extensions
-    #   python-markdown-math
 markupsafe==3.0.3 \
     --hash=sha256:0303439a41979d9e74d18ff5e2dd8c43ed6c6001fd40e5bf2e43f7bd9bbc523f \
     --hash=sha256:068f375c472b3e7acbe2d5318dea141359e6900156b5b2ba06a30b169086b91a \
@@ -856,13 +800,32 @@ nonebot-plugin-apscheduler==0.5.0 \
     --hash=sha256:6c0230e99765f275dc83d6639ff33bd6f71203fa10cd1b8a204b0f95530cda86 \
     --hash=sha256:8b99b5ee60c4bc195d4df2fd27dab3d6963691e3332f6cee31a06eb4277c307f
     # via nonebot-plugin-l4d2-server
-nonebot-plugin-htmlrender==0.6.7 \
-    --hash=sha256:968b06bdfef10e06ad64c9d945c89000b1eaa82a89d5bae71a0647a3a6271c38 \
-    --hash=sha256:d782f20dbfd7573944ccd3e4dff2c69daaee8aa5e6f78443ef94057d4126e252
-    # via nonebot-plugin-l4d2-server
-nonebot-plugin-localstore==0.7.4 \
-    --hash=sha256:3b08030878eadcdd8b9ce3d079da0dc2d0e41dc91f0b2d8cf7fa862a27de9090 \
-    --hash=sha256:85ddc13814bfcd484ab311306823651390020bf44f4fb4733b343a58e72723ce
+nonebot-plugin-htmlkit==0.1.0rc5 \
+    --hash=sha256:0a105bcc2714ef1bb07b689af74bda3ba3165a19f061bf1177bf8b5b0a3c9411 \
+    --hash=sha256:0cf8e51662bf082d5d89e2c1f3c24463eedcf2516da3e64475bd75914485cdb1 \
+    --hash=sha256:271dfddaab7f7f88a5ae61d401c58aa4d6c334d3fc5dcefb4a82b85084b5df85 \
+    --hash=sha256:30dff5ea120ee64c042112c1bf968de6929ee48e903504ca6e5221ad6d61ba90 \
+    --hash=sha256:34dd2ed57748bcd7480da3938a3753de333d5c69cf3488188dc139890e8942fb \
+    --hash=sha256:3d495d8b7e7fa22f45a21ee4bbd1052fd12a4236aee23396f9e5de71eb66189f \
+    --hash=sha256:4562b1b2e2ca257294f52671970c431a4e253aeb8b133d90104ff5bbafacb06e \
+    --hash=sha256:4921f529a6eec4b7f4cf3085d8cf9ca2617029e62c43631561a1188f9eadc9bc \
+    --hash=sha256:4ea2a9d524f78b11107fe6736388926ee61f87d5acfe1dd4b50fdcaeaa23f166 \
+    --hash=sha256:5c9fc3ed1d1cbf95711006761d19e7a1dc0d0e8b7989c2e806a2bff3aeff7b17 \
+    --hash=sha256:72b12faf497fce1e50ba121092221073f9db3db5fad21afcd0902a9ef4b8e00f \
+    --hash=sha256:74b35033fd0d23e9d5c9a509b596c522630aafcfc2a2f37c605a9c5b36ce8138 \
+    --hash=sha256:8255d25e141be2eae55b24b290e40c8db33d416822ba426789166ca5988873cb \
+    --hash=sha256:97d39efcb1d82e7f7a3daf2f6903baacadcce84cfd978fef486c8e1183a4dc55 \
+    --hash=sha256:9d6224ed8a05e41afebe2df285aaf661644268dc399e73bceb8999d2c568cdd8 \
+    --hash=sha256:b60f891c21da4ff024773eca695dcc92ae648656c7be8a2f1c9839c052971d8b \
+    --hash=sha256:c1c5550490a9efbfbf491f9ab42fadf347af81fc214e113773ff77bd72c4c095 \
+    --hash=sha256:c452af6bb67738d54a0d6ba29ba81a4e1117f32c8b3686d1ab33f977c95fd473 \
+    --hash=sha256:c4c240d6b9bf61a53230634abc6f6a20f075c8934dbcd821639b78e83fbeb789 \
+    --hash=sha256:c9c8cd3ede2d2c43160c69faa5136da9d5e6f485aff30ffc7dbc43d4beb1c603 \
+    --hash=sha256:d0b30fe30fe364f9e4d34a80bf134d79de67bc8550becd095ffeb709cf4105f2 \
+    --hash=sha256:e591e0083b1364bb7921ece4348aaf6c451572f87ba3df17588b44dd3b407ff5 \
+    --hash=sha256:e8c49e8618fae48b6a499af416fe2725c324b159eec5d6694352d275c7f598f5 \
+    --hash=sha256:eb8276e7058c02e914aa6d72dc8974f221bbe0a153addc8724115ef3aef8f1ed \
+    --hash=sha256:ef8348e1433bbfe178e668acb7c46994c0a6cfa2f30446abbf7f8f08ffb25bd6
     # via nonebot-plugin-l4d2-server
 nonebot-plugin-waiter==0.8.1 \
     --hash=sha256:3e1afc8f134496d3a4ecefd9c3a2a98d6ef28a5318268cb22b99a0ef61a44080 \
@@ -875,14 +838,9 @@ nonebot2==2.5.0 \
     #   nonebot-adapter-onebot
     #   nonebot-plugin-alconna
     #   nonebot-plugin-apscheduler
-    #   nonebot-plugin-htmlrender
+    #   nonebot-plugin-htmlkit
     #   nonebot-plugin-l4d2-server
-    #   nonebot-plugin-localstore
     #   nonebot-plugin-waiter
-nonestorage==0.1.0 \
-    --hash=sha256:35811adf67c680c272bcb71fa9d6c3613cc2d1bb79f5bfc7d83c4412a79537cb \
-    --hash=sha256:818232236455c79cabbb69e716f73aa1b9c21d579f1c1fcbdba273b60bac72d9
-    # via nonebot-plugin-localstore
 pillow==12.2.0 \
     --hash=sha256:00a2865911330191c0b818c59103b58a5e697cae67042366970a6b6f1b20b7f9 \
     --hash=sha256:01afa7cf67f74f09523699b4e88c73fb55c13346d212a59a2db1f86b0a63e8c5 \
@@ -976,18 +934,6 @@ pillow==12.2.0 \
     --hash=sha256:fb043ee2f06b41473269765c2feae53fc2e2fbf96e5e22ca94fb5ad677856f06 \
     --hash=sha256:fc3d34d4a8fbec3e88a79b92e5465e0f9b842b628675850d860b8bd300b159f5
     # via nonebot-plugin-l4d2-server
-playwright==1.63.0 \
-    --hash=sha256:1e4a3a838ce22fb68ad17193fcd142a19610d9d70fb9966d2239f5dddc0cc05b \
-    --hash=sha256:2f9a707a6c6c91157ed77bff2b8caeb04b3c8d46e70d585fc134298cbe4b5cc6 \
-    --hash=sha256:354e15b29503565fc598b89f16fbe070459343bef9d7498a93e304864000c6a7 \
-    --hash=sha256:660c00c62639e31b16700ba5456b351ddba55bb766b7ce8261223aa34928e482 \
-    --hash=sha256:84c540759e8e7f01e690e197e04060f48899d37cea322299f255843273d3385d \
-    --hash=sha256:ad21bc07516b187965a7521c5cf0df0bd657b17482eaad74335272d35a2b07de \
-    --hash=sha256:c89fc4736502a1f0fac2c8ca5d10c0cbc1c669f1f4774a2d8507a43140e4d53f \
-    --hash=sha256:fd1aa00631d44d55e56e0975bf3f3f285fac4a9fd2813183f0c12a488f1a1b24
-    # via
-    #   nonebot-plugin-htmlrender
-    #   nonebot-plugin-l4d2-server
 propcache==0.4.1 \
     --hash=sha256:0013cb6f8dde4b2a2f66903b8ba740bdfe378c943c4377a200551ceb27f379e4 \
     --hash=sha256:005f08e6a0529984491e37d8dbc3dd86f84bd78a8ceb5fa9a021f4c48d4984be \
@@ -1106,7 +1052,6 @@ pydantic==2.12.5 \
     #   fastapi
     #   nonebot-adapter-onebot
     #   nonebot-plugin-apscheduler
-    #   nonebot-plugin-localstore
     #   nonebot2
 pydantic-core==2.41.5 \
     --hash=sha256:0177272f88ab8312479336e1d777f6b124537d47f2123f89cb37e0accea97f90 \
@@ -1218,14 +1163,10 @@ pydantic-core==2.41.5 \
     --hash=sha256:f41a7489d32336dbf2199c8c0a215390a751c5b014c2c1c5366e817202e9cdf7 \
     --hash=sha256:f547144f2966e1e16ae626d8ce72b4cfa0caedc7fa28052001c94fb2fcaa1c52
     # via pydantic
-pyee==13.0.1 \
-    --hash=sha256:0b931f7c14535667ed4c7e0d531716368715e860b988770fc7eb8578d1f67fc8 \
-    --hash=sha256:af2f8fede4171ef667dfded53f96e2ed0d6e6bd7ee3bb46437f77e3b57689228
-    # via playwright
 pygments==2.20.0 \
     --hash=sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f \
     --hash=sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176
-    # via nonebot-plugin-htmlrender
+    # via nonebot-plugin-htmlkit
 pygtrie==2.5.0 \
     --hash=sha256:203514ad826eb403dab1d2e2ddd034e0d1534bbe4dbe0213bb0593f66beba4e2 \
     --hash=sha256:8795cda8105493d5ae159a5bef313ff13156c5d4d72feddefacaad59f8c8ce16
@@ -1233,7 +1174,7 @@ pygtrie==2.5.0 \
 pymdown-extensions==10.21.2 \
     --hash=sha256:5c0fd2a2bea14eb39af8ff284f1066d898ab2187d81b889b75d46d4348c01638 \
     --hash=sha256:c3f55a5b8a1d0edf6699e35dcbea71d978d34ff3fa79f3d807b8a5b3fa90fbdc
-    # via nonebot-plugin-htmlrender
+    # via nonebot-plugin-htmlkit
 python-a2s==1.4.1 \
     --hash=sha256:b30fe1356ac2cbdfa83fb2eec63629801d2abf4cd169ab5dfaf354545cddcf79 \
     --hash=sha256:c2320a1135d8e0c20da98b2aca164094c57f1557c05b22e73865e1f14469c810
@@ -1244,10 +1185,6 @@ python-dotenv==1.2.2 \
     # via
     #   nonebot2
     #   uvicorn
-python-markdown-math==0.9 \
-    --hash=sha256:567395553dc4941e79b3789a1096dcabb3fda9539d150d558ef3507948b264a3 \
-    --hash=sha256:ac9932df517a5c0f6d01c56e7a44d065eca4a420893ac45f7a6937c67cb41e86
-    # via nonebot-plugin-htmlrender
 pyunpack==0.3 \
     --hash=sha256:8f517cfc71215f37f74cf3a7668028828c68dc76f4d02e7a69f227ce978d51a3 \
     --hash=sha256:b9192665c3aa28eaeb2b01198a2f2f985d9a3ecce55f266a657b31cd337d3f12
@@ -1480,11 +1417,9 @@ typing-extensions==4.15.0 \
     #   multidict
     #   nepattern
     #   nonebot-adapter-onebot
-    #   nonebot-plugin-localstore
     #   nonebot2
     #   pydantic
     #   pydantic-core
-    #   pyee
     #   starlette
     #   tarina
     #   typing-inspection

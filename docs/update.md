@@ -4,6 +4,16 @@
 
 ### 未发布
 
+#### 出图改用 nonebot-plugin-htmlkit（litehtml），去掉 Playwright / Chromium
+
+- 出图依赖从 `nonebot-plugin-htmlrender` + Chromium 换成 `nonebot-plugin-htmlkit`（litehtml，纯 C++ 本地渲染）：不用 `playwright install`，不留浏览器进程，Windows / Linux 都有预编译 wheel。`playwright`、`nonebot-plugin-htmlrender` 连同只服务于它的传递依赖（`pyee`、`greenlet`、`python-markdown-math`）已从 `pyproject.toml` / `uv.lock` / `requirements.txt` 移除。
+- 同时去掉 `nonebot-plugin-localstore` 依赖（它原本是 htmlrender 0.6.x 强制 require 的）：数据目录一直由 `services/path_resolver.py` 直接拼 `<cwd>/data/nonebot_plugin_l4d2_server/`，没有走 localstore 的解析逻辑。`L4_USE_LOCALSTORE` / `L4_LOCALSTORE_SUBDIR` 这两个从未生效的配置项也从 README 移除。
+- 模板按 litehtml 的能力重写：`display:grid` → 浮动三列（模板里 `batch(3)` 显式分行，卡片高矮不一时顺序也不会乱）、`display:flex` → 块级 / 行内块、状态开关的 `position:absolute` → 静态状态胶囊；`l4_style=old` 的模板同样重写。
+- litehtml 不渲染 SVG：平台图标与 GitHub 图标改为同目录下 52px 的 PNG（`l/w/m/github.png`），页面上仍按 13px 显示。新增图标请一并提供 PNG。
+- litehtml 不支持 `backdrop-filter`：背景图上的文字改用更高的白底不透明度压住（`.outer-frame` 0.72、`.server-card` 0.85）。
+- 出图并发锁改为「同一时刻只出一张图」——litehtml 在 C 层同步渲染、占住 GIL，并发开图只会互相拖慢。
+- 升级后可以卸载 `nonebot-plugin-htmlrender`、`playwright`，并删除 `~/.cache/ms-playwright`（约 300 MB）。
+
 #### 关键词屏蔽（README「屏蔽与关键词」方案 4）
 
 - 新增配置 `l4_block_keywords`（正则列表，不区分大小写）：服务器名命中则整台隐藏（组查询、`l4全服`、`l4查找`、`l4查人`、tj/zl/kl），单服 / `connect` 查询回「该服务器已被屏蔽」；玩家名命中只隐藏该玩家，人数仍按 A2S 上报，tj/zl/kl 的判断仍按真实玩家列表。

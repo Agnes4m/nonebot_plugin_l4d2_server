@@ -30,16 +30,16 @@
             margin: 20px 0;
         }
         .stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+            /* litehtml 不支持 flex：用行内块 + 外边距模拟换行排列 */
             margin: 20px 0;
         }
         .stat-box {
+            display: inline-block;
             background-color: #e9f2f9;
             padding: 10px 15px;
             border-radius: 5px;
             min-width: 120px;
+            margin: 0 20px 12px 0;
         }
         .stat-value {
             font-weight: bold;
@@ -47,16 +47,15 @@
             color: #2b5876;
         }
         .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
             margin: 15px 0;
         }
         .tag {
+            display: inline-block;
             background-color: #d4e6f1;
             padding: 5px 10px;
             border-radius: 15px;
             font-size: 0.9em;
+            margin: 0 10px 10px 0;
         }
         .admin-tag {
             background-color: #f8d7da;

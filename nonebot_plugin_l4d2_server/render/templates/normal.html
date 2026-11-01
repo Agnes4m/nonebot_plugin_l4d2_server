@@ -22,7 +22,9 @@
 {% if hint %}<div class="hint">{{ hint }}</div>{% endif %}
 
             <div class="server-grid">
-                {% for server in servers %}
+                {% for row in servers|batch(3) %}
+                <div class="server-row">
+                {% for server in row %}
                 <div class="server-card">
                     <div class="server-name" title="{{ server.server.server_name }}">
                         {{ server.command }}{{ server.id_ }}:{{ server.name | default(server.server.server_name) }}
@@ -88,7 +90,7 @@
 
                         <span class="server-meta">
                             <span class="server-icon">
-                                <img src="{{ server.server.platform }}.svg" alt="平台">
+                                <img src="{{ server.server.platform }}.png" alt="平台">
                             </span>
                             {% if server.server.vac_enabled %}
                             <span class="server-icon">
@@ -100,7 +102,9 @@
                     </div>
                 </div>
             </div>
-            {% endfor %}
+                {% endfor %}
+                </div>
+                {% endfor %}
         </div>
 
         {% if offline_ids %}

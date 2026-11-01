@@ -2,7 +2,7 @@
 
 照 ``test_a2s_cache.py`` 的做法手工构造包上下文，只加载要测的模块：
 ``services`` / ``render`` 两个包不执行 ``__init__.py``（会连带导入全部服务、
-alconna、htmlrender）；``nonebot_plugin_htmlrender`` 用假模块顶替，出图函数
+alconna、htmlkit）；``nonebot_plugin_htmlkit`` 用假模块顶替，出图函数
 在各个用例里按需 monkeypatch。NoneBot 本身由 conftest 初始化。
 """
 
@@ -39,14 +39,18 @@ def _pkg(name: str, path: Path) -> ModuleType:
 _pkg("nonebot_plugin_l4d2_server", INNER_DIR)
 _pkg("nonebot_plugin_l4d2_server.services", INNER_DIR / "services")
 _render_pkg = _pkg("nonebot_plugin_l4d2_server.render", INNER_DIR / "render")
-if "nonebot_plugin_htmlrender" not in sys.modules:
-    _fake_htmlrender = ModuleType("nonebot_plugin_htmlrender")
+if "nonebot_plugin_htmlkit" not in sys.modules:
+    _fake_htmlkit = ModuleType("nonebot_plugin_htmlkit")
 
     async def _unpatched_html_to_pic(*_args, **_kwargs) -> bytes:
         raise RuntimeError("html_to_pic 未在用例里 monkeypatch")
 
-    _fake_htmlrender.html_to_pic = _unpatched_html_to_pic  # type: ignore[attr-defined]
-    sys.modules["nonebot_plugin_htmlrender"] = _fake_htmlrender
+    async def _unpatched_template_to_pic(*_args, **_kwargs) -> bytes:
+        raise RuntimeError("template_to_pic 未在用例里 monkeypatch")
+
+    _fake_htmlkit.html_to_pic = _unpatched_html_to_pic  # type: ignore[attr-defined]
+    _fake_htmlkit.template_to_pic = _unpatched_template_to_pic  # type: ignore[attr-defined]
+    sys.modules["nonebot_plugin_htmlkit"] = _fake_htmlkit
 
 config_mod = importlib.import_module("nonebot_plugin_l4d2_server.config")
 messages = importlib.import_module("nonebot_plugin_l4d2_server.messages")
@@ -664,7 +668,7 @@ async def test_query_group_servers_fills_display_name(monkeypatch):
     assert out["server"].server_name == "Anne云服#57[普通药役][8特20秒]", "A2S 原名不改"
 
 
-# ---------------- Chromium 出图：重试 / 超时 ----------------
+# ---------------- litehtml 出图：重试 / 超时 ----------------
 
 
 async def test_screenshot_retries_once_after_crash(monkeypatch):
@@ -674,7 +678,7 @@ async def test_screenshot_retries_once_after_crash(monkeypatch):
         nonlocal calls
         calls += 1
         if calls == 1:
-            raise RuntimeError("Target page, context or browser has been closed")
+            raise RuntimeError("failed to load image")
         return b"jpeg"
 
     monkeypatch.setattr(server_list, "html_to_pic", flaky)
@@ -683,7 +687,7 @@ async def test_screenshot_retries_once_after_crash(monkeypatch):
 
 
 async def test_screenshot_gives_up_after_second_crash(monkeypatch):
-    broken = AsyncMock(side_effect=RuntimeError("browser has been closed"))
+    broken = AsyncMock(side_effect=RuntimeError("failed to load image"))
     monkeypatch.setattr(server_list, "html_to_pic", broken)
     assert await server_list._screenshot("<html></html>") is None
     assert broken.await_count == 2

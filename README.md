@@ -152,35 +152,28 @@ conda install nonebot-plugin-l4d2-server
 </details>
 </details>
 
-### 额外依赖：Playwright 浏览器内核
+### 出图依赖：nonebot-plugin-htmlkit
 
-本插件出图走 `nonebot-plugin-htmlrender` → Playwright，需要 Chromium 内核。
-直接 `pip / pdm / poetry add` 装出来的 playwright 不会自动下载浏览器，
-启动时会报 `Executable doesn't exist ... chrome-win64/chrome.exe` 这类错。
+出图走 `nonebot-plugin-htmlkit` → [litehtml](https://github.com/litehtml/litehtml)，
+纯 C++ 本地渲染，**不再需要 Chromium / Playwright**，也不用 `playwright install`，
+Windows / Linux 都有预编译 wheel，装上即用（比原来的 Playwright 方案省几百 MB
+内存和一次浏览器冷启动）。
 
-按你的包管理器二选一：
+代价是 litehtml 的 CSS 支持比 Chromium 少：`display:flex`、`display:grid`、
+`calc()`、`position:absolute` 这类都不支持，模板必须用块级 / 表格 / 浮动布局。
+`render/templates/` 下的模板已按这个约束重写。
 
-```bash
-# uv（推荐，nonebot2 社区主流）
-uv tool install playwright
-uv run playwright install --with-deps chromium
+另外两个限制值得注意：
 
-# 或 pipx（隔离环境装全局命令）
-pipx install playwright
-pipx run playwright install --with-deps chromium
+- **不渲染 SVG**。litehtml 的图片解码走位图，`<img src="x.svg">` 会直接空白，
+  所以平台图标与 GitHub 图标都改成了同目录下的 `.png`（由原 `.svg` 按 52px
+  栅格化，页面上仍按 13px 显示）。以后加图标请一并提供 PNG。
+- **不支持 `backdrop-filter`**。原方案靠 `blur(2px)` 压住背景图上的文字，
+  现在改用提高白色底的不透明度（`.outer-frame` 0.72、`.server-card` 0.85）来
+  保证对比度。
 
-# 或直接 pip
-pip install playwright
-playwright install --with-deps chromium
-```
-
-> 如果你用 `uv` 跑 bot（即 `uv run` 启动 bot 进程），第一次启动 bot 自己会调
-> `playwright install chromium`，无需上面手工步骤；切到其他用户 / 全局
-> python 时才需要手动装。
->
-> htmlrender `0.7+` 拆成了 provider 架构并强依赖 `nonebot-plugin-filehost`，
-> 0.6.x 仍提供 `html_to_pic`。本插件 `pyproject.toml` 锁定 `>=0.6.0,<0.7`，
-> 升级前先看 `#104`。
+> 如果从旧版本升级过来，可以把 `playwright` 卸载、`~/.cache/ms-playwright`
+> 目录删掉，省 300 MB+ 空间。
 
 ## 主要功能
 
@@ -207,23 +200,21 @@ playwright install --with-deps chromium
 | `l4查看组 <组>` | `l4showgroup`、`l4列服务器` | SUPERUSER | 列组成员 + 在线状态 |
 | `l4创意工坊 id1,id2 id3` | — | `l4_permission_set` | 批量并发下载（逗号/空格/换行分隔） |
 
-## 数据目录（localstore 默认开启）
+## 数据目录
 
-v1.4.0 起，默认用 `nonebot-plugin-localstore` 自动生成插件同名数据目录，
-典型路径：`./data/nonebot_plugin_l4d2_server/l4d2/`（受 `LOCALSTORE_USE_CWD`
-和 `l4_localstore_subdir` 影响）。首次启动时若新目录为空且旧的
-`./data/L4D2/` 仍有内容，会一次性复制过去（旧目录保留以便手动清理）。
+数据目录固定为 `<cwd>/data/nonebot_plugin_l4d2_server/`，由
+`services/path_resolver.py` 直接拼接，**不依赖 `nonebot-plugin-localstore`**
+（`LOCALSTORE_USE_CWD` 设成什么都不影响）。这样做的原因是 localstore 的
+`get_plugin_data_dir()` 会按调用栈反推插件名，本插件以子模块加载时会被算到
+`.../services/` 子目录下，与用户预期的 cwd 相对路径不一致。
 
-不想用 localstore：在 `.env` 里设 `L4_USE_LOCALSTORE=false`，回到老的
-相对 `l4_path` 模式。
+首次启动时若目标目录为空，会自动从旧位置复制一次（旧目录保留，
+供手动确认后删除）：插件根自带的 `data/L4D2/`、
+`<cwd>/data/nonebot_plugin_l4d2_server/services/`。
 
-新增 `.env` 字段：
+`.env` 里可调的性能 / 行为字段：
 
 ```dotenv
-# 路径
-L4_USE_LOCALSTORE=true           # 是否走 localstore 自动路径
-L4_LOCALSTORE_SUBDIR=l4d2        # localstore 下的子目录名
-
 # A2S 性能
 L4_A2S_CONCURRENCY=8             # 同时最多几台服务器在查（信号量上限）
 L4_A2S_TIMEOUT=2.5               # 单次 ainfo / aplayers 超时秒
@@ -238,7 +229,7 @@ L4_WORKSHOP_CONCURRENCY=3        # 批量下载并发上限（1~8）
 
 # 出图
 L4_IMAGE_PAGE_SIZE=30            # 组查询每张图最多几台服，超出自动分多张发送（1~200）
-L4_RENDER_TIMEOUT=15             # 单页出图超时秒；超时 / 浏览器崩溃时改用简易图
+L4_RENDER_TIMEOUT=15             # 单页出图超时秒；超时 / 渲染失败时改用简易图
 L4_NAME_STRIP_PATTERN='^Anne云服#\d+'  # 列表里去掉的服务器名前缀（正则），默认只匹配 Anne 云服：Anne云服#57[普通药役] → [普通药役]；留空不处理
 
 # 屏蔽
@@ -288,8 +279,7 @@ L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
 ## [数据结构](./docs/standand.md)
 
 > 服务器组文件存放位置：`<data_dir>/<组名>.json`。
-> `<data_dir>` 默认 `data/L4D2`；开启 localstore 后变为
-> `<localstore>/nonebot_plugin_l4d2_server/l4d2/`。
+> `<data_dir>` 固定为 `<cwd>/data/nonebot_plugin_l4d2_server/`（见上文「数据目录」）。
 > 旧版 `<data_dir>/l4d2/` 子目录与 `<data_dir>/l4d2.json` 单文件
 > 都会在启动时自动迁移。
 
@@ -307,12 +297,6 @@ L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
     """是否启用图片"""
     l4_connect = True
     """是否在查服命令后加入connect ip"""
-    l4_use_localstore = True
-    """是否走 nonebot-plugin-localstore 自动生成插件同名数据目录"""
-    l4_localstore_subdir = "l4d2"
-    """localstore 下的子目录名"""
-    l4_path = "data/L4D2"
-    """l4_use_localstore=False 时使用的相对路径"""
     l4_players = 4
     """查询总图的时候展示的用户数量"""
     l4_style = "default"
@@ -339,12 +323,13 @@ L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
 - **单服务器卡（`云1`）长内容自动换行**：服务器名、地图名、connect IP 等超出 380px 卡片宽度时，会按像素宽度自动换行展示，图片高度随行数自动撑高；
 - **服务器列表（`云`）地图名溢出处理**：`.map-name` CSS 增加 `text-overflow: ellipsis`，超长地图名以省略号截断，不再撑破卡片；
 - **查服背景图按渲染类型拆分目录**（后续调整）：`/云`（服务器列表）从 `<l4_path>/custom_backgrounds/` 根目录的所有图片中随机抽一张，目录为空时回退到内置 `background.jpg`；`/云1`（单服务器卡）固定使用深蓝灰纯色，不加载任何图片。详见「自定义服务器列表背景图片」；
-- **数据路径统一从 `l4_path` 派生**：组文件、sb_pages、自定义背景图、迁移脚本都跟着 `l4_path` 配置走，不再各自写死相对路径。`.env` 里改 `L4_PATH` 一处即生效，不用再管 bot 启动 CWD。
+- **数据路径统一由 `services/path_resolver.py` 决定**：组文件、sb_pages、自定义背景图、迁移脚本都从 `<cwd>/data/nonebot_plugin_l4d2_server/` 派生，不再各自写死相对路径。`l4_path` 配置项已移除（设了也不生效）。
 
 ## v1.4.0 相对 v1.3.x 的变化
 
-- **localstore 路径**：默认用 `nonebot-plugin-localstore` 自动生成
-  插件同名数据目录；可通过 `L4_USE_LOCALSTORE=false` 退回旧路径。
+- **数据目录**：固定为 `<cwd>/data/nonebot_plugin_l4d2_server/`，由
+  `services/path_resolver.py` 直接拼接，不依赖 `nonebot-plugin-localstore`
+  （v1.4.0 曾有 `L4_USE_LOCALSTORE` / `L4_LOCALSTORE_SUBDIR`，现已移除）。
 - **A2S 性能**：批量查询加 `asyncio.Semaphore` 上限
   （`l4_a2s_concurrency`），单次超时可配（`l4_a2s_timeout`），
   结果缓存 `l4_a2s_cache_ttl` 秒（deepcopy 防止下游 mutate）；

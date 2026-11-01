@@ -69,7 +69,7 @@ class ConfigModel(BaseModel):
     l4_render_timeout: float = Field(
         default=15.0,
         gt=0,
-        description="htmlrender 单页出图硬上限秒；超时/失败/空字节时该页（及同次查询"
+        description="htmlkit 单页出图硬上限秒；超时/失败/空字节时该页（及同次查询"
         "后续各页）改用纯 PIL 简易图",
     )
     l4_image_page_size: int = Field(
@@ -77,7 +77,7 @@ class ConfigModel(BaseModel):
         ge=1,
         le=200,
         description="组查询出图时每张图最多放多少台服，超出自动分成多张图逐条发送。"
-        "单张长图超过 16384px（约 230 台）会被 Chromium 截断，也更容易超时 / OOM",
+        "单张长图太高会明显变慢、更占内存（litehtml 是整张位图渲染）",
     )
     l4_name_strip_pattern: str = Field(
         default=r"^Anne云服#\d+",
@@ -111,7 +111,7 @@ class ConfigModel(BaseModel):
         default=0,
         ge=0,
         description="图片出图硬上限：一次查询要显示的服务器数超过此值直接回提示，"
-        "不启 Chromium。0=不限（默认，按熔断逻辑失败后走文字）。"
+        "不出图。0=不限（默认，按熔断逻辑失败后走文字）。"
         "轻量服务器（2C2G）建议显式设 15-20。",
     )
 

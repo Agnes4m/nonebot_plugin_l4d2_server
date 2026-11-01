@@ -22,11 +22,9 @@ from nonebot.log import logger
 from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
 # 依赖插件声明 必须在导入其它插件模块之前执行。
-# htmlrender 0.6.x 的 ``__init__.py`` 会 ``require("nonebot_plugin_localstore")``，
-# 所以 localstore 会通过 htmlrender 间接加载；如果想收藏巡检 / 定时任务立刻可用，
-# 把 apscheduler 也显式 require 一下。
+# htmlkit 走 litehtml 本地渲染，不需要 Chromium，也不依赖 localstore。
 require("nonebot_plugin_alconna")
-require("nonebot_plugin_htmlrender")
+require("nonebot_plugin_htmlkit")
 require("nonebot_plugin_apscheduler")
 
 from . import commands  # noqa: E402, F401  (registers all commands)

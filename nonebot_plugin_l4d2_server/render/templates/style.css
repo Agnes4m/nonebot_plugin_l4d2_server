@@ -9,7 +9,8 @@ body {
 
 .outer-frame {
     width: 900px;
-    background-color: rgba(255, 255, 255, 0.5);
+    /* litehtml 不支持 backdrop-filter，只能靠更高的白底不透明度压住背景图 */
+    background-color: rgba(255, 255, 255, 0.72);
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     overflow: hidden;
@@ -46,24 +47,28 @@ h1 {
 }
 
 .server-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 280px);
-    gap: 15px;
-    justify-content: center;
-    padding: 0 10px;
+    /* litehtml 不支持 grid，改用浮动三列（3 × (272 + 8) = 840 < 880） */
+    padding: 0 8px;
+    overflow: hidden; /* 清除浮动 */
+}
+
+.server-row {
+    /* 显式分行，卡片高矮不一时浮动也不会错位 */
+    overflow: hidden;
 }
 
 .server-card {
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.85);
     border: 1px solid #e0e3e7;
     border-radius: 8px;
     padding: 15px;
     box-sizing: border-box;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-    transition: all 0.3s ease;
+    float: left;
+    width: 272px;
+    min-height: 150px;
+    margin: 0 4px 14px 4px;
 }
-
 
 .server-name {
     font-weight: bold;
@@ -81,9 +86,7 @@ h1 {
     font-size: 13px;
     color: #e74c3c;
     margin: 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -91,19 +94,12 @@ h1 {
 }
 
 .players {
-    display: flex;
-    align-items: center;
     margin-top: 10px;
     font-size: 12px;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: space-between;
 }
 
 .status-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
+    display: inline;
 }
 
 .online {
@@ -119,16 +115,13 @@ h1 {
 }
 
 .server-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 8px;
+    float: right;
+    margin-top: 10px;
 }
 
 .server-icon {
-    display: flex;
-    align-items: center;
-    gap: 3px;
+    display: inline-block;
+    margin-left: 6px;
     font-size: 11px;
     color: #7f8c8d;
 }
@@ -151,8 +144,7 @@ h1 {
 /* 单个玩家条目 */
 .player-item {
     color: #2c3e50;
-    display: flex;
-    align-items: right;
+    display: block;
 }
 
 /* 玩家名字体 */
@@ -160,7 +152,7 @@ h1 {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: calc(100% - 10px);
+    max-width: 200px;
     box-sizing: border-box;
 }
 
@@ -181,21 +173,18 @@ h1 {
 }
 
 .status_text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    /* litehtml 无绝对定位/变换：状态直接当行内胶囊显示 */
+    position: static;
+    display: inline-block;
     white-space: nowrap;
-    padding: 2px 6px;
-    border-radius: 16px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
 }
 
 .switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 24px;
-    margin-left: auto;
+    display: inline;
+    margin-left: 6px;
 }
 
 .plugin_meta_line1 {
@@ -210,13 +199,15 @@ h1 {
 }
 
 .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
+    /* litehtml 无绝对定位：滑块底色不画，只保留里面的状态文字 */
+    display: inline;
+    background-color: transparent;
+}
+
+.slider .lock,
+.checkbox,
+.switch input {
+    display: none;
 }
 
 .error {

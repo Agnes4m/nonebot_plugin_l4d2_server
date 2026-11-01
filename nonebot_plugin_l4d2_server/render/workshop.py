@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 from nonebot_plugin_alconna import UniMessage
-from nonebot_plugin_htmlrender import template_to_pic as t2p
+from nonebot_plugin_htmlkit import template_to_pic as t2p
 
 from ..api import L4API
 from ..consts import RENDER_TEMPLATES_PATH
@@ -70,6 +70,8 @@ async def render_workshop_card(workshop_id: str) -> dict:
         template_path=Path(RENDER_TEMPLATES_PATH),
         template_name="workshop.html",
         templates={"info": info},
+        # 模板 body 固定 700px，max_width 略给余量，避免 allow_refit 压缩整页
+        max_width=720,
     )
     await UniMessage.image(raw=img_bytes).send()
     return info

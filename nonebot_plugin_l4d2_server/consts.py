@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-# 收藏 / 订阅 / 黑名单相关持久化文件名（位于 localstore 管理的 data 根目录下）。
+# 收藏 / 订阅 / 黑名单相关持久化文件名（位于 <cwd>/data/nonebot_plugin_l4d2_server/）。
 FAVORITES_FILENAME = "favorites.json"
 NOTIFY_STATE_FILENAME = "notify_state.json"
 BLOCKLIST_FILENAME = "blocklist.json"

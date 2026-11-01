@@ -149,9 +149,9 @@ async def iter_group_output(
     - 默认（``云``）只列有人的服务器；``show_all``（``云全``）列出全部在线服，
       并在最后一页附上不在线列表。
     - 图片：要列的服按 ``l4_image_page_size`` 分页，每页单独出图。一张装下
-      上百台的长图超过 16384px 会被 Chromium 截断，也更容易超时 / OOM、
-      在 QQ 里缩成看不清的长条；分页后每张 2400px 左右。
-    - 某页 Chromium 出图失败后，这一页和本次查询后面的页都改用纯 PIL
+      上百台的长图过高，出图更慢更占内存（litehtml 整张位图渲染），
+      在 QQ 里也会缩成看不清的长条；分页后每张 2400px 左右。
+    - 某页出图失败后，这一页和本次查询后面的页都改用纯 PIL
       简易图，不再每页各等一次超时。
     - 文字（``l4_image`` 关闭）：每台一行，按消息长度切成多条。
 
@@ -193,7 +193,7 @@ async def iter_group_output(
 
     cards = online if show_all else active
     # 按服务器数硬阈值跳走图片（光 server 可设 ``L4_IMAGE_MAX_SERVERS``
-    # 避免 Chromium OOM）。超过阈值时直接发简短提示，不出文字汇总——
+    # 避免一次渲染太多卡片）。超过阈值时直接发简短提示，不出文字汇总——
     # 用户场景就是看图，文字堆没意义。
     max_servers = int(config.l4_image_max_servers)
     if max_servers > 0 and len(cards) > max_servers:
