@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import time
 from typing import Optional
 
 from a2s.players import Player
@@ -19,6 +21,8 @@ _template_env: Environment | None = None
 
 # litehtml 在 C 层同步渲染且占住 GIL，并发出图只会互相拖慢。
 _render_lock = asyncio.Lock()
+
+_screenshot_cache: dict[str, tuple[float, bytes]] = {}
 
 
 def _get_env() -> Environment:
@@ -66,19 +70,28 @@ async def _build_html(
 
 async def _screenshot(content: str) -> Optional[bytes]:
     """litehtml 出图；超时直接放弃，其它异常重试一次（防字体缓存、图片解码偶发失败）。"""
+    ttl = int(config.l4_render_cache_ttl)
+    key = (
+        hashlib.blake2b(content.encode("utf-8"), digest_size=16).hexdigest()
+        if ttl > 0
+        else None
+    )
+    if key:
+        hit = _screenshot_cache.get(key)
+        if hit and hit[0] > time.monotonic():
+            return hit[1]
+
     timeout = float(config.l4_render_timeout)
     for attempt in (1, 2):
         try:
             async with _render_lock:
-                # JPEG 体积约为 PNG 的 1/3，发到 QQ 更不容易失败；max_width 要略大于
-                # 模板的 900px，否则 allow_refit 会把整页等比压缩。base_url 只能写
-                # ``file://`` + as_posix()：三斜杠会在 Windows 上拼成 /E:/...。
+                # 920 略大于模板 900px，避免 allow_refit 把整页等比压缩
                 pic = await asyncio.wait_for(
                     html_to_pic(
                         content,
                         base_url=f"file://{RENDER_TEMPLATES_PATH.as_posix()}/",
                         image_format="jpeg",
-                        jpeg_quality=90,
+                        jpeg_quality=int(config.l4_jpeg_quality),
                         max_width=920,
                         allow_refit=True,
                     ),
@@ -91,6 +104,10 @@ async def _screenshot(content: str) -> Optional[bytes]:
             logger.warning(f"渲染服务器列表失败（第 {attempt} 次）: {exc!r}")
             continue
         if pic:
+            if key:
+                if len(_screenshot_cache) > 16:
+                    _screenshot_cache.clear()
+                _screenshot_cache[key] = (time.monotonic() + ttl, pic)
             return pic
         logger.warning(f"渲染服务器列表返回空字节（第 {attempt} 次）")
     return None

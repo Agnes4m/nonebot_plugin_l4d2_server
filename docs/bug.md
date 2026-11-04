@@ -30,11 +30,12 @@ Fontconfig error: Cannot load default config file: No such file: (null)
 [INFO] nonebot_plugin_htmlkit | Fontconfig initialized.
 ```
 
-**这是无害的**。htmlkit 内嵌 fontconfig，它在 Windows 上找不到默认的 `fonts.conf`
-（系统本来就不提供），于是打印这行，然后回退到内置默认配置——默认配置里已包含
-`C:/Windows/Fonts`，所以字体照常解析。实测同一页面加不加这份配置，出图内容一致。
+**这行本身无害**（htmlkit 内嵌的 fontconfig 会回退到内置默认值，字体照样找得到），
+但**不要就这么放着**：缺 `fonts.conf` 时 `sans-serif` / `monospace` 这类通用字族
+没有映射规则，fontconfig 会给出一套缺汉字覆盖的字体，litehtml 只能按字形逐个回退，
+于是同一行里的中文、英文、数字来自不同字体——大小、字重、基线全对不上（看着「东倒西歪」）。
 
-想去掉这行，写一份最小的 `fonts.conf`：
+写一份带字族映射的 `fonts.conf`：
 
 ```xml
 <?xml version="1.0"?>
@@ -42,6 +43,22 @@ Fontconfig error: Cannot load default config file: No such file: (null)
 <fontconfig>
   <dir>C:/Windows/Fonts</dir>
   <cachedir>~/.cache/fontconfig</cachedir>
+
+  <match target="font">
+    <edit name="antialias" mode="assign"><bool>true</bool></edit>
+    <edit name="hinting" mode="assign"><bool>true</bool></edit>
+    <edit name="hintstyle" mode="assign"><const>hintslight</const></edit>
+    <edit name="rgba" mode="assign"><const>none</const></edit>
+  </match>
+
+  <alias binding="same">
+    <family>sans-serif</family>
+    <prefer><family>Microsoft YaHei</family><family>Segoe UI</family></prefer>
+  </alias>
+  <alias binding="same">
+    <family>monospace</family>
+    <prefer><family>Consolas</family><family>Microsoft YaHei</family></prefer>
+  </alias>
 </fontconfig>
 ```
 
@@ -53,3 +70,20 @@ FONTCONFIG_FILE=E:/path/to/fonts.conf
 ```
 
 首次生效时会重建一次字体缓存（约 1 秒，之后走缓存）。
+
+> 验证时注意：`init_fontconfig()` 只在 `driver.on_startup` 调用。写脚本单独渲染时
+> 如果不手动调一次，走的是 fontconfig 内置默认值，和线上效果不一样。
+
+### 中英数大小不一、同一行字形对不上
+
+两个原因，都要处理：
+
+1. **模板字体栈把西文字体排在前面**。`'Segoe UI', 'Microsoft YaHei'` 意味着西文和
+   数字走 Segoe UI、汉字回退雅黑，两套字形的 x-height 不同，混排必然一大一小。
+   统一改成 `'Microsoft YaHei', 'Segoe UI', sans-serif`——雅黑自带西文与数字字形，
+   整行同源。
+2. **`normal_old.html` 没有声明 `font-family`**，litehtml 默认给西文用衬线体，汉字
+   再逐字回退，问题更明显。`body` 里必须显式声明字体栈。
+
+同理，`.offline-id` 这类「汉字 + 数字」的内容不要单独设 `Consolas`——Consolas 没有
+汉字，数字和汉字又会分成两套字形。

@@ -73,6 +73,19 @@ class ConfigModel(BaseModel):
         description="htmlkit 单页出图硬上限秒；超时/失败/空字节时该页（及同次查询"
         "后续各页）改用纯 PIL 简易图",
     )
+    l4_jpeg_quality: int = Field(
+        default=82,
+        ge=40,
+        le=95,
+        description="服务器列表 JPEG 质量；降低可减小图片体积、加快上传，"
+        "82 在文字边缘清晰度与体积之间较均衡",
+    )
+    l4_render_cache_ttl: int = Field(
+        default=0,
+        ge=0,
+        description="出图结果缓存秒；0=不缓存。开启后服务器状态未变化（HTML 相同）"
+        "的重复查询直接复用图片，配合 l4_a2s_cache_ttl 可省掉整轮渲染",
+    )
     l4_image_page_size: int = Field(
         default=30,
         ge=1,

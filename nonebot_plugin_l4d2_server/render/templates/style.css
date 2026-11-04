@@ -1,10 +1,8 @@
-/* 页面基础样式 */
 body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-
+    font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
 }
 
 .outer-frame {
@@ -260,6 +258,5 @@ h1 {
     margin: 1px 2px;
     background: rgba(217, 83, 79, 0.12);
     border-radius: 3px;
-    font-family: 'Consolas', 'Courier New', monospace;
     color: #a94442;
 }

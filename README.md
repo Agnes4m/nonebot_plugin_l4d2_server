@@ -231,6 +231,10 @@ L4_WORKSHOP_CONCURRENCY=3        # 批量下载并发上限（1~8）
 # 出图
 L4_IMAGE_PAGE_SIZE=30            # 组查询每张图最多几台服，超出自动分多张发送（1~200）
 L4_RENDER_TIMEOUT=15             # 单页出图超时秒；超时 / 渲染失败时改用简易图
+L4_JPEG_QUALITY=82               # 列表 JPEG 质量（40~95）；调低可减小体积、加快上传
+L4_RENDER_CACHE_TTL=0            # 出图结果缓存秒；0=不缓存。开启后相同 HTML 直接复用图片，
+                                 # 配合 L4_A2S_CACHE_TTL 可让短时间内的重复查询几乎零耗时
+L4_PLAYERS=4                     # 卡片里最多显示几名玩家；减少可缩短卡片、加快出图
 L4_NAME_STRIP_PATTERN='^Anne云服#\d+'  # 列表里去掉的服务器名前缀（正则），默认只匹配 Anne 云服：Anne云服#57[普通药役] → [普通药役]；留空不处理
 
 # 屏蔽

@@ -4,6 +4,20 @@
 
 ### 未发布
 
+#### 查服提速 + 长图可读性
+
+- 新增 `l4_render_cache_ttl`（默认 0）：以渲染出的 HTML 摘要为键缓存 JPEG，服务器状态没变的重复查询直接复用图片；配合 A2S 缓存可把短时间内的二次查询从约 1.1s 降到 0.02s。
+- 新增 `l4_jpeg_quality`（默认 82，原为写死的 90），可调低以减小图片体积、加快上传。
+- 建议的快而可读配置（已写入部署侧 `.env.dev`）：`L4_A2S_TIMEOUT=1.0`（实测 2.5/1.5/1.0/0.7s 均识别 53/67 在线，冷查询 2.6s→1.2s）、`L4_A2S_CACHE_TTL=30`、`L4_IMAGE_PAGE_SIZE=12`、`L4_PLAYERS=2`、`L4_RENDER_CACHE_TTL=30`。单张图从 902×2187 降到 902×966 / 902×786，避免 QQ 把长图压糊。
+- 实测「云」组：首次 2.35s、缓存内 0.03s，两张图合计 249 KB（原单张 418 KB）。
+
+#### 修复中英数混排字体不一致（大小 / 字重 / 基线对不上）
+
+- 模板字体栈统一为 `'Microsoft YaHei', 'Segoe UI', sans-serif`：雅黑在前，汉字与西文、数字同出一套字形。原来把 `Segoe UI` 放在最前，西文和数字走 Segoe、汉字回退雅黑，x-height 不同，同一行里一大一小。
+- `normal_old.html`（`l4_style=old`）此前**没有声明 `font-family`**，litehtml 默认给西文用衬线体、汉字逐字回退，问题最明显；已补上字体栈。
+- `workshop.html` 从 `Arial, sans-serif` 改为雅黑优先；`.offline-id` 去掉 `Consolas`（编号是「云12」这类汉字+数字，等宽字体没有汉字，会再次拆成两套字形）。
+- 文档补充 `fonts.conf` 的通用字族映射写法，并说明「没有 fonts.conf 时 `sans-serif` 会匹配到缺汉字覆盖的字体」这一根因。
+
 #### 后台巡检可关闭：只在查服指令时请求
 
 - `l4_history_interval` / `l4_favorite_check_interval` 的下限从 60 / 30 放宽到 **0**。设 0 时不再注册对应的 apscheduler 任务，插件不会自己定期发 A2S 请求，只有收到查服指令时才查。代价：`l4热力图` 没有数据，收藏的上下线 / 人数阈值 / 地图变化通知不再触发。
