@@ -729,7 +729,8 @@ async def test_page_html_has_heading_names_and_background(style, monkeypatch):
     )
 
     assert pic == b"jpeg"
-    assert seen["kwargs"]["type"] == "jpeg"
+    # htmlkit 的参数名是 image_format（htmlrender 时代叫 type），迁移时漏改了断言
+    assert seen["kwargs"]["image_format"] == "jpeg"
     html = seen["html"]
     assert "云 有人的服务器 70 台 (在线 100/105 台) · 第 2/4 页" in html
     assert "发送「云全」查看全部" in html

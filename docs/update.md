@@ -4,6 +4,23 @@
 
 ### 未发布
 
+#### 出图：背景图不再横向平铺 + fontconfig 自带、跨平台
+
+- `normal.html` 的 body 背景从 `top left / auto 100% repeat-x` 改成
+  `center top / cover no-repeat`。内置 `background.jpg` 是 1196×1920 的竖版图，
+  按「页面高度等比缩放 + 水平平铺」会在宽页面上出现同一张图的 3 份拷贝；
+  `cover` 是单张铺满（裁切不重复）。同时补 `background-color: #23232b` 兜底，
+  避免页面比图片高时底部露白。
+- 新增 `render/fonts/fonts.conf`（随包发布），由 `fontconfig_env.ensure_fontconfig_env()`
+  在 import 阶段写进 `FONTCONFIG_FILE`。此前必须手工在 `.env` 里配一个绝对路径，
+  Windows 与 Linux 各配一份、换机器就失效。现在两个平台零配置；用户自己设了
+  `FONTCONFIG_FILE` 仍然优先。
+- `fonts.conf` 同时列了 Linux 与 Windows 字体目录，`sans-serif` 的 prefer 列表
+  补了 `Noto Sans CJK SC` / `Source Han Sans SC` / `WenQuanYi Micro Hei`，
+  Linux 上不再依赖「雅黑恰好存在」。
+- 修正 `tests/test_reload_paging.py` 里遗留的旧断言：htmlkit 的参数名是
+  `image_format`（htmlrender 时代叫 `type`），迁移时漏改，导致该用例一直失败。
+
 #### 查服提速 + 长图可读性
 
 - 新增 `l4_render_cache_ttl`（默认 0）：以渲染出的 HTML 摘要为键缓存 JPEG，服务器状态没变的重复查询直接复用图片；配合 A2S 缓存可把短时间内的二次查询从约 1.1s 降到 0.02s。

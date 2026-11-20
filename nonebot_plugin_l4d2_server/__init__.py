@@ -23,6 +23,12 @@ from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
 # 依赖插件声明 必须在导入其它插件模块之前执行。
 # htmlkit 走 litehtml 本地渲染，不需要 Chromium，也不依赖 localstore。
+# fontconfig 必须在 htmlkit 的 driver.on_startup 之前指好：缺 fonts.conf 时
+# sans-serif 这类通用字族没有映射，中英数字会拆成几套字形（详见 docs/bug.md）。
+from .fontconfig_env import ensure_fontconfig_env  # noqa: E402
+
+ensure_fontconfig_env()
+
 require("nonebot_plugin_alconna")
 require("nonebot_plugin_htmlkit")
 require("nonebot_plugin_apscheduler")

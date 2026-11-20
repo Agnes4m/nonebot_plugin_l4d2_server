@@ -9,7 +9,13 @@
         body {
             margin: 0;
             font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
-            background: url('{{ bg_url }}') top left / auto 100% repeat-x;
+            /* litehtml：竖版背景图（内置 background.jpg 是 1196x1920）用
+               ``auto 100% + repeat-x`` 时，图片先按「页面高度」等比缩放，
+               再沿水平方向平铺——宽页面上会出现同一张图的 3 份拷贝。
+               改成 cover 单张铺满（裁切不重复）；background-color 要在
+               简写之后声明，否则会被简写重置成 transparent。 */
+            background: url('{{ bg_url }}') center top / cover no-repeat;
+            background-color: #23232b;
         }
     </style>
 </head>
