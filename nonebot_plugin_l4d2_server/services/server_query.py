@@ -30,7 +30,8 @@ async def query_group_servers(group_name: str) -> List[OutServer]:
         return []
 
     ip_list: List[Tuple[str, int]] = [(s["host"], int(s["port"])) for s in servers]
-    results = await L4API.a2s_info_batch(ip_list)
+    # 整组查询用快扫：两轮短超时 + 离线负缓存，避免几台死服拖满整个超时。
+    results = await L4API.a2s_info_batch(ip_list, probe=True)
 
     # Pad missing entries with empty SourceInfo for stable indexing.
     out: List[OutServer] = []

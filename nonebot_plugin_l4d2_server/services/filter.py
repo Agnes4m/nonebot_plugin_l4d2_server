@@ -15,6 +15,7 @@ from a2s.players import Player
 from nonebot.log import logger
 
 from ..api import L4API
+from ..config import config
 from ..consts import DEFAULT_MAP_TYPES as MAP_TYPES_DEFAULT
 from ..consts import FILTER_MODES
 from ..messages import Sm as MsgSm
@@ -65,14 +66,20 @@ async def filter_servers(
         raise ValueError(f"无效的筛选模式: {mode}")
 
     map_types = list(map_types or MAP_TYPES_DEFAULT)
+    if not servers:
+        return []
+
+    # 整组一次批量查询（走快扫）。原来逐服串行 await，67 台组里有死服时
+    # 每台都要等满超时，最坏情况要几分钟。
+    ip_list = [(s["host"], int(s["port"])) for s in servers]
+    results = await L4API.a2s_info_batch(ip_list, probe=True)
+    if len(results) < len(servers):
+        results = list(results) + [(None, [])] * (len(servers) - len(results))
+
     filtered: List[dict] = []
-    for server in servers:
-        info = await L4API.a2s_info_batch(
-            [(server["host"], server["port"])],
-        )
-        if not info:
+    for server, (server_data, players) in zip(servers, results):
+        if server_data is None:
             continue
-        server_data, players = info[0]
         # 被屏蔽的服不参与；筛选条件照样用真实玩家列表（被隐藏的玩家也在服里）
         if server_data.map_name == "无" or blocklist.is_blocked(
             server_data.server_name,
@@ -93,14 +100,15 @@ async def pick_filtered(
     mode: str,
 ) -> str:
     """Pick a random server matching ``mode`` and return its text description."""
-    map_types = ["普通药役"]
     if servers is None:
         logger.warning("组不存在")
         return MsgSm.server_mistake
 
     logger.info(MsgSm.searching)
     try:
-        matches = await filter_servers(servers, mode, map_types)
+        # 用 consts.DEFAULT_MAP_TYPES（普通 + 硬核药役）；原先写死只有「普通药役」，
+        # 硬核药役服永远筛不到。
+        matches = await filter_servers(servers, mode, list(MAP_TYPES_DEFAULT))
         if not matches:
             logger.warning(MsgSm.server_not_found)
             return MsgSm.server_mistake
@@ -144,6 +152,6 @@ async def _describe(server: dict) -> str:
     if one_server.ping is not None:
         parts.append(f"ping: {one_server.ping * 1000:.0f}ms")
         parts.append(player_msg)
-    if True:  # l4_show_ip — caller decides; keep for parity
+    if config.l4_show_ip:
         parts.append(f"connect {server['host']}:{server['port']}")
     return "\n".join(parts)

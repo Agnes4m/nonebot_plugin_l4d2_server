@@ -15,8 +15,23 @@ A2S 性能要点：
   返回给要玩家列表的调用方。``clear_cache()`` 供重载指令强制刷新。
 - ainfo / aplayers 超时统一从 ``config.l4_a2s_timeout`` 取，不再硬编码 3 秒。
 - ``_empty_source_info`` 改为模块级常量 + deepcopy，每次返回独立对象。
-- 仅在 ainfo 抛异常时跳过 aplayers；``player_count == 0`` 不跳过——
-  按用户澄清，玩家数与服务器是否开服无关联。
+- 仅在 ainfo 抛异常时跳过 aplayers。``player_count == 0`` **不是**「服务器关了」
+  的依据（用户澄清：玩家数与服务器是否开服无关），照常按在线处理；只有整组
+  快扫那条路径为了省一次 UDP 会跳过空服的 aplayers（``player_count == 0``
+  时列表本来就是空的，跳过后渲染结果一致）。
+
+组查询快扫（``probe=True``，见 ``_a2s_batch_probe``）：
+
+- 在线服的 ainfo 实测 p90 < 70ms，死服却要等满整个超时。整组查询里死服
+  是墙钟的主要来源（67 台里 14 台死服 × 2.5s ≈ 全部耗时）。
+- 于是先按 ``config.l4_a2s_probe_timeout``（默认 1.0s）快速扫全部，只对失败
+  的重试 ``config.l4_a2s_probe_passes - 1`` 轮（默认共 2 轮）。实测 67 台
+  从 5.1s 降到 2.2s，且找到的在线服更多（53 vs 51）。
+- 两轮都失败的服进负缓存 ``config.l4_a2s_negative_ttl``（默认 60s），窗口内
+  直接跳过，不再白等超时——这是「同一个群里反复发 /云」收益最大的一环。
+  负缓存只记「确实连不上」，命中正缓存时不查，``clear_cache()`` 一并清空。
+- 玩家列表（aplayers）在探测**之后**只对 ``player_count > 0`` 的在线服查，
+  避免对空服白跑一次 UDP。
 """
 
 from __future__ import annotations
@@ -74,6 +89,13 @@ def _empty_source_info() -> a2s.SourceInfo:
     return deepcopy(_EMPTY_SOURCE_INFO)
 
 
+def _offline_result(index: int) -> Tuple[a2s.SourceInfo, list[a2s.Player]]:
+    """构造一条「离线」结果：max_players=0 是上层判定离线的唯一依据。"""
+    server = _empty_source_info()
+    server.steam_id = index  # type: ignore[attr-defined]
+    return server, []
+
+
 class L4D2Api:
     """All HTTP / A2S calls in one place."""
 
@@ -98,12 +120,23 @@ class L4D2Api:
         self._sem: asyncio.Semaphore | None = asyncio.Semaphore(n) if n > 0 else None
         self._timeout = float(config.l4_a2s_timeout)
         self._ttl = int(config.l4_a2s_cache_ttl)
+        # 组查询快扫参数：首轮探测超时 / 探测轮数 / 探测并发 / 离线负缓存时长。
+        # 探测并发单独一套 sem：探测超时只有 1s，用全局并发（默认 8）会明显变慢。
+        self._probe_timeout = float(config.l4_a2s_probe_timeout)
+        self._probe_passes = int(config.l4_a2s_probe_passes)
+        pn = int(config.l4_a2s_probe_concurrency)
+        self._probe_sem: asyncio.Semaphore | None = (
+            asyncio.Semaphore(pn) if pn > 0 else None
+        )
+        self._neg_ttl = int(config.l4_a2s_negative_ttl)
         # key=(host, port) -> (expire_at_monotonic, (server, players))
         # players 为 None 表示当时没查玩家列表（want_players=False）。
         self._cache: dict[
             tuple[str, int],
             tuple[float, tuple[a2s.SourceInfo, Optional[list[a2s.Player]]]],
         ] = {}
+        # 负缓存：探测多轮仍连不上的服 -> 过期时刻。窗口内直接跳过，不再白等超时。
+        self._neg_cache: dict[tuple[str, int], float] = {}
         self._last_sweep = time.monotonic()
 
     def _cache_key(self, ip: Tuple[str, int]) -> tuple[str, int]:
@@ -134,6 +167,22 @@ class L4D2Api:
     def clear_cache(self) -> None:
         """清空 A2S 结果缓存，下一次查询直接走 UDP（重载指令用）。"""
         self._cache.clear()
+        self._neg_cache.clear()
+
+    def _neg_alive(self, key: tuple[str, int], now: float) -> bool:
+        """该服是否还在负缓存窗口内（窗口内视为已知离线，直接跳过）。"""
+        expire_at = self._neg_cache.get(key)
+        if expire_at is None:
+            return False
+        if expire_at < now:
+            self._neg_cache.pop(key, None)
+            return False
+        return True
+
+    def _neg_put(self, key: tuple[str, int]) -> None:
+        if self._neg_ttl <= 0:
+            return
+        self._neg_cache[key] = time.monotonic() + self._neg_ttl
 
     def _sweep_cache_if_needed(self) -> None:
         now = time.monotonic()
@@ -143,6 +192,9 @@ class L4D2Api:
         expired = [k for k, (exp, _) in self._cache.items() if exp < now]
         for k in expired:
             self._cache.pop(k, None)
+        dead = [k for k, exp in self._neg_cache.items() if exp < now]
+        for k in dead:
+            self._neg_cache.pop(k, None)
 
     # ---------- A2S ----------
 
@@ -161,22 +213,31 @@ class L4D2Api:
         self,
         ip_list: List[Tuple[str, int]],
         want_players: bool = True,
+        probe: bool = False,
     ) -> List[Tuple[a2s.SourceInfo[str], List[a2s.Player]]]:
-        """Query multiple servers concurrently. Order is stable by steam_id."""
+        """Query multiple servers concurrently. Order is stable by steam_id.
+
+        ``probe=True`` 走两轮快扫 + 负缓存（见 ``_a2s_batch_probe``），用于整组
+        查询这类「大部分服在线、少数死服拖满超时」的场景；默认 ``False`` 保持
+        逐台一次性查询的旧行为，单服查询请勿开启。
+        """
         if not ip_list:
             return []
 
         self._sweep_cache_if_needed()
 
-        tasks = [
-            asyncio.create_task(self._a2s_one(ip, idx, want_players))
-            for idx, ip in enumerate(ip_list)
-        ]
-        try:
-            results = await asyncio.gather(*tasks)
-        except Exception as exc:
-            logger.error(f"批量 A2S 查询失败: {exc}")
-            results = [(_empty_source_info(), []) for _ in ip_list]
+        if probe and self._probe_timeout > 0:
+            results = await self._a2s_batch_probe(ip_list, want_players)
+        else:
+            tasks = [
+                asyncio.create_task(self._a2s_one(ip, idx, want_players))
+                for idx, ip in enumerate(ip_list)
+            ]
+            try:
+                results = await asyncio.gather(*tasks)
+            except Exception as exc:
+                logger.error(f"批量 A2S 查询失败: {exc}")
+                results = [(_empty_source_info(), []) for _ in ip_list]
 
         return sorted(
             results,
@@ -211,6 +272,136 @@ class L4D2Api:
             (ip_list[i][0], ip_list[i][1], info, players)
             for i, (info, players) in enumerate(results)
         ]
+
+    async def _a2s_batch_probe(
+        self,
+        ip_list: List[Tuple[str, int]],
+        want_players: bool,
+    ) -> List[Tuple[a2s.SourceInfo, List[a2s.Player]]]:
+        """整组查询的快扫实现：正缓存 → 负缓存 → 多轮短超时探测 → 补玩家。
+
+        返回顺序与 ``ip_list`` 一致（调用方再按 steam_id 排序）。
+        """
+        now = time.monotonic()
+        resolved: dict[int, tuple[a2s.SourceInfo, Optional[list[a2s.Player]]]] = {}
+        pending: list[int] = []
+
+        # 1) 正缓存命中直接用；负缓存窗口内视为已知离线，不碰 UDP。
+        for index, ip in enumerate(ip_list):
+            key = self._cache_key(ip)
+            if self._ttl > 0:
+                cached = self._cache_get(key)
+                if cached is not None and not (want_players and cached[1] is None):
+                    server, players = deepcopy(cached)
+                    server.steam_id = index  # type: ignore[attr-defined]
+                    resolved[index] = (server, (players or []) if want_players else [])
+                    continue
+            if self._neg_alive(key, now):
+                resolved[index] = _offline_result(index)
+                continue
+            pending.append(index)
+
+        # 2) 逐轮探测：首轮扫全部，之后只重试上一轮失败的。
+        timeout = self._probe_timeout
+        for _pass in range(max(1, self._probe_passes)):
+            if not pending:
+                break
+            results = await asyncio.gather(
+                *[
+                    asyncio.create_task(self._probe_one(ip_list[i], timeout))
+                    for i in pending
+                ],
+            )
+            still: list[int] = []
+            for index, info in zip(pending, results):
+                if info is None:
+                    still.append(index)
+                    continue
+                info.steam_id = index  # type: ignore[attr-defined]
+                resolved[index] = (info, None)
+            pending = still
+
+        # 3) 轮数用尽仍失败的：写负缓存，本次按离线返回。
+        for index in pending:
+            self._neg_put(self._cache_key(ip_list[index]))
+            resolved[index] = _offline_result(index)
+
+        # 4) 玩家列表放到探测之后，且只对确实有人的服查。
+        if want_players:
+            await self._fill_probe_players(ip_list, resolved)
+
+        for index, (server, players) in resolved.items():
+            # 离线结果只记在负缓存里（有自己的 TTL）。若也写进正缓存，
+            # l4_a2s_negative_ttl=0 就形同虚设——死服仍会被正缓存 ttl 记住。
+            if server.max_players == 0:
+                continue
+            self._cache_put(
+                self._cache_key(ip_list[index]),
+                deepcopy((server, players)),
+            )
+
+        return [resolved[i] for i in range(len(ip_list))]
+
+    async def _probe_one(
+        self,
+        ip: Tuple[str, int],
+        timeout: float,
+    ) -> Optional[a2s.SourceInfo]:
+        """单轮探测：拿不到 ainfo 就返回 None（由调用方决定是否重试）。"""
+        ainfo_cm: contextlib.AbstractAsyncContextManager[Any] = (
+            self._probe_sem
+            if self._probe_sem is not None
+            else contextlib.AsyncExitStack()
+        )
+        async with ainfo_cm:
+            try:
+                return await a2s.ainfo(ip, timeout=timeout, encoding="utf8")
+            except Exception as exc:
+                logger.debug(f"A2S 探测超时/失败 {ip}: {exc}")
+                return None
+
+    async def _fill_probe_players(
+        self,
+        ip_list: List[Tuple[str, int]],
+        resolved: dict[int, tuple[a2s.SourceInfo, Optional[list[a2s.Player]]]],
+    ) -> None:
+        """只给 ``player_count > 0`` 的在线服补玩家列表。
+
+        ``player_count`` 来自 ainfo 本身，为 0 即确定没人，不必再发一次 UDP。
+        """
+        targets = [
+            index
+            for index, (server, players) in resolved.items()
+            if players is None and server.max_players != 0 and server.player_count > 0
+        ]
+        got: dict[int, list[a2s.Player]] = {}
+        if targets:
+            results = await asyncio.gather(
+                *[
+                    asyncio.create_task(self._probe_players(ip_list[i]))
+                    for i in targets
+                ],
+            )
+            got = dict(zip(targets, results))
+
+        for index, (server, players) in list(resolved.items()):
+            if players is None:
+                resolved[index] = (server, got.get(index) or [])
+
+    async def _probe_players(self, ip: Tuple[str, int]) -> list[a2s.Player]:
+        players_cm: contextlib.AbstractAsyncContextManager[Any] = (
+            self._probe_sem
+            if self._probe_sem is not None
+            else contextlib.AsyncExitStack()
+        )
+        async with players_cm:
+            with contextlib.suppress(Exception):
+                return await a2s.aplayers(
+                    ip,
+                    timeout=self._timeout,
+                    encoding="utf8",
+                )
+        return []
 
     async def _a2s_one(
         self,

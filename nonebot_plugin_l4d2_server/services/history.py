@@ -172,6 +172,26 @@ def purge_older_than(days: int) -> int:
         return cur.rowcount
 
 
+def recent_active_hosts(seconds: int) -> list[tuple[str, int]]:
+    """返回最近 ``seconds`` 秒内**有过玩家**的 (host, port)。
+
+    用于「热服加密采样」：热力图需要有人时段的高密度样本，但全量加密采样
+    会把离线服也一起查一遍。只挑最近确实有人的服，采样成本跟着热度走。
+    ``seconds <= 0`` 返回空列表（等于关闭该能力）。
+    """
+    if seconds <= 0:
+        return []
+    cutoff = int(time.time()) - seconds
+    with _lock:
+        conn = _conn_lazy()
+        rows = conn.execute(
+            "SELECT DISTINCT host, port FROM a2s_history "
+            "WHERE timestamp>=? AND player_count>0 AND max_players>0",
+            (cutoff,),
+        ).fetchall()
+    return [(str(r[0]), int(r[1])) for r in rows]
+
+
 def all_tracked_hosts() -> Iterable[tuple[str, int]]:
     """返回数据库里所有出现过的 (host, port)。"""
     with _lock:

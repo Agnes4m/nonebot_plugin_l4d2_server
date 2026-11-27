@@ -45,6 +45,34 @@ class ConfigModel(BaseModel):
         "其他值走 asyncio.Semaphore 节流",
     )
     l4_a2s_timeout: float = Field(default=2.5, gt=0, description="A2S 单次超时秒")
+    l4_a2s_probe_timeout: float = Field(
+        default=1.0,
+        ge=0,
+        description="A2S 首轮探测超时秒；0=关闭两轮探测，退回一次性 l4_a2s_timeout。"
+        "在线服的 ainfo 实测 p90 < 70ms，1 秒足够；死服不必等满 2.5 秒",
+    )
+    l4_a2s_probe_passes: int = Field(
+        default=2,
+        ge=1,
+        le=3,
+        description="A2S 探测轮数；第 1 轮用 l4_a2s_probe_timeout 扫全部，"
+        "后续轮只重试失败的服。2 轮是墙钟与准确率的平衡点"
+        "（67 台实测 2 轮 2.2 秒，单轮 1 秒会漏 1-8 台）",
+    )
+    l4_a2s_probe_concurrency: int = Field(
+        default=16,
+        ge=1,
+        le=64,
+        description="A2S 探测阶段的并发上限；与 l4_a2s_concurrency 分开，"
+        "因为探测超时只有 1 秒，并发 16 实测最稳（24 以上开始丢包）。"
+        "整组 67 台在并发 8 下是 4.2 秒，并发 16 下 2.2 秒",
+    )
+    l4_a2s_negative_ttl: int = Field(
+        default=60,
+        ge=0,
+        description="离线服务器负缓存秒；探测失败的服在这段时间内直接跳过，"
+        "不再白等超时。0=不启用。上线后最长需要这么久才会重新被查到",
+    )
     l4_a2s_cache_ttl: int = Field(
         default=15,
         ge=0,
@@ -112,15 +140,37 @@ class ConfigModel(BaseModel):
         "<data_dir>/block_words/*.txt 里的词表（每行一个词）总会加载",
     )
     l4_history_interval: int = Field(
-        default=300,
+        default=3600,
         ge=0,
         description="A2S 历史记录周期秒；0=不注册后台巡检，只在收到查服指令时请求"
-        "（热力图随之没有数据）",
+        "（热力图随之没有数据）。默认 1 小时：服务器状态以小时为粒度变化，"
+        "5 分钟一次只是给热力图堆样本，代价却是每轮都要为离线服等满超时",
     )
     l4_history_retention_days: int = Field(
         default=30,
         ge=1,
         description="A2S 历史保留天数；启动时清理过期记录",
+    )
+    l4_history_dead_retry_max: int = Field(
+        default=7200,
+        ge=0,
+        description="历史巡检里离线服的最长重试间隔秒；从 l4_history_interval 起步"
+        "翻倍封顶此值。0=关闭退避，每轮都查（103 台里有 48 台永久离线时，"
+        "每轮白等十几秒）",
+    )
+    l4_history_hot_interval: int = Field(
+        default=300,
+        ge=0,
+        description="「热服」加密采样周期秒；0=关闭（只在 l4_history_interval 那一刻采样）。"
+        "热服 = l4_history_hot_window 内出现过玩家的服。整组巡检把周期拉到 1 小时后，"
+        "热力图会变得很稀，本项让「最近确实有人」的服保持 5 分钟级采样，"
+        "而 48 台永久死服照旧按退避跳过",
+    )
+    l4_history_hot_window: int = Field(
+        default=7200,
+        ge=0,
+        description="判定「热服」的回看窗口秒；l4_history_hot_window 内出现过玩家的服"
+        "参与加密采样。0=关闭加密采样（等价 l4_history_hot_interval=0）",
     )
     l4_image_max_servers: int = Field(
         default=0,
