@@ -71,18 +71,15 @@ _✨Nonebot & Left 4 Dead 2 server 操作 ✨_
 `/云` 等组查询输出的服务器列表（HTML）图支持自定义背景。`/云1` 这类具体服查询**不受影响**，固定使用深蓝灰纯色背景。
 
 ```
-<l4_path>/custom_backgrounds/   ← 放任意张图即可；插件会随机抽一张
+<data_dir>/custom_backgrounds/   ← 放任意张图即可；插件会随机抽一张
 ```
 
-`<l4_path>` 默认为 `data/L4D2`（即 `<l4_path>/custom_backgrounds/` = `data/L4D2/custom_backgrounds/`）；如要换位置，在 `.env` 里改：
-
-```dotenv
-L4_PATH=/path/to/your/data
-```
+`<data_dir>` 固定为 `<cwd>/data/nonebot_plugin_l4d2_server/`（见下文「数据目录」），
+**不可通过配置改位置**。旧版本里 `L4_PATH` 这个旋钮已经移除，现在设了也不生效。
 
 使用步骤：
 
-1. 找到 `<l4_path>/custom_backgrounds/`（默认 `data/L4D2/custom_backgrounds/`，与 `云.json` 等组文件同级）；
+1. 找到 `<data_dir>/custom_backgrounds/`（即 `<cwd>/data/nonebot_plugin_l4d2_server/custom_backgrounds/`，与 `云.json` 等组文件同级）；
 2. 把你想要的背景图放入该目录，支持 `.jpg` / `.jpeg` / `.png` 格式，可放多张；
 3. 完成。下一次查询即会使用新背景。
 
@@ -90,7 +87,7 @@ L4_PATH=/path/to/your/data
 
 **查找顺序**：
 
-- `/云`（服务器列表）：从 `<l4_path>/custom_backgrounds/` 所有图片中**随机抽一张**；目录为空时回退到内置 `background.jpg`
+- `/云`（服务器列表）：从 `<data_dir>/custom_backgrounds/` 所有图片中**随机抽一张**；目录为空时回退到内置 `background.jpg`
 - `/云1`（单服务器卡）：固定使用深蓝灰纯色背景（`#496D89`），不加载任何图片
 
 **选择规则**：
@@ -185,6 +182,8 @@ Windows / Linux 都有预编译 wheel，装上即用（比原来的 Playwright �
 - [x] **服务器订阅 / 收藏 + 定时推送**（v1.4.0）：上线 / 离线 / 玩家数突变时自动通知群
 - [x] **单服 CRUD 指令**（v1.4.0）：不用手动编辑 JSON
 - [x] **创意工坊批量并发下载**（v1.4.0）：流式写入 + 进度回报
+- [x] **组查询快扫**：两轮短超时探测 + 离线负缓存，67 台组冷查询 5.7-7.7s → 2.2-2.6s，且在线服识别更准
+- [x] **历史巡检**：每小时记录全组在线状态，离线服指数退避、有人的服额外加密采样，供 `l4热力图` 使用
 
 ## 新指令速览（v1.4.0）
 
@@ -199,6 +198,20 @@ Windows / Linux 都有预编译 wheel，装上即用（比原来的 Playwright �
 | `l4修改服务器 <组> <id> <新ip>` | `l4_edit_server`、`l4editserver` | SUPERUSER | 改单服 ip |
 | `l4查看组 <组>` | `l4showgroup`、`l4列服务器` | SUPERUSER | 列组成员 + 在线状态 |
 | `l4创意工坊 id1,id2 id3` | — | `l4_permission_set` | 批量并发下载（逗号/空格/换行分隔） |
+
+服务器组维护类指令同样需要 **SUPERUSER**，因为它们会整体改写或清空组数据：
+
+| 指令 | 别名 | 用途 |
+|---|---|---|
+| `l4添加组 <组> <SourceBans URL>` | `l4addban`、`l4添加ban` | 从 SourceBans 页面拉取并导入一个服务器组 |
+| `l4刷新组` | `l4reloadsb` | 重新拉取全部组的 SourceBans 页面 |
+| `l4列组` | `l4listgroup`、`l4listgroups` | 列出已配置的组 |
+| `l4删除组 <组>` | `l4delgroup` | 删除整个组及其分页配置 |
+| `l4删除页 <组> <页码>` | `l4delpage` | 删除某个组的一页分页映射 |
+| `l4导出组 <组>` | `l4exportgroup` | 导出该组的服务器清单（JSON） |
+| `l4导出全部组` | `l4exportgroups` | 导出所有组 |
+
+> 这几个曾经没有权限限制，任意群成员都能执行 `l4delgroup` 删掉整个组；现已统一为 SUPERUSER。
 
 ## 数据目录
 
@@ -220,10 +233,19 @@ L4_A2S_CONCURRENCY=8             # 同时最多几台服务器在查（信号量
 L4_A2S_TIMEOUT=2.5               # 单次 ainfo / aplayers 超时秒
 L4_A2S_CACHE_TTL=15              # 结果缓存秒；0=不缓存
 
+# 组查询快扫（/云 这类整组查询专用）
+L4_A2S_PROBE_TIMEOUT=1.0         # 首轮探测超时秒；0=关闭快扫，退回 L4_A2S_TIMEOUT
+L4_A2S_PROBE_PASSES=2            # 探测轮数，每轮只重试上轮失败的服（1~3）
+L4_A2S_PROBE_CONCURRENCY=16      # 探测阶段独立并发，不占用 L4_A2S_CONCURRENCY
+L4_A2S_NEGATIVE_TTL=60           # 连不上的服记住这么久并跳过；0=关闭
+
 # 订阅 / 巡检
 L4_FAVORITE_CHECK_INTERVAL=300   # 收藏巡检间隔秒；0=关闭后台巡检，只在查服指令时请求
 L4_FAVORITE_PLAYER_DELTA=5       # 玩家数变化超过此值才推送
-L4_HISTORY_INTERVAL=300          # 历史记录周期秒；0=关闭（同上，热力图会没有数据）
+L4_HISTORY_INTERVAL=3600         # 历史记录周期秒；0=关闭（热力图会没有数据）
+L4_HISTORY_DEAD_RETRY_MAX=7200   # 离线服最长重试间隔秒，从上面的周期起翻倍封顶；0=不退避
+L4_HISTORY_HOT_INTERVAL=300      # 热服加密采样周期秒；0=关闭
+L4_HISTORY_HOT_WINDOW=7200       # 只加密采样这段时间内有过玩家的服；0=关闭
 
 # 工坊
 L4_WORKSHOP_CONCURRENCY=3        # 批量下载并发上限（1~8）
@@ -263,7 +285,7 @@ L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
 和上面的关键词不同，敏感词库**只打码不隐藏**：服务器名、玩家名里命中的词替换成 `*`（如 `出售按摩棒` → `出售***`），服务器和玩家照常显示。几千到几万个词的词表难免混着常用词，打码比整台隐藏温和。
 
 - **内置词库**：`.env` 设 `L4_BLOCK_BUILTIN_WORDS=true` 打开。收录 [konsheng/Sensitive-lexicon](https://github.com/konsheng/Sensitive-lexicon)（MIT）的政治、反动、暴恐、涉枪涉爆、色情、贪腐等 8 个分类，约 2100 个词，已删掉和 L4D2 用语、常见昵称冲突的词；来源、删改和没收录的分类见 `nonebot_plugin_l4d2_server/block_words/README.md`。
-- **自定义词表**：把 `.txt` 放到 `<data_dir>/block_words/`（启动时自动创建），每行一个词，`#` 开头是注释，发 `l4刷新` 生效。不管内置词库开没开都会加载。
+- **自定义词表**：把 `.txt` 放到 `<data_dir>/block_words/`（启动时自动创建），每行一个词，`#` 开头是注释，由管理员发 `l4刷新` 生效（该指令现需 SUPERUSER）。不管内置词库开没开都会加载。
 - 少于 2 个字的词不加载；中文按子串匹配，纯字母数字的词（如 `xjp`）按整词匹配，不会误伤 `SirPlease` 这种英文名；全角字符按半角算。不在线服的占位名「服务器无响应」不打码。
 
 > 同一仓库的 GFW补充词库、零时-Tencent 等大词表包含手枪、冲锋枪、炸弹、电击器、燃烧瓶、嗑药、服务器等 L4D2 常用词，直接放进 `block_words/` 会把正常的服务器名和玩家名打码，建议先删掉这些词再用。
@@ -295,31 +317,52 @@ L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
 
 ## env 设置
 
-```bash
-    l4_enable = True
-    """是否全局启用求生功能"""
-    l4_image = False
-    """是否启用图片"""
-    l4_connect = True
-    """是否在查服命令后加入connect ip"""
-    l4_players = 4
-    """查询总图的时候展示的用户数量"""
-    l4_style = "default"
-    """图片风格，可选包括以下
-    - 简洁
-    l4_a2s_concurrency = 8
-    """A2S 并发上限（信号量）"""
-    l4_a2s_timeout = 2.5
-    """A2S 单次超时秒"""
-    l4_a2s_cache_ttl = 15
-    """A2S 结果缓存秒；0=不缓存"""
-    l4_favorite_check_interval = 300
-    """收藏巡检间隔秒；0=不注册后台巡检，只在查服指令时请求"""
-    l4_favorite_player_delta = 5
-    """玩家数变化超过此值才推送"""
-    l4_workshop_concurrency = 3
-    """创意工坊批量下载并发上限"""
-```
+全部字段定义在 `nonebot_plugin_l4d2_server/config.py` 的 `ConfigModel`，
+在 `.env` / `.env.dev` / `.env.prod` 里用 `L4_*` 大写覆盖。上面的「数据目录」
+一节有带注释的示例；下面是完整清单。
+
+### 行为开关
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| `L4_ENABLE` | `true` | 总开关。`false` 时所有指令在规则层被拦截（仍注册但不响应），改了立即生效 |
+| `L4_IMAGE` | `true` | 关掉后 `l4help` / `云` / `云1` 全部走纯文字 |
+| `L4_CONNECT` | `true` | 查服回复末尾是否追加 `connect host:port` |
+| `L4_SHOW_IP` | `true` | 单服卡片底部是否画 `host:port` |
+| `L4_PLAYERS` | `4` | 单服卡片最多显示几名玩家 |
+| `L4_STYLE` | `"default"` | 组卡片模板，`default` 或 `old` |
+| `L4_FONT` | `""` | PIL 字体路径；空则用包内 `render/fonts/loli.ttf`。路径不存在只 warning 回退 |
+| `L4_PERMISSION` | `1` | `l4本地上传` / `l4本地改名` / `l4本地删除` / `l4创意工坊` 的最低权限位（1=SUPERUSER … 4=群员） |
+| `L4_LOCAL` | `[]` | 本地 L4D2 服务器路径列表（JSON 数组） |
+| `L4_MAP_INDEX` | `0` | `L4_LOCAL` 里操作第几个服务器 |
+
+### 出图
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| `L4_IMAGE_PAGE_SIZE` | `30` | 组查询每张图最多几台服，超出自动分多张（1~200） |
+| `L4_IMAGE_MAX_SERVERS` | `0` | 组内服数超过此值时不出图、只回文字提示；0=不限 |
+| `L4_RENDER_TIMEOUT` | `15` | 单页出图超时秒，超时改用简易图 |
+| `L4_JPEG_QUALITY` | `82` | 列表 JPEG 质量（40~95） |
+| `L4_RENDER_CACHE_TTL` | `0` | 出图结果缓存秒；0=不缓存 |
+| `L4_NAME_STRIP_PATTERN` | `'^Anne云服#\d+'` | 列表里去掉的服务器名前缀（正则），留空不处理 |
+
+### 屏蔽
+
+| 字段 | 默认 | 说明 |
+|---|---|---|
+| `L4_BLOCK_KEYWORDS` | `[]` | 关键词正则列表，命中的服务器整台隐藏、玩家只隐藏本人 |
+| `L4_BLOCK_BUILTIN_WORDS` | `false` | 启用内置中文敏感词库（约 2100 词，只打码不隐藏） |
+
+### 性能 / 巡检
+
+见上文「数据目录」里的 dotenv 示例，共 10 项：`L4_A2S_CONCURRENCY`、
+`L4_A2S_TIMEOUT`、`L4_A2S_CACHE_TTL`、`L4_A2S_PROBE_TIMEOUT`、
+`L4_A2S_PROBE_PASSES`、`L4_A2S_PROBE_CONCURRENCY`、`L4_A2S_NEGATIVE_TTL`、
+`L4_FAVORITE_CHECK_INTERVAL`、`L4_FAVORITE_PLAYER_DELTA`、
+`L4_WORKSHOP_CONCURRENCY`；以及历史记录的 5 项 `L4_HISTORY_INTERVAL`、
+`L4_HISTORY_RETENTION_DAYS`（默认 `30`，每天 04:00 清理更早的记录）、
+`L4_HISTORY_DEAD_RETRY_MAX`、`L4_HISTORY_HOT_INTERVAL`、`L4_HISTORY_HOT_WINDOW`。
 
 ## 和 0.x.x 更改部分
 
@@ -327,7 +370,7 @@ L4_BLOCK_KEYWORDS='["广告", "外挂|cheat"]'
 - **单服务器查询（`云1`）合并图片与 `connect host:port` 文本**：图片和 `connect host:port` 文本作为一条合并消息发出（受 `l4_connect` 配置控制），方便直接点链接加入服务器；
 - **单服务器卡（`云1`）长内容自动换行**：服务器名、地图名、connect IP 等超出 380px 卡片宽度时，会按像素宽度自动换行展示，图片高度随行数自动撑高；
 - **服务器列表（`云`）地图名溢出处理**：`.map-name` CSS 增加 `text-overflow: ellipsis`，超长地图名以省略号截断，不再撑破卡片；
-- **查服背景图按渲染类型拆分目录**（后续调整）：`/云`（服务器列表）从 `<l4_path>/custom_backgrounds/` 根目录的所有图片中随机抽一张，目录为空时回退到内置 `background.jpg`；`/云1`（单服务器卡）固定使用深蓝灰纯色，不加载任何图片。详见「自定义服务器列表背景图片」；
+- **查服背景图按渲染类型拆分目录**（后续调整）：`/云`（服务器列表）从 `<data_dir>/custom_backgrounds/` 根目录的所有图片中随机抽一张，目录为空时回退到内置 `background.jpg`；`/云1`（单服务器卡）固定使用深蓝灰纯色，不加载任何图片。详见「自定义服务器列表背景图片」；
 - **数据路径统一由 `services/path_resolver.py` 决定**：组文件、sb_pages、自定义背景图、迁移脚本都从 `<cwd>/data/nonebot_plugin_l4d2_server/` 派生，不再各自写死相对路径。`l4_path` 配置项已移除（设了也不生效）。
 
 ## v1.4.0 相对 v1.3.x 的变化
