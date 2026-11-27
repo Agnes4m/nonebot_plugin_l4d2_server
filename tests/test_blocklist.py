@@ -212,7 +212,8 @@ async def test_pickers_skip_blocked_servers_but_judge_by_real_players(monkeypatc
     }
 
     async def batch(ips, **_kwargs):
-        return [infos[ips[0][1]]]
+        # filter_servers 现在整组一次批量查询，mock 要按输入顺序返回全部结果
+        return [infos[port] for _host, port in ips]
 
     monkeypatch.setattr(filter_mod.L4API, "a2s_info_batch", batch)
     servers = [{"host": "10.0.0.1", "port": port} for port in (1, 2, 3)]

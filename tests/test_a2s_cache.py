@@ -117,6 +117,28 @@ def _fresh_api(ttl: int = 15, concurrency: int = 0, timeout: float = 2.5) -> L4D
         return L4D2Api()
 
 
+def _fresh_probe_api(
+    *,
+    ttl: int = 15,
+    concurrency: int = 0,
+    timeout: float = 2.5,
+    probe_timeout: float = 1.0,
+    passes: int = 2,
+    probe_concurrency: int = 0,
+    neg_ttl: int = 60,
+) -> L4D2Api:
+    with (
+        _Patch(config_module.config, "l4_a2s_cache_ttl", ttl),
+        _Patch(config_module.config, "l4_a2s_concurrency", concurrency),
+        _Patch(config_module.config, "l4_a2s_timeout", timeout),
+        _Patch(config_module.config, "l4_a2s_probe_timeout", probe_timeout),
+        _Patch(config_module.config, "l4_a2s_probe_passes", passes),
+        _Patch(config_module.config, "l4_a2s_probe_concurrency", probe_concurrency),
+        _Patch(config_module.config, "l4_a2s_negative_ttl", neg_ttl),
+    ):
+        return L4D2Api()
+
+
 def test_cache_hit_skips_udp_call():
     """第二次同 IP 查询应直接读缓存，不打 a2s.ainfo。"""
     api = _fresh_api(ttl=15)
@@ -359,3 +381,198 @@ def test_batch_orders_results_by_steam_id():
 
     steam_ids = [r[0].steam_id for r in results]
     assert steam_ids == [0, 1, 2], f"应按 steam_id 升序，实际 {steam_ids}"
+
+
+# ---------------- 组查询快扫（probe=True）：两轮短超时 + 负缓存 + 补玩家 ----------------
+
+
+def _probe_info(name: str = "ok", players: int = 2) -> a2s.SourceInfo:
+    info = _make_source_info()
+    info.server_name = name
+    info.player_count = players
+    info.max_players = 8
+    return info
+
+
+def test_probe_retries_only_failed_hosts():
+    """首轮失败的服在第二轮重试；首轮成功的绝不再查一次。"""
+    api = _fresh_probe_api(passes=2)
+    calls: dict[tuple[str, int], int] = {}
+
+    async def fake_ainfo(ip, **_kwargs):
+        calls[ip] = calls.get(ip, 0) + 1
+        # 第一轮全失败，第二轮全成功（用次数模拟）
+        if calls[ip] == 1:
+            raise TimeoutError("probe timeout")
+        return _probe_info()
+
+    ips = [("1.1.1.1", 27015), ("2.2.2.2", 27015)]
+    with (
+        patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo),
+        patch.object(api_module.a2s, "aplayers", AsyncMock(return_value=[])),
+    ):
+        results = asyncio.run(api.a2s_info_batch(ips, want_players=False, probe=True))
+
+    assert calls == dict.fromkeys(ips, 2), f"每台应查 2 轮，实际 {calls}"
+    assert all(info.max_players == 8 for info, _ in results)
+
+
+def test_probe_online_host_queried_once_only():
+    """首轮就成功的服不会被第二轮重复查询。"""
+    api = _fresh_probe_api(passes=2)
+    calls: dict[tuple[str, int], int] = {}
+
+    async def fake_ainfo(ip, **_kwargs):
+        calls[ip] = calls.get(ip, 0) + 1
+        if ip[0] == "2.2.2.2":
+            raise TimeoutError("probe timeout")
+        return _probe_info()
+
+    ips = [("1.1.1.1", 27015), ("2.2.2.2", 27015)]
+    with (
+        patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo),
+        patch.object(api_module.a2s, "aplayers", AsyncMock(return_value=[])),
+    ):
+        asyncio.run(api.a2s_info_batch(ips, want_players=False, probe=True))
+
+    assert calls[("1.1.1.1", 27015)] == 1, "在线服只查一轮"
+    assert calls[("2.2.2.2", 27015)] == 2, "失败服重试"
+
+
+def test_probe_writes_negative_cache_and_skips_next_time():
+    """两轮都失败的服进负缓存；下一次在 TTL 内直接跳过，不再打 UDP。"""
+    api = _fresh_probe_api(passes=2, neg_ttl=60)
+    dead = ("9.9.9.9", 27015)
+    alive = ("1.1.1.1", 27015)
+    dead_calls = 0
+
+    async def fake_ainfo(ip, **_kwargs):
+        nonlocal dead_calls
+        if ip == dead:
+            dead_calls += 1
+            raise TimeoutError("dead server")
+        return _probe_info()
+
+    with (
+        patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo),
+        patch.object(api_module.a2s, "aplayers", AsyncMock(return_value=[])),
+    ):
+        first = asyncio.run(
+            api.a2s_info_batch([alive, dead], want_players=False, probe=True),
+        )
+        assert dead_calls == 2, "两轮都查（2 passes）"
+        assert api._neg_cache, "失败服应写入负缓存"
+        offline = [i for i, _ in first if i.max_players == 0]
+        assert len(offline) == 1, "死服按离线返回"
+
+        # 第二次：正缓存还在，死服走负缓存 —— 都不该再打 UDP
+        before = dead_calls
+        api._cache.clear()  # 只清正缓存，模拟 TTL 过期但负缓存仍有效
+        asyncio.run(api.a2s_info_batch([alive, dead], want_players=False, probe=True))
+
+    assert dead_calls == before, "负缓存命中时不应再查死服"
+
+
+def test_probe_negative_cache_expires():
+    api = _fresh_probe_api(passes=1, neg_ttl=0)
+    dead = ("9.9.9.9", 27015)
+    calls = 0
+
+    async def fake_ainfo(_ip, **_kwargs):
+        nonlocal calls
+        calls += 1
+        raise TimeoutError("dead")
+
+    with (
+        patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo),
+        patch.object(api_module.a2s, "aplayers", AsyncMock(return_value=[])),
+    ):
+        asyncio.run(api.a2s_info_batch([dead], want_players=False, probe=True))
+        assert not api._neg_cache, "neg_ttl=0 时不该写负缓存"
+        asyncio.run(api.a2s_info_batch([dead], want_players=False, probe=True))
+
+    assert calls == 2, "没有负缓存时每次都要重查"
+
+
+def test_probe_skips_players_for_empty_servers():
+    """玩家列表只对 player_count > 0 的在线服查，空服不白跑一次 UDP。"""
+    api = _fresh_probe_api(passes=1)
+    ips = [("1.1.1.1", 27015), ("2.2.2.2", 27015)]
+
+    async def fake_ainfo(ip, **_kwargs):
+        # 1.1.1.1 有人，2.2.2.2 空服
+        return _probe_info(players=3 if ip[0] == "1.1.1.1" else 0)
+
+    aplayers_mock = AsyncMock(
+        return_value=[a2s.Player(index=0, name="p1", score=1, duration=60.0)],
+    )
+    with (
+        patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo),
+        patch.object(api_module.a2s, "aplayers", aplayers_mock),
+    ):
+        results = asyncio.run(api.a2s_info_batch(ips, want_players=True, probe=True))
+
+    assert aplayers_mock.await_count == 1, "只对有人服查玩家"
+    by_ip = {("1.1.1.1" if i == 0 else "2.2.2.2"): r for i, r in enumerate(results)}
+    assert [p.name for p in by_ip["1.1.1.1"][1]] == ["p1"]
+    assert by_ip["2.2.2.2"][1] == [], "空服玩家列表为空"
+
+
+def test_probe_disabled_falls_back_to_plain_batch():
+    """probe_timeout=0 时退回一次性查询（每台只查一次）。"""
+    api = _fresh_probe_api(probe_timeout=0.0, passes=2)
+    calls = 0
+
+    async def fake_ainfo(_ip, **_kwargs):
+        nonlocal calls
+        calls += 1
+        raise TimeoutError("dead")
+
+    with (
+        patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo),
+        patch.object(api_module.a2s, "aplayers", AsyncMock(return_value=[])),
+    ):
+        asyncio.run(
+            api.a2s_info_batch([("9.9.9.9", 27015)], want_players=False, probe=True),
+        )
+
+    assert calls == 1, "probe_timeout=0 时只查一次，不重试"
+
+
+def test_probe_result_order_matches_input_index():
+    """probe 分支返回顺序与输入一致（steam_id 被覆盖成输入下标）。"""
+    api = _fresh_probe_api(passes=1)
+    ips = [("3.3.3.3", 27015), ("1.1.1.1", 27015), ("2.2.2.2", 27015)]
+
+    with (
+        patch.object(
+            api_module.a2s,
+            "ainfo",
+            AsyncMock(side_effect=lambda ip, **_k: _probe_info(ip[0])),
+        ),
+        patch.object(api_module.a2s, "aplayers", AsyncMock(return_value=[])),
+    ):
+        results = asyncio.run(api.a2s_info_batch(ips, want_players=False, probe=True))
+
+    assert [r[0].server_name for r in results] == ["3.3.3.3", "1.1.1.1", "2.2.2.2"]
+    assert [r[0].steam_id for r in results] == [0, 1, 2]
+
+
+def test_probe_dead_server_still_skips_aplayers():
+    """探测失败（离线）时同样不该调 aplayers —— 与 ``_a2s_one`` 的既有约定一致。"""
+    api = _fresh_probe_api(passes=2)
+
+    async def fake_ainfo(_ip, **_kwargs):
+        raise TimeoutError("dead")
+
+    aplayers_mock = AsyncMock(return_value=[])
+    with (
+        patch.object(api_module.a2s, "ainfo", side_effect=fake_ainfo),
+        patch.object(api_module.a2s, "aplayers", aplayers_mock),
+    ):
+        results = asyncio.run(
+            api.a2s_info_batch([("9.9.9.9", 27015)], want_players=True, probe=True),
+        )
+
+    assert aplayers_mock.await_count == 0, "离线服不查玩家"
+    assert results[0][0].max_players == 0

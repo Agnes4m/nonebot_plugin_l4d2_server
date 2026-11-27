@@ -305,8 +305,10 @@ async def test_sourceban_json_preserves_explicit_ids(group, monkeypatch):
         '{"Anne":',
         '{"Anne": [{"id": "0", "ip": "10.0.0.1:27015"}]}',
         '{"Anne": [{"id": "1", "ip": "bad-address"}]}',
-        '{"Anne": [{"id": "1", "ip": "10.0.0.1:27015"},'
-        '{"id": "1", "ip": "10.0.0.2:27015"}]}',
+        (
+            '{"Anne": [{"id": "1", "ip": "10.0.0.1:27015"},'
+            '{"id": "1", "ip": "10.0.0.2:27015"}]}'
+        ),
     ],
 )
 async def test_invalid_json_refresh_keeps_old_group(
