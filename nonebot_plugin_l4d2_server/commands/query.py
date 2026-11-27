@@ -68,6 +68,7 @@ def refresh_server_command_rule() -> None:
     """
     from nonebot.rule import TRIE_VALUE, CommandRule, Rule, TrieRule
 
+    from ..enable_rule import with_enable_guard
     from .admin import register_picker_handlers
 
     starts = get_driver().config.command_start or {""}
@@ -75,7 +76,10 @@ def refresh_server_command_rule() -> None:
     for cmd in cmds:
         for start in starts:
             TrieRule.prefix[f"{start}{cmd[0]}"] = TRIE_VALUE(start, cmd)
-    l4_request.rule = Rule(CommandRule(cmds), _server_command_filter)
+    # 直接赋值会覆盖 enable_rule 叠上的总开关，所以这里显式再叠一次。
+    l4_request.rule = with_enable_guard(
+        Rule(CommandRule(cmds), _server_command_filter),
+    )
     register_picker_handlers()
 
 
@@ -128,14 +132,16 @@ async def _server_query_handler(
 
     if isinstance(msg, bytes):
         out = UniMessage.image(raw=msg)
-        # 文字模式下 render_server_card 已经带了 connect 行（l4_show_ip），不重复加
-        if config.l4_connect:
-            endpoint = server_query.find_endpoint(command, server_id)
-            if endpoint is not None:
-                host, port = endpoint
-                out += UniMessage.text(f"\nconnect {host}:{port}")
     else:
         out = UniMessage.text(str(msg))
+
+    # 卡片（含兜底文字卡）在 l4_show_ip=true 时已经带了 connect 行，
+    # 这里只补 l4_show_ip 关闭、但用户仍希望要直连地址的情况。
+    if config.l4_connect and not config.l4_show_ip:
+        endpoint = server_query.find_endpoint(command, server_id)
+        if endpoint is not None:
+            host, port = endpoint
+            out += UniMessage.text(f"\nconnect {host}:{port}")
 
     await out.send()
 
@@ -219,9 +225,7 @@ async def _find_player_handler(matcher: Matcher, args: Message = CommandArg()) -
                         await UniMessage.image(raw=out_msg).send()
                     else:
                         await UniMessage.text(out_msg).send()
-                    if config.l4_connect:
-                        await UniMessage.text(
-                            f"\nconnect {host}:{port}",
-                        ).send()
+                    # connect 行由 render_server_card 依据 l4_show_ip 一并输出，
+                    # 这里不再重复追加。
                     await matcher.finish()
     await UniMessage.text(Gm.no_player).finish()

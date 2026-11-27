@@ -6,6 +6,7 @@ and ``refresh_server_command_rule`` helper used by ``ban`` / ``admin`` /
 依赖 ``query``，但放在 ``query`` 之前便于 ``__init__`` 在启动期统一扫描。
 """
 
+from ..enable_rule import apply_enable_guard_to_existing  # noqa: E402
 from . import (  # noqa: F401
     admin,
     ban,
@@ -17,6 +18,10 @@ from . import (  # noqa: F401
     server_control,
     server_mgmt,
 )
+
+# 全部指令模块已导入，把 L4_ENABLE 总开关叠到它们身上。必须在上面这行之后，
+# 否则 matcher 还没创建出来（见 enable_rule 模块文档）。
+apply_enable_guard_to_existing()
 
 __all__ = [
     "admin",

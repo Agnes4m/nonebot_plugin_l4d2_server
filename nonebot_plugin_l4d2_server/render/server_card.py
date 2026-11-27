@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import io
 from functools import lru_cache
-from pathlib import Path
 
 from a2s import Player
 from PIL import Image, ImageDraw, ImageFont
 
 from ..config import config
 from ..messages import Sm as MsgSm
+from .fonts import core_font
 
 # 单张图片宽度（像素），超长行会按像素宽度自动换行
 MAX_CARD_WIDTH = 380
@@ -30,18 +30,8 @@ def _resolve_card_background(img_w: int, img_h: int) -> Image.Image:
 
 @lru_cache(maxsize=16)
 def _load_font(size: int) -> ImageFont.FreeTypeFont:
-    """Cached font loader, falling back through system fonts."""
-    candidates = [
-        str(Path(__file__).parent / "fonts" / "loli.ttf"),
-        "msyh.ttc",
-        "simhei.ttf",
-    ]
-    for path in candidates:
-        try:
-            return ImageFont.truetype(path, size)
-        except OSError:
-            continue
-    return ImageFont.load_default(size)
+    """复用 ``render.fonts.core_font``，保证 L4_FONT 对所有出图路径一致生效。"""
+    return core_font(size)
 
 
 def _format_player_lines(players: list[Player]) -> str:

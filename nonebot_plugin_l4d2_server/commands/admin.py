@@ -27,6 +27,7 @@ l4_switch_style = on_command(
 l4_reload_servers = on_command(
     "l4_reload",
     aliases={"l4reload", "l4刷新", "l4重载"},
+    permission=SUPERUSER,
 )
 
 
@@ -88,9 +89,11 @@ def register_picker_handlers() -> None:
     if getattr(register_picker_handlers, "_registered", False):
         return
 
-    ld_tj = on_fullmatch("tj")
-    ld_zl = on_fullmatch("zl")
-    ld_kl = on_fullmatch("kl")
+    from ..enable_rule import L4_ENABLED
+
+    ld_tj = on_fullmatch("tj", rule=L4_ENABLED)
+    ld_zl = on_fullmatch("zl", rule=L4_ENABLED)
+    ld_kl = on_fullmatch("kl", rule=L4_ENABLED)
 
     @ld_tj.handle()
     async def _(matcher) -> None:

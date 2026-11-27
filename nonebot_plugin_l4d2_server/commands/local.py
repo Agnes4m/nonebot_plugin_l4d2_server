@@ -45,18 +45,21 @@ l4_map_upload = on_command(
     aliases={"l4_map_upload", "l4upload"},
     priority=5,
     block=True,
+    permission=config.l4_permission_set,
 )
 l4_map_change = on_command(
     "l4本地改名",
     aliases={"l4_map_change", "l4mapchange"},
     priority=20,
     block=True,
+    permission=config.l4_permission_set,
 )
 l4_map_delete = on_command(
     "l4本地删除",
     aliases={"l4_map_delete", "l4mapdel"},
     priority=20,
     block=True,
+    permission=config.l4_permission_set,
 )
 
 

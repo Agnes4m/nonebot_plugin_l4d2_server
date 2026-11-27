@@ -5,6 +5,7 @@ from __future__ import annotations
 import ujson as json
 from nonebot.adapters.onebot.v11 import Message
 from nonebot.params import CommandArg
+from nonebot.permission import SUPERUSER
 from nonebot.plugin import on_command
 from nonebot_plugin_alconna import UniMessage
 
@@ -16,30 +17,40 @@ from ..services import sourceban
 from ..store import groups as groups_store
 from ..store import pages as pages_store
 
-l4_add_ban = on_command("l4_add_ban", aliases={"l4addban", "l4添加组", "l4添加ban"})
+l4_add_ban = on_command(
+    "l4_add_ban",
+    aliases={"l4addban", "l4添加组", "l4添加ban"},
+    permission=SUPERUSER,
+)
 l4_reload_groups = on_command(
     "l4_reload_groups",
     aliases={"l4reloadsb", "l4刷新组"},
+    permission=SUPERUSER,
 )
 l4_list_groups = on_command(
     "l4_list_groups",
     aliases={"l4listgroup", "l4listgroups", "l4列组"},
+    permission=SUPERUSER,
 )
 l4_remove_group = on_command(
     "l4_remove_group",
     aliases={"l4delgroup", "l4删除组"},
+    permission=SUPERUSER,
 )
 l4_remove_page = on_command(
     "l4_remove_page",
     aliases={"l4delpage", "l4删除页"},
+    permission=SUPERUSER,
 )
 l4_export_group = on_command(
     "l4_export_group",
     aliases={"l4exportgroup", "l4导出组"},
+    permission=SUPERUSER,
 )
 l4_export_groups = on_command(
     "l4_export_groups",
     aliases={"l4exportgroups", "l4导出全部组"},
+    permission=SUPERUSER,
 )
 
 

@@ -93,11 +93,23 @@ def list_vpk(map_path: Path) -> list[str]:
 
 
 def split_maohao(msg: str) -> tuple[str, int]:
-    """Parse ``host:port`` string. Defaults to port 20715 if no port given."""
-    if ":" in msg:
-        return msg.split(":")[0], int(msg.split(":")[-1])
-    if "：" in msg:
-        return msg.split("：")[0], int(msg.split("：")[-1])
+    """Parse ``host:port`` string. Defaults to port 20715 if no port given.
+
+    非法输入一律返回 ``("", -1)``，**不抛异常**：这个函数被指令参数、SourceBans
+    网页解析、registry 归一化等十几处调用，任何一处丢脏数据都不该让整次刷新
+    或整条指令崩掉。端口还必须是 1-65535，否则同样按非法处理。
+    """
+    msg = msg.strip()
+    for sep in (":", "："):
+        if sep in msg:
+            host, _, raw_port = msg.rpartition(sep)
+            try:
+                port = int(raw_port)
+            except ValueError:
+                return "", -1
+            if not 0 < port <= 65535:
+                return "", -1
+            return host, port
     if msg.replace(".", "").isdigit():
         return msg, 20715
     return "", -1
